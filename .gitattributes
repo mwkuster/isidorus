@@ -22,14 +22,3 @@ trunk/src/unit_tests/sample_objects.xtm -text
 trunk/src/unit_tests/sample_objects_2_0.xtm -text
 trunk/src/unit_tests/t100.xtm -text
 trunk/src/xml/core_psis.xtm -text
-trunk/src/xml/data_base/%ELEPHANT -text
-trunk/src/xml/data_base/%ELEPHANTDUP -text
-trunk/src/xml/data_base/%ELEPHANTOID -text
-trunk/src/xml/data_base/__db.001 -text
-trunk/src/xml/data_base/__db.002 -text
-trunk/src/xml/data_base/__db.003 -text
-trunk/src/xml/data_base/__db.004 -text
-trunk/src/xml/data_base/__db.005 -text
-trunk/src/xml/data_base/__db.006 -text
-trunk/src/xml/data_base/__db.register -text
-trunk/src/xml/data_base/log.0000000001 -text
