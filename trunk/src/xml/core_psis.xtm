@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+
+
+  <!--
+      Adapted to XTM 2.0 from the XTM 1.0 Spec, http://www.topicmaps.org/xtm/, 2.3.2
+  -->
+ 
+  <!-- begin: XTM core concepts -->
+  <topic id="topic">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#topic"/>
+    <name>
+      <value>topic</value>
+    </name>
+  </topic>
+
+  <topic id="association">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#association"/>
+    <name>
+      <value>association</value>
+    </name>
+  </topic>
+
+  <topic id="occurrence">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#occurrence"/>
+    <name>
+      <value>occurrence</value>
+    </name>
+  </topic>
+
+  <topic id="class-instance">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#class-instance"/>
+    <name>
+      <value>class-instance</value>
+    </name>
+  </topic>
+
+  <topic id="class">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#class"/>
+    <name>
+      <value>class</value>
+    </name>
+  </topic>
+
+  <topic id="superclass-subclass">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#superclass-subclass"/>
+    <name>
+      <value>superclass-subclass</value>
+    </name>
+  </topic>
+
+  <topic id="superclass">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#superclass"/>
+    <name>
+      <value>superclass</value>
+    </name>
+  </topic>
+
+  <topic id="subclass">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#subclass"/>
+    <name>
+      <value>subclass</value>
+    </name>
+  </topic>
+
+  <topic id="sort">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#sort"/>
+    <name>
+      <value>sort</value>
+    </name>
+  </topic>
+
+  <topic id="display">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#display"/>
+    <name>
+      <value>display</value>
+    </name>
+  </topic>
+
+  <topic id="type-instance">
+    <!-- directly from the TMDM, 7.2 -->
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/type-instance"/>
+    <name>
+      <value>type-instance</value>
+    </name>
+  </topic>
+
+  <topic id="type">
+    <!-- directly from the TMDM, 7.2 -->
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/type"/>
+    <name>
+      <value>type</value>
+    </name>
+  </topic>
+
+  <topic id="instance">
+    <!-- directly from the TMDM, 7.2 -->
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/instance"/>
+    <name>
+      <value>instance</value>
+    </name>
+  </topic>
+</topicMap>

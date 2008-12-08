@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+  <!-- a TM that exists for the sole reason of having completely different topics -->
+  <itemIdentity href="http://psi.egovpt.org/tm/egov-ontology"/>
+
+  <topic id="t1_ont">
+    <itemIdentity href="http://psi.egovpt.org/tm/egov-ontology/ii#1"/>
+    <name><value>Test Topic</value></name>
+  </topic>
+</topicMap>

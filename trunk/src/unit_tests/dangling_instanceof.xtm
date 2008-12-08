@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+  <topic id="t1">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t1"/> 
+    <subjectIdentifier href="http://www.networkedplanet.com/psi/npcl/meta-types/topic-type"/>
+    <name><value>Topic Type</value></name>
+  </topic>
+
+  <topic id="t2">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t2"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/service"/>
+    <instanceOf><topicRef href="#t0"/><!-- deliberately wrong --></instanceOf>
+    <name><value>Service</value></name>
+  </topic>
+</topicMap>

@@ -1,0 +1,306 @@
+<topicMap xmlns="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<!-- === topics ================================================== -->
+<!-- object 1, topic -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2502">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2497"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/subject"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Subject</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- object 2, topic -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2526">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2517"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/serviceUsesTechnology"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>service uses technology</t:baseNameString>
+    </t:baseName>
+    <t:baseName>
+      <t:scope>
+	<t:topicRef xlink:href="#t-2555"/>
+      </t:scope>
+      <t:baseNameString>uses technology</t:baseNameString>
+    </t:baseName>
+    <t:baseName>
+      <t:scope>
+	<t:topicRef xlink:href="#t-2593"/>
+      </t:scope>
+      <t:baseNameString>used by service</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- object 3, topic -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-321125">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2504"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/location/Europe"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Europe</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- object 4, topic - with long id -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink" id="t173290849">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2517"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/authorityPartOfAuthority"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Public authority part of another public authority</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- === referenced topics ======================================= -->
+<!-- instanceOf "t-2497" -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2497">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://www.networkedplanet.com/psi/npcl/meta-types/topic-type"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Topic Type</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+
+<!-- references object 2 and object 4, topic -->
+<!-- instanceOf "t-2517"-->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2517">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://www.networkedplanet.com/psi/npcl/meta-types/association-type"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Association Type</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- scope "t-2555"-->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+  	   xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2555">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2548"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/serviceUsesTechnologySource"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>service uses technology source</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+  <!-- references of t-2555 -->
+    <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2548">
+      <t:subjectIdentity>
+        <t:subjectIndicatorRef xlink:href="http://www.networkedplanet.com/psi/npcl/meta-types/association-role-type"/>
+      </t:subjectIdentity>
+      <t:baseName>
+        <t:baseNameString>Association Role Type</t:baseNameString>
+      </t:baseName>
+    </t:topic>
+
+<!-- scope "t-2593", was removed to cause an inconsistency -->
+
+
+<!-- references object 3, topic -->
+<!-- instanceOf "t-2504"-->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2504">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2497"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/location"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Location</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+
+<!-- === associations ============================================ -->
+<!-- object 5, association -->
+  <t:association xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+  		 xmlns:xlink="http://www.w3.org/1999/xlink" id="t6917125631268416075">
+    <t:instanceOf>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/isNarrowerTerm"/>
+    </t:instanceOf>
+    <t:member>
+      <t:roleSpec>
+        <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/broader-term"/>
+      </t:roleSpec>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/subject/all-subjects"/>
+    </t:member>
+    <t:member>
+      <t:roleSpec>
+        <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/narrower-term"/>
+      </t:roleSpec>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/subject/Creation"/>
+    </t:member>
+  </t:association>
+
+<!-- object 6, association -->
+  <t:association xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="a-2660">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2620"/>
+    </t:instanceOf>
+    <t:member>
+      <t:roleSpec>
+        <t:topicRef xlink:href="#t-2622"/>
+      </t:roleSpec>
+      <t:topicRef xlink:href="#t-2557"/>
+    </t:member>
+    <t:member>
+      <t:roleSpec>
+        <t:topicRef xlink:href="#t-2621"/>
+      </t:roleSpec>
+      <t:topicRef xlink:href="#t-2656"/>
+    </t:member>
+  </t:association>
+
+<!-- === references associations ================================= -->
+<!-- assocciation 1, instanceOf -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t89671052499">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/isNarrowerTerm"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Is Narrower Term</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- assocciation 1, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="broader-term">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/broader-term"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Broader Term</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- assocciation 1, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="all-subjects">
+    <t:instanceOf>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/subject"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/subject/all-subjects"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Place holder topic for the top of the hierarchy</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- assocciation 1, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="narrower-term">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/narrower-term"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Narrower Term</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- assocciation 1, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t1106723946">
+    <t:instanceOf>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/subject"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/subject/Creation"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Creation</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- assocciation 2, instanceOf -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2620">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://www.networkedplanet.com/psi/npcl/constraints/rpc-allows-rt"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+<!-- assocciation 2, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2622">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://www.networkedplanet.com/psi/npcl/constraints/rpc-allows-rt-target"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+<!-- assocciation 2, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2557">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2548"/>
+    </t:instanceOf>
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://psi.egovpt.org/types/standardUsedByServiceTarget"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>standard used by service target</t:baseNameString>
+    </t:baseName>
+  </t:topic>
+
+<!-- assocciation 2, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2621">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://www.networkedplanet.com/psi/npcl/constraints/rpc-allows-rt-source"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+<!-- assocciation 2, roleSpec -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2656">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#t-2612"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:instanceOf>
+        <t:topicRef xlink:href="#t-2625"/>
+      </t:instanceOf>
+      <t:resourceData>0</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:instanceOf>
+        <t:topicRef xlink:href="#t-2626"/>
+      </t:instanceOf>
+      <t:resourceData>unbounded</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <!-- references of t-2656 -->
+    <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2612">
+      <t:subjectIdentity>
+        <t:subjectIndicatorRef
+		xlink:href="http://www.networkedplanet.com/psi/npcl/constraints/role-player-constraint"/>
+      </t:subjectIdentity>
+    </t:topic>
+
+    <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2625">
+      <t:subjectIdentity>
+        <t:subjectIndicatorRef
+		xlink:href="http://www.networkedplanet.com/psi/npcl/facets/minimum-cardinality-facet"/>
+      </t:subjectIdentity>
+    </t:topic>
+
+    <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/" xmlns:xlink="http://www.w3.org/1999/xlink" id="t-2626">
+      <t:subjectIdentity>
+        <t:subjectIndicatorRef
+		xlink:href="http://www.networkedplanet.com/psi/npcl/facets/maximum-cardinality-facet"/>
+      </t:subjectIdentity>
+    </t:topic>
+
+</topicMap>

@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+  <topic id="t1">
+    <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t1"/> 
+    <subjectIdentifier href="http://www.networkedplanet.com/psi/npcl/meta-types/topic-type"/>
+    <name><value>Topic Type</value></name>
+  </topic>
+
+  <topic id="t2">
+    <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t2"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/service"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Service</value></name>
+  </topic>
+
+  <topic id="t3">
+    <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t3"/>
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t3"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Standard</value></name>
+  </topic>
+
+  <topic id="t3a">
+    <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t3a"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/semanticstandard"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/greatstandard"/>
+    <instanceOf><topicRef href="#t3"/></instanceOf>
+    <name><value>Semantic Standard</value></name>
+  </topic>  
+
+  <topic id="t50">
+    <subjectIdentifier href="http://psi.egovpt.org/types/links"/>
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t55"/>
+  </topic>
+
+  <topic id="t62">
+    <subjectIdentifier href="http://psi.egovpt.org/types/StandardRoleType"/>
+  </topic>
+
+  <topic id="t63">
+    <subjectIdentifier href="http://psi.egovpt.org/types/ServiceRoleType"/>
+  </topic>
+
+  <topic id="t64">
+    <subjectIdentifier href="http://psi.egovpt.org/types/serviceUsesStandard"/>
+  </topic>
+  
+  <topic id="t101">
+    <subjectIdentifier href="http://psi.egovpt.org/standard/Topic+Maps+2002"/>
+  </topic>
+
+  <topic id="t203">
+    <subjectIdentifier href="http://psi.egovpt.org/subject/GeoData"/>
+  </topic>  
+
+  <topic id="t300">
+    <subjectIdentifier href="http://psi.egovpt.org/service/Norwegian+National+Curriculum"/>
+  </topic>
+
+
+  <topic id="t100">
+    <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t100"/>
+    <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t100_new"/>
+    <subjectIdentifier href="http://psi.egovpt.org/standard/Common+Lisp"/>
+    <instanceOf><topicRef href="#t3"/></instanceOf>
+    <name>
+      <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t100_n1"/>
+      <!-- must be identical to the previous name if we speak about
+           merges -->
+      <value>Common Lisp</value>
+      <variant>
+	<itemIdentity href="http://www.egovpt.org/itemIdentifiers#t100_n_v1"/>
+	<scope>
+	  <topicRef href="#sort"/>
+	  <topicRef href="#t50a"/>
+	</scope>
+	<resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Common-Lisp</resourceData>
+      </variant>
+      <variant>
+	<itemIdentity href="http://www.egovpt.org/itemIdentifiers#t100_n_v2"/>
+	<scope><topicRef href="#display"/></scope>
+	<resourceData datatype="http://www.w3.org/2001/XMLSchema#string">CL</resourceData>
+      </variant>
+    </name>
+    <occurrence>
+      <itemIdentity href="http://www.egovpt.org/itemIdentifiers#t100_o2"/>
+      <type><topicRef href="#t50"/></type>
+      <resourceRef href="http://www.cliki.net/"/>
+    </occurrence>
+  </topic>
+
+  <association>
+    <!-- to be merged with the corresponding associations in
+         notificationbase.xtm and notification_merge2.xtm -->
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#assoc_6"/>
+    <type><topicRef href="#t64"/></type><!-- service uses standard -->
+    <role>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#role_6_1"/>
+      <type><topicRef href="#t63"/></type>
+      <topicRef href="#t300"/> <!-- service: Norwegian Curriculum -->
+    </role>
+    <role>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#role_6_2c"/>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t101"/> <!-- standard: TM -->
+    </role>
+  </association>
+
+ <association>
+    <!-- a variation (but with scope, thus different by TMDM equality
+         rules!) from the corresponding associations in
+         notificationbase.xtm and notification_merge2.xtm -->
+    <type>
+      <topicRef href="#t64"/>
+    </type><!-- service uses standard -->
+    <scope>
+      <topicRef href="#t3a"/> <!-- makes no sense, but who cares... -->
+    </scope>
+    <role>
+      <type><topicRef href="#t63"/></type>
+      <topicRef href="#t300"/> <!-- service: Norwegian Curriculum -->
+    </role>
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t101"/> <!-- standard: TM -->
+    </role>
+  </association>
+
+  <!-- === for existing variants in names =================================== -->
+  <topic id="sort">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#sort"/>
+  </topic>
+
+  <topic id="display">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#display"/>
+  </topic>
+
+  <topic id="t50a">
+    <subjectIdentifier href="http://psi.egovpt.org/types/long-name"/>
+  </topic>
+
+
+</topicMap>

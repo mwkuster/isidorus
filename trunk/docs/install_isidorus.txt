@@ -1,0 +1,111 @@
+=============================================
+Installing Isidorus
+=============================================
+
+Dependencies
+================
+
+ * Berkeley DB 4.5 or 4.6 including its development files
+
+ * sbcl (1.0.17 or newer)
+
+and the following Lisp packages:
+
+Elephant
+----------------
+
+Install the persistence framework elephant in its unstable version
+
+darcs get http://www.common-lisp.net/project/elephant/darcs/elephant-unstable/
+
+Also install all of its dependencies as described in elephant_install.txt. In particular these are:
+
+ * (asdf-install:install 'CL-BASE64)
+ * (asdf-install:install 'uffi) 
+
+For uffi you need the libc development files (libc6-dev linux-libc-dev
+zlib1g-dev under Linux). Under Ubuntu both packages exist also as
+Debian packages. Cf. also http://uffi.b9.com/
+
+Configure elephant for your platform in my-config.sexp and link its
+asd-files to the system-wide install
+
+
+cxml
+-------
+
+CL-USER> (asdf:operate 'asdf:load-op 'asdf-install)
+CL-USER> (asdf-install:install 'cxml)
+
+uuid
+--------
+
+Download the ironclad library from
+http://www.method-combination.net/lisp/files/ironclad.tar.gz and link the asd-file to
+the sbcl system path. Ironclad is a prerequisite for the UUID library
+
+Download the UUID library from http://dardoria.net/software/uuid.tar.gz
+and link the asd-file to the sbcl system path
+
+fiveam (unittests)
+-------------------
+
+CL-USER> (asdf-install:install 'fiveam)
+
+Under Ubuntu Linux, fiveam exists also as a Debian package.
+
+Installing pathnames
+---------------------
+
+Pathnames is part of Seibel's libraries (http://www.gigamonkeys.com/book/) and
+included with isidorus under src/external. Link the asd-file to the sbcl system path.
+
+Hunchentoot
+--------------
+
+Hunchentoot (http://www.weitz.de/hunchentoot/) is also
+asdf-install'able:
+
+(asdf-install:install 'hunchentoot)
+
+It requires a significant number of auxiliary libraries and the
+installation hung once during the process. I installed a few libraries
+manually then:
+
+ * CL-PPCRE
+ * CL-FAD
+
+On restart, the installation completed correctly
+
+Test: 
+  (asdf:oos 'asdf:load-op :hunchentoot-test)
+  (hunchentoot:start-server :port 4242)
+
+cl-json
+---------
+
+Download the parenscript library:
+
+darcs get http://common-lisp.net/project/ucw/repos/parenscript 
+
+Link the asd-file to the sbcl system path.
+
+Download the cl-json library:
+
+darcs get http://common-lisp.net/project/cl-json/darcs/cl-json
+
+Link the asd-file to the sbcl system path.
+
+
+Drakma
+---------
+
+Drakma (http://weitz.de/drakma) also follows the same pattern:
+
+(asdf-install:install 'drakma)
+
+
+Starting Isidorus
+=====================
+
+(asdf:operate 'asdf:load-op 'isidorus)

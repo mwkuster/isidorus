@@ -1,0 +1,32 @@
+A (most likely incomplete) list of ToDos we are aware of:
+========================================================= 
+
+* "poor man's transactions": remember imported topics + assocs and remove 
+  them again if the general import fails later. Or, even better, make use of
+  transaction support in elephant if and when the backend supports it in a way
+  we can use.
+
+* reverse hack with removed '#' in references
+ 
+* handle multiple TMs in one repository
+
+    Possible approaches:
+  
+     * use the TMDM approach and link topics to a TM object
+
+     * just use a name similar to the tm-id. we then need two ids, one
+       for the concrete name of the import and another one for the
+       logical name of the TM
+     
+* reifier: the one missing link to 100% import compatibility...
+
+* admin interface for the 
+
+    * configuration of the sytem: import and export of feeds
+      etc. incl. consolidation of the present feed configuration
+
+    * creation and display of topics and associations
+
+* TMCL: implement a constraint language --- but the one under ISO
+     FCD ballot, see http://www.itscj.ipsj.or.jp/sc34/open/1053.pdf or
+     NPCL? Or adapt SPARQL?

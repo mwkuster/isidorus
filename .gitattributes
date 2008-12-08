@@ -1,1 +1,35 @@
 * text=auto !eol
+trunk/docs/TODOs.txt svneol=native#text/plain
+trunk/docs/collection_feed.png -text svneol=unset#image/png
+trunk/docs/fragments_feed.png -text svneol=unset#image/png
+trunk/docs/install_isidorus.txt svneol=native#text/plain
+trunk/docs/isidorus_classes.pdf -text svneol=unset#application/pdf
+trunk/docs/overview_feed.png -text svneol=unset#image/png
+trunk/docs/snapshots_feed.png -text svneol=unset#image/png
+trunk/src/external/PRACTICALS_LICENSE -text
+trunk/src/external/pathnames.asd -text
+trunk/src/isidorus.asd -text
+trunk/src/unit_tests/atom_test.xtm -text
+trunk/src/unit_tests/dangling_instanceof.xtm -text
+trunk/src/unit_tests/dangling_topicref.xtm -text
+trunk/src/unit_tests/duplicate_identifier.xtm -text
+trunk/src/unit_tests/inconsistent.xtm -text
+trunk/src/unit_tests/inconsistent_2_0.xtm -text
+trunk/src/unit_tests/notification_merge1.xtm -text
+trunk/src/unit_tests/notification_merge2.xtm -text
+trunk/src/unit_tests/notificationbase.xtm -text
+trunk/src/unit_tests/sample_objects.xtm -text
+trunk/src/unit_tests/sample_objects_2_0.xtm -text
+trunk/src/unit_tests/t100.xtm -text
+trunk/src/xml/core_psis.xtm -text
+trunk/src/xml/data_base/%ELEPHANT -text
+trunk/src/xml/data_base/%ELEPHANTDUP -text
+trunk/src/xml/data_base/%ELEPHANTOID -text
+trunk/src/xml/data_base/__db.001 -text
+trunk/src/xml/data_base/__db.002 -text
+trunk/src/xml/data_base/__db.003 -text
+trunk/src/xml/data_base/__db.004 -text
+trunk/src/xml/data_base/__db.005 -text
+trunk/src/xml/data_base/__db.006 -text
+trunk/src/xml/data_base/__db.register -text
+trunk/src/xml/data_base/log.0000000001 -text

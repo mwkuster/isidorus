@@ -1,0 +1,546 @@
+<?xml version="1.0"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+  <topic id="t1">
+    <!-- functions as source locator (does this make a lot of sense
+         for items from the ontology itself? And indeed for topics in
+         general which have their PSI? -->
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t1"/> 
+    <subjectIdentifier href="http://www.networkedplanet.com/psi/npcl/meta-types/topic-type"/>
+    <name><value>Topic Type</value></name>
+  </topic>
+
+  <topic id="t2">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t2"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/service"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Service</value></name>
+  </topic>
+
+  <topic id="t3">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t3"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/standard"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Standard</value></name>
+  </topic>
+
+  <topic id="t3a">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t3a"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/semanticstandard"/>
+    <instanceOf><topicRef href="#t3"/></instanceOf>
+    <name><value>Semantic Standard</value></name>
+  </topic>  
+
+  <topic id="t3b">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t3b"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/technicalstandard"/>
+    <instanceOf><topicRef href="#t3"/></instanceOf>
+    <name><value>Technical Standard</value></name>
+  </topic>  
+
+  <topic id="t4">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t4"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/subject"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Subject</value></name>
+  </topic>
+  
+  <topic id="t6">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t6"/>
+    <subjectIdentifier href="http://www.networkedplanet.com/psi/npcl/meta-types/occurrence-type"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Occurrence Type</value></name>
+  </topic>
+
+  <topic id="t7">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t7"/>
+    <subjectIdentifier href="http://www.networkedplanet.com/psi/npcl/meta-types/association-type"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Association Type</value></name>
+  </topic>
+
+  <topic id="t8">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t8"/>
+    <subjectIdentifier href="http://www.networkedplanet.com/psi/npcl/meta-types/association-role-type"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Association Role Type</value></name>
+  </topic>
+  
+  <!-- rudimentary taxonomies -->
+  <topic id="t50">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t50"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/topicInTaxonomy"/>
+    <instanceOf><topicRef href="#t1"/></instanceOf>
+    <name><value>Topic used in this rudimentary taxonomy</value></name>
+  </topic>
+
+  <topic id="t50a">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t50a"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/long-name"/>
+    <instanceOf><topicRef href="#t6"/></instanceOf>
+    <name>
+      <value>long version of a name</value>
+      <variant>
+	<scope><topicRef href="#sort"/></scope>
+	<resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Long-Version</resourceData>
+      </variant>
+    </name>
+  </topic>
+
+
+  <topic id="t51">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t51"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/standardHasStatus"/>
+    <instanceOf><topicRef href="#t6"/></instanceOf>
+    <name><value>Standard has a given status</value></name>
+  </topic>
+
+  <topic id="t52">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t52"/>
+    <subjectIdentifier href="http://psi.egovpt.org/status/InternationalStandard"/>
+    <instanceOf><topicRef href="#t50"/></instanceOf>
+    <name><value>International Standard</value></name>
+  </topic>
+
+  <topic id="t53">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t53"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/description"/>
+    <instanceOf><topicRef href="#t6"/></instanceOf>
+    <name><value>Topic has a given description</value></name>
+  </topic>
+
+  <topic id="t54">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t54"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/standardValidFromDate"/>
+    <instanceOf><topicRef href="#t6"/></instanceOf>
+    <name><value>Standard is valid from a given date</value></name>
+  </topic>
+
+  <topic id="t55">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t55"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/links"/>
+    <instanceOf><topicRef href="#t6"/></instanceOf>
+    <name><value>Links pertinent to this URL</value></name>
+  </topic>
+
+  <topic id="t56">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t56"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/topicIsAboutSubject"/>
+    <instanceOf>
+      <topicRef href="#t7"/>
+    </instanceOf>
+    <name>
+      <value>topic is about subject</value>
+    </name>
+  </topic>
+
+  <topic id="t57">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t57"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/isNarrowerSubject"/>
+    <instanceOf>
+      <topicRef href="#t7"/>
+    </instanceOf>
+    <name>
+      <value>subject is narrower than the other one</value>
+    </name>
+  </topic>
+
+  <topic id="t58">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t58"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/narrowerSubject"/>
+    <instanceOf>
+      <topicRef href="#t8"/>
+    </instanceOf>
+    <name>
+      <value>subject is narrower than the other one</value>
+    </name>
+  </topic>
+
+  <topic id="t59">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t59"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/broaderSubject"/>
+    <instanceOf>
+      <topicRef href="#t8"/>
+    </instanceOf>
+    <name>
+      <value>subject is broader than the other one</value>
+    </name>
+  </topic>
+
+  <topic id="t60">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t60"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/standardIsAboutSubject"/>
+    <instanceOf>
+      <topicRef href="#t7"/>
+    </instanceOf>
+    <name>
+      <value>standard is about subject</value>
+    </name>
+  </topic>
+
+  <topic id="t61">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t61"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/SubjectRoleType"/>
+    <instanceOf>
+      <topicRef href="#t8"/>
+    </instanceOf>
+    <name>
+      <value>role is subject</value>
+    </name>
+  </topic>
+
+  <topic id="t62">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t62"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/StandardRoleType"/>
+    <instanceOf>
+      <topicRef href="#t8"/>
+    </instanceOf>
+    <name>
+      <value>role is standard</value>
+    </name>
+  </topic>
+
+  <topic id="t63">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t63"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/ServiceRoleType"/>
+    <instanceOf>
+      <topicRef href="#t8"/>
+    </instanceOf>
+    <name>
+      <value>role is service</value>
+    </name>
+  </topic>
+
+
+  <topic id="t64">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t64"/>
+    <subjectIdentifier href="http://psi.egovpt.org/types/serviceUsesStandard"/>
+    <instanceOf>
+      <topicRef href="#t7"/>
+    </instanceOf>
+    <name>
+      <value>service uses standard</value>
+    </name>
+  </topic>
+
+  <!-- A few standards -->
+  <topic id="t100">
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100"/>
+    <subjectIdentifier href="http://psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata"/>
+    <instanceOf><topicRef href="#t3a"/></instanceOf>
+    <name>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_n1"/>
+      <value>ISO 19115</value>
+      <variant>
+	<itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_n1_v1"/>
+	<scope><topicRef href="#display"/></scope>
+	<resourceData>Geographic Information - Metadata</resourceData>
+      </variant>
+      <variant>
+	<itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_n1_v2"/>
+	<scope><topicRef href="#sort"/></scope>
+	<resourceData>ISO-19115</resourceData>
+      </variant>
+    </name>
+    <occurrence>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_o1"/>
+      <type><topicRef href="#t51"/></type>
+      <resourceRef href="http://www.budabe.de/"/>
+    </occurrence>
+    <occurrence>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_o2"/>
+      <type><topicRef href="#t53"/></type>
+      <resourceData
+          datatype="http://www.w3.org/2001/XMLSchema#string">The ISO 19115 standard ...</resourceData>
+    </occurrence>
+    <occurrence>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_o3"/>
+      <type><topicRef href="#t54"/></type>
+      <resourceData datatype="http://www.w3.org/2001/XMLSchema#date">2003-01-01</resourceData>
+    </occurrence>
+    <occurrence>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t100_o4"/>
+      <type><topicRef href="#t55"/></type>
+      <resourceRef href="http://www.editeur.org/standards/ISO19115.pdf"/>
+    </occurrence>
+  </topic>
+
+  <topic id="t101">
+    <subjectIdentifier href="http://psi.egovpt.org/standard/Topic+Maps+2002"/>
+    <instanceOf>
+      <topicRef href="#t3a"/><!-- semantic standard -->
+    </instanceOf>
+    <name>
+      <value>Topic Maps 2002</value>
+    </name>
+    <name>
+      <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t101_n2"/>
+      <type>
+        <!-- doesn't make a lot of sense, only for testing -->
+        <topicRef href="#t50a"/>
+      </type>
+      <scope>
+        <topicRef href="#t50a"/><!-- long name -->
+      </scope>
+      <value>ISO/IEC 13250:2002: Topic Maps</value>
+      <variant>
+	<itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t101_n2_v1"/>
+	<scope><topicRef href="#sort"/></scope>
+	<resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ISO/IEC-13250:2002</resourceData>
+      </variant>
+      <variant>
+	<itemIdentity href="http://psi.egovpt.org/itemIdentifiers#t101_n2_v2"/>
+	<scope><topicRef href="#sort"/></scope>
+	<resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ISO/IEC-13250:2002</resourceData>
+      </variant><!-- should be merged with the first variant and have 2 itemIdentity-elements -->
+    </name>
+    <occurrence>
+      <type>
+        <topicRef href="#t51"/><!-- standard has status -->
+      </type>
+      <resourceRef href="#t52"/><!-- is this a good way to model the relationship? borrowed as is from the demonstrator -->
+    </occurrence>
+    <occurrence>
+      <type>
+        <topicRef href="#t53"/><!-- description -->
+      </type>
+      <resourceData>This International Standard provides a
+      standardized notation for interchangeably representing
+      information about the structure of information resources used to
+      define topics, and the relationships between topics. A set of
+      one or more interrelated documents that employs the notation
+      defined by this International Standard is called a topic map. In
+      general, the structural information conveyed by topic maps
+      includes:&#13; &#8212; groupings of addressable information
+      objects around topics (&#8216;occurrences&#8217;), and&#13;
+      &#8212; relationships between topics
+      (&#8216;associations&#8217;).</resourceData>
+    </occurrence>
+    <occurrence>
+      <type><topicRef href="#t54"/></type>
+      <resourceData datatype="//www.w3.org/2001/XMLSchema#date">2002-05-19</resourceData>
+    </occurrence>
+    <occurrence>
+      <type>
+        <topicRef href="#t55"/>
+      </type>
+      <resourceRef href="http://www1.y12.doe.gov/capabilities/sgml/sc34/document/0322_files/iso13250-2nd-ed-v2.pdf"/>
+    </occurrence>
+  </topic>
+
+  <!-- A few subjects -->
+  <topic id="t200">
+    <subjectIdentifier href="http://psi.egovpt.org/subject/Web+Services"/>
+    <instanceOf><topicRef href="#t4"/></instanceOf>
+    <name>
+      <value>Web Services</value>
+    </name>
+  </topic>
+
+  <topic id="t201">
+    <subjectIdentifier href="http://psi.egovpt.org/subject/Semantic+Description"/>
+    <instanceOf><topicRef href="#t4"/></instanceOf>
+    <name>
+      <value>Semantic Description</value>
+    </name>
+  </topic>
+
+  <topic id="t202">
+    <subjectIdentifier href="http://psi.egovpt.org/subject/Data"/>
+    <instanceOf><topicRef href="#t4"/></instanceOf>
+    <name>
+      <value>Types of data</value>
+    </name>
+  </topic>
+
+  <topic id="t203">
+    <subjectIdentifier href="http://psi.egovpt.org/subject/GeoData"/>
+    <instanceOf><topicRef href="#t4"/></instanceOf>
+    <name>
+      <value>Geographic Data</value>
+    </name>
+  </topic>
+
+  <topic id="t204">
+    <subjectIdentifier href="http://psi.egovpt.org/subject/Legal+Data"/>
+    <instanceOf><topicRef href="#t4"/></instanceOf>
+    <name>
+      <value>Legal data</value>
+    </name>
+  </topic>
+
+
+  <!-- A few services -->
+  <topic id="t300">
+    <subjectIdentifier href="http://psi.egovpt.org/service/Norwegian+National+Curriculum"/>
+    <instanceOf>
+      <topicRef href="#t2"/>
+    </instanceOf>
+    <name><value>Norwegian National Curriculum</value></name>
+    <occurrence>
+      <type><topicRef href="#t53"/></type>
+      <resourceData>Normative version of the national Norwegian curriculum</resourceData>
+    </occurrence>
+    <occurrence>
+      <type><topicRef href="#t55"/></type>
+      <resourceRef href="http://www.udir.no"/>
+    </occurrence>
+  </topic>
+
+  <topic id="t301">
+    <subjectIdentifier href="http://psi.egovpt.org/service/Google+Maps"/>
+    <instanceOf>
+      <topicRef href="#t2"/>
+    </instanceOf>
+    <name>
+      <scope><topicRef href="#t50a"/></scope>
+      <value>Google Maps</value>
+    </name>
+    <occurrence>
+      <type><topicRef href="#t53"/></type>
+      <resourceData><div xmlns="http://www.w3.org/1999/xhtml"><p>a popular geodata service that is widely used for mashups with geodata</p><p>Probably not really conformant to ISO 19115, but who cares in this context.</p></div></resourceData>
+    </occurrence>
+    <occurrence>
+      <type><topicRef href="#t55"/></type>
+      <resourceRef href="http://maps.google.com"/>
+    </occurrence>
+  </topic>
+
+  <topic id="t301a">
+    <!-- exists for the sole purpose of being merged with t301 -->
+    <subjectIdentifier href="http://psi.egovpt.org/service/Google+Maps"/>
+    <subjectIdentifier href="http://maps.google.com"/>
+    <name>
+      <itemIdentity href="http://psi.egovpt.org/topic/t301a_n1"/>
+      <scope><topicRef href="#t50a"/></scope>
+      <value>Google Maps</value>
+    </name>
+    <name>
+      <scope>
+        <topicRef href="#t50a"/><!-- long name -->
+      </scope>
+      <value>Google Maps Application</value>
+    </name>
+    <occurrence>
+      <type><topicRef href="#t55"/></type>
+      <resourceRef href="http://maps.google.de"/>
+    </occurrence>
+  </topic>
+
+  <!-- A few associations -->
+  <association>
+    <type><topicRef href="#t57"/></type>
+    <role>
+      <type><topicRef href="#t59"/></type>
+      <topicRef href="#t202"/> <!-- subject: data -->
+    </role>
+    <role>
+      <type><topicRef href="#t58"/></type>
+      <topicRef href="#t203"/> <!-- subject: geodata -->
+    </role>
+  </association>
+
+  <association>
+    <type><topicRef href="#t57"/></type>
+    <role>
+      <type><topicRef href="#t59"/></type>
+      <topicRef href="#t202"/> <!-- subject: data -->
+    </role>
+    <role>
+      <type><topicRef href="#t58"/></type>
+      <topicRef href="#t204"/> <!-- subject: legal data -->
+    </role>
+  </association>
+
+  <association>
+    <type><topicRef href="#t60"/></type><!-- standard is about subject -->
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t100"/> <!-- standard: geodata -->
+    </role>
+    <role>
+      <type><topicRef href="#t61"/></type>
+      <topicRef href="#t203"/> <!-- subject: geodata -->
+    </role>
+  </association>
+
+  <association>
+    <type><topicRef href="#t60"/></type><!-- standard is about subject -->
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t100"/> <!-- standard: geodata -->
+    </role>
+    <role>
+      <type><topicRef href="#t61"/></type>
+      <topicRef href="#t201"/> <!-- subject: semantic description -->
+    </role>
+  </association>
+
+  <association>
+    <type><topicRef href="#t60"/></type><!-- standard is about subject -->
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t101"/> <!-- standard: TM -->
+    </role>
+    <role>
+      <type><topicRef href="#t61"/></type>
+      <topicRef href="#t201"/> <!-- subject: semantic description -->
+    </role>
+  </association>
+
+  <association>
+    <type><topicRef href="#t64"/></type><!-- service uses standard -->
+    <role>
+      <type><topicRef href="#t63"/></type>
+      <topicRef href="#t300"/> <!-- service: Norwegian Curriculum -->
+    </role>
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t101"/> <!-- standard: TM -->
+    </role>
+  </association>
+  
+  <association>
+    <type><topicRef href="#t64"/></type><!-- service uses standard -->
+    <role>
+      <type><topicRef href="#t63"/></type>
+      <topicRef href="#t301a"/> <!-- service: Google Maps, deliberately its second topicid  -->
+    </role>
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t100"/> <!-- standard: GeoData -->
+    </role>
+  </association>
+
+  <association> <!-- deliberately duplicated association to test merging -->
+    <itemIdentity href="http://psi.egovpt.org/itemIdentifiers#assoc_7"/>
+    <type><topicRef href="#t64"/></type><!-- service uses standard -->
+    <role>
+      <type><topicRef href="#t63"/></type>
+      <topicRef href="#t301a"/> <!-- service: Google Maps, deliberately its second topicid  -->
+    </role>
+    <role>
+      <type><topicRef href="#t62"/></type>
+      <topicRef href="#t100"/> <!-- standard: GeoData -->
+    </role>
+  </association>
+
+
+
+
+  <!-- === for existing variants in names =================================== -->
+  <topic id="sort">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#sort"/>
+    <name>
+      <value>sort</value>
+    </name>
+  </topic>
+
+  <topic id="display">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#display"/>
+    <name>
+      <value>display</value>
+    </name>
+  </topic>
+
+
+</topicMap>
