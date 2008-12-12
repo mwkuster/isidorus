@@ -113,7 +113,9 @@
 				     "json"))
 	       (:module "json"
 	                :components ((:file "json_exporter"))
-	                :depends-on ("model")))
+	                :depends-on ("model"))
+	       (:module "threading"
+			:components ((:file "reader-writer"))))
   :depends-on (:cxml
                :drakma
 	       :elephant

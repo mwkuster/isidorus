@@ -1,0 +1,9 @@
+trunk/src/*.fasl
+trunk/src/atom/*.fasl
+trunk/src/external/*.fasl
+trunk/src/json/*.fasl
+trunk/src/model/*.fasl
+trunk/src/rest_interface/*.fasl
+trunk/src/threading/*.fasl
+trunk/src/unit_tests/*.fasl
+trunk/src/xml/*.fasl
