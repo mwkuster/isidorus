@@ -1,24 +1,24 @@
 * text=auto !eol
-trunk/docs/TODOs.txt svneol=native#text/plain
-trunk/docs/collection_feed.png -text svneol=unset#image/png
-trunk/docs/fragments_feed.png -text svneol=unset#image/png
-trunk/docs/install_isidorus.txt svneol=native#text/plain
-trunk/docs/isidorus_classes.pdf -text svneol=unset#application/pdf
-trunk/docs/overview_feed.png -text svneol=unset#image/png
-trunk/docs/snapshots_feed.png -text svneol=unset#image/png
-trunk/src/external/PRACTICALS_LICENSE -text
-trunk/src/external/pathnames.asd -text
-trunk/src/isidorus.asd -text
-trunk/src/unit_tests/atom_test.xtm -text
-trunk/src/unit_tests/dangling_instanceof.xtm -text
-trunk/src/unit_tests/dangling_topicref.xtm -text
-trunk/src/unit_tests/duplicate_identifier.xtm -text
-trunk/src/unit_tests/inconsistent.xtm -text
-trunk/src/unit_tests/inconsistent_2_0.xtm -text
-trunk/src/unit_tests/notification_merge1.xtm -text
-trunk/src/unit_tests/notification_merge2.xtm -text
-trunk/src/unit_tests/notificationbase.xtm -text
-trunk/src/unit_tests/sample_objects.xtm -text
-trunk/src/unit_tests/sample_objects_2_0.xtm -text
-trunk/src/unit_tests/t100.xtm -text
-trunk/src/xml/core_psis.xtm -text
+docs/TODOs.txt svneol=native#text/plain
+docs/collection_feed.png -text svneol=unset#image/png
+docs/fragments_feed.png -text svneol=unset#image/png
+docs/install_isidorus.txt svneol=native#text/plain
+docs/isidorus_classes.pdf -text svneol=unset#application/pdf
+docs/overview_feed.png -text svneol=unset#image/png
+docs/snapshots_feed.png -text svneol=unset#image/png
+src/external/PRACTICALS_LICENSE -text
+src/external/pathnames.asd -text
+src/isidorus.asd -text
+src/unit_tests/atom_test.xtm -text
+src/unit_tests/dangling_instanceof.xtm -text
+src/unit_tests/dangling_topicref.xtm -text
+src/unit_tests/duplicate_identifier.xtm -text
+src/unit_tests/inconsistent.xtm -text
+src/unit_tests/inconsistent_2_0.xtm -text
+src/unit_tests/notification_merge1.xtm -text
+src/unit_tests/notification_merge2.xtm -text
+src/unit_tests/notificationbase.xtm -text
+src/unit_tests/sample_objects.xtm -text
+src/unit_tests/sample_objects_2_0.xtm -text
+src/unit_tests/t100.xtm -text
+src/xml/core_psis.xtm -text
