@@ -18,7 +18,7 @@
 engine for this Topic Map"
   (let*
       ((tm (get-item-by-item-identifier tm-id :revision 0))
-       (tops-and-assocs (union (topics tm) (associations tm)))
+       (tops-and-assocs (when tm (union (topics tm) (associations tm))))
        (revision-set nil))
     ;(format t "tops-and-assocs: ~a~&" (mapcan #'versions tops-and-assocs))
     (dolist (vi (mapcan #'versions tops-and-assocs))

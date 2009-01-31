@@ -90,10 +90,12 @@ successful. Throws an error otherwise"
  (let
       ((feed (read-snapshots-feed snapshot-feed-url))
        (revision (get-revision)))
+   (format t "~s" (string-max (mapcar #'atom:updated (atom:entries feed))))
    (let*
-       ((entry 
+       ((most-recent-update (string-max (mapcar #'atom:updated (atom:entries feed))))
+	(entry 
 	 (find
-	  (string-max (mapcar #'atom:updated (atom:entries feed)))
+	  most-recent-update
 	  (atom:entries feed) :key #'updated :test #'string=))
         (xtm-id (id entry)))
      ;;that *should* be the algorithm...

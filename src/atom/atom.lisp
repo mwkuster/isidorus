@@ -129,7 +129,9 @@ in the in-feed macro"
   (:documentation "Register an entry for a given feed"))
 
 (defmethod register-entry ((feed feed) (entry entry))
-  (push entry (entries feed)))
+  (format t "feed: ~s; entry: ~s" feed entry)
+  (push entry (slot-value feed 'entries))
+  (format t "entries of ~s: ~s" feed (slot-value feed 'entries)))
 
 (defgeneric register-subfeed (feed subfeed)
   (:documentation "Register a subfeed for a given feed"))
