@@ -44,14 +44,14 @@ successful. Throws an error otherwise"
         (read-url snapshot-feed-url)))
     (parse-snapshots-feed snapshot-feed)))
 
-(defun import-fragments-feed (fragment-feed-url imported-snapshot-entry)
+(defun import-fragments-feed (tm-id fragment-feed-url imported-snapshot-entry)
   ;a bit of a borderline case if that should be here or in the
   ;importer. Since it deals with the network interface, I think it
   ;makes sense to have it here, though
   (let
       ((feed (read-fragments-feed fragment-feed-url)) 
        (revision (d:get-revision)))
-    (loop for entry in (atom:entries feed) do
+    (loop for entry in (slot-value feed 'atom:entries) do
          (let
              ((top  (d:get-item-by-psi (psi entry) :revision revision)) 
               (xtm-id (atom:id entry))
@@ -61,11 +61,11 @@ successful. Throws an error otherwise"
            (unless (or (xtm-id-p xtm-id) (string> (atom:updated entry) (atom:updated imported-snapshot-entry)))
              (when top
                (mark-as-deleted top :source-locator source-locator :revision revision))
-	     (format t "Fragment feed: ~a~&" (link entry))
+	     ;(format t "Fragment feed: ~a~&" (link entry))
              (importer-xtm1.0 
               (dom:document-element
                (cxml:parse-rod (read-url (link entry)) (cxml-dom:make-dom-builder)))
-              :xtm-id xtm-id :revision revision)
+              :tm-id tm-id :xtm-id xtm-id :revision revision)
              ;the consequence of the algorithm is to add the source
              ;locator + a suitable internal id as an identifier to all
              ;characteristics and associations that don't already have
@@ -83,20 +83,19 @@ successful. Throws an error otherwise"
     (t 
      (string-max (rest string-list) max))))
 
-(defun import-snapshots-feed (snapshot-feed-url)
+(defun import-snapshots-feed (tm-id snapshot-feed-url)
   ;this finds the most recent snapshot and imports that. It returns the entry
   ;corresponding to that snapshot
 
  (let
       ((feed (read-snapshots-feed snapshot-feed-url))
        (revision (get-revision)))
-   (format t "~s" (string-max (mapcar #'atom:updated (atom:entries feed))))
    (let*
-       ((most-recent-update (string-max (mapcar #'atom:updated (atom:entries feed))))
+       ((most-recent-update (string-max (mapcar #'atom:updated (slot-value feed 'atom:entries))))
 	(entry 
 	 (find
 	  most-recent-update
-	  (atom:entries feed) :key #'updated :test #'string=))
+	  (slot-value feed 'atom:entries) :key #'updated :test #'string=))
         (xtm-id (id entry)))
      ;;that *should* be the algorithm...
      ;;    If a client has a local topic map that contains topic map
@@ -110,6 +109,7 @@ successful. Throws an error otherwise"
        (importer-xtm1.0
         (dom:document-element
          (cxml:parse-rod (read-url (link entry)) (cxml-dom:make-dom-builder)))
+        :tm-id tm-id
         :xtm-id xtm-id :revision revision))
      entry)))
 
@@ -143,15 +143,18 @@ necessary and then applies all fragments to it"
 	  ((dependent-feed-url 
 	    (xpath-fn-string dependency-elem)))
 	(unless (find dependent-feed-url processed-feed-urls)
+          (format t "Recursively processing feed ~a~&" dependent-feed-url)
 	  (import-tm-feed dependent-feed-url (append processed-feed-urls feed-url)))))
 	      
 
     (let
 	((imported-snapshot-entry
 	  (import-snapshots-feed 
+           feed-url
 	   (get-attribute snapshot-feed-link-elem "href"))))
       (assert imported-snapshot-entry)
       (import-fragments-feed 
+       feed-url
        (get-attribute fragment-feed-link-elem "href")
        imported-snapshot-entry))))
     
