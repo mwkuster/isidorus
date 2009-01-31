@@ -132,7 +132,7 @@
   ;;test configuration
   ;(defparameter *tm-feed* nil)
   (setf atom:*base-url* "http://london.ztt.fh-worms.de:8000")
-  (load "atom/conf.lisp"))
+  (load *atom-conf.lisp*))
 
 (def-fixture atom-test-db ()
   (setf *XTM-TM* *NOTIFICATIONBASE-TM*)

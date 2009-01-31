@@ -80,6 +80,7 @@
 				     (:static-file "sample_objects.xtm")             
 				     (:static-file "t100.xtm")
 				     (:static-file "atom_test.xtm")
+				     (:file "atom-conf")
 				     (:file "unittests-constants"
 					    :depends-on ("dangling_topicref.xtm"
 							 "inconsistent.xtm"               
@@ -91,7 +92,8 @@
 							 "duplicate_identifier.xtm"       
 							 "inconsistent_2_0.xtm"           
 							 "sample_objects.xtm"             
-							 "t100.xtm"))
+							 "t100.xtm"
+							 "atom-conf"))
 				     (:file "fixtures"
 					    :depends-on ("unittests-constants"))
 				     (:file "importer_test"

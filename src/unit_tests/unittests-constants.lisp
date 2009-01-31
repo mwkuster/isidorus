@@ -18,7 +18,8 @@
 	   :*inconsistent_2_0.xtm*           
 	   :*sample_objects.xtm*             
 	   :*t100.xtm*
-	   :*atom_test.xtm*))
+	   :*atom_test.xtm*
+	   :*atom-conf.lisp*))
 
 (in-package :unittests-constants)
 
@@ -75,3 +76,7 @@
 (defparameter *atom_test.xtm*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "atom_test.xtm")))
+
+(defparameter *atom-conf.lisp*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "atom-conf")))

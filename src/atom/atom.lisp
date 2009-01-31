@@ -2,7 +2,7 @@
   (:use :cl :cxml :constants :xml-tools :datamodel :drakma)
   (:export :collection-feed
            :defsite
-           :depends-on
+           :dependency
            :entries
            :feed
            :feed-to-elem

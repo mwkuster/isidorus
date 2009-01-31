@@ -68,7 +68,7 @@
            :id (get-confvalue 'id (rest feed))
            :title (get-confvalue 'title (rest feed))
            :source-locator-prefix source-locator-prefix
-           :depends-on (get-conflist 'depends-on (rest feed))
+           :dependency (get-conflist 'dependency (rest feed))
            :author (get-confvalue 'author (rest feed))
            :path collection-url)))
       

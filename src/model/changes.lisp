@@ -26,6 +26,7 @@ engine for this Topic Map"
       (pushnew (start-revision vi) revision-set))
     (sort revision-set #'<)))
 
+
 (defun find-associations-for-topic (top)
   "find all associations of this topic"
   (let

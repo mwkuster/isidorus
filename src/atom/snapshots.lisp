@@ -16,6 +16,7 @@
   (to-link (link entry) "alternate" "application/x-tm+xml;version=1.0"))
 
 (defmethod feed-to-elem ((feed snapshots-feed))
+  (setf (updated feed) (get-most-recent-datetime-for-tm (tm-id feed)))
   (to-elem "e:ServerSrcLocatorPrefix" (source-locator-prefix feed)))
 
 (defmethod entries ((feed snapshots-feed))

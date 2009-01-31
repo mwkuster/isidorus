@@ -1,8 +1,8 @@
 (in-package :atom)
 
 (defclass collection-feed (feed)
-  ((depends-on :accessor depends-on 
-               :initarg :depends-on :initform nil
+  ((dependency :accessor dependency 
+               :initarg :dependency :initform nil
                :type list
                :documentation "URLs of the feeds that this feed depends on")
    (source-locator-prefix 
@@ -12,8 +12,8 @@
 
 (defmethod feed-to-elem ((feed collection-feed))
   (setf (updated feed) (get-most-recent-datetime-for-tm (id feed)))
-  (when (depends-on feed)
-    (to-elem "e:depends-on" (depends-on feed))))
+  (dolist (dependency (dependency feed))
+    (to-elem "e:dependency" dependency)))
 
 (defclass collection-entry (entry)
   ((link-type :accessor link-type

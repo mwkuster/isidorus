@@ -19,6 +19,7 @@
   (to-elem "e:TopicSI" (psi entry)))
 
 (defmethod feed-to-elem ((feed fragments-feed))
+  (setf (updated feed) (get-most-recent-datetime-for-tm (tm-id feed)))
   (to-elem "e:ServerSrcLocatorPrefix" (source-locator-prefix feed)))
 
 (defmethod entries ((feed fragments-feed))
