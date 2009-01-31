@@ -44,7 +44,7 @@ successful. Throws an error otherwise"
         (read-url snapshot-feed-url)))
     (parse-snapshots-feed snapshot-feed)))
 
-(defun import-fragments-feed (tm-id fragment-feed-url imported-snapshot-entry)
+(defun import-fragments-feed (fragment-feed-url imported-snapshot-entry &key tm-id)
   ;a bit of a borderline case if that should be here or in the
   ;importer. Since it deals with the network interface, I think it
   ;makes sense to have it here, though
@@ -83,7 +83,7 @@ successful. Throws an error otherwise"
     (t 
      (string-max (rest string-list) max))))
 
-(defun import-snapshots-feed (tm-id snapshot-feed-url)
+(defun import-snapshots-feed (snapshot-feed-url &key tm-id)
   ;this finds the most recent snapshot and imports that. It returns the entry
   ;corresponding to that snapshot
 
@@ -150,13 +150,12 @@ necessary and then applies all fragments to it"
     (let
 	((imported-snapshot-entry
 	  (import-snapshots-feed 
-           feed-url
-	   (get-attribute snapshot-feed-link-elem "href"))))
+	   (get-attribute snapshot-feed-link-elem "href")
+           :tm-id feed-url)))
       (assert imported-snapshot-entry)
       (import-fragments-feed 
-       feed-url
        (get-attribute fragment-feed-link-elem "href")
-       imported-snapshot-entry))))
+       imported-snapshot-entry :tm-id feed-url))))
     
 
     

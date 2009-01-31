@@ -241,7 +241,7 @@ locator and an internally generated id (ideally a uuid)"))
       (some (lambda (ii) (string-starts-with (uri ii) source-locator)) (item-identifiers construct))
     (let
         ((ii-uri (format nil "~a/~d" source-locator (internal-id construct))))
-      (make-instance 'ItemIdentifierC :uri ii-uri :identified-construct construct))))
+      (make-instance 'ItemIdentifierC :uri ii-uri :identified-construct construct :start-revision revision))))
 
 (defmethod add-source-locator ((top TopicC) &key source-locator revision)
   ;topics already have the source locator in (at least) one PSI, so we

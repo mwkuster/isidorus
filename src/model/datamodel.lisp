@@ -263,7 +263,7 @@
 
 (defmethod add-to-version-history ((construct TopicMapConstructC) 
                                    &key 
-                                   (start-revision (error "Must be present") )
+                                   (start-revision (error "Start revision must be present") )
                                    (end-revision 0))
   "Adds relevant information to a construct's version info"
   (let
@@ -470,7 +470,7 @@ specific keyword arguments for their purpose"))
   (string= (uri identifier1) (uri identifier2)))
 
 (defmethod initialize-instance :around ((identifier PointerC) &key
-                                        (start-revision (error "Must be present") )
+                                        (start-revision (error "Start revision must be present") )
                                         (end-revision 0))
   (call-next-method)
   (add-to-version-history identifier
