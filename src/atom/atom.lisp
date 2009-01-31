@@ -19,6 +19,7 @@
            :subfeeds
            :tm-id
            :tm-id-p
+	   :updated
            :*base-url*
            :*tm-feed*))
 

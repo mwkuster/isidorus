@@ -44,7 +44,7 @@ successful. Throws an error otherwise"
         (read-url snapshot-feed-url)))
     (parse-snapshots-feed snapshot-feed)))
 
-(defun import-fragments-feed (fragment-feed-url)
+(defun import-fragments-feed (fragment-feed-url imported-snapshot-entry)
   ;a bit of a borderline case if that should be here or in the
   ;importer. Since it deals with the network interface, I think it
   ;makes sense to have it here, though
@@ -56,8 +56,9 @@ successful. Throws an error otherwise"
              ((top  (d:get-item-by-psi (psi entry) :revision revision)) 
               (xtm-id (atom:id entry))
               (source-locator  (source-locator-prefix feed)))
-           ;check if xtm-id has already been imported. If so, don't do it again
-           (unless (xtm-id-p xtm-id)
+           ;check if xtm-id has already been imported or if the entry is older
+           ;than the snapshot feed. If so, don't do it again
+           (unless (or (xtm-id-p xtm-id) (string> (atom:updated entry) (atom:updated imported-snapshot-entry)))
              (when top
                (mark-as-deleted top :source-locator source-locator :revision revision))
 	     (format t "Fragment feed: ~a~&" (link entry))
@@ -73,20 +74,27 @@ successful. Throws an error otherwise"
               (d:get-item-by-psi (psi entry) :revision revision) ;works even if the topic is only created during import
               :source-locator source-locator :revision revision))))))
 
-(defun import-snapshots-feed (snapshot-feed-url)
-  ;this would have to find the oldest (?) snapshot and import that. It
-  ;subsequently applies all fragments against it
+(defun string-max (string-list &optional (max nil))
+  (cond
+    ((null string-list)
+     max)
+    ((string> (first string-list) max)
+     (string-max (rest string-list) (first string-list)))
+    (t 
+     (string-max (rest string-list) max))))
 
-  ;sets source locator
+(defun import-snapshots-feed (snapshot-feed-url)
+  ;this finds the most recent snapshot and imports that. It returns the entry
+  ;corresponding to that snapshot
+
  (let
       ((feed (read-snapshots-feed snapshot-feed-url))
        (revision (get-revision)))
-   ;TODO: we lie for now and claim that the first entry always
-   ;represents the oldest snapshot we lie in addition in that we
-   ;import the snapshotfeed outright, not looking at the source
-   ;locator
    (let*
-       ((entry (first (entries feed)))
+       ((entry 
+	 (find
+	  (string-max (mapcar #'atom:updated (atom:entries feed)))
+	  (atom:entries feed) :key #'updated :test #'string=))
         (xtm-id (id entry)))
      ;;that *should* be the algorithm...
      ;;    If a client has a local topic map that contains topic map
@@ -100,11 +108,12 @@ successful. Throws an error otherwise"
        (importer-xtm1.0
         (dom:document-element
          (cxml:parse-rod (read-url (link entry)) (cxml-dom:make-dom-builder)))
-        :xtm-id xtm-id :revision revision)))))
+        :xtm-id xtm-id :revision revision))
+     entry)))
 
-(defun import-tm-feed (feed-url)
-  "takes the feed url, imports the first snapshot if necessary and
-then applies all fragments to it"
+(defun import-tm-feed (feed-url &optional (processed-feed-urls nil))
+  "takes the feed url of a collection feed, imports the first snapshot if
+necessary and then applies all fragments to it"
   ;the implementation may be a bit brutal, but relies only on
   ;guaranteed rel-attributes on the links
   (let*
@@ -123,10 +132,26 @@ then applies all fragments to it"
         (find-if (lambda(elem)
                    (string= (get-attribute elem "rel")
                             "http://www.egovpt.org/sdshare/fragmentsfeed")) link-elems)))
-    (import-snapshots-feed 
-     (get-attribute snapshot-feed-link-elem "href"))
-    (import-fragments-feed 
-     (get-attribute fragment-feed-link-elem "href"))))
+
+    ;;Process dependencies
+    (dolist (dependency-elem
+	      (xpath-select-location-path feed-dom
+                                    '((*egovpt-ns* "dependency"))))
+      (let  ;;prevent circular dependencies
+	  ((dependent-feed-url 
+	    (xpath-fn-string dependency-elem)))
+	(unless (find dependent-feed-url processed-feed-urls)
+	  (import-tm-feed dependent-feed-url (append processed-feed-urls feed-url)))))
+	      
+
+    (let
+	((imported-snapshot-entry
+	  (import-snapshots-feed 
+	   (get-attribute snapshot-feed-link-elem "href"))))
+      (assert imported-snapshot-entry)
+      (import-fragments-feed 
+       (get-attribute fragment-feed-link-elem "href")
+       imported-snapshot-entry))))
     
 
     
