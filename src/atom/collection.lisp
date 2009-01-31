@@ -12,7 +12,8 @@
 
 (defmethod feed-to-elem ((feed collection-feed))
   (setf (updated feed) (get-most-recent-datetime-for-tm (id feed)))
-  (to-elem "e:depends-on" (depends-on feed)))
+  (when (depends-on feed)
+    (to-elem "e:depends-on" (depends-on feed))))
 
 (defclass collection-entry (entry)
   ((link-type :accessor link-type
