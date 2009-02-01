@@ -35,7 +35,8 @@
                                             :depends-on ("importer_xtm2.0"
                                                          "importer_xtm1.0"))
 				     (:file "exporter_xtm1.0")
-				     (:file "exporter_xtm2.0")
+				     (:file "exporter_xtm2.0"
+                                            :depends-on ("exporter_xtm1.0"))
 				     (:file "exporter"
 					    :depends-on ("exporter_xtm1.0"
 							 "exporter_xtm2.0")))

@@ -1,9 +1,9 @@
 (in-package :exporter)
 
 
-(defun instanceofs-to-elem (ios)
-  (when ios
-      (map 'list (lambda (io) (cxml:with-element "t:instanceOf" (ref-to-elem io))) ios)))
+;; (defun instanceofs-to-elem (ios)
+;;   (when ios
+;;       (map 'list (lambda (io) (cxml:with-element "t:instanceOf" (ref-to-elem io))) ios)))
 
 
 (defun list-extern-associations ()
@@ -39,15 +39,18 @@
              ,@body))))
 
 (defmacro export-to-elem (tm to-elem)
-  `(map 'list ,to-elem
+  `(setf *export-tm* ,tm)
+  `(format t "*export-tm*: ~a" *export-tm*)
+  `(map 'list 
+        ,to-elem
         (remove-if 
          #'null 
          (map 'list 
               #'(lambda(top)
                   (d:find-item-by-revision top revision))
               (if ,tm
-                  (union 
-                   (d:topics ,tm) (d:associations ,tm))
+                  (union
+                    (d:topics ,tm) (d:associations ,tm))
                   (union
                    (elephant:get-instances-by-class 'd:TopicC)
                    (list-extern-associations)))))))
@@ -60,6 +63,7 @@
       ((tm 
         (when tm-id
           (get-item-by-item-identifier tm-id :revision revision))))
+    (setf *export-tm* tm)
     (with-revision revision
       (with-open-file (stream xtm-path :direction :output)
         (cxml:with-xml-output (cxml:make-character-stream-sink stream :canonical nil)

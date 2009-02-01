@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/1.0/"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <topic id="t2">
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/instances/topic-t2"/>
+    </subjectIdentity>
+  </topic>
+
+  <topic id="t3">
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/instances/topic-t3"/>
+    </subjectIdentity>
+  </topic>
+</topicMap>

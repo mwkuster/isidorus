@@ -13,6 +13,8 @@
 
 (in-package :exporter)
 
+(defparameter *export-tm* nil "TopicMap which is exported (nil if all is to be exported")
+
 (defgeneric to-elem-xtm1.0 (instance)
   (:documentation "converts the Topic Maps construct instance to an XTM 1.0 element"))
 
@@ -115,8 +117,8 @@
                            (baseName | occurrence)* }"
   (cxml:with-element "t:topic"
     (cxml:attribute "id" (topicid topic))
-    (when (list-instanceOf topic)
-      (map 'list #'to-instanceOf-elem-xtm1.0 (list-instanceOf topic)))
+    (when (list-instanceOf topic :tm *export-tm*)
+      (map 'list #'to-instanceOf-elem-xtm1.0 (list-instanceOf topic :tm *export-tm*)))
     (when (or (psis topic) (locators topic))
       (to-subjectIdentity-elem-xtm1.0 (psis topic) (first (locators topic))))
     (when (names topic)

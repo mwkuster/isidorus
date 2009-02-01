@@ -118,9 +118,9 @@
     (map 'list #'to-elem (item-identifiers topic))
     (map 'list #'to-elem (locators topic))
     (map 'list #'to-elem (psis topic))
-    (when (list-instanceOf topic)
+    (when (list-instanceOf topic :tm *export-tm*)
       (cxml:with-element "t:instanceOf"
-	(loop for item in (list-instanceOf topic)
+	(loop for item in (list-instanceOf topic :tm *export-tm*)
 	   do (cxml:with-element "t:topicRef"
 		(cxml:attribute "href" (concatenate 'string "#" (topicid item)))))))
     (map 'list #'to-elem (names topic))

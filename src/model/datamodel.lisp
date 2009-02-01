@@ -948,6 +948,10 @@ rules (5.4)"
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
     (filter-slot-value-by-revision topic 'used-as-theme :start-revision revision)))
 
+(defgeneric in-topicmaps (topic)
+  (:method ((topic TopicC))
+    (filter-slot-value-by-revision topic 'in-topicmaps :start-revision *TM-REVISION*)))
+
 (defmethod initialize-instance :around ((instance TopicC) &key (psis nil) (locators nil))
   "implement the pseudo-initargs :topic-ids, :persistent-ids, and :subject-locators"
   (declare (list psis))
@@ -1135,19 +1139,29 @@ TM (which must then exist)"
   (:documentation "Test for the existence of PSIs")
   (:method ((top TopicC)) (slot-predicate top 'psis)))
 
-(defgeneric list-instanceOf (topic)
-  (:method ((topic TopicC))))
+(defgeneric list-instanceOf (topic &key tm)
+ (:documentation "Generate a list of all topics that this topic is an
+  instance of, optionally filtered by a topic map"))
 
-(defmethod list-instanceOf ((topic TopicC))
-  (remove-if #'null
-             (map 'list #'(lambda(x)
-                            (when (loop for psi in (psis (instance-of x))
-                                        when (string= (uri psi) "http://psi.topicmaps.org/iso13250/model/instance")
-                                        return t)
-                              (loop for role in (roles (parent x))
-                                    when (not (eq role x))
-                                    return (player role))))
-                  (player-in-roles topic))))
+(defmethod list-instanceOf ((topic TopicC)  &key (tm nil))
+  (remove-if 
+   #'null
+   (map 'list #'(lambda(x)
+                  (when (loop for psi in (psis (instance-of x))
+                           when (string= (uri psi) "http://psi.topicmaps.org/iso13250/model/instance")
+                           return t)
+                    (loop for role in (roles (parent x))
+                       when (not (eq role x))
+                       return (player role))))
+        (if tm
+            (remove-if-not 
+             (lambda (role)
+               (format t "player: ~a" (player role))
+               (format t "parent: ~a" (parent role))
+               (format t "topic: ~a~&" topic)
+               (in-topicmap tm (parent role)))
+             (player-in-roles topic))
+            (player-in-roles topic)))))
 
 (defun string-starts-with (str prefix)
   "Checks if string str starts with a given prefix"

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topicMap xmlns="http://www.topicmaps.org/xtm/1.0/"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+  <topic id="t1">
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/types/topic-type"/>
+    </subjectIdentity>
+  </topic>
+
+  <topic id="a1">
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/types/association-type"/>
+    </subjectIdentity>
+  </topic>
+
+ <topic id="r1">
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/types/role-type"/>
+    </subjectIdentity>
+  </topic>
+
+  <topic id="t2">
+    <instanceOf>
+      <topicRef xlink:href="#t1"/>
+    </instanceOf>
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/instances/topic-t2"/>
+    </subjectIdentity>
+  </topic>
+
+  <topic id="t3">
+    <instanceOf>
+      <topicRef xlink:href="#t1"/>
+    </instanceOf>
+    <subjectIdentity>
+      <subjectIndicatorRef xlink:href="http://www.egovpt.org/instances/topic-t3"/>
+    </subjectIdentity>
+  </topic>
+
+  <association>
+    <instanceOf>
+      <topicRef xlink:href="#a2"/>
+    </instanceOf>
+    <member>
+      <roleSpec>
+        <topicRef xlink:href="#r1"/>
+      </roleSpec>
+      <topicRef xlink:href="#t2"/>
+    </member>
+    <member>
+      <roleSpec>
+        <topicRef xlink:href="#r1"/>
+      </roleSpec>
+      <topicRef xlink:href="#t3"/>
+    </member>
+  </association>
+</topicMap>
