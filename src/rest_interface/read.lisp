@@ -83,39 +83,48 @@ successful. Throws an error otherwise"
     (t 
      (string-max (rest string-list) max))))
 
-(defun import-snapshots-feed (snapshot-feed-url &key tm-id)
-  ;this finds the most recent snapshot and imports that. It returns the entry
-  ;corresponding to that snapshot
+(defun most-recent-entry (entry-list)
+  (let
+      ((most-recent-update (string-max (mapcar #'atom:updated entry-list))))
+    (find most-recent-update entry-list :key #'updated :test #'string=)))
 
- (let
+(defun most-recent-imported-snapshot (all-snapshot-entries)
+  (let
+      ((all-imported-entries
+	(remove-if-not #'xtm-id-p all-snapshot-entries :key #'atom:id)))
+    (most-recent-entry all-imported-entries)))
+
+(defun import-snapshots-feed (snapshot-feed-url &key tm-id)
+  "checks if we already imported any of this feed's snapshots. If not,
+finds the most recent snapshot and imports that. It returns the entry
+corresponding to the snapshot imported (now or previously)."
+ (let*
       ((feed (read-snapshots-feed snapshot-feed-url))
-       (revision (get-revision)))
-   (let*
-       ((most-recent-update (string-max (mapcar #'atom:updated (slot-value feed 'atom:entries))))
-	(entry 
-	 (find
-	  most-recent-update
-	  (slot-value feed 'atom:entries) :key #'updated :test #'string=))
-        (xtm-id (id entry)))
-     ;;that *should* be the algorithm...
-     ;;    If a client has a local topic map that contains topic map
-     ;;    data from more than one server and wants to fetch and update
-     ;;    the latest full topic map from ONE source then it MUST do the
-     ;;    following. Apply the delete topic algorithm from below, but
-     ;;    apply it to the entire topic map. Then proceed in terms of 'A
-     ;;    Clean Start', by fetching the topic map and merging it in
-     ;;    (1b, 1.4.3.2)
-     (unless (xtm-id-p xtm-id)
-       (importer-xtm1.0
-        (dom:document-element
-         (cxml:parse-rod (read-url (link entry)) (cxml-dom:make-dom-builder)))
-        :tm-id tm-id
-        :xtm-id xtm-id :revision revision))
-     entry)))
+       (all-entries (slot-value feed 'atom:entries))
+       (most-recent-imported-entry all-entries))
+   (if most-recent-imported-entry
+       most-recent-imported-entry
+       (let*
+	   ((entry (most-recent-entry all-entries))
+	    (snapshot-dom 
+	     (dom:document-element
+	      (cxml:parse-rod (read-url (link entry)) (cxml-dom:make-dom-builder))))
+	    (xtm-id (id entry))
+	    (revision (get-revision)))
+	 ;;that *should* be the algorithm...
+	 ;;    If a client has a local topic map that contains topic map
+	 ;;    data from more than one server and wants to fetch and update
+	 ;;    the latest full topic map from ONE source then it MUST do the
+	 ;;    following. Apply the delete topic algorithm from below, but
+	 ;;    apply it to the entire topic map. Then proceed in terms of 'A
+	 ;;    Clean Start', by fetching the topic map and merging it in
+	 ;;    (1b, 1.4.3.2)
+	 (importer-xtm1.0 snapshot-dom :tm-id tm-id :xtm-id xtm-id :revision revision)
+	 entry))))
 
 (defun import-tm-feed (feed-url &optional (processed-feed-urls nil))
-  "takes the feed url of a collection feed, imports the first snapshot if
-necessary and then applies all fragments to it"
+  "takes the feed url of a collection feed, processes the dependencies,
+imports the first snapshot if necessary and then applies all fragments to it"
   ;the implementation may be a bit brutal, but relies only on
   ;guaranteed rel-attributes on the links
   (let*
@@ -146,7 +155,8 @@ necessary and then applies all fragments to it"
           (format t "Recursively processing feed ~a~&" dependent-feed-url)
 	  (import-tm-feed dependent-feed-url (append processed-feed-urls feed-url)))))
 	      
-
+    ;; import a snapshot (if necessary) and the process all fragments more 
+    ;; recent than the snapshot
     (let
 	((imported-snapshot-entry
 	  (import-snapshots-feed 
