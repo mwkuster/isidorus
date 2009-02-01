@@ -101,7 +101,7 @@ corresponding to the snapshot imported (now or previously)."
  (let*
       ((feed (read-snapshots-feed snapshot-feed-url))
        (all-entries (slot-value feed 'atom:entries))
-       (most-recent-imported-entry all-entries))
+       (most-recent-imported-entry (most-recent-entry all-entries)))
    (if most-recent-imported-entry
        most-recent-imported-entry
        (let*
