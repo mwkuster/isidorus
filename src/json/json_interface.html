@@ -1,0 +1,231 @@
+<html>
+  <head>
+    <title>isidorus</title>
+    <script type="text/javascript">
+     // --- here we can handle timeouts of the passed XMLHttpRequest-objects
+     // --- this function has to be set and cleared in every XMLHttpRequest-object
+     function ajaxTimeout(xhr){
+	 xhr.abort();
+	 alert("The AJAX request timed out. Did you lose network connectivity for some reason?");
+     }
+
+     // --- the timeout interval in seconds
+     const TIMEOUT = 5000;
+     // --- the XMLHttpRequest base url
+     const BASE_URL = "http://localhost:8000/json/psi/";
+     const OWN_URL = "http://localhost:8000/isidorus";
+
+
+     function back()
+     {
+	 window.location.href = OWN_URL;
+     }
+
+
+     // --- creates a XMLHttpReques object
+     function connect()
+     {
+	 try { return new XMLHttpRequest(); } catch(err){}
+	 try { return new AcitveXObject("Msxml2.XMLHTTP"); } catch(err){}
+	 try { return new ActiveXObject("Microsoft.XMLHTTP"); } catch(err){}
+
+	 alert("error creating request object");
+	 return null;
+     }
+
+
+     // ========================================================================
+     // --- get request -> aks for json-data
+     // ========================================================================
+     var xhrGet = null;
+
+     // --- creates a XMLHttpReques object
+     function connectGet()
+     {
+	 // --- firefox
+	 try{ return new XMLHttpRequest(); } catch(err){}
+
+	 // --- internet explorer
+	 try{ return new ActiveXObject("Msxml2.XMLHTTP"); } catch(err){}
+	 try{ return new ActiveXObject("Microsoft.XMLHTTP"); } catch(err){}
+
+	 alert("error creating request object");
+	 return null;
+     }
+
+
+     // --- handles the json response
+     function handleJson()
+     {
+	 if(xhrGet.readyState == 4){ // state 4 --> response is complete
+	     if(xhrGet.status != 200){
+		 alert("error: " + xhrGet.status);
+		 return false;
+	     }
+	     
+	     // --- resets the timeout
+	     clearTimeout(xhrGet.timeout);
+
+	     // --- handle the data
+	     var json = eval("(" + xhrGet.responseText + ")");
+	     var psis = json.topic.subjectIdentifiers;
+	     document.getElementById("psis").innerHTML = "";
+	     for each(var psi in psis)
+			 document.getElementById("psis").innerHTML += "psi: " + psi + '<br/>';
+	     
+	     document.getElementById("real_text").value = xhrGet.responseText;
+	     //alert("header: " + xhrGet.getAllResponseHeaders());
+	 }
+	 else{
+	     return false;
+	 }
+     }
+
+
+     // --- sends a request for the json data
+     function getData(xhr)
+     {
+	 var topic_psi = document.getElementById("topic_psi").value;
+	 var url = BASE_URL + topic_psi;
+
+	 // --- sets the timeout for this XMLHttpRequest object; 5 seconds
+	 xhrGet.timeout = setTimeout("ajaxTimeout(xhrGet);", TIMEOUT);
+
+	 try{
+	 xhrGet.open("GET", url, true); // true --> asynchronous call, so the user is able to continue working on other things
+	 }catch(err) {alert("err: " + err); }
+
+	 // --- registers a callback handler for the readystatechange event of the XMLHttpRequest/ActiveXObject-Object
+	 xhrGet.onreadystatechange = handleJson;
+	 xhrGet.send(null);
+     }
+
+
+     // --- calls all necessary functions to get a fragment belonging to the
+     // --- psi of the topic_psi text field
+     function doIt()
+     {
+	 xhrGet = connectGet();
+
+	 if(xhrGet != null)
+	     getData(xhrGet);
+     }
+
+     // ========================================================================
+     // --- put request -> commit json-data
+     // ========================================================================
+     var xhrPut = null;
+
+     // --- commits the textarea's json data to the server
+     function commitJson()
+     {
+	 xhrPut = connect();
+
+	 if(xhrPut != null)
+	     sendData(xhrPut);
+     }
+
+
+     // --- handles the committing of json data
+     function handleCommit()
+     {
+	 alert("readyState: " + xhrPut.readyState + "\nstatus: " + xhrPut.status + "\nresponsetext: " + xhrPut.responseText);
+	 if(xhrPut.readyState == 4){ // state 4 --> response is complete
+	     //if(xhrPut.status == 200){
+	     // alert("error: " + xhrPut.status);
+	     // return false;
+	     //}
+
+	     // --- resets the timeout
+	     clearTimeout(xhrPut.timeout);
+	     alert("data commited successfully");
+	     //doIt();
+	 }
+	 else{
+	     return false;
+	 }
+     }
+
+
+     // --- sends the json data to the server
+     function sendData(xhr)
+     {
+	 var json =  document.getElementById("real_text").value;
+	 var topicPsi = document.getElementById("topic_psi").value;
+	 var url = BASE_URL + topicPsi;
+	 xhrPut.open("PUT", url, true);
+
+	 // --- sets the timeout for this XMLHttpRequest object; 5 seconds
+	 xhrPut.timeout = setTimeout("ajaxTimeout(xhrPut);", TIMEOUT);
+
+	 // --- registers a callback handler for the readystatechange event of the XMLHttpRequest/ActiveXObject-Object
+	 xhrPut.onreadystatechange = handleCommit;
+	 xhrPut.setRequestHeader("Content-type", "application/json");
+	 xhrPut.send(json);
+     }
+
+
+     // ========================================================================
+     // --- post request -> commit json-data
+     // ========================================================================
+     var xhrPost = null;
+
+
+     function commitJsonPost()
+     {
+	 xhrPost = connect();
+
+	 if(xhrPost != null)
+	     sendDataPost(xhrPost);
+     }
+
+
+     function handlePostCommit()
+     {
+	 alert("readyState: " + xhrPost.readyState + "\nstatus: " + xhrPost.status + "\nresponsetext: " + xhrPost.responseText);
+	 if(xhrPost.readyState == 4){ // state 4 --> response is complete
+	     //if(xhrPut.status == 200){
+	     // alert("error: " + xhrPut.status);
+	     // return false;
+	     //}
+
+	     // --- resets the timeout
+	     clearTimeout(xhrPost.timeout);
+	     alert("data commited successfully");
+	     //doIt();
+	 }
+	 else{
+	     return false;
+	 }
+     }
+
+
+     function sendDataPost(xhr)
+     {
+	 var json =  document.getElementById("real_text").value;
+	 var topicPsi = document.getElementById("topic_psi").value;
+	 var url = BASE_URL + topicPsi;
+	 xhrPost.open("POST", url, true);
+
+	 // --- sets the timeout for this XMLHttpRequest object; 5 seconds
+	 xhrPost.timeout = setTimeout("ajaxTimeout(xhrPost);", TIMEOUT);
+
+	 // --- registers a callback handler for the readystatechange event of the XMLHttpRequest/ActiveXObject-Object
+	 xhrPost.onreadystatechange = handlePostCommit;
+     }
+
+
+    </script>
+  </head>
+  <body>
+    <div id="content" style="width: 80%; height: 80%; border: dashed 1px;">
+      <input id="topic_psi" type="text" value="http://psi.egovpt.org/types/topicInTaxonomy" name="topic_psi" style="margin-left:10px; margin-top:10px;"/>
+      <input type="button" onclick="doIt();" value="get json" style="margin-top:10px;"/>
+      <div id="psis" style="background-color: silver; width: 70%; margin: 10px;"></div>
+      <textarea id ="real_text" name="text" cols="120" rows="10" style="margin: 10px;"></textarea><br/>
+      <input type="button" onclick="commitJson()" value="commit json via PUT" style="margin-left: 10px;"/>
+      <input type="button" onclick="commitJsonPost()" value="commit json via POST" style="margin-left: 10px; margin-right: 10px;"/>
+      <input type="button" onclick="back()" value="back"/>
+    </div>
+  </body>
+</html>

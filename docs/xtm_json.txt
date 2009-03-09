@@ -1,0 +1,300 @@
+resourceData:
+{
+  "datatype" : "Text",
+  "value" : "Text"
+}
+
+
+variant:
+{
+  "itemIdentities" : [ "Text" , "..." ],
+  "scopes" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
+  "resourceRef" : "Text",
+  "resourceData" : { <resourceData> }
+}
+
+
+name:
+{
+  "itemIdentities" : [ "Text", "..." ],
+  "type" : [ "PSI-1", "PSI-2", "..." ],
+  "scopes" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
+  "value" : "Text",
+  "variants" : [ {<variant>}, { <...> ] }
+}
+
+
+occurrence:
+{
+  "itemIdentities" : [ "Text", "..." ],
+  "type" : [ "PSI-1", "PSI-2", "..." ],
+  "scopes" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
+  "resourceRef" : "Text",
+  "resourceData" : { <resourceData> }
+}
+
+
+topic:
+{
+  "id" : "Text",
+  "itemIdentities" : [ "Text", "..." ],
+  "subjectLocators" : [ "Text", "..." ],
+  "subjectIdentifiers" : [ "Text", "..." ],
+  "instanceOfs" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
+  "names" : [ { <name> }, { <...> } ],
+  "occurrences" : [ { <occurrence> }, { <...> } ]
+}
+
+
+role:
+{
+  "itemIdentities" : [ "Text", "..." ],
+  "type" : [ "PSI-1", "PSI-2", "..." ],
+  "topicRef" : [ "PSI-1", "PSI-2", "..." ]
+}
+
+
+association:
+{
+  "itemIdentities" : [ "Text", "..." ],
+  "type" : [ "PSI-1", "PSI-2", "..." ],
+  "scopes" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
+  "roles" : [ { <role> }, { <...> } ]
+}
+
+
+topicStub:
+{
+  "id" : "Text",
+  "itemIdentities" : [ "Text", "..." ],
+  "subjectLocators" : [ "Text", "..." ],
+  "subjectIdentifiers" : [ "Text", "..." ]
+}
+
+
+fragment
+{
+  "topic" : { <topic> },
+  "topicStubs" : [ { <topicStub> }, { <...> } ],
+  "associations" : [ { <association> }, { <...> } ],
+  "tm-ids" : [ "id-1", "id-2", "..." ]
+}
+// the field tm-ids should have only one tm-id in the list, because
+// there will be used only the first if the fragment is an incoming one
+// outgoing fragment have a list with more tm-ids but at least one
+
+
+
+=== example fragment with one topic, a few topicStubs and associations =========
+{
+  "topic" : {
+              "id"  :  "t403",
+              "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100" ],
+              "subjectLocators" : null,
+              "subjectIdentifiers" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ],
+              "instanceOfs" : [ [ "http : //psi.egovpt.org/types/semanticstandard" ] ],
+              "names" : [ {
+                            "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_n1" ],
+                            "type" : null,
+                            "scopes" : null,
+                            "value" : "ISO 19115",
+                            "variants" : [ {
+                                             "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_n1_v1" ],
+                                              "scopes" : [ [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#display" ] ],
+                                              "resourceRef" : null,
+                                              "resourceData" : {
+                                                                 "datatype" : "http : //www.w3.org/2001/XMLSchema#string",
+                                                                 "value" : "Geographic Information - Metadata"
+                                                               }
+                                           },
+                                           {
+                                             "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_n1_v2" ],
+                                             "scopes" : [ [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#sort" ] ],
+                                             "resourceRef" : null,
+                                             "resourceData" : {
+                                                                "datatype" : "http : //www.w3.org/2001/XMLSchema#string",
+                                                                "value" : "ISO-19115"
+                                                              }
+                                           }
+                                         ]
+                          }
+                        ],
+              "occurrences" : [ {
+                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o1" ],
+                                  "type" : [ "http : //psi.egovpt.org/types/standardHasStatus" ],
+                                  "scopes" : null,
+                                  "resourceRef" : "http : //www.budabe.de/","resourceData" : null
+                                },
+                                {
+                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o2" ],
+                                  "type" : [ "http : //psi.egovpt.org/types/description" ],
+                                  "scopes" : null,
+                                  "resourceRef" : null,
+                                  "resourceData" : {
+                                                     "datatype" : "http : //www.w3.org/2001/XMLSchema#string",
+                                                     "value" : "The ISO 19115 standard ..."
+                                                   }
+                                },
+                                {
+                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o3" ],
+                                  "type" : [ "http : //psi.egovpt.org/types/standardValidFromDate" ],
+                                  "scopes" : null,
+                                  "resourceRef" : null,
+                                  "resourceData" : {
+                                                      "datatype" : "http : //www.w3.org/2001/XMLSchema#date",
+                                                      "value" : "2003-01-01"
+                                                   }
+                                },
+                                {
+                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o4" ],
+                                  "type" : [ "http : //psi.egovpt.org/types/links" ],
+                                  "scopes" : null,
+                                  "resourceRef" : "http : //www.editeur.org/standards/ISO19115.pdf",
+                                  "resourceData" : null
+                                }
+                        ]
+            },
+  "topicStubs" : [ {
+		     "id" : "t227",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t3a" ],
+                     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/semanticstandard" ]
+		   },
+		   {
+		     "id" : "t73",
+		     "itemIdentities" : null,
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#display" ]
+		   },
+		   {
+		     "id" : "t67",
+		     "itemIdentities" : null,
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#sort" ]
+		   },
+		   {
+		     "id" : "t291",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t51" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/standardHasStatus" ]
+		   },
+		   {
+		     "id" : "t307",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t53" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/description" ]
+		   },
+		   {
+		     "id" : "t315",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t54" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/standardValidFromDate" ]
+		   },
+		   {
+		     "id" : "t323",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t55" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/links" ]
+		   },
+		   {
+		     "id" : "t433",
+		     "itemIdentities" : null,
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/subject/GeoData" ]
+		   },
+		   {
+		     "id" : "t363",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t60" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/standardIsAboutSubject" ]
+		   },
+		   {
+		     "id" : "t371",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t61" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/SubjectRoleType" ]
+		   },
+		   {
+		     "id" : "t421",
+		     "itemIdentities" : null,
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/subject/Semantic+Description" ]
+		   },
+		   {
+		     "id" : "t395",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t64" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/serviceUsesStandard" ]
+		   },
+		   {
+		     "id" : "t387",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t63" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/ServiceRoleType" ]
+		   },
+		   {
+		     "id" : "t451",
+		     "itemIdentities" : null,
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/service/Google+Maps",
+					      "http : //maps.google.com" ]
+		   },
+		   {
+		     "id" : "t379",
+		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t62" ],
+		     "subjectLocators" : null,
+		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/StandardRoleType" ]
+		   }
+		 ],
+  "associations" : [ {
+		       "itemIdentities" : null,
+		       "type" : [ "http : //psi.egovpt.org/types/standardIsAboutSubject" ],
+		       "scopes" : null,
+		       "roles" : [ {
+				     "itemIdentities" : null,
+				     "type" : [ "http : //psi.egovpt.org/types/StandardRoleType" ],
+				     "topicRef" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ]
+				   },
+				   {
+				     "itemIdentities" : null,
+				     "type" : [ "http : //psi.egovpt.org/types/SubjectRoleType" ],
+				     "topicRef" : [ "http : //psi.egovpt.org/subject/GeoData" ]
+				   }
+				 ]
+		     },
+		     {
+		       "itemIdentities" : null,
+		       "type" : [ "http : //psi.egovpt.org/types/standardIsAboutSubject" ],
+		       "scopes" : null,
+		       "roles" : [ {
+				     "itemIdentities" : null,
+				     "type" : [ "http : //psi.egovpt.org/types/StandardRoleType" ],
+				     "topicRef" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ]
+				   },
+				   {
+				     "itemIdentities" : null,
+				     "type" : [ "http : //psi.egovpt.org/types/SubjectRoleType" ],
+				     "topicRef" : [ "http : //psi.egovpt.org/subject/Semantic+Description" ]
+				   }
+				  ]
+		     },
+		     {
+		       "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#assoc_7" ],
+		       "type" : [ "http : //psi.egovpt.org/types/serviceUsesStandard" ],
+		       "scopes" : null,
+		       "roles" : [ {
+				     "itemIdentities" : null,
+				     "type" : [ "http : //psi.egovpt.org/types/ServiceRoleType" ],
+				     "topicRef" : [ "http : //psi.egovpt.org/service/Google+Maps",
+						    "http : //maps.google.com" ]
+				   },
+				   {
+				     "itemIdentities" : null,
+				     "type" : [ "http : //psi.egovpt.org/types/StandardRoleType" ],
+				     "topicRef" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ]
+				   }
+				  ]
+		     }
+		   ],
+  "tm-ids" : [ "test-tm"]
+}

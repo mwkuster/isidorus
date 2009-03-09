@@ -6,14 +6,20 @@
         :datamodel
         :exporter
         :xml-tools
-        :xml-importer)
+        :xml-importer
+	:json-exporter
+	:json-importer)
   (:export :import-fragments-feed
            :import-snapshots-feed
            :import-tm-feed
            :read-url
            :read-fragment-feed
            :start-tm-engine
-	   :shutdown-tm-engine))
+	   :shutdown-tm-engine
+	   :*json-rest-prefix*
+	   :*json-user-interface-url*
+	   :*json-user-interface-file-path*))
+
 
 (in-package :rest-interface)
 
@@ -63,17 +69,36 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 ;; 	(exporter:export-xtm-fragment fragment :xtm-format '1.0)
 ;; 	(format nil "<t:topicMap xmlns:t=\"http://www.topicmaps.org/xtm/1.0/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"/>"))))
 
-(defun make-json (&optional uri)
-  "returns a json-string of the topic with the passed psi-uri"
-  (assert uri)
-  (let ((topic
-	 (let ((psi
-		(elephant:get-instance-by-value 'd:PersistentIdC 'd:uri uri)))
-	   (when psi
-	     (d:identified-construct psi)))))
-    (if topic
-	(json-exporter:to-json-string topic)
-	(format nil "Could not find topic with psi \"~a\"" uri))))
+
+;;(defun make-json (&optional uri)
+;;  "returns a json-string of the topic with the passed psi-uri"
+;;  (assert uri)
+;;  ;decodes the url-encoding "%23" to "#" character (only the first which will be found)
+;;  (let ((identifier (let ((pos (search "%23" uri)))
+;;		      (if pos
+;;			  (let ((str-1 (subseq uri 0 pos))
+;;				(str-2 (if (> (length uri) (+ pos 3))
+;;					   (subseq uri (+ pos 3))
+;;					   "")))
+;;			    (concatenate 'string str-1 "#" str-2))
+;;			  uri)))
+;;	(http-method (request-method))
+;;	(external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF))) ;;is needed to get a string of the put-request
+;;    (if (eq http-method :GET)
+;;	(progn
+;;	  (setf (hunchentoot:content-type) "application/json")
+;;	  (let ((fragment
+;;		 (get-latest-fragment-of-topic identifier)))
+;;	    (if fragment
+;;		(handler-case (to-json-string fragment)
+;;		  (condition (err) (format nil "{\"fault\":\"~a\"}" err)))
+;;		"{}")))
+;;	(if (eq http-method :PUT)
+;;	    (let ((put-data (raw-post-data :external-format external-format :force-text t)))	      
+;;	      (handler-case (json-importer:json-to-elem put-data)
+;;		(condition () (setf (return-code) +http-internal-server-error+))))    
+;;	    (setf (return-code) +http-internal-server-error+))))) ; for all htt-methods except for get and post
+
 
 ;; (push 
 ;;  (create-regex-dispatcher "/feeds/?$" #'feeds) 
@@ -99,9 +124,9 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 ;;  (create-regex-dispatcher "/testtm/fragments/([0-9]+)$" #'fragments) 
 ;;  hunchentoot:*dispatch-table*)
 
-(push
- (create-regex-dispatcher "/json/psi/(.+)$" #'make-json)
- hunchentoot:*dispatch-table*)
+;;(push
+;; (create-regex-dispatcher "/json/psi/(.+)$" #'make-json)
+;; hunchentoot:*dispatch-table*)
     
 
 (defvar *server*)
@@ -118,6 +143,7 @@ hostname. Use the repository under repository-path"
    (xml-importer:get-store-spec repository-path))
   (load conffile)
   (publish-feed atom:*tm-feed*)
+  (set-up-json-interface)
   (setf *server* (hunchentoot:start-server :address host-name :port port)))
 
 (defun shutdown-tm-engine ()

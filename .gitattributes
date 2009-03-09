@@ -6,9 +6,13 @@ docs/install_isidorus.txt svneol=native#text/plain
 docs/isidorus_classes.pdf -text svneol=unset#application/pdf
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
+docs/xtm_json.txt -text
 src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text
+src/json/json_importer.lisp -text
+src/json/json_interface.html -text
+src/rest_interface/set-up-json-interface.lisp -text
 src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text
 src/unit_tests/dangling_topicref.xtm -text

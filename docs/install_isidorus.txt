@@ -19,7 +19,7 @@ Install the persistence framework elephant in its unstable version
 darcs get http://www.common-lisp.net/project/elephant/darcs/elephant-unstable/
 
 Also install all of its dependencies as described in elephant_install.txt. In particular these are:
-
+ * (require 'asdf-install)
  * (asdf-install:install 'CL-BASE64)
  * (asdf-install:install 'uffi) 
 

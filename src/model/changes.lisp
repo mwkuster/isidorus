@@ -50,7 +50,12 @@ engine for this Topic Map"
   (append
    (themes characteristic)
    (when (instance-of-p characteristic)
-     (list (instance-of characteristic)))))
+     (list (instance-of characteristic)))
+   (when  (and (typep characteristic 'OccurrenceC)
+              (> (length (charvalue characteristic)) 0)
+              (eq #\# (elt (charvalue characteristic) 0)))
+     (list (get-item-by-id (subseq (charvalue characteristic)  1))))))
+
 
 (defmethod find-referenced-topics ((role RoleC))
   (append
@@ -140,6 +145,7 @@ characteristics) or one of the associations in which it is first player has chan
    (topic :type TopicC
           :initarg :topic
           :accessor topic
+          :index t
           :documentation "changed topic (topicSI in Atom")
    (referenced-topics
     :type list
@@ -253,3 +259,22 @@ locator and an internally generated id (ideally a uuid)"))
         (occurrences top))
   (mapc (lambda (ass) (add-source-locator ass :revision revision :source-locator source-locator))
         (find-associations-for-topic top)))
+
+
+(defun get-latest-fragment-of-topic (topic-psi)
+  "returns the latest fragment of the passed topic-psi"
+  (declare (string topic-psi))
+  (let ((topic-psi topic-psi))
+    (let ((psi
+           (elephant:get-instance-by-value 'PersistentIdC 'uri topic-psi)))
+      (when psi
+        (let ((topic
+               (identified-construct psi)))
+          (when topic
+            (loop for current-revision in (versions topic)
+               do (get-fragments (start-revision current-revision)))
+            (let ((fragments
+                   (elephant:get-instances-by-value 'FragmentC 'topic topic)))
+              ;; maybe there are more fragments of this topic in different revisions,
+              ;; so we need to search the fragment with a certain revision
+              (first (sort fragments #'> :key 'revision)))))))))

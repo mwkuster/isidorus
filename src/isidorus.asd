@@ -62,6 +62,8 @@
 			:components ((:file "rest-interface")
                                      (:file "publish_feeds"
                                             :depends-on ("rest-interface"))
+				     (:file "set-up-json-interface"
+					    :depends-on ("rest-interface"))
                                      (:file "read" 
                                             :depends-on ("rest-interface")))
 		       	:depends-on ("model" 
@@ -115,8 +117,10 @@
 				     "xml"
 				     "json"))
 	       (:module "json"
-	                :components ((:file "json_exporter"))
-	                :depends-on ("model"))
+	                :components ((:file "json_exporter")
+				     (:file "json_importer")
+				     (:static-file "json_interface.html"))
+	                :depends-on ("model" "xml"))
 	       (:module "threading"
 			:components ((:file "reader-writer"))))
   :depends-on (:cxml

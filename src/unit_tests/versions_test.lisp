@@ -217,28 +217,31 @@ test suite"
           (format t "semantic-standard: ~a~&"
                   (remove-duplicates (map 'list #'uri (mapcan #'psis (referenced-topics (first fragments-revision3))))
                                      :test #'string=))
-          ;(is-false
-          ; (set-exclusive-or 
-          ;  '("http://psi.egovpt.org/types/standard")
-          ;  (remove-duplicates (map 'list #'uri (mapcan #'psis (referenced-topics (first fragments-revision3))))
-          ;                     :test #'string=)
-          ;  :test #'string=))
+          (is-false
+           (set-exclusive-or 
+            '("http://psi.egovpt.org/types/standard")
+            (remove-duplicates (map 'list #'uri (mapcan #'psis (referenced-topics (first fragments-revision3))))
+                               :test #'string=)
+            :test #'string=))
                                         ; 0 if we ignore instanceOf associations
           (is (= 0 (length (associations (first fragments-revision3)))))
                                
           (is (string= 
                "http://psi.egovpt.org/standard/Common+Lisp"
                (uri (first (psis (topic (third fragments-revision3)))))))
-          ;(is-false
-          ; (set-exclusive-or 
-          ;  '("http://psi.egovpt.org/types/standard"
-          ;    "http://psi.egovpt.org/types/links")
-          ;  (remove-duplicates 
-          ;   (map 'list 
-          ;        #'uri 
-          ;        (mapcan #'psis (referenced-topics (third fragments-revision3))))
-          ;   :test #'string=)
-          ;  :test #'string=))
+          (is-false
+           (set-exclusive-or 
+            '("http://psi.egovpt.org/types/standard"
+              "http://psi.egovpt.org/types/links";)
+              "http://www.topicmaps.org/xtm/1.0/core.xtm#sort"
+              "http://www.topicmaps.org/xtm/1.0/core.xtm#display"
+              "http://psi.egovpt.org/types/long-name")
+            (remove-duplicates 
+             (map 'list 
+                  #'uri 
+                  (mapcan #'psis (referenced-topics (third fragments-revision3))))
+             :test #'string=)
+            :test #'string=))
                                         ;0 if we ignore instanceOf associations
           (is (= 0 (length (associations (third fragments-revision3)))))
 

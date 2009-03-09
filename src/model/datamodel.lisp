@@ -28,6 +28,7 @@
 	   :VariantC
 
            ;; functions and slot accessors
+           :in-topicmaps
            :add-to-topicmap
            :add-source-locator
            :associations
@@ -89,6 +90,7 @@
 	   :used-as-theme
 	   :variants
 	   :xor
+           :get-latest-fragment-of-topic
 
            :*current-xtm* ;; special variables
            :*TM-REVISION*
@@ -948,9 +950,9 @@ rules (5.4)"
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
     (filter-slot-value-by-revision topic 'used-as-theme :start-revision revision)))
 
-(defgeneric in-topicmaps (topic)
-  (:method ((topic TopicC))
-    (filter-slot-value-by-revision topic 'in-topicmaps :start-revision *TM-REVISION*)))
+(defgeneric in-topicmaps (topic &key revision)
+  (:method ((topic TopicC) &key (revision *TM-REVISION*))
+    (filter-slot-value-by-revision topic 'in-topicmaps :start-revision revision)))
 
 (defmethod initialize-instance :around ((instance TopicC) &key (psis nil) (locators nil))
   "implement the pseudo-initargs :topic-ids, :persistent-ids, and :subject-locators"
@@ -1313,6 +1315,10 @@ NIL or an error is thrown, depending on error-if-nil."
   (:index t))
 
 
+(defmethod in-topicmaps ((association AssociationC) &key (revision *TM-REVISION*))
+  (filter-slot-value-by-revision association 'in-topicmaps :start-revision revision))
+
+
 (defgeneric AssociationC-p (object)
   (:documentation "test if object is a of type AssociationC")
   (:method ((object t)) nil)
@@ -1439,11 +1445,13 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 
 (defmethod add-to-topicmap ((tm TopicMapC) (top TopicC))
   ;TODO: add logic not to add pure topic stubs unless they don't exist yet in the store
-  (elephant:add-association tm 'topics top)
+;  (elephant:add-association tm 'topics top) ;by adding the elephant association in this order, there will be missing one site of this association
+  (elephant:add-association top 'in-topicmaps tm)
   top)
 
 (defmethod add-to-topicmap ((tm TopicMapC) (ass AssociationC))
-  (elephant:add-association tm 'associations ass)
+   ;(elephant:add-association tm 'associations ass)
+  (elephant:add-association ass 'in-topicmaps tm)
   ass)
 
 (defgeneric in-topicmap (tm constr &key revision)
