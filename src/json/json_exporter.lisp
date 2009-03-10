@@ -1,6 +1,7 @@
 (defpackage :json-exporter
   (:use :cl :json :datamodel)
-  (:export :to-json-string))
+  (:export :to-json-string
+	   :get-all-topic-psis))
 
 (in-package :json-exporter)
 
@@ -269,3 +270,13 @@
 			    (concatenate 'string (subseq j-tm-ids 0 (- (length j-tm-ids) 1)) "]"))
 			  "null"))))
     (concatenate 'string "{" main-topic "," topicStubs "," associations "," tm-ids "}")))
+
+
+(defun get-all-topic-psis()
+  "returns all topic psis as a json list of the form
+   [[topic-1-psi-1, topic-1-psi-2],[topic-2-psi-1, topic-2-psi-2],...]"
+  (encode-json-to-string
+   (remove-if #'null (map 'list #'(lambda(psi-list)
+				    (when psi-list
+				      (map 'list #'uri psi-list)))
+			  (map 'list #'psis (elephant:get-instances-by-class 'TopicC))))))

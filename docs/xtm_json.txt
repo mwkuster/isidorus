@@ -84,6 +84,10 @@ fragment
 // outgoing fragment have a list with more tm-ids but at least one
 
 
+a summary of all topic psis within isidorus
+[["topic-1-psi-1","topic-1-psi-2",<...>],["topic-2-psi-1","topic-2-psi-2",<...>],<...>]
+
+
 
 === example fragment with one topic, a few topicStubs and associations =========
 {
