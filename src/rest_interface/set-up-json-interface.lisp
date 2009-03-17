@@ -1,79 +1,89 @@
 (in-package :rest-interface)
 
-(defparameter *json-rest-prefix* "/json/psi") ;the prefix to get a fragment by the psis -> localhost:8000/json/psi/<fragment-psi>
-(defparameter *json-rest-all-psis* "/json/psis") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
-(defparameter *json-user-interface-url* "/isidorus") ;the url to the user interface -> localhost:8000/isidorus
+(defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psis -> localhost:8000/json/get/<fragment-psi>
+(defparameter *json-commit-url* "/json/commit/?$") ;the url to commit a json fragment by "put" or "post"
+(defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
+(defparameter *json-user-interface-url* "/isidorus/?$") ;the url to the user interface -> localhost:8000/isidorus
 (defparameter *json-user-interface-file-path* "json/json_interface.html") ;the file path to the HTML file implements the user interface
 
 
-(defun set-up-json-interface (&key (rest-prefix *json-rest-prefix*) (rest-all-psis *json-rest-all-psis*)
-			      (ui-url *json-user-interface-url*) (ui-file-path *json-user-interface-file-path*))
+(defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*) (json-get-all-psis *json-get-all-psis*)
+			      (json-commit-url *json-commit-url*) (json-user-interface-url *json-user-interface-url*)
+			      (json-user-interface-file-path *json-user-interface-file-path*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
-  (declare (string rest-prefix ui-url ui-file-path))
-  (let ((rest-regex (concatenate 'string rest-prefix "/(.+)$"))
-	(ui-regex (concatenate 'string ui-url "/?$"))
-	(all-psis-regex (concatenate 'string rest-all-psis "/?$")))
-    ;(format t "rest-interface: ~a~%user-interface: ~a~%user-interface-file-path: ~a~%" rest-regex ui-regex ui-file-path)
-    (push
-     (create-regex-dispatcher ui-regex #'(lambda()
-					 (hunchentoot:handle-static-file ui-file-path)))
-     hunchentoot:*dispatch-table*)
-    (push
-     (create-regex-dispatcher all-psis-regex #'(lambda()
-						 (setf (hunchentoot:content-type) "application/json") ;RFC 4627
-						 (get-all-topic-psis)))
-     hunchentoot:*dispatch-table*)
-    (push
-     (create-regex-dispatcher rest-regex
-			      #'(lambda (&optional uri)
-				  (assert uri)
-					;decodes the url-encoding "%23" to "#" character (only the first which will be found)
-				  (let ((identifier (let ((pos (search "%23" uri)))
-						      (if pos
-							  (let ((str-1 (subseq uri 0 pos))
-								(str-2 (if (> (length uri) (+ pos 3))
-									   (subseq uri (+ pos 3))
-									   "")))
-							    (concatenate 'string str-1 "#" str-2))
-							  uri)))
-					(http-method (request-method))
-					(external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF))) ;is needed to get a string of the put-request
-				    (cond
-				      ((eq http-method :GET)
-				       (progn
-					 (setf (hunchentoot:content-type) "application/json") ;RFC 4627
-					 (let ((fragment
-						(get-latest-fragment-of-topic identifier)))
-					   (if fragment
-					       (handler-case (to-json-string fragment)
-						 (condition (err) (progn
-								    (setf (hunchentoot:return-code) hunchentoot:+http-internal-server-error+)
-								    (format nil "<p style=\"color:red\">Condition: \"~a\"</p>" err))))
-					       "{}"))))
-				      ((eq http-method :PUT)
-				       (let ((put-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))	      
-					 (handler-case (progn
-							 (json-importer:json-to-elem put-data)
-							 (setf (hunchentoot:return-code) hunchentoot:+http-ok+)
-							 (setf (hunchentoot:content-type) "text")
-							 (format nil "~a" hunchentoot:+http-ok+))
-					   (condition (err) (progn
-							      (setf (hunchentoot:return-code) hunchentoot:+http-internal-server-error+)
-							      (format nil "<p style=\"color:red\">Condition: \"~a\"</p>" err))))))
-				      ))))
-;;				      ((eq http-method :POST)
-;;				       (let ((post-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
-;;					 (handler-case (progn
-;;							 (json-importer:json-to-elem post-data)
-;;							 (setf (hunchentoot:return-code) hunchentoot:+http-ok+)
-;;							 (setf (hunchentoot:content-type) "text")
-;;							 (format nil "~a" hunchentoot:+http-ok+))
-;;					   (condition (err) (progn
-;;							      (setf (hunchentoot:return-code) hunchentoot:+http-internal-server-error+)
-;;							      (format nil "<p style=\"color:red\">Condition: \"~a\"</p>" err))))))
-;;				      (t
-;;				       (progn ;for all htt-methods except for get and post
-;;					 (setf (hunchentoot:return-code) hunchentoot:+http-internal-server-error+)
-;;					 (format nil "<p style=\"color:red\">You have to use either the HTTP-Method \"GET\" or \"PUT\", but you used \"~a\"</p>" http-method)))))))
-     hunchentoot:*dispatch-table*)))
+  (declare (string json-get-prefix json-get-all-psis json-commit-url json-user-interface-url json-user-interface-file-path))
+  (push ;TODO create a static-file-and-folder-handler for all static files
+   (create-regex-dispatcher json-user-interface-url #'(lambda()
+							(hunchentoot:handle-static-file json-user-interface-file-path)))
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher "/prototype-1.6.0.3.js" #'(lambda()
+							(hunchentoot:handle-static-file "json/prototype-1.6.0.3.js")))
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-get-all-psis #'return-all-topic-psis)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-get-prefix #'return-json-fragment)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-commit-url #'json-commit)
+   hunchentoot:*dispatch-table*))
+
+
+;; =============================================================================
+;; --- some handlers for the json-rest-interface -------------------------------
+;; =============================================================================
+(defun return-all-topic-psis (&optional param)
+  "return all psis currently existing in isidorus as a list of list. every topic is a list
+   of psis and the entire list contains a list of topics"
+  (declare (ignorable param))
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (eq http-method :GET)
+	(progn
+	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	  (get-all-topic-psis))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
+(defun return-json-fragment(&optional psi)
+  "returns the json-fragmen belonging to the psi passed by the parameter psi"
+  (assert psi)
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (eq http-method :GET)
+	(let ((identifier (let ((pos (search "%23" psi)))
+			    (if pos
+				(let ((str-1 (subseq psi 0 pos))
+				      (str-2 (if (> (length psi) (+ pos 3))
+						 (subseq psi (+ pos 3))
+						 "")))
+				  (concatenate 'string str-1 "#" str-2))
+				psi))))
+	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	  (let ((fragment
+		 (get-latest-fragment-of-topic identifier)))
+	    (if fragment
+		(handler-case (to-json-string fragment)
+		  (condition (err)
+		    (progn
+		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		      (format nil "<p>Condition: \"~a\"</p>" err))))
+		"{}")))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
+(defun json-commit(&optional param)
+  "calls the json-to-elem method for a json-fragment and imports it to elephant"
+  (declare (ignorable param)) ;param is currently not used
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (or (eq http-method :PUT)
+	    (eq http-method :POST))
+	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
+	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
+	    (handler-case (json-importer:json-to-elem json-data)
+	      (condition (err)
+		(progn
+		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		  (format nil "<p>Condition: \"~a\"</p>" err))))))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))

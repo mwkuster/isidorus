@@ -121,8 +121,9 @@
 				     (:file "json_importer")
 				     (:static-file "json_interface.html"))
 	                :depends-on ("model" "xml"))
-	       (:module "threading"
-			:components ((:file "reader-writer"))))
+	       )
+	       ;;(:module "threading"
+	       ;;	:components ((:file "reader-writer"))))
   :depends-on (:cxml
                :drakma
 	       :elephant

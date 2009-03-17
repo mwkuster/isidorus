@@ -16,7 +16,9 @@
            :read-fragment-feed
            :start-tm-engine
 	   :shutdown-tm-engine
-	   :*json-rest-prefix*
+	   :*json-get-prefix*
+	   :*json-commit-url*
+	   :*json-get-all-psis*
 	   :*json-user-interface-url*
 	   :*json-user-interface-file-path*))
 
@@ -70,36 +72,6 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 ;; 	(format nil "<t:topicMap xmlns:t=\"http://www.topicmaps.org/xtm/1.0/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"/>"))))
 
 
-;;(defun make-json (&optional uri)
-;;  "returns a json-string of the topic with the passed psi-uri"
-;;  (assert uri)
-;;  ;decodes the url-encoding "%23" to "#" character (only the first which will be found)
-;;  (let ((identifier (let ((pos (search "%23" uri)))
-;;		      (if pos
-;;			  (let ((str-1 (subseq uri 0 pos))
-;;				(str-2 (if (> (length uri) (+ pos 3))
-;;					   (subseq uri (+ pos 3))
-;;					   "")))
-;;			    (concatenate 'string str-1 "#" str-2))
-;;			  uri)))
-;;	(http-method (request-method))
-;;	(external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF))) ;;is needed to get a string of the put-request
-;;    (if (eq http-method :GET)
-;;	(progn
-;;	  (setf (hunchentoot:content-type) "application/json")
-;;	  (let ((fragment
-;;		 (get-latest-fragment-of-topic identifier)))
-;;	    (if fragment
-;;		(handler-case (to-json-string fragment)
-;;		  (condition (err) (format nil "{\"fault\":\"~a\"}" err)))
-;;		"{}")))
-;;	(if (eq http-method :PUT)
-;;	    (let ((put-data (raw-post-data :external-format external-format :force-text t)))	      
-;;	      (handler-case (json-importer:json-to-elem put-data)
-;;		(condition () (setf (return-code) +http-internal-server-error+))))    
-;;	    (setf (return-code) +http-internal-server-error+))))) ; for all htt-methods except for get and post
-
-
 ;; (push 
 ;;  (create-regex-dispatcher "/feeds/?$" #'feeds) 
 ;;  hunchentoot:*dispatch-table*)
@@ -124,18 +96,15 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 ;;  (create-regex-dispatcher "/testtm/fragments/([0-9]+)$" #'fragments) 
 ;;  hunchentoot:*dispatch-table*)
 
-;;(push
-;; (create-regex-dispatcher "/json/psi/(.+)$" #'make-json)
-;; hunchentoot:*dispatch-table*)
-    
 
-(defvar *server*)
+
+(defvar *acceptor*)
 
 (defun start-tm-engine (repository-path &key (conffile "atom/conf.lisp") (host-name "localhost") (port 8000))
   "Start the Topic Map Engine on a given port, assuming a given
 hostname. Use the repository under repository-path"
-  (setf hunchentoot:*show-lisp-errors-p* t) ;for now 
-  (setf hunchentoot:*show-lisp-backtraces-p* t)
+  (setf hunchentoot:*show-lisp-errors-p* t) ;for now
+  ;(setf hunchentoot:*show-lisp-backtraces-p* t) ;hunchentoot 0.15.7
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (setf atom:*base-url* (format nil "http://~a:~a" host-name port))
@@ -144,9 +113,12 @@ hostname. Use the repository under repository-path"
   (load conffile)
   (publish-feed atom:*tm-feed*)
   (set-up-json-interface)
-  (setf *server* (hunchentoot:start-server :address host-name :port port)))
+  (setf *acceptor* (make-instance 'hunchentoot:acceptor :address host-name :port port))
+  (setf hunchentoot:*lisp-errors-log-level* :info)
+  (setf hunchentoot:*message-log-pathname* "./hunchentoot-errors.log")
+  (hunchentoot:start *acceptor*))
 
 (defun shutdown-tm-engine ()
   "Shut down the Topic Map Engine"
-  (hunchentoot:stop-server *server*)
+  (hunchentoot:stop *acceptor*)
   (elephant:close-store))
