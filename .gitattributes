@@ -10,6 +10,15 @@ docs/xtm_json.txt -text
 src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text
+src/json/javascripts/builder.js -text
+src/json/javascripts/controls.js -text
+src/json/javascripts/dragdrop.js -text
+src/json/javascripts/effects.js -text
+src/json/javascripts/prototype-1.6.0.3.js -text
+src/json/javascripts/scriptaculous.js -text
+src/json/javascripts/slider.js -text
+src/json/javascripts/sound.js -text
+src/json/javascripts/unittest.js -text
 src/json/json_importer.lisp -text
 src/json/json_interface.html -text
 src/rest_interface/set-up-json-interface.lisp -text

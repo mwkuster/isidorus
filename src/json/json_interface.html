@@ -5,8 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" type="text/css" href="main.css"/>
 
-    <!-- includes the prototype framework -->
-    <script language="JavaScript" type="text/javascript" src="prototype-1.6.0.3.js"></script>
+    <!-- includes the prototype and scriptaculous frameworks -->
+    <script language="JavaScript" type="text/javascript" src="javascripts/prototype-1.6.0.3.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/scriptaculous.js"></script>
 
     <!-- own javascript code -->
     <script language="JavaScript" type="text/javascript">
@@ -75,7 +76,9 @@
 	     }
 	     
 	     var url = CURRENT_URL = GET_PREFIX + ALL_PSIS[topicIdx][psiIdx].gsub("#", "%23");
-	     $("allPsisTable").remove();
+	     $("allPsisTable").shrink();
+	     setTimeout(function(){$("textArea").grow();}, 1500); // an easy way to define events by yourself
+	     //$("allPsisTable").remove();
 	     $("allPsisButton").insert({after: '<input id="commitPutButton" style="margin-top:10px; margin-bottom:10px;" type="button" onclick="commitPut()" value="commit fragment"/>'});
 	     // --- ajax request
 	     new Ajax.Request(url,
@@ -115,10 +118,14 @@
 			      });
 		 htmlStr += "</table>";
 		 $("allPsisButton").insert({after: htmlStr});
+		 $("allPsisTable").hide();
+		 $("allPsisTable").appear();
 	     }catch(err){
 		 alert("got bad JSON data: " + err);
 	     }
 	 }
+
+	 $("textArea").fade();
 
 	 // --- ajax request
 	 new Ajax.Request(ALL_PSIS_URL,
