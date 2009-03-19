@@ -3,6 +3,7 @@
   <head>
     <title>isidorus with protype and scriptaclous</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <!-- <meta http-equiv="pragma" content="no-cache"/> --> <!-- this statement is necessary to avoid browser caching, but does not work with IE --> 
     <link rel="stylesheet" type="text/css" href="main.css"/>
 
     <!-- includes the prototype and scriptaculous frameworks -->
@@ -12,17 +13,16 @@
     <!-- own javascript code -->
     <script language="JavaScript" type="text/javascript">
      // --- some constants -----------------------------------------------------
-     const TIMEOUT = 5000;
-     const GET_PREFIX = "http://localhost:8000/json/get/";
-     const COMMIT_URL = "http://localhost:8000/json/commit/";
-     const ALL_PSIS_URL = "http://localhost:8000/json/psis/";
-     const OWN_URL = "http://localhost:8000/isidorus";
+     var TIMEOUT = 5000; // const TIMEOUT = 5000 --> "const" doesn't work under IE
+     var GET_PREFIX = "http://143.93.190.250:8000/json/get/";
+     var COMMIT_URL = "http://143.93.190.250:8000/json/commit/";
+     var ALL_PSIS_URL = "http://143.93.190.250:8000/json/psis/";
+     var OWN_URL = "http://143.93.190.250:8000/isidorus";
 
      // --- some globals -------------------------------------------------------
      var ALL_PSIS = null;
      var CURRENT_URL = null;
      var CURRENT_FRAGMENT = null;
-
 
      // --- default error handler for all ajax objects
      function errorHandler(ajaxReq)
@@ -51,10 +51,10 @@
 	 new Ajax.Request(COMMIT_URL,
 			  {
 			      method: "post",
-				  requestHeaders:{ "Content-Type":"application/json"},
-				  onSuccess: commitPutHandler,
-				  onFailure: errorHandler,
-				  postBody: $("textArea").value
+			      requestHeaders:{ "Content-Type":"application/json"},
+			      onSuccess: commitPutHandler,
+			      onFailure: errorHandler,
+			      postBody: $("textArea").value
 			  });
      }
 
@@ -62,14 +62,15 @@
      // --- hides the table with all psis and sends a request to the server for a specific topic-psi
      function selectTopic(topicIdx, psiIdx)
      {
-	 if(ALL_PSIS != null && ALL_PSIS.length != 0){
+	 if(ALL_PSIS !== null && ALL_PSIS.length !== 0){
 	     // --- handler for the ajax request aobject - if the request was successful
  	     function getFragment(ajaxReq)
 	     {
 		 var response = ajaxReq.responseText;
 		 try{
 		     var jsonObj = CURRENT_FRAGMENT = response.evalJSON();
-		     $("textArea").value = response;
+		     $("textArea").innerHTML = response; // for safari
+		     $("textArea").value = response; // for all other browsers
 		 }catch(err){
 		     alert("got bad JSON data: " + err);
 		 }
@@ -78,14 +79,15 @@
 	     var url = CURRENT_URL = GET_PREFIX + ALL_PSIS[topicIdx][psiIdx].gsub("#", "%23");
 	     $("allPsisTable").shrink();
 	     setTimeout(function(){$("textArea").grow();}, 1500); // an easy way to define events by yourself
-	     //$("allPsisTable").remove();
+	     setTimeout(function(){$("allPsisTable").remove();}, 2000);
 	     $("allPsisButton").insert({after: '<input id="commitPutButton" style="margin-top:10px; margin-bottom:10px;" type="button" onclick="commitPut()" value="commit fragment"/>'});
 	     // --- ajax request
 	     new Ajax.Request(url,
 			      {
 				  method:'get',
-				      onSuccess: getFragment,
-				      onFailure: errorHandler
+  			          requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"], // rfc1945, to make sure that IE does not cache the ajax-response
+				  onSuccess: getFragment,
+				  onFailure: errorHandler
 			      });
 	 }
      }
@@ -110,11 +112,11 @@
 				  htmlStr += '<tr><td rowspan="' + topic.length + '">' + idx + '</td>';
 				  topic.each(function(psi, innerIdx)
 					     {
-						 if(innerIdx != 0)htmlStr += "<tr>";
+						 if(innerIdx !== 0)htmlStr += "<tr>";
 						 htmlStr += '<td><input id="psiRow" type="radio" name="psi" onclick="selectTopic(' + idx + ',' + innerIdx +')">' + psi + '</input></td>';
 						 htmlStr += "</tr>";
 					     });
-				  if(topic.length != 1)htmlStr += "</tr>";
+				  if(topic.length !== 1)htmlStr += "</tr>";
 			      });
 		 htmlStr += "</table>";
 		 $("allPsisButton").insert({after: htmlStr});
@@ -130,9 +132,10 @@
 	 // --- ajax request
 	 new Ajax.Request(ALL_PSIS_URL,
 			  {
-			      method:'get',
-				  onSuccess: getAllPsisSuccessHandler,
-				  onFailure: errorHandler
+			      method:"get",
+			      requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
+			      onSuccess: getAllPsisSuccessHandler,
+			      onFailure: errorHandler
 			  });
      }
     </script>
@@ -141,7 +144,7 @@
   <body>
     <div id="content" style="margin-top:20px; margin-left:auto; margin-right:auto; border:dashed; width:60%;">
       <input id="allPsisButton" style="margin:10px;" type="button" onclick="getAllPsis()" value="get all psis"/><br/>
-      <textarea id="textArea" style="margin-left:10px; margin-bottom:10px;" cols="100" rows="10"></textarea><br/>
+      <textarea id="textArea" style="margin-left:10px; margin-bottom:10px;" cols="67" rows="10"></textarea><br/>
       <input id="backButton" style="margin-left:10px; margin-bottom:10px;" type="button" onclick="goBack()" value="clear"/><br/>
     </div>
   </body>
