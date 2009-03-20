@@ -25,7 +25,7 @@
   ;;       *a second parameter should represent the prefix of the javascript files
   ;;       *the own javascript code should be extracted of the .html-file into a
   ;;        javascript file in the javascripts directory
-  (dolist (script '("jquery-1.3.2.js"))
+  (dolist (script '("builder.js" "controls.js" "dragdrop.js" "effects.js" "prototype-1.6.0.3.js" "scriptaculous.js" "slider.js" "sound.js" "unittest.js"))
     (let ((script-path (concatenate 'string "json/javascripts/" script))
 	  (script-url (concatenate 'string "/javascripts/" script)))
       (push

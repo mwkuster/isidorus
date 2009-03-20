@@ -6,135 +6,151 @@
     <!-- <meta http-equiv="pragma" content="no-cache"/> --> <!-- this statement is necessary to avoid browser caching, but does not work with IE --> 
     <link rel="stylesheet" type="text/css" href="main.css"/>
 
-    <!-- includes the jQuery framework -->
-    <script language="JavaScript" type="text/javascript" src="javascripts/jquery-1.3.2.js"></script>
-
+    <!-- includes the prototype and scriptaculous frameworks -->
+    <script language="JavaScript" type="text/javascript" src="javascripts/prototype-1.6.0.3.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/scriptaculous.js"></script>
 
     <!-- own javascript code -->
-    <script language="JavaScript" type="text/javascript"><!-- // for browsers that don't support javascript
+    <script language="JavaScript" type="text/javascript">
      // --- some constants -----------------------------------------------------
+     var TIMEOUT = 5000; // const TIMEOUT = 5000 --> "const" doesn't work under IE
      var HOST_PREF = "http://localhost:8000/";
      var GET_PREFIX = HOST_PREF + "json/get/";
      var COMMIT_URL = HOST_PREF + "json/commit/";
      var ALL_PSIS_URL = HOST_PREF + "json/psis/";
      var OWN_URL = HOST_PREF + "isidorus";
 
-     // --- navigates the user to the initial page with empty values
+     // --- some globals -------------------------------------------------------
+     var ALL_PSIS = null;
+     var CURRENT_FRAGMENT = null;
+
+     // --- default error handler for all ajax objects
+     function errorHandler(ajaxReq)
+     {
+	 alert("Something went wrong ... -> " + ajaxReq.status);
+     }
+
+
+     // --- redirects the client to the initial url
      function goBack()
      {
 	 window.location = OWN_URL;
+	 $("textArea").value = "";
      }
 
 
-     // --- the general error handler for all ajax requests
-     function errorHandler(xhr)
+     // --- ajax functions -----------------------------------------------------
+     function commitPut()
      {
-	 alert("something went wrong ... " + xhr.status + ": " + xhr.statusText);
+	 function commitPutHandler(ajaxReq)
+	 {
+	     alert($("textArea").value + "\n\n" + ajaxReq.status);
+	 }
+
+
+	 new Ajax.Request(COMMIT_URL,
+			  {
+			      method: "post",
+			      requestHeaders:{ "Content-Type":"application/json"},
+			      onSuccess: commitPutHandler,
+			      onFailure: errorHandler,
+			      postBody: $("textArea").value
+			  });
      }
 
 
-     // --- gets a list of lists of psis and produces an unordered list of them with a click event
-     // --- so the user is able to select a single psi which is neede to get a fragment
+     // --- hides the table with all psis and sends a request to the server for a specific topic-psi
+     function selectTopic(psi)
+     {
+	 if(ALL_PSIS !== null && ALL_PSIS.length !== 0){
+	     // --- handler for the ajax request aobject - if the request was successful
+ 	     function getFragment(ajaxReq)
+	     {
+		 var response = ajaxReq.responseText;
+		 try{
+		     var jsonObj = CURRENT_FRAGMENT = response.evalJSON();
+		     $("textArea").innerHTML = response; // for safari
+		     $("textArea").value = response; // for all other browsers
+		 }catch(err){
+		     alert("got bad JSON data: " + err);
+		 }
+	     }
+	     
+	     var url = GET_PREFIX + psi.gsub("#", "%23");
+	     $("allPsisTable").shrink();
+	     setTimeout(function(){$("textArea").grow();}, 1500); // an easy way to define events by yourself
+	     setTimeout(function(){$("allPsisTable").remove();}, 2000);
+	     $("allPsisButton").insert({after: '<input id="commitPutButton" style="margin-top:10px; margin-bottom:10px;" type="button" onclick="commitPut()" value="commit fragment"/>'});
+	     // --- ajax request
+	     new Ajax.Request(url,
+			      {
+				  method:'get',
+  			          requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"], // rfc1945, to make sure that IE does not cache the ajax-response
+				  onSuccess: getFragment,
+				  onFailure: errorHandler
+			      });
+	 }
+     }
+
+
+     // --- gets all topic psis are currently contained in isidorus
      function getAllPsis()
      {
-	 function successHandler(data)
+	 // --- handler for the ajax request aobject - if the request was successful
+	 function getAllPsisSuccessHandler(ajaxReq)
 	 {
-	     // --- removes all elements not neede in this action
-	     $("#allPsisList").remove();
-	     $("#commitButton").remove();
+	     var btn= $("commitPutButton");
+	     if(btn)btn.remove();
 
-	     // --- the json actions
-	     var json = eval(data);
+	     if($("allPsisTable") === null){ // avoid duplicates
+		 var response = ajaxReq.responseText;
+		 try{
+		     var jsonObj = ALL_PSIS = response.evalJSON();
+		     var htmlStr = '<table id="allPsisTable"><tr><th>topic #</th><th>psis</th></tr>';
+		     
+		     jsonObj.each(function(topic, idx)
+				  {
+				      htmlStr += '<tr><td rowspan="' + topic.length + '">' + idx + '</td>';
+				      topic.each(function(psi, innerIdx)
+						 {
+						     if(innerIdx !== 0)htmlStr += "<tr>";
+						     htmlStr += '<td><span id="psiRow_' + idx + '_' + innerIdx + '" name="psi">' + psi + '</span></td></tr>';
+						 });
+				      if(topic.length !== 1)htmlStr += "</tr>";
+				  });
+		     htmlStr += "</table>";
+		     $("allPsisButton").insert({after: htmlStr});
+		     $("allPsisTable").hide();
+		     $("allPsisTable").appear();
+		     
 
-	     $("#allPsisButton").after('<ul id="allPsisList"<ul></ul>');
-	     $.each(json, function(idx, topicPsis)
-		    {
-			var htmlStr = "";
-			$.each(topicPsis, function(innerIdx, psi)
-			       {
-				   if(innerIdx != 0){
-				       htmlStr += "<br/>";
-				   }				   
-				   htmlStr += '<span id="' + idx + '_' + innerIdx + '">' + psi + "</span>";
-			       });
-
-
-			$("#allPsisList").html($("#allPsisList").html() + "<li>" + htmlStr + "</li>");
-			
-		    });
-
-
-	     // --- some effects
-	     $("li").hide();
-	     $("li").slideDown('slow');	     
-
-
-	     // --- marks a span element if the users hovers it by changing the css
-	     $("span").hover(function()
-			     {
-				 $(this).css("background-color", "silver");
-				 $(this).css("cursor", "pointer");
-			     },
-			     function(){
-				 $(this).css("background-color", "white");
-				 $(this).css("cursor", "default");
-			     });
-
-	     // --- adds a click handler som the user is able to choose a specifi psi/topic
-	     $("span").click(function(){ getFragment($(this).text()); });
+		     // --- iterates through the new created DOM-elements and adds to every one a click-event-handler
+		     jsonObj.each(function(topic, idx)
+				  {
+				      topic.each(function(psi, innerIdx)
+						 {
+						     $("psiRow_" + idx + "_" + innerIdx).observe("click", function(event){ selectTopic(Event.element(event).innerHTML); });
+						     $("psiRow_" + idx + "_" + innerIdx).observe("mouseover", function(event){Event.element(event).up().setStyle({"backgroundColor" : "silver", "cursor" : "pointer"}); });
+						     $("psiRow_" + idx + "_" + innerIdx).observe("mouseout", function(event){ Event.element(event).up().setStyle({"backgroundColor" : "white", "cursor" : "default"}); });
+						 });
+				  });
+		 }catch(err){
+		     alert("got bad JSON data: " + err);
+		 }
+	     }
 	 }
 
-	 // --- the ajax reauest
-	 $.ajax({
-		 type: "GET",
-		 cache: false, // sets a get parameter after the request, so IE doesn' chache the response
-		 url: ALL_PSIS_URL,
-		 success: successHandler,
-		 error: errorHandler
-	     });
+	 $("textArea").fade();
+
+	 // --- ajax request
+	 new Ajax.Request(ALL_PSIS_URL,
+			  {
+			      method:"get",
+			      requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
+			      onSuccess: getAllPsisSuccessHandler,
+			      onFailure: errorHandler
+			  });
      }
-
-
-     // --- gets a specifi fragment belonging to the passed psi
-     function getFragment(psi)
-     {
-	 function successHandler(data)
-	 {
-	     $("ul").remove();
-	     $("#textArea").val(data);
-	     $("#allPsisButton").after('<input id="commitButton" type="button" value="commit via post" style="margin:10px;" type="button" onclick="commitJson();"/>');
-	 }
-
-	 var url = GET_PREFIX + psi.replace("#", "%23");
-
-	 $.ajax({
-		 type: "GET",
-		 url: url,
-		 cache: false,
-		 success: successHandler,
-		 error: errorHandler
-	     });
-     }
-
-
-     // --- commits the json ragment in the textarea element to the server
-     function commitJson()
-     {
-	 function completeHandler(xhr, textStatus)
-	 {
-	     alert(xhr.status + ":\n\n" + $("#textArea").val());
-	 }
-
-
-	 $.ajax({
-		 type: "POST",
-		 url: COMMIT_URL,
-		 data: $("#textArea").val(),
-		 complete: completeHandler,
-		 error: errorHandler
-	       });
-     }
-    //  --> 
     </script>
   </head>
 
