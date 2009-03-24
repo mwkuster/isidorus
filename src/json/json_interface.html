@@ -1,155 +1,176 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>isidorus with protype and scriptaclous</title>
+    <title>isidorus with dojo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <!-- <meta http-equiv="pragma" content="no-cache"/> --> <!-- this statement is necessary to avoid browser caching, but does not work with IE --> 
     <link rel="stylesheet" type="text/css" href="main.css"/>
 
     <!-- includes the prototype and scriptaculous frameworks -->
-    <script language="JavaScript" type="text/javascript" src="javascripts/prototype-1.6.0.3.js"></script>
-    <script language="JavaScript" type="text/javascript" src="javascripts/scriptaculous.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/dojo/dojo.js" djConfig="parseOnLoad: true, isDebug: true"></script>
 
     <!-- own javascript code -->
     <script language="JavaScript" type="text/javascript">
+     //dojo.require("dojo.NodeList-fx");
+     dojo.require("dojo.html");
+
      // --- some constants -----------------------------------------------------
-     var TIMEOUT = 5000; // const TIMEOUT = 5000 --> "const" doesn't work under IE
-     var HOST_PREF = "http://localhost:8000/";
+     var HOST_PREF = "http://localhost:8000/"; // const instead of var doesn't work with IE
      var GET_PREFIX = HOST_PREF + "json/get/";
      var COMMIT_URL = HOST_PREF + "json/commit/";
      var ALL_PSIS_URL = HOST_PREF + "json/psis/";
      var OWN_URL = HOST_PREF + "isidorus";
-
-     // --- some globals -------------------------------------------------------
-     var ALL_PSIS = null;
-     var CURRENT_FRAGMENT = null;
-
-     // --- default error handler for all ajax objects
-     function errorHandler(ajaxReq)
-     {
-	 alert("Something went wrong ... -> " + ajaxReq.status);
-     }
+     var TIMEOUT = 5000;
 
 
-     // --- redirects the client to the initial url
      function goBack()
      {
 	 window.location = OWN_URL;
-	 $("textArea").value = "";
+     }
+
+     // --- the default error handler for ajax requests
+     function errorHandler(err, ioArgs)
+     {
+	 alert("something went wrong ... " + err);
      }
 
 
-     // --- ajax functions -----------------------------------------------------
-     function commitPut()
+     function commitJson()
      {
-	 function commitPutHandler(ajaxReq)
+	 function loadHandler(arg)
 	 {
-	     alert($("textArea").value + "\n\n" + ajaxReq.status);
+	     alert("json:\n" + dojo.byId("textArea").value);
 	 }
 
 
-	 new Ajax.Request(COMMIT_URL,
-			  {
-			      method: "post",
-			      requestHeaders:{ "Content-Type":"application/json"},
-			      onSuccess: commitPutHandler,
-			      onFailure: errorHandler,
-			      postBody: $("textArea").value
-			  });
+	 dojo.xhrPost({url: COMMIT_URL,
+		       timeout: TIMEOUT,
+		       postData: dojo.byId("textArea").value,
+		       load: loadHandler,
+		       error : errorHandler,
+		       headers : {"content-type" : "application/json"}
+	             });
      }
 
 
-     // --- hides the table with all psis and sends a request to the server for a specific topic-psi
-     function selectTopic(psi)
+
+     // --- gets a fragment to a specific topic psi and fills the text area with the json response
+     // --- additionally the entire psi-tree will be removed
+     function getFragment(event)
      {
-	 if(ALL_PSIS !== null && ALL_PSIS.length !== 0){
-	     // --- handler for the ajax request aobject - if the request was successful
- 	     function getFragment(ajaxReq)
-	     {
-		 var response = ajaxReq.responseText;
-		 try{
-		     var jsonObj = CURRENT_FRAGMENT = response.evalJSON();
-		     $("textArea").innerHTML = response; // for safari
-		     $("textArea").value = response; // for all other browsers
-		 }catch(err){
-		     alert("got bad JSON data: " + err);
-		 }
-	     }
-	     
-	     var url = GET_PREFIX + psi.gsub("#", "%23");
-	     $("allPsisTable").shrink();
-	     setTimeout(function(){$("textArea").grow();}, 1500); // an easy way to define events by yourself
-	     setTimeout(function(){$("allPsisTable").remove();}, 2000);
-	     $("allPsisButton").insert({after: '<input id="commitPutButton" style="margin-top:10px; margin-bottom:10px;" type="button" onclick="commitPut()" value="commit fragment"/>'});
-	     // --- ajax request
-	     new Ajax.Request(url,
-			      {
-				  method:'get',
-  			          requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"], // rfc1945, to make sure that IE does not cache the ajax-response
-				  onSuccess: getFragment,
-				  onFailure: errorHandler
-			      });
+	 function loadHandler(json)
+	 {
+	     // --- sets the text area content
+	     dojo.byId("textArea").textContent = json;
+
+	     // --- creates a send button
+	     var button = dojo.create("input");
+	     dojo.attr(button, {"type" : "button", "id" : "commitButton", "value" : "commit via post", "onclick" : "commitJson();"});
+	     dojo.place(button, dojo.byId("allPsisButton"), "after");
 	 }
+
+
+	 // --- removes the psis nodes
+	 var topicPsi = event.target.innerHTML;
+	 var contentDiv = dojo.byId("content");
+
+	 // --- some effects
+	 var delta = 0;
+	 dojo.forEach(dojo.query("> .divPsi", contentDiv), function(divNode, idx)
+		      {
+			  setTimeout(function(){dojo.fadeOut({ node: divNode, duration: 2000 }).play();}, delta);
+			  delta += 50;
+		      });
+	 
+
+	 setTimeout(function(){
+		 dojo.forEach(dojo.query("> .divPsi", contentDiv), function(divNode, idx)
+			      {
+				  contentDiv.removeChild(divNode);
+			      })},
+	     delta);
+		     
+
+	 // --- gets the json fragment
+	 var url = GET_PREFIX + topicPsi.replace("#", "%23");	 
+
+	 dojo.xhrGet({url: url,
+		      timeout: TIMEOUT,
+		      preventCache: true,
+		      load: loadHandler,
+		      error: errorHandler
+		     });
      }
 
 
-     // --- gets all topic psis are currently contained in isidorus
+     // --- gets all topic psis as a list of lists [[topic-1-psi-1, topic-1-psi-2, ...], [topic-2-psi-1, ...], ...]
      function getAllPsis()
      {
-	 // --- handler for the ajax request aobject - if the request was successful
-	 function getAllPsisSuccessHandler(ajaxReq)
+	 // --- the ajax request handler for a successful request
+	 function loadHandler(json)
 	 {
-	     var btn= $("commitPutButton");
-	     if(btn)btn.remove();
+	     // --- marks a div/span element which is hovered by the user
+	     function onmouseoverHandler(event)
+	     {
+		 var node = event.target;
+		 dojo.style(node, {"backgroundColor" : "silver"});
+		 dojo.style(node.parentNode, {"border" : "1px solid", "cursor" : "pointer"});
+	     }
 
-	     if($("allPsisTable") === null){ // avoid duplicates
-		 var response = ajaxReq.responseText;
-		 try{
-		     var jsonObj = ALL_PSIS = response.evalJSON();
-		     var htmlStr = '<table id="allPsisTable"><tr><th>topic #</th><th>psis</th></tr>';
-		     
-		     jsonObj.each(function(topic, idx)
-				  {
-				      htmlStr += '<tr><td rowspan="' + topic.length + '">' + idx + '</td>';
-				      topic.each(function(psi, innerIdx)
-						 {
-						     if(innerIdx !== 0)htmlStr += "<tr>";
-						     htmlStr += '<td><span id="psiRow_' + idx + '_' + innerIdx + '" name="psi">' + psi + '</span></td></tr>';
-						 });
-				      if(topic.length !== 1)htmlStr += "</tr>";
-				  });
-		     htmlStr += "</table>";
-		     $("allPsisButton").insert({after: htmlStr});
-		     $("allPsisTable").hide();
-		     $("allPsisTable").appear();
-		     
 
-		     // --- iterates through the new created DOM-elements and adds to every one a click-event-handler
-		     jsonObj.each(function(topic, idx)
-				  {
-				      topic.each(function(psi, innerIdx)
-						 {
-						     $("psiRow_" + idx + "_" + innerIdx).observe("click", function(event){ selectTopic(Event.element(event).innerHTML); });
-						     $("psiRow_" + idx + "_" + innerIdx).observe("mouseover", function(event){Event.element(event).up().setStyle({"backgroundColor" : "silver", "cursor" : "pointer"}); });
-						     $("psiRow_" + idx + "_" + innerIdx).observe("mouseout", function(event){ Event.element(event).up().setStyle({"backgroundColor" : "white", "cursor" : "default"}); });
-						 });
-				  });
-		 }catch(err){
-		     alert("got bad JSON data: " + err);
-		 }
+	     // --- unmarks an element
+	     function onmouseleaveHandler(event)
+	     {
+		 var node = event.target;
+		 dojo.style(node, {"backgroundColor" : "white"});
+		 dojo.style(node.parentNode, {"border" : "none", "cursor" : "default"});
+	     }
+
+
+	     // --- removes the commit button
+	     var cBtn = dojo.byId("commitButton");
+	     if(cBtn !== null){
+		 cBtn.parentNode.removeChild(dojo.byId("commitButton"));
+	     }
+
+
+	     // --- if there are no psis listed there will be listed all pasis got by the xhr object
+	     if(dojo.query(".divPsi").length === 0){
+		 dojo.forEach(json, function(topicPsis, idx)
+			      {
+				  // --- creates a new div node which contains all psis of a topic (-> represents a topic)
+				  var topicNode = dojo.create("div");
+				  dojo.attr(topicNode, {"class" : "divPsi"});
+				  dojo.style(topicNode, "margin", "10px");
+				  dojo.place(topicNode, dojo.byId("allPsisButton"), "after");
+				  
+				  dojo.forEach(topicPsis, function(psi, innerIdx)
+					       {
+						   // --- creates a span node which contains a psi and will be inserted
+						   // --- in the div node created before
+						   var psiNode = dojo.create("span");
+						   psiNode.innerHTML = psi;
+						   dojo.place(psiNode, topicNode, "last");
+						   dojo.attr(psiNode, {"onclick" : "getFragment();"});
+						   dojo.connect(psiNode, "onmouseover", onmouseoverHandler);
+						   dojo.connect(psiNode, "onmouseleave", onmouseleaveHandler);
+						   dojo.connect(psiNode, "onclick", getFragment);
+						   
+						   if(innerIdx !== topicPsis.length - 1 ){
+						       dojo.place("<br", psiNode, "after");
+						   }
+					       });
+			      });
 	     }
 	 }
 
-	 $("textArea").fade();
-
-	 // --- ajax request
-	 new Ajax.Request(ALL_PSIS_URL,
-			  {
-			      method:"get",
-			      requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
-			      onSuccess: getAllPsisSuccessHandler,
-			      onFailure: errorHandler
-			  });
+	 // --- the ajax request
+	 dojo.xhrGet({url: ALL_PSIS_URL,
+		      handleAs: "json",
+		      timeout: TIMEOUT,
+		      preventCache: true,
+		      load: loadHandler,
+		      error: errorHandler
+		     });
      }
     </script>
   </head>

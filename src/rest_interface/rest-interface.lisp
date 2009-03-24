@@ -20,7 +20,9 @@
 	   :*json-commit-url*
 	   :*json-get-all-psis*
 	   :*json-user-interface-url*
-	   :*json-user-interface-file-path*))
+	   :*json-user-interface-file-path*
+	   :*json-javascript-directory-path*
+	   :*json-javascript-url-prefix*))
 
 
 (in-package :rest-interface)
