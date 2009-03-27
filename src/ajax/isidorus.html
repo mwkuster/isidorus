@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>isidorus</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="main.css"/>
+
+    <!-- includes the prototype and scriptaculous frameworks -->
+    <script language="JavaScript" type="text/javascript" src="javascripts/prototype.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/scriptaculous.js"></script>
+
+    <!-- own javascript code -->
+    <script language="JavaScript" type="text/javascript">
+     // --- some constants -----------------------------------------------------
+     var TIMEOUT = 5000; // const TIMEOUT = 5000 --> "const" doesn't work under IE
+     var HOST_PREF = "http://localhost:8000/";
+     var GET_PREFIX = HOST_PREF + "json/get/";
+     var COMMIT_URL = HOST_PREF + "json/commit/";
+     var ALL_PSIS_URL = HOST_PREF + "json/psis/";
+     var OWN_URL = HOST_PREF + "isidorus";
+
+     // --- some globals -------------------------------------------------------
+     var ALL_PSIS = null;
+     var CURRENT_FRAGMENT = null;
+
+     // --- default error handler for all ajax objects
+     function errorHandler(ajaxReq)
+     {
+	 alert("Something went wrong ... -> " + ajaxReq.status);
+     }
+
+
+     // --- redirects the client to the initial url
+     function goBack()
+     {
+	 window.location = OWN_URL;
+	 $("textArea").value = "";
+     }
+
+
+     // --- ajax functions -----------------------------------------------------
+     function commitPut()
+     {
+	 function commitPutHandler(ajaxReq)
+	 {
+	     alert($("textArea").value + "\n\n" + ajaxReq.status);
+	 }
+
+
+	 new Ajax.Request(COMMIT_URL,
+			  {
+			      method: "post",
+			      requestHeaders:{ "Content-Type":"application/json"},
+			      onSuccess: commitPutHandler,
+			      onFailure: errorHandler,
+			      postBody: $("textArea").value
+			  });
+     }
+
+
+     // --- hides the table with all psis and sends a request to the server for a specific topic-psi
+     function selectTopic(psi)
+     {
+	 if(ALL_PSIS !== null && ALL_PSIS.length !== 0){
+	     // --- handler for the ajax request aobject - if the request was successful
+ 	     function getFragment(ajaxReq)
+	     {
+		 var response = ajaxReq.responseText;
+		 try{
+		     var jsonObj = CURRENT_FRAGMENT = response.evalJSON();
+		     $("textArea").innerHTML = response; // for safari
+		     $("textArea").value = response; // for all other browsers
+		 }catch(err){
+		     alert("got bad JSON data: " + err);
+		 }
+	     }
+	     
+	     var url = GET_PREFIX + psi.gsub("#", "%23");
+	     $("allPsisTable").shrink();
+	     setTimeout(function(){$("textArea").grow();}, 1500); // an easy way to define events by yourself
+	     setTimeout(function(){$("allPsisTable").remove();}, 2000);
+	     $("allPsisButton").insert({after: '<input id="commitPutButton" style="margin-top:10px; margin-bottom:10px;" type="button" onclick="commitPut()" value="commit fragment"/>'});
+	     // --- ajax request
+	     new Ajax.Request(url,
+			      {
+				  method:'get',
+  			          requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"], // rfc1945, to make sure that IE does not cache the ajax-response
+				  onSuccess: getFragment,
+				  onFailure: errorHandler
+			      });
+	 }
+     }
+
+
+     // --- gets all topic psis are currently contained in isidorus
+     function getAllPsis()
+     {
+	 // --- handler for the ajax request aobject - if the request was successful
+	 function getAllPsisSuccessHandler(ajaxReq)
+	 {
+	     var btn= $("commitPutButton");
+	     if(btn)btn.remove();
+
+	     if($("allPsisTable") === null){ // avoid duplicates
+		 var response = ajaxReq.responseText;
+		 try{
+		     var jsonObj = ALL_PSIS = response.evalJSON();
+		     var htmlStr = '<table id="allPsisTable"><tr><th>topic #</th><th>psis</th></tr>';
+		     
+		     jsonObj.each(function(topic, idx)
+				  {
+				      htmlStr += '<tr><td rowspan="' + topic.length + '">' + idx + '</td>';
+				      topic.each(function(psi, innerIdx)
+						 {
+						     if(innerIdx !== 0)htmlStr += "<tr>";
+						     htmlStr += '<td><span id="psiRow_' + idx + '_' + innerIdx + '" name="psi">' + psi + '</span></td></tr>';
+						 });
+				      if(topic.length !== 1)htmlStr += "</tr>";
+				  });
+		     htmlStr += "</table>";
+		     $("allPsisButton").insert({after: htmlStr});
+		     $("allPsisTable").hide();
+		     $("allPsisTable").appear();
+		     
+
+		     // --- iterates through the new created DOM-elements and adds to every one a click-event-handler
+		     jsonObj.each(function(topic, idx)
+				  {
+				      topic.each(function(psi, innerIdx)
+						 {
+						     $("psiRow_" + idx + "_" + innerIdx).observe("click", function(event){ selectTopic(Event.element(event).innerHTML); });
+						     $("psiRow_" + idx + "_" + innerIdx).observe("mouseover", function(event){Event.element(event).up().setStyle({"backgroundColor" : "silver", "cursor" : "pointer"}); });
+						     $("psiRow_" + idx + "_" + innerIdx).observe("mouseout", function(event){ Event.element(event).up().setStyle({"backgroundColor" : "white", "cursor" : "default"}); });
+						 });
+				  });
+		 }catch(err){
+		     alert("got bad JSON data: " + err);
+		 }
+	     }
+	 }
+
+	 $("textArea").fade();
+
+	 // --- ajax request
+	 new Ajax.Request(ALL_PSIS_URL,
+			  {
+			      method:"get",
+			      requestHeaders: ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
+			      onSuccess: getAllPsisSuccessHandler,
+			      onFailure: errorHandler
+			  });
+     }
+    </script>
+  </head>
+
+  <body>
+    <div id="content" style="margin-top:20px; margin-left:auto; margin-right:auto; border:dashed; width:60%;">
+      <input id="allPsisButton" style="margin:10px;" type="button" onclick="getAllPsis()" value="get all psis"/><br/>
+      <textarea id="textArea" style="margin-left:10px; margin-bottom:10px;" cols="67" rows="10"></textarea><br/>
+      <input id="backButton" style="margin-left:10px; margin-bottom:10px;" type="button" onclick="goBack()" value="clear"/><br/>
+    </div>
+  </body>
+</html>

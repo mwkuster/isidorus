@@ -118,9 +118,20 @@
 				     "json"))
 	       (:module "json"
 	                :components ((:file "json_exporter")
-				     (:file "json_importer")
-				     (:static-file "json_interface.html"))
+				     (:file "json_importer"))
 	                :depends-on ("model" "xml"))
+	       (:module "ajax"
+			:components ((:static-file "isidorus.html")
+				     (:module "javascripts"
+					      :components ((:static-file "builder.js")
+							   (:static-file "controls.js")
+							   (:static-file "dragdrop.js")
+							   (:static-file "effects.js")
+							   (:static-file "prototype.js")
+							   (:static-file "scriptaculous.js")
+							   (:static-file "slider.js")
+							   (:static-file "sound.js")
+							   (:static-file "unittest.js")))))
 	       )
 	       ;;(:module "threading"
 	       ;;	:components ((:file "reader-writer"))))

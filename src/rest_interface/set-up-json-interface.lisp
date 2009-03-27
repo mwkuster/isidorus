@@ -3,27 +3,29 @@
 (defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psis -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-commit-url* "/json/commit/?$") ;the url to commit a json fragment by "put" or "post"
 (defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
-(defparameter *json-user-interface-url* "/isidorus/?$") ;the url to the user interface -> localhost:8000/isidorus
-(defparameter *json-user-interface-file-path* "json/json_interface.html") ;the file path to the HTML file implements the user interface
-(defparameter *json-javascript-directory-path* "json/javascripts") ;the directory which contains all necessary javascript files
-(defparameter *json-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
+(defparameter *ajax-user-interface-url* "/isidorus/?$") ;the url to the user interface -> localhost:8000/isidorus
+(defparameter *ajax-user-interface-file-path* "ajax/isidorus.html") ;the file path to the HTML file implements the user interface
+(defparameter *ajax-javascript-directory-path* "ajax/javascripts") ;the directory which contains all necessary javascript files
+(defparameter *ajax-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
 
 
-(defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*) (json-get-all-psis *json-get-all-psis*)
-			      (json-commit-url *json-commit-url*) (json-user-interface-url *json-user-interface-url*)
-			      (json-user-interface-file-path *json-user-interface-file-path*)
-			      (json-javascripts-directory-path *json-javascript-directory-path*)
-			      (json-javascripts-url-prefix *json-javascript-url-prefix*))
+(defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
+			      (json-get-all-psis *json-get-all-psis*)
+			      (json-commit-url *json-commit-url*)
+			      (ajax-user-interface-url *ajax-user-interface-url*)
+			      (ajax-user-interface-file-path *ajax-user-interface-file-path*)
+			      (ajax-javascripts-directory-path *ajax-javascript-directory-path*)
+			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
-  (declare (string json-get-prefix json-get-all-psis json-commit-url json-user-interface-url json-user-interface-file-path))
+  (declare (string json-get-prefix json-get-all-psis json-commit-url ajax-user-interface-url ajax-user-interface-file-path))
   (push
-   (create-regex-dispatcher json-user-interface-url
+   (create-regex-dispatcher ajax-user-interface-url
 			    #'(lambda()
-				(hunchentoot:handle-static-file json-user-interface-file-path "text/html")))
+				(hunchentoot:handle-static-file ajax-user-interface-file-path "text/html")))
    hunchentoot:*dispatch-table*)
   ;; === ajax frameworks =======================================================
-  (dolist (script-path-and-url (make-javascripts-url json-javascripts-directory-path json-javascripts-url-prefix))
+  (dolist (script-path-and-url (make-file-path-and-url ajax-javascripts-directory-path ajax-javascripts-url-prefix))
     (let ((script-path (getf script-path-and-url :path))
 	  (script-url (getf script-path-and-url :url)))
       (push (create-regex-dispatcher script-url
@@ -99,7 +101,7 @@
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
-(defun make-javascripts-url (path-to-javascripts url-prefix)
+(defun make-file-path-and-url (path-to-javascripts url-prefix)
   "returns a list of lists which contains an absolute file path and a file-url
    concatenated of the url-prefix and the relative path of all all files in the
    passed directory and its subdirectories"
