@@ -17,7 +17,7 @@
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
   (declare (string json-get-prefix json-get-all-psis json-commit-url json-user-interface-url json-user-interface-file-path))
-  (push ;TODO create a static-file-and-folder-handler for all static files
+  (push
    (create-regex-dispatcher json-user-interface-url
 			    #'(lambda()
 				(hunchentoot:handle-static-file json-user-interface-file-path "text/html")))
@@ -28,7 +28,7 @@
 	  (script-url (getf script-path-and-url :url)))
       (push (create-regex-dispatcher script-url
 				     #'(lambda()
-					 (hunchentoot:handle-static-file script-path "text/javascript")))
+					 (hunchentoot:handle-static-file script-path))); "text/javascript")))
 	    hunchentoot:*dispatch-table*)))
   ;; === ajax frameworks end ===================================================
   (push
