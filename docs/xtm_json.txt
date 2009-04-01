@@ -1,11 +1,50 @@
-resourceData:
+//+-----------------------------------------------------------------------------
+//+ Overview:
+//+  *Part 1: XTM - data model
+//+  *Part 2: Object summaries
+//+-----------------------------------------------------------------------------
+
+
+
+
+//+-----------------------------------------------------------------------------
+//+ Part 1: XTM - data model:
+//+   The first part describes the xtm's data model, here will be all elements
+//+   defined in the xtm defined as json objects and finally there will be used
+//+   as json objects in a json-fragment-object.
+//+
+//+   this json model depends on the xtm version 2.0 and contains the following
+//+   objects:
+//+    *resourceData
+//+    *variant
+//+    *name
+//+    *name
+//+    *occurrence
+//+    *topic
+//+    *role
+//+    *association
+//+    *topicStub
+//+    *fragment
+//+
+//+   At the end of this file are some expample json objects, you can also
+//+   validate json data on "http://www.jsonlint.com/".
+//+   Note all values, although they are null values e.g. the "type" field in
+//+   a name object should be set to a value - in this case "null".
+//+-----------------------------------------------------------------------------
+
+
+//+-----------------------------------------------------------------------------
+//+ resourceData
+//+-----------------------------------------------------------------------------
 {
   "datatype" : "Text",
   "value" : "Text"
 }
 
 
-variant:
+//+-----------------------------------------------------------------------------
+//+ variant
+//+-----------------------------------------------------------------------------
 {
   "itemIdentities" : [ "Text" , "..." ],
   "scopes" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
@@ -14,7 +53,9 @@ variant:
 }
 
 
-name:
+//+-----------------------------------------------------------------------------
+//+ name
+//+-----------------------------------------------------------------------------
 {
   "itemIdentities" : [ "Text", "..." ],
   "type" : [ "PSI-1", "PSI-2", "..." ],
@@ -24,7 +65,9 @@ name:
 }
 
 
-occurrence:
+//+-----------------------------------------------------------------------------
+//+ occurrence
+//+-----------------------------------------------------------------------------
 {
   "itemIdentities" : [ "Text", "..." ],
   "type" : [ "PSI-1", "PSI-2", "..." ],
@@ -34,7 +77,9 @@ occurrence:
 }
 
 
-topic:
+//+-----------------------------------------------------------------------------
+//+ topic
+//+-----------------------------------------------------------------------------
 {
   "id" : "Text",
   "itemIdentities" : [ "Text", "..." ],
@@ -46,7 +91,9 @@ topic:
 }
 
 
-role:
+//+-----------------------------------------------------------------------------
+//+ role
+//+-----------------------------------------------------------------------------
 {
   "itemIdentities" : [ "Text", "..." ],
   "type" : [ "PSI-1", "PSI-2", "..." ],
@@ -54,7 +101,9 @@ role:
 }
 
 
-association:
+//+-----------------------------------------------------------------------------
+//+ association
+//+-----------------------------------------------------------------------------
 {
   "itemIdentities" : [ "Text", "..." ],
   "type" : [ "PSI-1", "PSI-2", "..." ],
@@ -63,7 +112,9 @@ association:
 }
 
 
-topicStub:
+//+-----------------------------------------------------------------------------
+//+ topicStub
+//+-----------------------------------------------------------------------------
 {
   "id" : "Text",
   "itemIdentities" : [ "Text", "..." ],
@@ -72,24 +123,70 @@ topicStub:
 }
 
 
-fragment
+//+-----------------------------------------------------------------------------
+//+ fragment
+//+    The field tm-ids should have only one tm-id in the list, because
+//+    there will be used only the first, if the fragment is an incoming one
+//+    outgoing fragment have a list with more tm-ids but at least one
+//+-----------------------------------------------------------------------------
 {
   "topic" : { <topic> },
   "topicStubs" : [ { <topicStub> }, { <...> } ],
   "associations" : [ { <association> }, { <...> } ],
   "tm-ids" : [ "id-1", "id-2", "..." ]
 }
-// the field tm-ids should have only one tm-id in the list, because
-// there will be used only the first if the fragment is an incoming one
-// outgoing fragment have a list with more tm-ids but at least one
 
 
-a summary of all topic psis within isidorus
-[["topic-1-psi-1","topic-1-psi-2",<...>],["topic-2-psi-1","topic-2-psi-2",<...>],<...>]
+//+-----------------------------------------------------------------------------
+//+ Part 2: Object summaries
+//+   The second part contains object summaries of exisiting objects in
+//+   isidorus.
+//+
+//+    *psiSummary
+//+    *topicSummary
+//+-----------------------------------------------------------------------------
+
+
+//+-----------------------------------------------------------------------------
+//+ psiSummary
+//+    The json list is made of inner json-lists.
+//+    Every inner json list represents one topic with all psis owned by the
+//+    topic. The outer list represents a set of all topics exist in isidorus.
+//+-----------------------------------------------------------------------------
+[ [ "topic-1-psi-1", "topic-1-psi-2", <...> ], [ "topic-2-psi-1", "topic-2-psi-2", <...> ], <...> ]
+
+
+//+-----------------------------------------------------------------------------
+//+ topicSummary
+//+    contains the topic id,subjetcIdentifiers, itemIdentities,
+//+    subjectLocators, nameSummaries and occurrenceSummaries
+//+-----------------------------------------------------------------------------
+{
+  "id" : "Text",
+  "itemIdentities" : [ "Text", "..." ],
+  "subjectLocators" : [ "Text", "..." ],
+  "subjectIdentifiers" : [ "Text", "..." ],
+  "instanceOfs" : [ [ "PSI-1-t1", "PSI-2-t1", "..." ], [ "PSI-1-t2", "PSI-2-t2", "..." ], [ "..." ] ],
+  "names" : [ "name-1", "name-2", <...> ],
+  "occurrences" : [ "occurrence-1", "occurrence-2", <...>]
+}
 
 
 
-=== example fragment with one topic, a few topicStubs and associations =========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {
   "topic" : {
               "id"  :  "t403",

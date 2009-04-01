@@ -19,6 +19,7 @@
 	   :*json-get-prefix*
 	   :*json-commit-url*
 	   :*json-get-all-psis*
+	   :*json-get-summary-prefix**
 	   :*ajax-user-interface-url*
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*

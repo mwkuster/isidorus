@@ -7,7 +7,17 @@ docs/isidorus_classes.pdf -text svneol=unset#application/pdf
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
 docs/xtm_json.txt -text
+src/ajax/css/create_topics.css -text
+src/ajax/css/edit_topics.css -text
+src/ajax/css/home.css -text
+src/ajax/css/main.css -text
+src/ajax/css/navi.css -text
+src/ajax/css/search_topics.css -text
 src/ajax/isidorus.html -text
+src/ajax/javascripts/ajax_constants.js -text
+src/ajax/javascripts/ajax_edit_topic.js -text
+src/ajax/javascripts/ajax_home.js -text
+src/ajax/javascripts/ajax_navi.js -text
 src/ajax/javascripts/builder.js -text
 src/ajax/javascripts/controls.js -text
 src/ajax/javascripts/dragdrop.js -text

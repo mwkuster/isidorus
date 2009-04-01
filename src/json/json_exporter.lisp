@@ -1,14 +1,20 @@
 (defpackage :json-exporter
   (:use :cl :json :datamodel)
   (:export :to-json-string
-	   :get-all-topic-psis))
+	   :get-all-topic-psis
+	   :to-json-string-summary
+	   :make-topic-summary))
 
 (in-package :json-exporter)
 
 ;; the json schema for our datamodel is in ".../docs/xtm_json.txt"
 
+
+;; =============================================================================
+;; --- main json data model ----------------------------------------------------
+;; =============================================================================
 (defgeneric to-json-string (instance &key xtm-id)
-  (:documentation "converts the Topic Maps construct instance to a json string"))
+  (:documentation "converts the Topic Map construct instance to a json string"))
 
 
 (defun identifiers-to-json-string (parent-construct &key (what 'd:psis))
@@ -130,7 +136,7 @@
 
 
 (defmethod to-json-string ((instance TopicC) &key (xtm-id d:*current-xtm*))
-  "transforms an OccurrenceC object to a json string"
+  "transforms an TopicC object to a json string"
   (let ((id
 	 (concatenate 'string "\"id\":\"" (topicid instance) "\""))
 	(itemIdentity
@@ -272,6 +278,9 @@
     (concatenate 'string "{" main-topic "," topicStubs "," associations "," tm-ids "}")))
 
 
+;; =============================================================================
+;; --- json data summeries -----------------------------------------------------
+;; =============================================================================
 (defun get-all-topic-psis()
   "returns all topic psis as a json list of the form
    [[topic-1-psi-1, topic-1-psi-2],[topic-2-psi-1, topic-2-psi-2],...]"
@@ -280,3 +289,55 @@
 				    (when psi-list
 				      (map 'list #'uri psi-list)))
 			  (map 'list #'psis (elephant:get-instances-by-class 'TopicC))))))
+
+
+(defun to-json-string-summary (topic)
+  "creates a json string of called topic element. the following elements are within this
+   summary:
+    *topic id
+    *all identifiers
+    *names (only the real name value)
+    *occurrences (jonly the resourceRef and resourceData elements)"
+  (declare (TopicC topic))
+  (let ((id
+	 (concatenate 'string "\"id\":\"" (topicid topic) "\""))
+	(itemIdentity
+	 (concatenate 'string "\"itemIdentities\":"
+		      (identifiers-to-json-string topic :what 'item-identifiers)))
+	(subjectLocator 
+	 (concatenate 'string "\"subjectLocators\":"
+		      (identifiers-to-json-string topic :what 'locators)))
+	(subjectIdentifier
+	 (concatenate 'string "\"subjectIdentifiers\":"
+		      (identifiers-to-json-string topic :what 'psis)))
+	(instanceOf
+	 (concatenate 'string "\"instanceOfs\":" (ref-topics-to-json-string (list-instanceOf topic))))
+	(name
+	 (concatenate 'string "\"names\":"
+		      (if (names topic)
+			  (json:encode-json-to-string (loop for name in (names topic)
+							 when (slot-boundp name 'charvalue)
+							 collect (charvalue name)))
+			  "null")))
+	(occurrence
+	 (concatenate 'string "\"occurrences\":"
+		      (if (occurrences topic)
+			  (json:encode-json-to-string (loop for occurrence in (occurrences topic)
+							 when (slot-boundp occurrence 'charvalue)
+							 collect (charvalue occurrence)))
+			  "null"))))
+    (concatenate 'string "{" id "," itemIdentity "," subjectLocator "," subjectIdentifier ","
+		 instanceOf "," name "," occurrence "}")))
+
+
+(defun make-topic-summary (topic-list)
+  "creates a json list of the produced json-strings by to-json-string-summary"
+  (if topic-list
+      (let ((json-string
+	     (let ((inner-string nil))
+	       (concatenate 'string
+			    (loop for topic in topic-list
+			       do (setf inner-string (concatenate 'string inner-string (to-json-string-summary topic) ","))))
+	       (subseq inner-string 0 (- (length inner-string) 1)))))
+	(concatenate 'string "[" json-string "]"))
+      "null"))

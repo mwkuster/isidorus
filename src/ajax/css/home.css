@@ -1,0 +1,32 @@
+.topicSummaryTd {
+    width: 40px;
+    border: solid 1px gray;
+}
+
+#topicTable {
+    width: 80%;
+    border: solid 1px gray;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+th {
+    color: red;
+    border: solid 1px gray;
+}
+
+ul.topicTable {
+    list-style: none;
+}
+
+div.naviTopicTable {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+select.topicTable {
+    margin-left: 20px;
+}
