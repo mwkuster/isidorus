@@ -1,31 +1,11 @@
-;;; file:  testing_db.lisp
-;;; author:  lukas giessmann
-;;; eMail:  inf1045@fh-worms.de
-;;; description: contains the following tests in the test-suite "testing-db":
-;;;               *test-obj1
-;;;               *test-obj2
-;;;               *test-obj3
-;;;               *test-obj4
-;;;               *test-obj5
-;;;               *test-obj6
-;;;               *test-closing-db
-;;;               *test-consistent-file
-;;; notes:  *test-inconsistent-file is not implemented (only test body exists)
-;;;         *compile warning: ... The symbol "%OID" is not external in the ELEPHANT package ...
-;;;           choose: 0: [CONTINUE] Use symbol anyway
-;;; revision 30.04.2008:  *(asdf:operate 'asdf:load-op 'isidorus) instead
-;;;                         of loading all files separately
-;;;                       *all tests with the to-string method were removed
-;;;                       *function get-object-by-id was removed
-;;;                       *definition of equalT(TopicMapConstructC, TopicMapConstructC)
-;;;                       *definition of equalA(TopicMapConstructC, TopicMapConstructC)
-;;;                       *definition of equalN(TopicMapConstructC, TopicMapConstructC)
-;;; revision 04.04.2008:  *equalT was completely implemented
-;;;                       *equalA and equalN were removed
-;;;                       *test-closing-db and test-consistent-file use the macros signals
-;;;                         and not is (signals type (body) -> is true if the error of the type
-;;;                         type was thrown)
-;;; date:  20.04.2008 - 04.05.2008
+;;+-----------------------------------------------------------------------------
+;;+  Isidorus
+;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+
+;;+  Isidorus is freely distributable under the LGPL license.
+;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+-----------------------------------------------------------------------------
+
 
 (asdf:operate 'asdf:load-op 'FiveAM)
 (asdf:operate 'asdf:load-op 'cxml)

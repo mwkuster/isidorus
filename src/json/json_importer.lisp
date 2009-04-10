@@ -1,3 +1,12 @@
+;;+-----------------------------------------------------------------------------
+;;+  Isidorus
+;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+
+;;+  Isidorus is freely distributable under the LGPL license.
+;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+-----------------------------------------------------------------------------
+
+
 (defpackage :json-importer
   (:use :cl :json :datamodel :xml-importer)
   (:export :json-to-elem
@@ -342,7 +351,7 @@
 	       (setf topicStubs (cdr j-elem)))
 	      ((string= (car j-elem) :associations)
 	       (setf associations (cdr j-elem)))
-	      ((string= (car j-elem) :tm-ids)
+	      ((string= (car j-elem) :tm-Ids)
 	       (setf tm-ids (cdr j-elem)))
 	      (t
 	       (error "json-importer:get-fragment-values-from-json-string:

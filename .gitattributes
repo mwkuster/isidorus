@@ -1,4 +1,5 @@
 * text=auto !eol
+docs/LGPL-LICENSE.txt -text
 docs/TODOs.txt svneol=native#text/plain
 docs/collection_feed.png -text svneol=unset#image/png
 docs/fragments_feed.png -text svneol=unset#image/png
@@ -7,26 +8,25 @@ docs/isidorus_classes.pdf -text svneol=unset#application/pdf
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
 docs/xtm_json.txt -text
-src/ajax/css/create_topics.css -text
-src/ajax/css/edit_topics.css -text
 src/ajax/css/home.css -text
 src/ajax/css/main.css -text
 src/ajax/css/navi.css -text
-src/ajax/css/search_topics.css -text
 src/ajax/isidorus.html -text
-src/ajax/javascripts/ajax_constants.js -text
-src/ajax/javascripts/ajax_edit_topic.js -text
-src/ajax/javascripts/ajax_home.js -text
-src/ajax/javascripts/ajax_navi.js -text
-src/ajax/javascripts/builder.js -text
-src/ajax/javascripts/controls.js -text
-src/ajax/javascripts/dragdrop.js -text
-src/ajax/javascripts/effects.js -text
-src/ajax/javascripts/prototype.js -text
-src/ajax/javascripts/scriptaculous.js -text
-src/ajax/javascripts/slider.js -text
-src/ajax/javascripts/sound.js -text
-src/ajax/javascripts/unittest.js -text
+src/ajax/javascripts/constants.js -text
+src/ajax/javascripts/edit_topic.js -text
+src/ajax/javascripts/external/MIT-LICENSE.txt -text
+src/ajax/javascripts/external/prototype/prototype.js -text
+src/ajax/javascripts/external/scriptaculous/builder.js -text
+src/ajax/javascripts/external/scriptaculous/controls.js -text
+src/ajax/javascripts/external/scriptaculous/dragdrop.js -text
+src/ajax/javascripts/external/scriptaculous/effects.js -text
+src/ajax/javascripts/external/scriptaculous/scriptaculous.js -text
+src/ajax/javascripts/external/scriptaculous/slider.js -text
+src/ajax/javascripts/external/scriptaculous/sound.js -text
+src/ajax/javascripts/external/scriptaculous/unittest.js -text
+src/ajax/javascripts/home.js -text
+src/ajax/javascripts/make_fragment_node.js -text
+src/ajax/javascripts/navi.js -text
 src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text

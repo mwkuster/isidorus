@@ -125,15 +125,15 @@
 
 //+-----------------------------------------------------------------------------
 //+ fragment
-//+    The field tm-ids should have only one tm-id in the list, because
+//+    The field tmIds should have only one tm-id in the list, because
 //+    there will be used only the first, if the fragment is an incoming one
-//+    outgoing fragment have a list with more tm-ids but at least one
+//+    outgoing fragments have a list with more tmIds but at least one
 //+-----------------------------------------------------------------------------
 {
   "topic" : { <topic> },
   "topicStubs" : [ { <topicStub> }, { <...> } ],
   "associations" : [ { <association> }, { <...> } ],
-  "tm-ids" : [ "id-1", "id-2", "..." ]
+  "tmIds" : [ "id-1", "id-2", "..." ]
 }
 
 
@@ -397,5 +397,5 @@
 				  ]
 		     }
 		   ],
-  "tm-ids" : [ "test-tm"]
+  "tmIds" : [ "test-tm"]
 }

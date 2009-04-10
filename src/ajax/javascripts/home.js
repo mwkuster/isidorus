@@ -1,7 +1,21 @@
+//+-----------------------------------------------------------------------------
+//+  Isidorus
+//+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+//+
+//+  Isidorus is freely distributable under the LGPL license.
+//+  This ajax module uses the frameworks PrototypeJs and Scriptaculous, both
+//+  are distributed under the MIT license.
+//+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt and
+//+  in trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.
+//+-----------------------------------------------------------------------------
+
+
 // --- with this object there will be set the first and last index of topics to get by the ajax request
 // --- further this object handles out of range violations and some other site effects, e.g.
 // --- topicsPerPage === -1 -> show all topics, ...
 var __idx = {"firstIdx" : 0, "lastIdx" : 10, "lastDirectionForward" : true, "topicsPerPage" : 10, "outOfRange" : false,
+	     "topicPerPageVals" : ["5", "10", "15", "25", "50", "100", "200", "300", "All"],
+	     "getTopicPerPageVals" : function(){ return this.topicPerPageVals; },
 	     "getFirstIdx" : function(){ return this.firstIdx; },
 	     "setFirstIdx" : function(x) { if(typeof(x) === "number" && x >= 0) this.firstIdx = x; },
 	     "getLastIdx" : function(){ return this.lastIdx; },
@@ -9,6 +23,7 @@ var __idx = {"firstIdx" : 0, "lastIdx" : 10, "lastDirectionForward" : true, "top
 	     "getLastDirectionForward" : function() { return this.lastDirectionForward; },
 	     "setLastDirectionForward" : function(x) { if(typeof(x) === "boolean") this.lastDirectionForward = x; },
 	     "getTopicsPerPage" : function() {return (this.topicsPerPage === -1 ? "nil" : this.topicsPerPage); },
+	     "getTopicsPerPageAsNumber" : function(){ return this.topicsPerPage; },
 	     "setTopicsPerPage" : function(x) {
 		 if(typeof(x) === "number" && x > 0){
 		     this.topicsPerPage = x;
@@ -23,7 +38,6 @@ var __idx = {"firstIdx" : 0, "lastIdx" : 10, "lastDirectionForward" : true, "top
 	     "setOutOfRange" : function(x){ if(typeof(x) === "boolean") this.outOfRange = x;  },
 	     "next" : function() {
 		 if(this.outOfRange) return;
-
 		 this.firstIdx += this.topicsPerPage;
 		 if(this.topicsPerPage !== -1){ this.lastIdx = this.firstIdx + this.topicsPerPage; }
 		 else { this.lastIdx = "nil"; }
@@ -83,16 +97,18 @@ function makeHome(parentId, tableId, next)
 				   makeHome(parentId, tableId, false);
 			       });
 
-		var select = new Element("select", {"id" : (top ? "topicTableSelectTop" : "topicTableSelectBottom"), "class" : "topicTable"});
-		var selectValues = new Array("5", "10", "15", "25", "50", "100", "200", "300", "All");
+		var select = new Element("select", {"id" : (top === true ? "topicTableSelectTop" : "topicTableSelectBottom"), "class" : "topicTable"});
+		var selectValues = __idx.getTopicPerPageVals();
 		var selectInnerHTML = "";
 		selectValues.each(function(value, idx)
 				  {
-				      if(Number(value) !== __idx.getTopicsPerPage()){
-					  select.insert(new Element("option", {"value" : (value === "All" ? -1 : value)}).update(value), {"position" : "bottom"});
+				      var numberValue = value;
+				      numberValue = (numberValue === "All" ? "-1" : numberValue);
+				      if(Number(numberValue) !== __idx.getTopicsPerPageAsNumber()){
+					  select.insert(new Element("option", {"value" : numberValue}).update(value), {"position" : "bottom"});
 				      }
 				      else {
-					  select.insert(new Element("option", {"value" : (value === "All" ? -1 : value), "selected" : "selected"}).update(value), {"position" : "bottom"});
+					  select.insert(new Element("option", {"value" : numberValue, "selected" : "selected"}).update(value), {"position" : "bottom"});
 				      }
 				  });
 		div.insert(select, {"position" : "content"});
@@ -113,7 +129,7 @@ function makeHome(parentId, tableId, next)
 	    if(topicSummaries !== null || $(tableId) === null){
 		// --- removes the old table - if there exists an element with the id "tableId"
 		if($(tableId) !== null)$(tableId).remove();
-		if($("naviDivBottom") !== null)$("naviDivBottom").remove();
+		if($("naviDivTop") !== null)$("naviDivTop").remove();
 		if($("naviDivBottom") !== null)$("naviDivBottom").remove();
 		
 		createTableNavi(true);
@@ -144,7 +160,7 @@ function makeHome(parentId, tableId, next)
 					    if(topicSummary.itemIdentities){
 						topicSummary.itemIdentities.each(function(itemIdentityJ, innerIdx)
 										 {
-										     ul.insert(new Element("li").update(itemIdentityJ));
+										     ul.insert(new Element("li").update(itemIdentityJ), {"position" : "bottom"});
 										 });
 					    }
 					    
@@ -154,7 +170,7 @@ function makeHome(parentId, tableId, next)
 					    if(topicSummary.subjectLocators){
 						topicSummary.subjectLocators.each(function(subjectLocatorJ, innerIdx)
 										  {
-										      ul.insert(new Element("li").update(subjectLocatorJ));
+										      ul.insert(new Element("li").update(subjectLocatorJ), {"position" : "bottom"});
 										  });		    
 					    }
 
@@ -165,11 +181,11 @@ function makeHome(parentId, tableId, next)
 						topicSummary.subjectIdentifiers.each(function(subjectIdentifierJ, innerIdx)
 										     {
 											 var li = new Element("li", {"class" : "clickable"}).update(subjectIdentifierJ);
-											 ul.insert(li);
+											 ul.insert(li, {"position" : "bottom"});
 											 li.observe("click", function(event)
 												    {
 													var node = event.element();
-													makePage(PAGES.edit);//, node.textContent);
+													makePage(PAGES.edit, node.textContent);
 												    });
 										     });
 					    }
@@ -183,7 +199,7 @@ function makeHome(parentId, tableId, next)
 										  if(instanceOfJ){
 											  instanceOfJ.each(function(psi, psiIdx)
 													  {
-													      ul.insert(new Element("li").update(psi));
+													      ul.insert(new Element("li").update(psi), {"position" : "top"});
 													  });
 										  }
 									      });
@@ -195,7 +211,7 @@ function makeHome(parentId, tableId, next)
 					    if(topicSummary.names){
 						topicSummary.names.each(function(nameJ, innerIdx)
 									{
-									    ul.insert(new Element("li").update(nameJ));
+									    ul.insert(new Element("li").update(nameJ), {"position" : "top"});
 									});
 					    }
 
@@ -205,7 +221,7 @@ function makeHome(parentId, tableId, next)
 					    if(topicSummary.occurrences){
 						topicSummary.occurrences.each(function(occurrenceJ, innerIdx)
 									      {
-										  ul.insert(new Element("li").update(occurrenceJ));
+										  ul.insert(new Element("li").update(occurrenceJ), {"position" : "top"});
 									      });
 					    }
 
@@ -248,7 +264,7 @@ function makeHome(parentId, tableId, next)
     }
 
 
-     // --- the real ajax request
+    // --- the real ajax request
     new Ajax.Request(SUMMARY_URL,
 		     {"method" : "get",
 		      "onSuccess" : onSuccessHandler,

@@ -1,4 +1,13 @@
 <?xml version="1.0"?>
+<!-- ======================================================================= -->
+<!--  Isidorus                                                               -->
+<!--  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann          -->
+<!--                                                                         -->
+<!--  Isidorus is freely distributable under the LGPL license.               -->
+<!--  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.    -->
+<!-- ======================================================================= -->
+
+
 <topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
 
   <!-- === test object 1 =================================================== -->

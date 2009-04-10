@@ -1,4 +1,13 @@
 ;;-*- mode: lisp -*-
+;;+-----------------------------------------------------------------------------
+;;+  Isidorus
+;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+
+;;+  Isidorus is freely distributable under the LGPL license.
+;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+-----------------------------------------------------------------------------
+
+
 (defpackage :isidorus-system
   (:use :asdf :cl))
 (in-package :isidorus-system)
@@ -123,25 +132,26 @@
 	       (:module "ajax"
 			:components ((:static-file "isidorus.html")
 				     (:module "javascripts"
-					      :components ((:static-file "builder.js")
-							   (:static-file "controls.js")
-							   (:static-file "dragdrop.js")
-							   (:static-file "effects.js")
-							   (:static-file "prototype.js")
-							   (:static-file "scriptaculous.js")
-							   (:static-file "slider.js")
-							   (:static-file "sound.js")
-							   (:static-file "unittest.js")
-							   (:static-file "ajax_constants.js")
-							   (:static-file "ajax_home.js")
-							   (:static-file "ajax_navi.js")
-							   (:static-file "ajax_edit_topic.js")))
+					      :components ((:static-file "constants.js")
+							   (:static-file "home.js")
+							   (:static-file "navi.js")
+							   (:static-file "make_fragment_node.js")
+							   (:static-file "edit_topic.js")
+							   (:module "external"
+								    :components ((:module "prototype"
+											  :components ((:static-file "prototype.js")))
+										 (:module "scriptaculous"
+											  :components ((:static-file "builder.js")
+												       (:static-file "controls.js")
+												       (:static-file "dragdrop.js")
+												       (:static-file "effects.js")
+												       (:static-file "scriptaculous.js")
+												       (:static-file "slider.js")
+												       (:static-file "sound.js")
+												       (:static-file "unittest.js")))))))
 				     (:module "css"
-					      :components ((:static-file "create_topics.css")
-							   (:static-file "edit_topics.css")
-							   (:static-file "home.css")
+					      :components ((:static-file "home.css")
 							   (:static-file "navi.css")
-							   (:static-file "search_topics.css")
 							   (:static-file "main.css")))))
 	       )
 	       ;;(:module "threading"

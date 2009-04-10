@@ -1,3 +1,12 @@
+;;+-----------------------------------------------------------------------------
+;;+  Isidorus
+;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+
+;;+  Isidorus is freely distributable under the LGPL license.
+;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+-----------------------------------------------------------------------------
+
+
 ;; (defmacro site (&body lines)
 ;;            `(dolist (line (quote ,lines))
 ;;               (format t "~a~&" line)))

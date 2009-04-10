@@ -1,3 +1,12 @@
+;;+-----------------------------------------------------------------------------
+;;+  Isidorus
+;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+
+;;+  Isidorus is freely distributable under the LGPL license.
+;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+-----------------------------------------------------------------------------
+
+
 (in-package :rest-interface)
 
 (defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psis -> localhost:8000/json/get/<fragment-psi>

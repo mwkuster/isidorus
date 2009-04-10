@@ -1,3 +1,12 @@
+;;+-----------------------------------------------------------------------------
+;;+  Isidorus
+;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+
+;;+  Isidorus is freely distributable under the LGPL license.
+;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+-----------------------------------------------------------------------------
+
+
 (defpackage :json-exporter
   (:use :cl :json :datamodel)
   (:export :to-json-string
@@ -267,7 +276,7 @@
 			    (concatenate 'string (subseq j-associations 0 (- (length j-associations) 1)) "]"))
 			  "null")))
 	(tm-ids
-	 (concatenate 'string "\"tm-ids\":"
+	 (concatenate 'string "\"tmIds\":"
 		      (if (in-topicmaps (topic instance))
 			  (let ((j-tm-ids "["))
 			    (loop for item in (in-topicmaps (topic instance))
