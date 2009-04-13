@@ -1040,7 +1040,13 @@ function makeFragmentNode(content)
 		}
 
 		var ioElems =  topicFrame.getElementsByClassName(CLASSES.instanceOfFrame())[0].getElementsByClassName(CLASSES.textRow());
-		var _instanceOfs = "\"instanceOfs\":" + makeList(ioElems);
+		var _instanceOfs = makeList(ioElems);
+		if(_instanceOfs === "null"){
+		    _instanceOfs = "\"instanceOfs\":null";   
+		}
+		else {
+		    _instanceOfs = "\"instanceOfs\":[" + _instanceOfs + "]";
+		}
 		
 		var naElems = topicFrame.getElementsByClassName(CLASSES.namesFrame())[0].getElementsByClassName(CLASSES.nameFrame());
 		var _names = "\"names\":";
@@ -1239,7 +1245,7 @@ function makeFragmentNode(content)
 				 method: "post",
 				 requestHeaders:{ "Content-Type":"application/json"},
 				 onSuccess: function(xhr){ window.alert("Fragment committed successfully!"); },
-				 onFailure: function(xhr){ window.alert("Something went wrong ...\n" + xhr.status + ": " + xhr.statusText); },
+				 onFailure: function(xhr){ window.alert("Something went wrong ...\n" + xhr.status + ": " + xhr.statusText + "\n" + xhr.responseText); },
 				 postBody: _fragment
 	                     });
 	}
@@ -1271,7 +1277,7 @@ function getAndBuildFragment(topicPsi)
 	    $("content").insert(makeFragmentNode(jsonFragment), {"position" : "content"});
 	}
 	catch(err){
-	    alert("Got bad json data from " + GET_PREFIX + topicPsi.gsub("#", "%23"));
+	    alert("Got bad json data from " + GET_PREFIX + topicPsi.gsub("#", "%23") + "\n" + err);
 	}
     }
 

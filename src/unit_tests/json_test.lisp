@@ -116,7 +116,7 @@
 	  (elephant:add-association association-7 'themes t62)
 	  (let ((association-7-string (to-json-string association-7))
 		(json-string
-		 (concatenate 'string "{\"itemIdentities\":[\"http://psi.egovpt.org/itemIdentifiers#assoc_7\"],\"type\":null,\"scopes\":[\"" (topicid t62) "\",\"" (topicid t64) "\"],\"roles\":null}")))
+		 (concatenate 'string "{\"itemIdentities\":[\"http://psi.egovpt.org/itemIdentifiers#assoc_7\"],\"type\":null,\"scopes\":[[\"http://psi.egovpt.org/types/StandardRoleType\"],[\"http://psi.egovpt.org/types/serviceUsesStandard\"]],\"roles\":null}")))
 	    (is (string= association-7-string json-string))))))))
 
 

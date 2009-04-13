@@ -147,7 +147,7 @@
 (defmethod to-json-string ((instance TopicC) &key (xtm-id d:*current-xtm*))
   "transforms an TopicC object to a json string"
   (let ((id
-	 (concatenate 'string "\"id\":\"" (topicid instance) "\""))
+	 (concatenate 'string "\"id\":" (json:encode-json-to-string (topicid instance))))
 	(itemIdentity
 	 (concatenate 'string "\"itemIdentities\":"
 		      (identifiers-to-json-string instance :what 'item-identifiers)))
@@ -188,7 +188,7 @@
    subjectIdentifiers"
   (when topic
     (let ((id
-	   (concatenate 'string "\"id\":\"" (topicid topic) "\""))
+	   (concatenate 'string "\"id\":" (json:encode-json-to-string (topicid topic))))
 	  (itemIdentity
 	   (concatenate 'string "\"itemIdentities\":"
 			(identifiers-to-json-string topic :what 'item-identifiers)))
@@ -227,8 +227,7 @@
 	(type
 	 (type-to-json-string instance))
 	(scope
-	 (let ((scopes (map 'list #'topicid (themes instance))))
-	   (concatenate 'string "\"scopes\":" (json:encode-json-to-string scopes))))
+	 (concatenate 'string "\"scopes\":" (ref-topics-to-json-string (themes instance))))
 	(role
 	 (concatenate 'string "\"roles\":"
 		      (if (roles instance)
@@ -280,8 +279,10 @@
 		      (if (in-topicmaps (topic instance))
 			  (let ((j-tm-ids "["))
 			    (loop for item in (in-topicmaps (topic instance))
-			       do (setf j-tm-ids (concatenate 'string j-tm-ids "\""
-							      (d:uri (first (d:item-identifiers item))) "\",")))
+			       ;do (setf j-tm-ids (concatenate 'string j-tm-ids "\""
+				;			      (d:uri (first (d:item-identifiers item))) "\",")))
+			       do (setf j-tm-ids (concatenate 'string j-tm-ids 
+							      (json:encode-json-to-string (d:uri (first (d:item-identifiers item)))) ",")))
 			    (concatenate 'string (subseq j-tm-ids 0 (- (length j-tm-ids) 1)) "]"))
 			  "null"))))
     (concatenate 'string "{" main-topic "," topicStubs "," associations "," tm-ids "}")))

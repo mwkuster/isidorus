@@ -33,6 +33,12 @@
 			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
+
+  ;; registers the http-code 500 for an internal server error to the standard
+  ;; return codes. so there won't be attached a hunchentoot default message,
+  ;; this is necessary to be able to send error messages in an individual way/syntax
+  ;; e.g. a json error-message.
+  (push hunchentoot:+http-internal-server-error+ hunchentoot:*approved-return-codes*)
   ;; === html and css files ====================================================
   (push
    (create-regex-dispatcher ajax-user-interface-url
@@ -83,7 +89,11 @@
     (if (eq http-method :GET)
 	(progn
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	  (get-all-topic-psis))
+	  (handler-case (get-all-topic-psis)
+	    (condition (err) (progn
+			       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+			       (setf (hunchentoot:content-type*) "text")
+			       (format nil "Condition: \"~a\"" err)))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
@@ -108,7 +118,8 @@
 		  (condition (err)
 		    (progn
 		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-		      (format nil "<p>Condition: \"~a\"</p>" err))))
+		      (setf (hunchentoot:content-type*) "text")
+		      (format nil "Condition: \"~a\"" err))))
 		"{}")))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
@@ -125,7 +136,8 @@
 	      (condition (err)
 		(progn
 		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-		  (format nil "<p>Condition: \"~a\"</p>" err))))))
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Condition: \"~a\"" err))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
@@ -138,32 +150,35 @@
 	(end-idx
 	 (handler-case (parse-integer (hunchentoot:get-parameter "end"))
 	   (condition () nil))))
-
-    (let ((topics (elephant:get-instances-by-class 'd:TopicC)))
-      (let ((end
-	     (cond
-	       ((not end-idx)
-		(length topics))
-	       ((> end-idx (length topics))
-		(length topics))
-	       ((< end-idx 0)
-		0)
-	       (t
-		end-idx))))
-	(let ((start
-	       (cond
-		 ((> start-idx (length topics))
-		  end)
-		 ((< start-idx 0)
-		  0)
-		 (t
-		  start-idx))))
-	  (let ((topics-in-range
-		 (if (<= start end)
-		     (subseq topics start end)
-		     (reverse (subseq topics end start)))))
-	    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	    (json-exporter:make-topic-summary topics-in-range)))))))
+    (handler-case (let ((topics (elephant:get-instances-by-class 'd:TopicC)))
+		    (let ((end
+			   (cond
+			     ((not end-idx)
+			      (length topics))
+			     ((> end-idx (length topics))
+			      (length topics))
+			     ((< end-idx 0)
+			      0)
+			     (t
+			      end-idx))))
+		      (let ((start
+			     (cond
+			       ((> start-idx (length topics))
+				end)
+			       ((< start-idx 0)
+				0)
+			       (t
+				start-idx))))
+			(let ((topics-in-range
+			       (if (<= start end)
+				   (subseq topics start end)
+				   (reverse (subseq topics end start)))))
+			  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+			  (json-exporter:make-topic-summary topics-in-range)))))
+      (condition (err) (progn
+			 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+			 (setf (hunchentoot:content-type*) "text")
+			 (format nil "Condition: \"~a\"" err))))))
 
 
 ;; =============================================================================
