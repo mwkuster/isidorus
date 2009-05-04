@@ -286,4 +286,13 @@ locator and an internally generated id (ideally a uuid)"))
                    (elephant:get-instances-by-value 'FragmentC 'topic topic)))
               ;; maybe there are more fragments of this topic in different revisions,
               ;; so we need to search the fragment with a certain revision
-              (first (sort fragments #'> :key 'revision)))))))))
+              (let ((found-fragment 
+		     (if fragments
+			 (first (sort fragments #'> :key 'revision))
+			 ;; if there exist a topic but always no fragment, there will be generated a new fragment of the latest version for the searched topic
+			 (make-instance 'FragmentC
+					:revision (first (sort (versions topic) #'> :key 'start-revision))
+					:associations (find-associations-for-topic topic)
+					:referenced-topics (find-referenced-topics topic)
+					:topic topic))))
+		found-fragment))))))))

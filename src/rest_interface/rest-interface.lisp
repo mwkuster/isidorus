@@ -28,7 +28,11 @@
 	   :*json-get-prefix*
 	   :*json-commit-url*
 	   :*json-get-all-psis*
-	   :*json-get-summary-prefix**
+	   :*json-get-summary-prefix*
+	   :*json-get-all-type-psis*
+	   :*json-get-topic-stub-prefix*
+	   :*json-get-type-tmcl-prefix*
+	   :*json-get-instance-tmcl-prefix*
 	   :*ajax-user-interface-url*
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*
@@ -110,11 +114,13 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 
 
 
-(defvar *acceptor*)
+(defvar *server-acceptor* nil)
 
 (defun start-tm-engine (repository-path &key (conffile "atom/conf.lisp") (host-name "localhost") (port 8000))
   "Start the Topic Map Engine on a given port, assuming a given
-hostname. Use the repository under repository-path"
+   hostname. Use the repository under repository-path"
+  (when *server-acceptor*
+    (error "Ther server is already running"))
   (setf hunchentoot:*show-lisp-errors-p* t) ;for now
   ;(setf hunchentoot:*show-lisp-backtraces-p* t) ;hunchentoot 0.15.7
   (setf hunchentoot:*hunchentoot-default-external-format* 
@@ -125,12 +131,13 @@ hostname. Use the repository under repository-path"
   (load conffile)
   (publish-feed atom:*tm-feed*)
   (set-up-json-interface)
-  (setf *acceptor* (make-instance 'hunchentoot:acceptor :address host-name :port port))
+  (setf *server-acceptor* (make-instance 'hunchentoot:acceptor :address host-name :port port))
   (setf hunchentoot:*lisp-errors-log-level* :info)
   (setf hunchentoot:*message-log-pathname* "./hunchentoot-errors.log")
-  (hunchentoot:start *acceptor*))
+  (hunchentoot:start *server-acceptor*))
 
 (defun shutdown-tm-engine ()
   "Shut down the Topic Map Engine"
-  (hunchentoot:stop *acceptor*)
+  (hunchentoot:stop *server-acceptor*)
+  (setf *server-acceptor* nil)
   (elephant:close-store))

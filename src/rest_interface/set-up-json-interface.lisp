@@ -13,6 +13,10 @@
 (defparameter *json-commit-url* "/json/commit/?$") ;the url to commit a json fragment by "put" or "post"
 (defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
 (defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary od all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
+(defparameter *json-get-all-type-psis* "/json/tmcl/types/?$") ;returns a list of all psis that can be a type
+(defparameter *json-get-topic-stub-prefix* "/json/tmcl/topicstubs/(.+)$") ;the json prefix for getting some topic stub information of a topic and its "derived" topics
+(defparameter *json-get-type-tmcl-prefix* "/json/tmcl/type/(.+)$") ;the json prefix for getting some tmcl information of a topic treated as a type
+(defparameter *json-get-instance-tmcl-prefix* "/json/tmcl/instance/(.+)$") ;the json prefix for getting some tmcl information of a topic treated as an instance
 (defparameter *ajax-user-interface-url* "/isidorus/?$") ;the url to the user interface; if you want to get all topics set start=0&end=nil -> localhost:8000/isidorus
 (defparameter *ajax-user-interface-css-prefix* "/css") ;the url to the css files of the user interface
 (defparameter *ajax-user-interface-css-directory-path* "ajax/css") ;the directory contains the css files
@@ -20,11 +24,14 @@
 (defparameter *ajax-javascript-directory-path* "ajax/javascripts") ;the directory which contains all necessary javascript files
 (defparameter *ajax-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
 
-
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
 			      (json-get-all-psis *json-get-all-psis*)
 			      (json-commit-url *json-commit-url*)
 			      (json-get-summary-url *json-get-summary-url*)
+			      (json-get-all-type-psis *json-get-all-type-psis*)
+			      (json-get-topic-stub-prefix *json-get-topic-stub-prefix*)
+			      (json-get-type-tmcl-prefix *json-get-type-tmcl-prefix*)
+			      (json-get-instance-tmcl-prefix *json-get-instance-tmcl-prefix*)
 			      (ajax-user-interface-url *ajax-user-interface-url*)
 			      (ajax-user-interface-file-path *ajax-user-interface-file-path*)
 			      (ajax-user-interface-css-prefix *ajax-user-interface-css-prefix*)
@@ -71,16 +78,103 @@
    (create-regex-dispatcher json-get-prefix #'return-json-fragment)
    hunchentoot:*dispatch-table*)
   (push
+   (create-regex-dispatcher json-get-topic-stub-prefix #'return-topic-stub-of-psi)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-get-all-type-psis #'return-all-tmcl-types)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-get-type-tmcl-prefix #'(lambda(&optional psi)
+							  (return-tmcl-info-of-psi 'json-tmcl::type psi)))
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-get-instance-tmcl-prefix #'(lambda(&optional psi)
+							      (return-tmcl-info-of-psi 'json-tmcl::instance psi)))
+   hunchentoot:*dispatch-table*)
+  (push
    (create-regex-dispatcher json-commit-url #'json-commit)
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-summary-url #'return-topic-summaries)
    hunchentoot:*dispatch-table*))
 
-
 ;; =============================================================================
 ;; --- some handlers for the json-rest-interface -------------------------------
 ;; =============================================================================
+(defun return-all-tmcl-types(&optional param)
+  (declare (ignorable param))
+  (handler-case (let ((all-topics
+		       (elephant:get-instances-by-class 'd:TopicC))
+		      (topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*))
+		      (topictype-constraint (get-item-by-psi json-tmcl-constants::*topictype-constraint-psi*)))
+		  (let ((all-types
+			 (remove-if #'null
+				    (map 'list #'(lambda(x)
+						   (handler-case (progn
+								   (json-tmcl::topictype-p x topictype topictype-constraint)
+								   x)
+						     (condition () nil))) all-topics))))
+		    (let ((not-abstract-types
+			   (remove-if #'null
+				      (map 'list #'(lambda(x)
+						     (unless (json-tmcl:abstract-p x)
+						       x))
+					   all-types))))
+		      (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+		      (json:encode-json-to-string
+		       (map 'list #'(lambda(y)
+				      (map 'list #'uri y))
+			    (map 'list #'psis not-abstract-types))))))
+    (condition (err) (progn
+		       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		       (setf (hunchentoot:content-type*) "text")
+		       (format nil "Condition: \"~a\"" err)))))
+
+(defun return-topic-stub-of-psi(&optional psi)
+  "Returns a json string of a topic depending on the
+   passed psi as a topic-stub-construct."
+  (assert psi)
+  (let ((topic (d:get-item-by-psi psi)))
+    (if topic
+	(let ((topic-json
+	       (handler-case (json-exporter::to-json-topicStub-string topic)
+		 (condition (err) (progn
+				    (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+				    (setf (hunchentoot:content-type*) "text")
+				    (format nil "Condition: \"~a\"" err))))))
+	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	  topic-json)
+	(progn
+	  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+	  (setf (hunchentoot:content-type*) "text")
+	  (format nil "Condition: Topic \"~a\" not found" psi)))))
+
+
+(defun return-tmcl-info-of-psi(treat-as &optional psi)
+  "Returns a json string which represents the defined tmcl-constraints of the
+   topic and the associations where this topic can be a player."
+    (assert psi)
+    (let ((http-method (hunchentoot:request-method*)))
+      (if (eq http-method :GET)
+	  (let ((identifier (string-replace psi "%23" "#")))
+	    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	    (handler-case (let ((tmcl
+				 (json-tmcl:get-constraints-of-fragment identifier :treat-as treat-as)))
+			    (if tmcl
+				(progn
+				  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+				  tmcl)
+				(progn
+				  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+				  (setf (hunchentoot:content-type*) "text")
+				  (format nil "Topic \"~a\" not found." psi))))
+	      (condition (err) (progn
+				 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+				 (setf (hunchentoot:content-type*) "text")
+				 (format nil "Condition: \"~a\"" err)))))
+	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
 (defun return-all-topic-psis (&optional param)
   "return all psis currently existing in isidorus as a list of list. every topic is a list
    of psis and the entire list contains a list of topics"
@@ -102,14 +196,7 @@
   (assert psi)
   (let ((http-method (hunchentoot:request-method*)))
     (if (eq http-method :GET)
-	(let ((identifier (let ((pos (search "%23" psi)))
-			    (if pos
-				(let ((str-1 (subseq psi 0 pos))
-				      (str-2 (if (> (length psi) (+ pos 3))
-						 (subseq psi (+ pos 3))
-						 "")))
-				  (concatenate 'string str-1 "#" str-2))
-				psi))))
+	(let ((identifier (string-replace psi "%23" "#")))
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 	  (let ((fragment
 		 (get-latest-fragment-of-topic identifier)))
@@ -120,7 +207,10 @@
 		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 		      (setf (hunchentoot:content-type*) "text")
 		      (format nil "Condition: \"~a\"" err))))
-		"{}")))
+		(progn
+		  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Topic \"~a\" not found" psi)))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
@@ -202,3 +292,26 @@
 									    (subseq current-path-string start-position-of-relative-path last-position-of-current-path))))
 							  (push (list :path current-path :url current-url) files-and-urls))))))
       files-and-urls)))
+
+
+(defun string-replace (str search-str replace-str)
+  "replaces all sub-strings in str of the form search-str with
+   the string replace-str and returns the new generated string"
+  (if (= (length search-str) 0)
+      str
+      (progn
+	(let ((ret-str "")
+	      (idx 0))
+	  (loop
+	     (if (string= str search-str
+			  :start1 idx
+			  :end1 (min (length str)
+				     (+ idx (length search-str))))
+		 (progn
+		   (setf ret-str (concatenate 'string ret-str replace-str))
+		   (incf idx (length search-str)))
+		 (progn
+		   (setf ret-str (concatenate 'string ret-str (subseq str idx (1+ idx))))
+		   (incf idx)))
+	     (unless (< idx (length str))
+	       (return ret-str)))))))

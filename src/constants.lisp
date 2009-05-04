@@ -15,6 +15,9 @@
 	   :*isidorus-system*
 	   :*type-instance-psi*
 	   :*type-psi*
+	   :*supertype-subtype-psi*
+	   :*supertype-psi*
+	   :*subtype-psi*
 	   :*xtm2.0-ns*
 	   :*xtm1.0-ns*
 	   :*xtm1.0-xlink*))
@@ -35,5 +38,11 @@
 (defparameter *type-psi* "http://psi.topicmaps.org/iso13250/model/type")
 
 (defparameter *instance-psi* "http://psi.topicmaps.org/iso13250/model/instance")
+
+(defparameter *supertype-subtype-psi* "http://psi.topicmaps.org/iso13250/model/supertype-subtype")
+
+(defparameter *supertype-psi* "http://psi.topicmaps.org/iso13250/model/supertype")
+
+(defparameter *subtype-psi* "http://psi.topicmaps.org/iso13250/model/subtype")
 
 (defparameter *isidorus-system* (asdf:find-system "isidorus"))

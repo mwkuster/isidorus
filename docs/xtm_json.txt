@@ -2,6 +2,7 @@
 //+ Overview:
 //+  *Part 1: XTM - data model
 //+  *Part 2: Object summaries
+//+  *Part 3: TMCL - data model
 //+-----------------------------------------------------------------------------
 
 
@@ -158,7 +159,7 @@
 
 //+-----------------------------------------------------------------------------
 //+ topicSummary
-//+    contains the topic id,subjetcIdentifiers, itemIdentities,
+//+    Contains the topic id,subjetcIdentifiers, itemIdentities,
 //+    subjectLocators, nameSummaries and occurrenceSummaries
 //+-----------------------------------------------------------------------------
 {
@@ -173,229 +174,228 @@
 
 
 
+//+-----------------------------------------------------------------------------
+//+ Part 3: TMCL - data model
+//+   This part explains how the tmcl-rules/suggestions of isidorus are
+//+   sent via HTTP as JSON-data.
+//+-----------------------------------------------------------------------------
 
 
+//+-----------------------------------------------------------------------------
+//+ exclusiveInstances
+//+    This message constains a list of topics represented as a list of topic
+//+    psis which are exclusive instances for the owner.
+//+-----------------------------------------------------------------------------
+[ [ "topic-1-psi-1", "topic-2-psi-2", "..." ], [ "topic-2-psi", "..." ], <...> ]
 
 
-
-
-
-
-
-
-
-
-
-
+//+-----------------------------------------------------------------------------
+//+ simpleConstraint
+//+    This object contains a regexp member with the regular expression of the
+//+    constraint, a cardMin member with the minimum cardinality of
+//+    the referenced element which is represented as an unsignedInt
+//+    and a cardMax member which describes the maximum cardinality of this
+//+    element, this member contains an unsigendInt or the string
+//+    "MAX_INT".
+//+-----------------------------------------------------------------------------
 {
-  "topic" : {
-              "id"  :  "t403",
-              "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100" ],
-              "subjectLocators" : null,
-              "subjectIdentifiers" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ],
-              "instanceOfs" : [ [ "http : //psi.egovpt.org/types/semanticstandard" ] ],
-              "names" : [ {
-                            "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_n1" ],
-                            "type" : null,
-                            "scopes" : null,
-                            "value" : "ISO 19115",
-                            "variants" : [ {
-                                             "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_n1_v1" ],
-                                              "scopes" : [ [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#display" ] ],
-                                              "resourceRef" : null,
-                                              "resourceData" : {
-                                                                 "datatype" : "http : //www.w3.org/2001/XMLSchema#string",
-                                                                 "value" : "Geographic Information - Metadata"
-                                                               }
-                                           },
-                                           {
-                                             "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_n1_v2" ],
-                                             "scopes" : [ [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#sort" ] ],
-                                             "resourceRef" : null,
-                                             "resourceData" : {
-                                                                "datatype" : "http : //www.w3.org/2001/XMLSchema#string",
-                                                                "value" : "ISO-19115"
-                                                              }
-                                           }
-                                         ]
-                          }
-                        ],
-              "occurrences" : [ {
-                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o1" ],
-                                  "type" : [ "http : //psi.egovpt.org/types/standardHasStatus" ],
-                                  "scopes" : null,
-                                  "resourceRef" : "http : //www.budabe.de/","resourceData" : null
-                                },
-                                {
-                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o2" ],
-                                  "type" : [ "http : //psi.egovpt.org/types/description" ],
-                                  "scopes" : null,
-                                  "resourceRef" : null,
-                                  "resourceData" : {
-                                                     "datatype" : "http : //www.w3.org/2001/XMLSchema#string",
-                                                     "value" : "The ISO 19115 standard ..."
-                                                   }
-                                },
-                                {
-                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o3" ],
-                                  "type" : [ "http : //psi.egovpt.org/types/standardValidFromDate" ],
-                                  "scopes" : null,
-                                  "resourceRef" : null,
-                                  "resourceData" : {
-                                                      "datatype" : "http : //www.w3.org/2001/XMLSchema#date",
-                                                      "value" : "2003-01-01"
-                                                   }
-                                },
-                                {
-                                  "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t100_o4" ],
-                                  "type" : [ "http : //psi.egovpt.org/types/links" ],
-                                  "scopes" : null,
-                                  "resourceRef" : "http : //www.editeur.org/standards/ISO19115.pdf",
-                                  "resourceData" : null
-                                }
-                        ]
-            },
-  "topicStubs" : [ {
-		     "id" : "t227",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t3a" ],
-                     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/semanticstandard" ]
-		   },
-		   {
-		     "id" : "t73",
-		     "itemIdentities" : null,
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#display" ]
-		   },
-		   {
-		     "id" : "t67",
-		     "itemIdentities" : null,
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //www.topicmaps.org/xtm/1.0/core.xtm#sort" ]
-		   },
-		   {
-		     "id" : "t291",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t51" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/standardHasStatus" ]
-		   },
-		   {
-		     "id" : "t307",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t53" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/description" ]
-		   },
-		   {
-		     "id" : "t315",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t54" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/standardValidFromDate" ]
-		   },
-		   {
-		     "id" : "t323",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t55" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/links" ]
-		   },
-		   {
-		     "id" : "t433",
-		     "itemIdentities" : null,
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/subject/GeoData" ]
-		   },
-		   {
-		     "id" : "t363",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t60" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/standardIsAboutSubject" ]
-		   },
-		   {
-		     "id" : "t371",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t61" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/SubjectRoleType" ]
-		   },
-		   {
-		     "id" : "t421",
-		     "itemIdentities" : null,
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/subject/Semantic+Description" ]
-		   },
-		   {
-		     "id" : "t395",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t64" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/serviceUsesStandard" ]
-		   },
-		   {
-		     "id" : "t387",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t63" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/ServiceRoleType" ]
-		   },
-		   {
-		     "id" : "t451",
-		     "itemIdentities" : null,
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/service/Google+Maps",
-					      "http : //maps.google.com" ]
-		   },
-		   {
-		     "id" : "t379",
-		     "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#t62" ],
-		     "subjectLocators" : null,
-		     "subjectIdentifiers" : [ "http : //psi.egovpt.org/types/StandardRoleType" ]
-		   }
-		 ],
-  "associations" : [ {
-		       "itemIdentities" : null,
-		       "type" : [ "http : //psi.egovpt.org/types/standardIsAboutSubject" ],
-		       "scopes" : null,
-		       "roles" : [ {
-				     "itemIdentities" : null,
-				     "type" : [ "http : //psi.egovpt.org/types/StandardRoleType" ],
-				     "topicRef" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ]
-				   },
-				   {
-				     "itemIdentities" : null,
-				     "type" : [ "http : //psi.egovpt.org/types/SubjectRoleType" ],
-				     "topicRef" : [ "http : //psi.egovpt.org/subject/GeoData" ]
-				   }
-				 ]
-		     },
-		     {
-		       "itemIdentities" : null,
-		       "type" : [ "http : //psi.egovpt.org/types/standardIsAboutSubject" ],
-		       "scopes" : null,
-		       "roles" : [ {
-				     "itemIdentities" : null,
-				     "type" : [ "http : //psi.egovpt.org/types/StandardRoleType" ],
-				     "topicRef" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ]
-				   },
-				   {
-				     "itemIdentities" : null,
-				     "type" : [ "http : //psi.egovpt.org/types/SubjectRoleType" ],
-				     "topicRef" : [ "http : //psi.egovpt.org/subject/Semantic+Description" ]
-				   }
-				  ]
-		     },
-		     {
-		       "itemIdentities" : [ "http : //psi.egovpt.org/itemIdentifiers#assoc_7" ],
-		       "type" : [ "http : //psi.egovpt.org/types/serviceUsesStandard" ],
-		       "scopes" : null,
-		       "roles" : [ {
-				     "itemIdentities" : null,
-				     "type" : [ "http : //psi.egovpt.org/types/ServiceRoleType" ],
-				     "topicRef" : [ "http : //psi.egovpt.org/service/Google+Maps",
-						    "http : //maps.google.com" ]
-				   },
-				   {
-				     "itemIdentities" : null,
-				     "type" : [ "http : //psi.egovpt.org/types/StandardRoleType" ],
-				     "topicRef" : [ "http : //psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata" ]
-				   }
-				  ]
-		     }
-		   ],
-  "tmIds" : [ "test-tm"]
+  "regexp" : "regular expression",
+  "cardMin" : "unsigned integer in string representation",
+  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ subjectIdentifierConstraint
+//+    This object contains a regexp member with the regular expression of the
+//+    subjectIdentifier, a cardMin member with the minimum cardinality of
+//+    this subjectIdentifier in a topic which is represented as an unsignedInt
+//+    and a cardMax member which describes the maximum cardinality of this
+//+    subjectIdentifier, this member contains an unsigendInt or the string
+//+    "MAX_INT".
+//+-----------------------------------------------------------------------------
+<simpleConstraint>
+
+
+//+-----------------------------------------------------------------------------
+//+ subjectLocatorConstraint
+//+    This object contains a regexp member with the regular expression of the
+//+    subjectLocator, a cardMin member with the minimum cardinality of
+//+    this subjectLocator in a topic which is represented as an unsignedInt
+//+    and a cardMax member which describes the maximum cardinality of this
+//+    subjectLocator, this member contains an unsigendInt or the string
+//+    "MAX_INT".
+//+-----------------------------------------------------------------------------
+<simepleConstraint>
+
+
+//+-----------------------------------------------------------------------------
+//+ scopeConstraint
+//+    The scopeConstraint-Object contains a list of all available scopes of
+//+    for an association/name/occurrence element - this depends where this
+//+    json-onbject is contained.
+//+    The member availableScopeTypes contains a list of topics in psi-list
+//+    representation which can be used as scope.
+//+    cardMin defines the minimum number of all scopes of the parent element
+//+    (association/name/occurrence).
+//+    cardMax defines the maximum number of all scopes of the parent element.
+//+-----------------------------------------------------------------------------
+{
+  "scopeTypes" : [ [ "topic-1-psi-1", "topic-1-psi-2", "..." ], [ "topic-2-psi-1", "..." ] <...> ],
+  "cardMin" : "unsigned integer in string representation",
+  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ topicNameConstraint
+//+    The topicNameConstraint describes how the topic's names have to be
+//+    defined.
+//+    The nameType is a topic representation in form of a list of psis of the
+//+    topic representing the name's type.
+//+    regexp defines the content of the name.
+//+    cardMin defines the minimum number of names a topic must have.
+//+    cardMax defines the maximum number of names a topic must have.
+//+    nameTypeScopes describes how many scopes there must exist and of what
+//+    type the scopes have to be .
+//+-----------------------------------------------------------------------------
+{
+  "nameType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "constraints" : [ <simpleConstraint>, < ... > ],
+  "scopeConstraints" : { <scopeConstraint> }
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ uniqueOccurrenceConstraint
+//+    This object owns a regexp member with the regular expression of the
+//+    occurrence which should be unique. So only occurrences that match the
+//+    occurrenceType and the regexp will be checked.
+//+    occurrenceType represents the topictype of the occurrence.
+//+    cardMin describes the minimum number of all matched occurrences within
+//+    all instances of this topictype's instances.
+//+    cardMax describes the maximum number of all matched occurrences within
+//+    all instances of this topictype's instances.
+//+-----------------------------------------------------------------------------
+<simpleConstraint>
+
+
+//+-----------------------------------------------------------------------------
+//+ topicOccurrenceConstraint
+//+    The topicOccurrenceConstraint describes how the topic's occurrences have
+//+    to be defined.
+//+    
+//+-----------------------------------------------------------------------------
+{
+  "occurrenceType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "constraints" : [ <simpleConstraint>, < ... > ],
+  "scopeConstraints" : { <scopeConstraint> },
+  "dataConstraint" : "datatype",
+  "uniqueConstraints" : [ <uniqueOccurrenceConstraint>, <...> ]
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ associationRoleConstraint
+//+    This object defines a list of psis of the roletype topic of which
+//+    the role is an instance of.
+//+    cardMin and cardMax defines the number of roles with the defined roletype
+//+    in an association of a certain associationtype (the objects owner).
+//+-----------------------------------------------------------------------------
+{
+  "roleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "cardMin" : "unsigned integer in string representation",
+  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ rolePlayerConstraint
+//+    Defines the player of a certain role with a given type in an association
+//+    with a given type.
+//+    playerType is the psi-list representation of the player-topic.
+//+    roleType is the is a list of topic-psis representing a topic which can
+//+    be a player in the given role.
+//+    cardMin and cardMax defines the number of times the topicType (= player)
+//+    can be the player in a role of a given type (= roleTypes) in an
+//+    association of a given type (= objects owner).
+//+-----------------------------------------------------------------------------
+{
+  "playerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "roleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "cardMin" : "unsigned integer in string representation",
+  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ otherRoleConstraint
+//+    This JSON-Object defines the number and types of (other-) roles in an
+//+    association of a given type with a role of a give type.
+//+    roleType is a allowed role with the player topicType.
+//+    otherRoleType is the second role with the player otherTopicType.
+//+    The values cardMin and cardMax defines the cardinality of otherRoleType.
+//+-----------------------------------------------------------------------------
+{
+  "playerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "roleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "otherRoleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "otherPlayerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "cardMin" : "unsigned integer in string representation",
+  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ associationConstraint
+//+    The associationConstraint describes how an association of a given type
+//+    has to be defined.
+//+    associationRoleTypeConstraint constains all available roletypes for this
+//+    association.
+//+    rolePlayerConstraint constains all players for certain roles of a given
+//+    type.
+//+    associationTypeScopes contains all available scopes for this association.
+//+-----------------------------------------------------------------------------
+{
+  "associationRoleConstraints" : [ <associationRoleConstraint>, <...> ],
+  "rolePlayerConstraints" : [ <rolePlayerConstraints>, <...> ],
+  "otherRoleConstraints" : [ <otherRoleConstraint>, <...> ],
+  "scopeConstraints" : { <scopeConstraint> }
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ topicConstraint
+//+    The topicConstraint contains the members:
+//+    *subjectIdentifierConstraints which defines the subjectIdentifiers
+//+    *subjectLocatorConstraints which defines the subjectLocators
+//+    *topicNameConstraints which defines the topic names
+//+    *topicOccurrenceConstraints which defines the topic occurrences
+//+    *uniqueOccurrenceConstraints which defines the uniqueness of topic
+//+     occurrences
+//+-----------------------------------------------------------------------------
+{
+  "exclusiveInstances" : <exclusiveInstances>,
+  "subjectIdentifierConstraints" : [ <subjectIdentifierConstraint>, <...> ],
+  "subjectLocatorConstraints" : [ <subjectLocatorConstraint>, <...> ],
+  "topicNameConstraints" : [ <topoicNameConstriant>, <...> ],
+  "topicOccurrenceConstraints" : [ <topicOccurrenceConstraint>, <...> ],
+  "abstractConstraint" : <boolean>
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ fragmentConstraint
+//+    This JSON-Object contains all constraints necessary for an entire
+//+    fragment but not the exclusive-instance-constraint.
+//+    The exclusive-instance-constraint should be sent before a
+//+    fragmentConstraint separately.
+//+    topicConstraint contains an object with all constraints of all baseTypes
+//+    of the mainTopic.
+//+    associationConstraints contains a list of all association constraints
+//+    depending on all baseTypes of the main topic.
+//+-----------------------------------------------------------------------------
+{
+  "topicConstraints" : <topicConstraint>,
+  "associationsConstraints" : [ <associationConstraint>, <...> ]
 }

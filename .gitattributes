@@ -31,6 +31,8 @@ src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text
 src/json/json_importer.lisp -text
+src/json/json_tmcl.lisp -text
+src/json/json_tmcl_constants.lisp -text
 src/rest_interface/set-up-json-interface.lisp -text
 src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text
@@ -43,6 +45,7 @@ src/unit_tests/multiple_tms_worms.xtm -text
 src/unit_tests/notification_merge1.xtm -text
 src/unit_tests/notification_merge2.xtm -text
 src/unit_tests/notificationbase.xtm -text
+src/unit_tests/poems.xtm -text
 src/unit_tests/sample_objects.xtm -text
 src/unit_tests/sample_objects_2_0.xtm -text
 src/unit_tests/t100.xtm -text

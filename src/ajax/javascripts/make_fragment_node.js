@@ -1296,7 +1296,7 @@ function getFragment(topicPsi, onSuccessHandler)
     // --- the ajax-request error handler
     function onFailureHandler(xhr)
     {
-	window.alert("Something went wrong ...\n" + xhr.status + ": " + xhr.statusText);
+	
     }
     
     // --- the real ajax request
@@ -1305,6 +1305,6 @@ function getFragment(topicPsi, onSuccessHandler)
     var request = new Ajax.Request(requestUrl,
 				   {"method" : "get",
 				    "onSuccess" : onSuccessHandler,
-				    "onFailure" : onFailureHandler
+				    "onFailure" : function(xhr){ window.alert("Something went wrong ...\n" + xhr.status + ": " + xhr.statusText  + "\n" + xhr.responseText); }
 				   });
 }

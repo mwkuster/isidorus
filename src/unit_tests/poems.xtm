@@ -1,0 +1,1857 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
+
+  <!-- === association-test ================================================ -->
+  <tm:topic id="test-scope-1">
+    <tm:subjectIdentifier href="test-scope-1"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="test-scope-2">
+    <tm:subjectIdentifier href="test-scope-2"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="written-by-test-scope-constraint">
+    <tm:subjectIdentifier href="written-by-test-scope-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationtypescope-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+	<tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#written-by-test-scope-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+	<tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+	<tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#written-by-test-scope-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+	<tm:topicRef href="#scopetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#test-scope-1"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+	<tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#written-by-test-scope-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+	<tm:topicRef href="#scopetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#test-scope-2"/>
+    </tm:role>
+  </tm:association>
+  <!-- === end association-test ============================================ -->
+
+
+  <!-- ===================================================================== -->
+  <!-- === TMCL meta-model topics ========================================== -->
+  <!-- ===================================================================== -->
+  <tm:topic id="topictype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type"/> <!-- naming of psis: Prague, March 25-27, 2008, page 12 -->
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="occurrencetype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="associationtype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="roletype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="nametype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="scopetype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/scope-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- role types used to include the topictype metatypes in associations -->
+  <tm:topic id="topictype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="occurrencetype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="associationtype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="roletype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="otherroletype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/other-role-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="othertopictype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/other-topic-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="nametype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="scopetype-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/scope-type-role"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- the constraint roletype -->
+  <tm:topic id="constraint-role">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constraint-role"/>
+    <tm:instanceOf><tm:topicref href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- ===================================================================== -->
+  <!-- === TMCL model topics =============================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- the constraint topic is the common supertype of all constraint types
+       defined by TMCL. -->
+  <tm:topic id="constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+ 
+  <!-- this occurrence type is used to type a single occurrence on each
+       constraint type. This occurrence holds the TMQL value used to 
+       evaluate constraint instances for validity. -->
+  <tm:topic id="validation-expression">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/validation-expression"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- the association type used to bind different components into a
+       constraint -->
+  <tm:topic id="applies-to">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/applies-to"/>
+    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- the card min facet is used on many constraint types -->
+  <tm:topic id="card-min">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/card-min"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- the card max facet is used on many constraint types -->
+  <tm:topic id="card-max">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/card-max"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- the reg exp facet is used on many constraint types -->
+  <tm:topic id="regexp">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/reg-exp"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- the datatype facet is used on many constraint types -->
+  <tm:topic id="datatype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/datatype"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- ===================================================================== -->
+  <!-- === topics for super-subtype-associations (ako) ===================== -->
+  <!-- ===================================================================== -->
+
+  <tm:topic id="supertype-subtype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype-subtype"/>
+  </tm:topic>
+
+  <tm:topic id="supertype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype"/>
+  </tm:topic>
+
+  <tm:topic id="subtype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/subtype"/>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === schema type and ?schema definitions ============================= -->
+  <!-- ===================================================================== -->
+
+  <!-- constraints can be bound to a schema -->
+  <tm:topic id="schema">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/schema"/>
+    <tm:instanceOf><tm:topicref href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === TMCL constraint types =========================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- topictype-constraint -->
+  <tm:topic id="topictype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type-constraint"/>
+  </tm:topic> <!-- standard constraints doesn't own a valiadtion-expression-occurrence: Prague, March 25-27, 2008, page 34-36 -->
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#topictype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- associationtype-constraint -->
+  <tm:topic id="associationtype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#associationtype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- roletype-constraint -->
+  <tm:topic id="roletype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#roletype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- occurrencetype-constraint -->
+  <tm:topic id="occurrencetype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#occurrencetype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- nametype-constraint -->
+  <tm:topic id="nametype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#nametype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- abstract-topictype-constraint -->
+  <tm:topic id="abstract-topictype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/abstract-topic-type-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#abstract-topictype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+    </tm:association>
+
+
+  <!-- exclusive-instance -->
+  <tm:topic id="exclusive-instance">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/exclusive-instance"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#exclusive-instance"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- ===================================================================== -->
+  <!-- === subjectidentifier/locator constraints =========================== -->
+  <!-- ===================================================================== -->
+  
+  <!-- subjectlocator-constraint -->
+  <tm:topic id="subjectlocator-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/subject-locator-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#subjectlocator-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- subjectidentifier-constraint -->
+  <tm:topic id="subjectidentifier-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/subject-identifier-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#subjectidentifier-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- ===================================================================== -->
+  <!-- === names/occurrences/associations/association roles ================ -->
+  <!-- ===================================================================== -->
+
+  <!-- topicname-constraint -->
+  <tm:topic id="topicname-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-name-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#topicname-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- topicoccurrence-constraint -->
+  <tm:topic id="topicoccurrence-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-occurrence-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- occurrencedatatype-constraint -->
+  <tm:topic id="occurrencedatatype-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-datatype-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#occurrencedatatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- uniqueoccurrence-constraint -->
+  <tm:topic id="uniqueoccurrence-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/unique-occurrence-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#uniqueoccurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- associationrole-constraint -->
+  <tm:topic id="associationrole-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-role-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#associationrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- roleplayer-constraint -->
+  <tm:topic id="roleplayer-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-player-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#roleplayer-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- otherrole-constraint -->
+  <tm:topic id="otherrole-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/other-role-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- ===================================================================== -->
+  <!-- === scopes ========================================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- nametypescope-constraint -->
+  <tm:topic id="nametypescope-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type-scope-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#nametypescope-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- occurrencetypescope-constraint -->
+  <tm:topic id="occurrencetypescope-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type-scope-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#occurrencetypescope-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- associationtypescope-constraint -->
+  <tm:topic id="associationtypescope-constraint">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type-scope-constraint"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#associationtypescope-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#constraint"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: type handling ==================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- only topics that are instances of topictype are allowed as topic
+       types -->
+  <tm:topic id="ttc">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/ttc"/>
+    <tm:instanceOf><tm:topicRef href="#topictype-constraint"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- only topics that are instances of associationtype are allowed as
+       association types -->
+  <tm:topic id="atc">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/atc"/>
+    <tm:instanceOf><tm:topicRef href="#associationtype-constraint"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- only topics that are instances of roletype are allowed as
+       association role types -->
+  <tm:topic id="rtc">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/rtc"/>
+    <tm:instanceOf><tm:topicRef href="#roletype-constraint"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- only topics that are instances of occurrencetype are allowed as
+       occurrence types -->
+  <tm:topic id="otc">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/otc"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype-constraint"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- only topics that are instances of nametype are allowed as
+       name types -->
+  <tm:topic id="ntc">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/ntc"/>
+    <tm:instanceOf><tm:topicRef href="#nametype-constraint"/></tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: base types ======================================= -->
+  <!-- ===================================================================== -->
+
+  <!-- author -->
+  <tm:topic id="author">
+    <tm:subjectIdentifier href="http://some.where/base-psis/author"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="first-name">
+    <tm:subjectIdentifier href="http://some.where/base-psis/first-name"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="last-name">
+    <tm:subjectIdentifier href="http://some.where/base-psis/last-name"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="author-info">
+    <tm:subjectIdentifier href="http://some.where/base-psis/author-info"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- poem -->
+  <tm:topic id="poem">
+    <tm:subjectIdentifier href="http://some.where/base-psis/poem"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="title">
+    <tm:subjectIdentifier href="http://some.where/base-psis/title"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="poem-content">
+    <tm:subjectIdentifier href="http://some.where/base-psis/poem-content"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- poem scopes -->
+  <tm:topic id="de">
+    <tm:subjectIdentifier href="http://some.where/base-psis/de"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="en">
+    <tm:subjectIdentifier href="http://some.where/base-psis/en"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- association author-poem -->
+  <tm:topic id="written-by">
+    <tm:subjectIdentifier href="http://some.where/base-psis/written-by"/>
+    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="writer">
+    <tm:subjectIdentifier href="http://some.where/base-psis/writer"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="written">
+    <tm:subjectIdentifier href="http://some.where/base-psis/written"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: exclusive type constraint ======================== -->
+  <!-- ===================================================================== -->
+  <!-- same instances of the type author and title are not allowed -->
+  <tm:topic id="exc">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/exc"/>
+    <tm:instanceOf><tm:topicRef href="#exclusive-instance"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#exc"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#exc"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: subjectIdentifier constraints ==================== -->
+  <!-- ===================================================================== -->
+  <!-- a topic of the type author has to have a psi of the form
+       "^http://some.where/psis/author/.+$"
+       and a topic of the type poem has to have a psi of the form
+       "^http://some.where/psis/poem/.+$".
+       further all topics can have mor psis of the form "^.+$" -->
+
+  <!-- subjectidentifier of author -->
+  <tm:topic id="sic-author">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/sic-author"/>
+    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://some.where/psis/author/.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-author"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- subjectidentifier of poem -->
+  <tm:topic id="sic-poem">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/sic-poem"/>
+    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://some.where/psis/poem/.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- further subjectidentifiers of author and poem -->
+  <tm:topic id="sic-author-poem">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/sic-author-poem"/>
+    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">MAX_INT</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-author-poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-author-poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: subjectIdentifier constraints ==================== -->
+  <!-- ===================================================================== -->
+  <!-- all instances of author and poem are not allowed to own a
+       subjectLocator -->
+
+  <tm:topic id="slc-author-poem">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/slc-author-poem"/>
+    <tm:instanceOf><tm:topicRef href="#subjectlocator-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.*$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#slc-author-poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#slc-author-poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: names constraints ================================ -->
+  <!-- ===================================================================== -->
+  <!-- instances of the type author has to own a name of the type first-name
+       and one of the type last-name. both must be valid to the regular
+       expression "^.+$".
+       instances of the type poem has exactly one name of the type title
+       with the regular expression "^.+$" -->
+
+  <!-- author first name -->
+  <tm:topic id="author-first-name-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/author-first-name-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
+        <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-first-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-first-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#first-name"/>
+    </tm:role>
+  </tm:association>
+  
+  <!-- author last name -->
+  <tm:topic id="author-last-name-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/author-last-name-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
+        <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-last-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-last-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#last-name"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- poem title name -->
+  <tm:topic id="poem-title-name-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/poem-title-name-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#poem-title-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#poem-title-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#title"/>
+    </tm:role>
+  </tm:association>  
+
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: occurences constraints =========================== -->
+  <!-- ===================================================================== -->
+  <!-- every instance of the topic author can have one occurrence of the type
+       author-info which contains a resourceRef (= datatype #anyURI) -->
+
+  <!-- author info occurrence -->
+  <tm:topic id="author-occurrence-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/author-occurrence-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#author-info"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- author info occurrence datatype -->
+  <tm:topic id="author-info-occurrence-datatype-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/author-poem-occurrence-datatype-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencedatatype-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#datatype"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#anyURI</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#author-info-occurrence-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#author-info"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- all instances of the type poem has to have exactly one occurrence
+       of the type poem-content with the datatype string and the either
+       the scope en or de-->
+  <tm:topic id="poem-occurrence-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/poem-occurrence-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#poem-content"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- poem content-occurrence datatype -->
+  <tm:topic id="poem-content-occurrence-datatype-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/poem-content-occurrence-datatype-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencedatatype-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#datatype"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#string</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#poem-content-occurrence-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#poem-content"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- the poem-content-occurrence can only appear once per topictype,
+       so all topic with this occurrence type must have different
+       occurrence-values -->
+  <tm:topic id="unique-poem-occurrence-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/unique-poem-occurrence-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#uniqueoccurrence-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.*$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#unique-poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#unique-poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#poem-content"/>
+    </tm:role>
+  </tm:association>
+  
+  <!-- add a scope to the occurrence "poem-content" -->
+  <tm:topic id="scoped-poem-occurrence-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-poem-occurrence-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetypescope-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#poem-content"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#en"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-poem-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#de"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- ===================================================================== -->
+  <!-- === own datamodel: association (-role) constraints ================== -->
+  <!-- ===================================================================== -->
+  <!-- there exists one asoociation of the type written-by between the types
+       author and poem. where one role is of type writer which has a player
+       of type author and another role of type written which owns a player of
+       type poem -->
+
+  <!-- the writer role has to appear exactly once in an association of type
+       written-by -->
+  <tm:topic id="writer-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/writer-role-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#writer-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#writer-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- the writer role owns a player of the type author -->
+  <tm:topic id="writer-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/writer-role-player-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#writer-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#writer-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#writer-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- the written role has to appear exactly once in an association of type
+       written-by -->
+  <tm:topic id="written-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/written-role-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#written"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- the written role owns a player of the type poem -->
+  <tm:topic id="written-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/written-role-player-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#written"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- otherrole-constraint:
+       If there is a role of the type written with a player of the type poem
+       there must be another role of the type writer with a player of the
+       type author.
+       In contrast if there is a role of the type writer with a player of the
+       type author there must be a role of the type written with a player of
+       the type poem.
+       So for this case there are two otherrole-constraints which handle this
+       both cases. -->
+
+  <tm:topic id="written-by-otherrole-constraint-for-writer">
+    <tm:subjectIdentifier href="written-by-otherrole-constraint-for-writer"/>
+    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:topicRef href="#written"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="written-by-otherrole-constraint-for-written">
+    <tm:subjectIdentifier href="written-by-otherrole-constraint-for-written"/>
+    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-written"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#written-by"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-written"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#written"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-written"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-written"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#written-by-otherrole-constraint-for-written"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- ===================================================================== -->
+  <!-- === the "user's" topic map ========================================== -->
+  <!-- ===================================================================== -->
+  <tm:topic id="goethe">
+    <tm:subjectIdentifier href="http://some.where/psis/author/goethe"/> <!-- must have a psi of this form -->
+    <tm:subjectIdentifier href="http://some.where/psis/persons/goethe"/> <!-- can own psis of any form -->
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf> <!-- must be an instanceOf author -->
+    <tm:name>
+      <tm:type><tm:topicRef href="#first-name"/></tm:type> <!-- must contain a name of the type first-name -->
+      <tm:value>Johann Wolfgang</tm:value>
+    </tm:name>
+    <tm:name>
+      <tm:type><tm:topicRef href="#last-name"/></tm:type> <!-- must contain a name of the type last-name -->
+      <tm:value>von Goethe</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#author-info"/></tm:type> <!-- can own an occurrence of the type autor-info with the datatype anyURI -->
+      <tm:resourceRef href="http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe"/>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="schiller">
+    <tm:subjectIdentifier href="http://some.where/psis/author/schiller"/> <!-- must have a psi of this form -->
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf> <!-- must be an instanceOf author -->
+    <tm:name>
+      <tm:type><tm:topicRef href="#first-name"/></tm:type> <!-- must contain a name of the type first-name -->
+      <tm:value>Johann Christoph Friedrich</tm:value>
+    </tm:name>
+    <tm:name>
+      <tm:type><tm:topicRef href="#last-name"/></tm:type> <!-- must contain a name of the type last-name -->
+      <tm:value>von Schiller</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#author-info"/></tm:type> <!-- can own an occurrence of the type autor-info with the datatype anyURI -->
+      <tm:resourceRef href="http://de.wikipedia.org/wiki/Schiller"/>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="zauberlehrling">
+    <tm:subjectIdentifier href="http://some.where/psis/poem/zauberlehrling"/> <!-- must have a psi of this form -->
+    <tm:subjectIdentifier href="http://some.where/psis/der_zauberlehrling"/> <!-- can own psis of any form -->
+    <tm:instanceOf>
+      <tm:topicRef href="#poem"/><!--
+      <tm:topicRef href="#author"/>
+      <tm:topicRef href="#zauberlehrling"/>
+      <tm:topicRef href="#topictype-constraint"/>-->
+    </tm:instanceOf> <!-- must be an instanceOf poem -->
+    <tm:name>
+      <tm:type><tm:topicRef href="#title"/></tm:type> <!-- must have a name of the type title -->
+      <tm:value>Der Zauberlehrling</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#poem-content"/></tm:type> <!-- must have an occurrence of the type poem-content with the scope de or en -->
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Hat der alte Hexenmeister
+sich doch einmal wegbegeben!
+Und nun sollen seine Geister
+auch nach meinem Willen leben.
+Seine Wort und Werke
+merkt ich und den Brauch,
+und mit Geistesstärke
+tu ich Wunder auch.
+
+Walle! walle
+Manche Strecke,
+daß, zum Zwecke,
+Wasser fließe
+und mit reichem, vollem Schwalle
+zu dem Bade sich ergieße.
+
+Und nun komm, du alter Besen!
+Nimm die schlechten Lumpenhüllen;
+bist schon lange Knecht gewesen:
+nun erfülle meinen Willen!
+Auf zwei Beinen stehe,
+oben sei ein Kopf,
+eile nun und gehe
+mit dem Wassertopf!
+
+Walle! walle
+manche Strecke,
+daß, zum Zwecke,
+Wasser fließe
+und mit reichem, vollem Schwalle
+zu dem Bade sich ergieße.
+
+Seht, er läuft zum Ufer nieder,
+Wahrlich! ist schon an dem Flusse,
+und mit Blitzesschnelle wieder
+ist er hier mit raschem Gusse.
+Schon zum zweiten Male!
+Wie das Becken schwillt!
+Wie sich jede Schale
+voll mit Wasser füllt!
+
+Stehe! stehe!
+denn wir haben
+deiner Gaben
+vollgemessen! -
+Ach, ich merk es! Wehe! wehe!
+Hab ich doch das Wort vergessen!
+
+Ach, das Wort, worauf am Ende
+er das wird, was er gewesen.
+Ach, er läuft und bringt behende!
+Wärst du doch der alte Besen!
+Immer neue Güsse
+bringt er schnell herein,
+Ach! und hundert Flüsse
+stürzen auf mich ein.
+
+Nein, nicht länger
+kann ichs lassen;
+will ihn fassen.
+Das ist Tücke!
+Ach! nun wird mir immer bänger!
+Welche Mine! welche Blicke!
+
+O du Ausgeburt der Hölle!
+Soll das ganze Haus ersaufen?
+Seh ich über jede Schwelle
+doch schon Wasserströme laufen.
+Ein verruchter Besen,
+der nicht hören will!
+Stock, der du gewesen,
+steh doch wieder still!
+
+Willst am Ende
+gar nicht lassen?
+Will dich fassen,
+will dich halten
+und das alte Holz behende
+mit dem scharfen Beile spalten.
+
+Seht da kommt er schleppend wieder!
+Wie ich mich nur auf dich werfe,
+gleich, o Kobold, liegst du nieder;
+krachend trifft die glatte Schärfe.
+Wahrlich, brav getroffen!
+Seht, er ist entzwei!
+Und nun kann ich hoffen,
+und ich atme frei!
+
+Wehe! wehe!
+Beide Teile
+stehn in Eile
+schon als Knechte
+völlig fertig in die Höhe!
+Helft mir, ach! ihr hohen Mächte!
+
+Und sie laufen! Naß und nässer
+wirds im Saal und auf den Stufen.
+Welch entsetzliches Gewässer!
+Herr und Meister! hör mich rufen! -
+Ach, da kommt der Meister!
+Herr, die Not ist groß!
+Die ich rief, die Geister
+werd ich nun nicht los.
+
+"In die Ecke,
+Besen, Besen!
+Seids gewesen.
+Denn als Geister
+ruft euch nur zu diesem Zwecke,
+erst hervor der alte Meister."</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="erlkoenig">
+    <tm:subjectIdentifier href="http://some.where/psis/poem/erlkoenig"/> <!-- must have a psi of this form -->
+    <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf> <!-- must be an instanceOf poem -->
+    <tm:name>
+      <tm:type><tm:topicRef href="#title"/></tm:type> <!-- must have a name of the type title -->
+      <tm:value>Der Erlkönig</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#poem-content"/></tm:type> <!-- must have an occurrence of the type poem-content with the scope de or en -->
+      <tm:scope><tm:topicRef href="#en"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Who rides there so late through the night dark and drear?
+The father it is, with his infant so dear;
+He holdeth the boy tightly clasp'd in his arm,
+He holdeth him safely, he keepeth him warm.
+
+"My son, wherefore seek'st thou thy face thus to hide?"
+"Look, father, the Erl-King is close by our side!
+Dost see not the Erl-King, with crown and with train?"
+"My son, 'tis the mist rising over the plain."
+
+"Oh, come, thou dear infant! oh come thou with me!
+For many a game I will play there with thee;
+On my strand, lovely flowers their blossoms unfold,
+My mother shall grace thee with garments of gold."
+
+"My father, my father, and dost thou not hear
+The words that the Erl-King now breathes in mine ear?"
+"Be calm, dearest child, 'tis thy fancy deceives;
+'Tis the sad wind that sighs through the withering leaves."
+
+"Wilt go, then, dear infant, wilt go with me there?
+My daughters shall tend thee with sisterly care
+My daughters by night their glad festival keep,
+They'll dance thee, and rock thee, and sing thee to sleep."
+
+"My father, my father, and dost thou not see,
+How the Erl-King his daughters has brought here for me?"
+"My darling, my darling, I see it aright,
+'Tis the aged grey willows deceiving thy sight."
+
+"I love thee, I'm charm'd by thy beauty, dear boy!
+And if thou'rt unwilling, then force I'll employ."
+"My father, my father, he seizes me fast,
+For sorely the Erl-King has hurt me at last."
+
+The father now gallops, with terror half wild,
+He grasps in his arms the poor shuddering child;
+He reaches his courtyard with toil and with dread,--
+The child in his arms finds he motionless, dead.</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <!-- some assocaitions between goethe and some of his poems,
+       currently there are no associations between the topic schiller
+       and any other topic, because there are no topic representing
+       a poem of schiller -->
+  <tm:association>
+    <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#written"/></tm:type>
+      <tm:topicRef href="#zauberlehrling"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#written"/></tm:type>
+      <tm:topicRef href="#erlkoenig"/>
+    </tm:role>
+  </tm:association>
+
+</tm:topicMap>
