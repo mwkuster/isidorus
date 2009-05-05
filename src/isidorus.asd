@@ -128,9 +128,11 @@
 	       (:module "json"
 	                :components ((:file "json_exporter")
 				     (:file "json_importer")
+				     (:file "json_tmcl_validation"
+					    :depends-on ("json_tmcl_constants" "json_exporter" ))
 				     (:file "json_tmcl_constants")
 				     (:file "json_tmcl"
-					    :depends-on ("json_tmcl_constants" "json_exporter")))
+					    :depends-on ("json_tmcl_validation")))
 	                :depends-on ("model" "xml"))
 	       (:module "ajax"
 			:components ((:static-file "isidorus.html")

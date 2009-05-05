@@ -294,7 +294,7 @@
   "occurrenceTypes" : [ {
                           "occurrenceType" : [ "psi-1", "psi-2", "..." ],
 			  "scopeConstraints" : [ <scopeConstraints> ],
-			  "datatypeConstraint" : "datatype",			  
+			  "datatypeConstraint" : "datatype"			  
 			},
 			<...>
 		      ],

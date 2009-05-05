@@ -33,6 +33,7 @@ src/isidorus.asd -text
 src/json/json_importer.lisp -text
 src/json/json_tmcl.lisp -text
 src/json/json_tmcl_constants.lisp -text
+src/json/json_tmcl_validation.lisp -text
 src/rest_interface/set-up-json-interface.lisp -text
 src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text
