@@ -226,7 +226,7 @@
 //+    subjectLocator, this member contains an unsigendInt or the string
 //+    "MAX_INT".
 //+-----------------------------------------------------------------------------
-<simepleConstraint>
+<simpleConstraint>
 
 
 //+-----------------------------------------------------------------------------
@@ -249,20 +249,18 @@
 
 //+-----------------------------------------------------------------------------
 //+ topicNameConstraint
-//+    The topicNameConstraint describes how the topic's names have to be
-//+    defined.
-//+    The nameType is a topic representation in form of a list of psis of the
-//+    topic representing the name's type.
-//+    regexp defines the content of the name.
-//+    cardMin defines the minimum number of names a topic must have.
-//+    cardMax defines the maximum number of names a topic must have.
-//+    nameTypeScopes describes how many scopes there must exist and of what
-//+    type the scopes have to be .
+//+    nametypescope constains the original nametype and all valid subtypes
+//+    with the specific scope constraints.
+//+    constriants contains the constraints for the owner topic.
 //+-----------------------------------------------------------------------------
 {
-  "nameType" : [ "topic-psi-1", "topic-psi-2", "..." ],
-  "constraints" : [ <simpleConstraint>, < ... > ],
-  "scopeConstraints" : { <scopeConstraint> }
+  "nametypescopes" : [ { 
+                         "nametype" : [psi-1, psi-2, "..." ],
+			 "scopeConstraints" : [ <scopeConstraints> ]
+		       },
+                       <...>
+		     ]
+  "constraints" : [ <simpleConstraint>, < ... > ]
 }
 
 
@@ -282,16 +280,26 @@
 
 //+-----------------------------------------------------------------------------
 //+ topicOccurrenceConstraint
-//+    The topicOccurrenceConstraint describes how the topic's occurrences have
-//+    to be defined.
-//+    
+//+    occurrenceTypes contains a list of a json-sub-object. This sub-object
+//+    contains an occurrenceType a specific list of scopeConstraints for
+//+    the occurrenceType and a scpecific datatypeConstraint which contains
+//+    the datatype for the occurrenceType.
+//+    The entire list of occurrenceTypes contains the not only the
+//+    original occurrenceType but also the subtypes of this occurrenceType.
+//+    constraints is a constraint list of depending to the owner topic.
+//+    unqiqueConstraint is a list of uniqeConstraints which also depends on
+//+    the owner topic.
 //+-----------------------------------------------------------------------------
 {
-  "occurrenceType" : [ "topic-psi-1", "topic-psi-2", "..." ],
-  "constraints" : [ <simpleConstraint>, < ... > ],
-  "scopeConstraints" : { <scopeConstraint> },
-  "dataConstraint" : "datatype",
-  "uniqueConstraints" : [ <uniqueOccurrenceConstraint>, <...> ]
+  "occurrenceTypes" : [ {
+                          "occurrenceType" : [ "psi-1", "psi-2", "..." ],
+			  "scopeConstraints" : [ <scopeConstraints> ],
+			  "datatypeConstraint" : "datatype",			  
+			},
+			<...>
+		      ],
+  "constraints" : [ <simpleConstraints>, <...>],
+  "uniqueConstraint" : [ <uniqueConstraints>, <...> ]
 }
 
 
@@ -303,7 +311,7 @@
 //+    in an association of a certain associationtype (the objects owner).
 //+-----------------------------------------------------------------------------
 {
-  "roleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "roleType" : [ [ "topic-psi-1", "topic-psi-2", "..." ], ["subtype-1-psi-1", "..."], <...> ],
   "cardMin" : "unsigned integer in string representation",
   "cardMax" : "unsigend integer in string representation or the string MAX_INT"
 }
@@ -312,17 +320,17 @@
 //+-----------------------------------------------------------------------------
 //+ rolePlayerConstraint
 //+    Defines the player of a certain role with a given type in an association
-//+    with a given type.
-//+    playerType is the psi-list representation of the player-topic.
-//+    roleType is the is a list of topic-psis representing a topic which can
-//+    be a player in the given role.
+//+    of a given type.
+//+    palyers is the psi-list representation of a list of  all available
+//+    players.
+//+    roleTypes is a list of topics represented by a list of psi-lists.
 //+    cardMin and cardMax defines the number of times the topicType (= player)
 //+    can be the player in a role of a given type (= roleTypes) in an
 //+    association of a given type (= objects owner).
 //+-----------------------------------------------------------------------------
 {
-  "playerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
-  "roleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "players" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "topic-2-psi-1", "..."], <...> ]
+  "roleTypes" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "subtype-psi-1", "..." ], <...> ],
   "cardMin" : "unsigned integer in string representation",
   "cardMax" : "unsigend integer in string representation or the string MAX_INT"
 }

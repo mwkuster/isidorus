@@ -11,14 +11,15 @@
   (:use :cl :datamodel :constants :json-tmcl-constants)
   (:export :get-constraints-of-fragment
 	   :topictype-p
-	   :abstract-p))
+	   :abstract-p
+	   :list-subtypes))
 
 (in-package :json-tmcl)
 
 
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 ;; --- all fragment constraints ------------------------------------------------
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 (defun get-constraints-of-fragment(topic-psi &key (treat-as 'type))
   (let ((associationtype (get-item-by-psi *associationtype-psi*))
 	(associationtype-constraint (get-item-by-psi *associationtype-constraint-psi*))
@@ -54,9 +55,9 @@
 	      json-string)))))))
     
 
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 ;; --- all association constraints ---------------------------------------------
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 (defun get-constraints-of-association (associationtype-topic)
   "Returns a list of constraints which are describing associations of the 
    passed associationtype-topic."
@@ -94,7 +95,9 @@
 	(othertopictype-role (get-item-by-psi *othertopictype-role-psi*))
 	(otherroletype-role (get-item-by-psi *otherroletype-role-psi*))
 	(roletype (get-item-by-psi *roletype-psi*))
-	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*)))
+	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*))
+	(topictype (get-item-by-psi *topictype-psi*))
+	(topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
     (let ((otherrole-constraints
 	   (loop for constraint-topic in constraint-topics
 	      append (let ((players nil)
@@ -177,17 +180,21 @@
 			   (uri (first (psis (getf involved-topic-tupple :otherrole))))
 			   constraint-lists))
 		  (let ((json-player
-			 (concatenate 'string "\"playerType\":"
-				      (json-exporter::identifiers-to-json-string (getf involved-topic-tupple :player))))
+			 (concatenate 'string "\"players\":"
+				      (topics-to-json-list
+				       (list-instances (getf involved-topic-tupple :player) topictype topictype-constraint))))
 			(json-role
-			 (concatenate 'string "\"roleType\":"
-				      (json-exporter::identifiers-to-json-string (getf involved-topic-tupple :role))))
+			 (concatenate 'string "\"roleTypes\":"
+				      (topics-to-json-list
+				       (getf (list-subtypes (getf involved-topic-tupple :role) roletype roletype-constraint) :subtypes))))
 			(json-otherplayer
-			 (concatenate 'string "\"otherPlayerType\":"
-				      (json-exporter::identifiers-to-json-string (getf involved-topic-tupple :player))))
+			 (concatenate 'string "\"otherPlayers\":"
+				      (topics-to-json-list
+				       (list-instances (getf involved-topic-tupple :otherplayer) topictype topictype-constraint))))
 			(json-otherrole
 			 (concatenate 'string "\"otherRoleType\":"
-				      (json-exporter::identifiers-to-json-string (getf involved-topic-tupple :role))))
+				      (topics-to-json-list
+				       (getf (list-subtypes (getf involved-topic-tupple :otherrole) roletype roletype-constraint) :subtypes))))
 			(card-min
 			 (concatenate 'string "\"cardMin\":" (getf (first constraint-lists) :card-min)))
 			(card-max
@@ -212,7 +219,9 @@
 	(topictype-role (get-item-by-psI *topictype-role-psi*))
 	(roletype-role (get-item-by-psi *roletype-role-psi*))
 	(roletype (get-item-by-psi *roletype-psi*))
-	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*)))
+	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*))
+	(topictype (get-item-by-psi *topictype-psi*))
+	(topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
     (let ((roleplayer-constraints
 	   (loop for constraint-topic in constraint-topics
 	      append (let ((constraint-list
@@ -251,11 +260,11 @@
 			   (topictype-p current-player)
 			   (topictype-p current-role roletype roletype-constraint)
 			   (list :player current-player
-				 :role current-role)))
+				 :role current-role)))  
 	      :test #'(lambda(x y)
 			(and (eq (getf x :player) (getf y :player))
 			     (eq (getf x :role) (getf y :role)))))))
-			   
+
 	(let ((cleaned-roleplayer-constraints "["))
 	  (loop for role-player-tupple in role-player-tupples
 	     do (let ((constraint-lists
@@ -269,19 +278,21 @@
 			   (uri (first (psis (getf role-player-tupple :role))))
 			   (uri (first (psis (getf role-player-tupple :player))))
 			   constraint-lists))
-		  (let ((json-player
-			 (concatenate 'string "\"playerType\":"
-				      (json-exporter::identifiers-to-json-string (getf role-player-tupple :player))))
+		  (let ((json-players
+			 (concatenate 'string "\"players\":"
+				      (topics-to-json-list
+				       (list-instances (getf role-player-tupple :player) topictype topictype-constraint))))
 			(json-role
-			 (concatenate 'string "\"roleType\":"
-				      (json-exporter::identifiers-to-json-string (getf role-player-tupple :role))))
+			 (concatenate 'string "\"roleTypes\":"
+				      (topics-to-json-list
+				       (getf (list-subtypes (getf role-player-tupple :role) roletype roletype-constraint) :subtypes))))
 			(card-min
 			 (concatenate 'string "\"cardMin\":" (getf (first constraint-lists) :card-min)))
 			(card-max
 			 (concatenate 'string "\"cardMax\":" (getf (first constraint-lists) :card-max))))
 		    (setf cleaned-roleplayer-constraints
 			  (concatenate 'string cleaned-roleplayer-constraints
-				       "{" json-player "," json-role "," card-min "," card-max "},")))))
+				       "{" json-players "," json-role "," card-min "," card-max "},")))))
 	  (if (string= cleaned-roleplayer-constraints "[")
 	      (setf cleaned-roleplayer-constraints "null")
 	      (setf cleaned-roleplayer-constraints 
@@ -325,12 +336,17 @@
 				collect (getf associationrole-constraint :constraint)))))
 		  (when (> (length constraint-lists) 1)
 		    (error "found contrary associationrole-constraints: ~a ~a~%" (uri (first (psis associationroletype-topic))) constraint-lists))
+		  (let ((roletype-with-subtypes
+			 (json:encode-json-to-string 
+			  (map 'list #'(lambda(topic)
+					 (map 'list #'uri (psis topic)))
+			       (getf (list-subtypes associationroletype-topic roletype roletype-constraint) :subtypes)))))
 		  (setf cleaned-associationrole-constraints
 			(concatenate 'string
 				     cleaned-associationrole-constraints
-				     "{\"roleType\":" (json-exporter::identifiers-to-json-string associationroletype-topic)
+				     "{\"roleType\":" roletype-with-subtypes
 				     ",\"cardMin\":" (getf (first constraint-lists) :card-min)
-				     ",\"cardMax\":" (getf (first constraint-lists) :card-max) "},"))))
+				     ",\"cardMax\":" (getf (first constraint-lists) :card-max) "},")))))
 
 	  (if (string= cleaned-associationrole-constraints "[")
 	      (setf cleaned-associationrole-constraints "null")
@@ -339,9 +355,9 @@
 	  cleaned-associationrole-constraints)))))
 
 
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 ;; --- all topic constraints ---------------------------------------------------
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 (defun get-constraints-of-topic (topic-instance &key(treat-as 'type))
     "Returns a constraint list with the constraints:
      subjectidentifier-constraints, subjectlocator-constraints,
@@ -425,7 +441,7 @@
   "Transforms a list of simple constraint lists of the form
    ((:regexp <string> :card-min <string> :card-max <string>) <...>)
    to a valid json list of the form
-   [{\"regexp\":\"expr\",\"cardMin\":\"123\",\"cardMax\":\"456\"}, <...>]."
+   [{regexp: expr, cardMin: 123, cardMax: 456}, <...>]."
   (let ((constraints "["))
     (loop for constraint in simple-constraints
        do (let ((constraint (concatenate 'string "{\"regexp\":"
@@ -446,12 +462,10 @@
 
 (defun get-topicname-constraints(constraint-topics)
   "Returns all topicname constraints as a list of the following form:
-   ( ( :type <nametype-topic>
-       :constraints ( ( :regexp <string> :card-min <string> :card-max <string>)
-                      <...>)
-               :scopes ( ( :scope <scope-topic> :regexp <string> :card-min <string> :card-max <string>)
-                          <...>))
-         <...>)."
+  [{nametypescopes:[{nameType: [psi-1, psi-2], scopeConstraints: [<scopeConstraint>]},
+                    {nameType: [subtype-1-psi-1], scopeConstriants: [<scopeConstraints>]},
+    constraints: [<simpleConstraint>, <...>]},
+    <...>]."
   (let ((constraint-role (get-item-by-psi *constraint-role-psi*))
 	(applies-to (get-item-by-psi *applies-to-psi*))
 	(nametype-role (get-item-by-psi *nametype-role-psi*))
@@ -466,16 +480,15 @@
 				   append (loop for other-role in (roles (parent role))
 					     when (eq nametype-role (instance-of other-role))
 					     collect (let ((nametype-topic (player other-role))
-							   (constraint-list (get-constraint-topic-values constraint-topic)))
+							   (constraint-list (get-constraint-topic-values constraint-topic)))				    
 						       (list :type nametype-topic :constraint constraint-list))))))))
-      
       (let ((nametype-topics
-	     (remove-duplicates (map 'list #'(lambda(x)
-					       (let ((topicname-type
-						      (getf x :type)))
-						 (topictype-p topicname-type nametype nametype-constraint)
-						 topicname-type))
-				     topicname-constraints))))
+	     (map 'list #'(lambda(x)
+			    (let ((topicname-type
+				   (getf x :type)))
+			      (topictype-p topicname-type nametype nametype-constraint)
+			      topicname-type))
+		  topicname-constraints)))
 	(let ((cleaned-topicname-constraints "["))
 	  (loop for nametype-topic in nametype-topics
 	     do (let ((constraint-lists
@@ -487,17 +500,22 @@
 			 (find-contrary-constraints constraint-lists)))
 		    (when contrary-constraints
 		      (error "found contrary topicname-constraints: ~a~%" contrary-constraints)))
-		  (let ((typescope-constraints
-			 (let ((current-scopes
-				(get-typescope-constraints nametype-topic :what 'topicname)))
-			   (concatenate 'string "\"scopeConstraints\":" current-scopes)))
-			(json-constraint-lists
-			 (concatenate 'string "\"constraints\":" (simple-constraints-to-json constraint-lists)))
-			(type-topic
-			 (concatenate 'string "\"nameType\":"
-				      (json-exporter::identifiers-to-json-string nametype-topic))))
-		    (setf cleaned-topicname-constraints
-			  (concatenate 'string cleaned-topicname-constraints "{" type-topic "," json-constraint-lists "," typescope-constraints "},")))))
+		  (let ((nametype-with-subtypes
+			 (remove-if #'null (getf (list-subtypes nametype-topic nametype nametype-constraint) :subtypes))))
+		    (let ((nametypescopes "\"nametypescopes\":["))
+		      (loop for current-topic in nametype-with-subtypes
+			 do (let ((current-json-string
+				   (concatenate 'string "{\"nameType\":" (json-exporter::identifiers-to-json-string current-topic)
+						",\"scopeConstraints\":" (get-typescope-constraints current-topic :what 'topicname) "}")))
+			      (setf nametypescopes (concatenate 'string nametypescopes current-json-string ","))))
+		      (if (string= nametypescopes "\"nametypescopes\"[")
+			  (setf nametypescopes "null")
+			  (setf nametypescopes
+				(concatenate 'string (subseq nametypescopes 0 (- (length nametypescopes) 1)) "]")))
+		      (let ((json-constraint-lists
+			     (concatenate 'string "\"constraints\":" (simple-constraints-to-json constraint-lists))))
+			(setf cleaned-topicname-constraints
+			      (concatenate 'string cleaned-topicname-constraints "{" nametypescopes "," json-constraint-lists "},")))))))
 	  (if (string= cleaned-topicname-constraints "[")
 	      (setf cleaned-topicname-constraints "null")
 	      (setf cleaned-topicname-constraints
@@ -548,24 +566,32 @@
 			 (find-contrary-constraints constraint-lists)))
 		    (when contrary-constraints
 		      (error "found contrary topicname-constraints: ~a~%" contrary-constraints)))
-		  (let ((type-topic
-			 (concatenate 'string "\"occurrenceType\":"
-				      (json-exporter::identifiers-to-json-string occurrencetype-topic)))
-			(typescope-constraints
-			 (let ((current-scopes
-				(get-typescope-constraints occurrencetype-topic :what 'topicoccurrence)))
-			   (concatenate 'string "\"scopeConstraints\":" current-scopes)))
-			(datatype-constraint
-			 (concatenate 'string "\"datatypeConstraint\":"
-				      (get-occurrence-datatype-constraint occurrencetype-topic)))
-			(unique-constraints
-			 (concatenate 'string "\"uniqueConstraints\":"
-				      (get-simple-constraints unique-constraint-topics)))
-			(json-constraint-lists
-			 (concatenate 'string "\"constraints\":" (simple-constraints-to-json constraint-lists))))
-		    (setf cleaned-topicoccurrence-constraints
-			  (concatenate 'string cleaned-topicoccurrence-constraints
-				       "{" type-topic "," json-constraint-lists "," typescope-constraints "," datatype-constraint "," unique-constraints "},")))))
+
+
+		  (let ((occurrencetype-with-subtypes
+			 (getf (list-subtypes occurrencetype-topic occurrencetype occurrencetype-constraint) :subtypes)))
+
+		    (let ((occurrencetypes-json-string "\"occurrenceTypes\":["))
+		      (loop for current-topic in occurrencetype-with-subtypes
+			 do (let ((current-json-string
+				   (concatenate 'string "{\"occurrenceType\":" (json-exporter::identifiers-to-json-string current-topic)
+						",\"scopeConstraints\":" (get-typescope-constraints current-topic :what 'topicoccurrence)
+						",\"datatypeConstraint\":" (get-occurrence-datatype-constraint current-topic) "}")))
+			      (setf occurrencetypes-json-string (concatenate 'string occurrencetypes-json-string current-json-string ","))))
+		      
+		      (if (string= occurrencetypes-json-string "\"occurrenceTypes\"[")
+			  (setf occurrencetypes-json-string "null")
+			  (setf occurrencetypes-json-string
+				(concatenate 'string (subseq occurrencetypes-json-string 0 (- (length occurrencetypes-json-string) 1)) "]")))
+		      (let ((unique-constraints
+			     (concatenate 'string "\"uniqueConstraints\":"
+					  (get-simple-constraints unique-constraint-topics)))
+			    (json-constraint-lists
+			     (concatenate 'string "\"constraints\":" (simple-constraints-to-json constraint-lists))))
+			(let ((current-json-string
+			       (concatenate 'string "{" occurrencetypes-json-string "," json-constraint-lists "," unique-constraints "}")))
+			  (setf cleaned-topicoccurrence-constraints
+				(concatenate 'string cleaned-topicoccurrence-constraints current-json-string ","))))))))
 	  (if (string= cleaned-topicoccurrence-constraints "[")
 	      (setf cleaned-topicoccurrence-constraints "null")
 	      (setf cleaned-topicoccurrence-constraints
@@ -609,9 +635,10 @@
    a topicname, a topicoccurrence or an association. To specifiy of what kind
    of element the scopes should be there is the key-variable what.
    It can be set to 'topicname, 'topicoccurrence or 'association.
-   The return value is of the form
-   ( :scope <scope-topic>
-     :constraint (:card-min <string> :card-max <string> ))."
+   The return value is of the form:
+   [{scopeTypes:[[[psi-1-1, psi-1-2], [subtype-1-psi-1, subtype-1-psi-2]], [[psi-2-1],
+   [subtype-1-psi-1], [subtype-2-psi-1]]], cardMin: <int-as-string>,
+   cardMax <int-as-string | MAX_INT>}, <...>]."
   (let ((element-type-role-and-scope-constraint
 	 (cond
 	   ((eq what 'topicname)
@@ -627,7 +654,8 @@
 	     (get-item-by-psi *associationtypescope-constraint-psi*)))))
 	(scopetype-role (get-item-by-psi *scopetype-role-psi*))
 	(constraint-role (get-item-by-psi *constraint-role-psi*))
-	(applies-to (get-item-by-psi *applies-to-psi*)))
+	(applies-to (get-item-by-psi *applies-to-psi*))
+	(scopetype (get-item-by-psi *scopetype-psi*)))
     (when (and (= (length element-type-role-and-scope-constraint) 2)
 	       (first element-type-role-and-scope-constraint)
 	       (second element-type-role-and-scope-constraint))
@@ -677,13 +705,22 @@
 			       constraint-lists))
 		      (let ((card-min (getf (first constraint-lists) :card-min))
 			    (card-max (getf (first constraint-lists) :card-max)))
-			(let ((json-scopes "\"scopeTypes\":["))
-			  (dolist (item scopetype-group)
-			    (let ((json-list (json-exporter::identifiers-to-json-string item)))
-			      (setf json-scopes (concatenate 'string json-scopes json-list ","))))
-			  (setf json-scopes (subseq json-scopes 0 (- (length json-scopes) 1)))
+			(let ((json-scopes
+			       (concatenate 'string "\"scopeTypes\":"
+			  
+					    (let ((scopetypes-with-subtypes
+						   (remove-if #'null
+						    (loop for current-scopetype in scopetype-group
+						       collect (getf (list-subtypes current-scopetype scopetype nil) :subtypes)))))
+					      
+					      (json:encode-json-to-string
+					       (map 'list #'(lambda(topic-group)
+							      (map 'list #'(lambda(topic)
+									     (map 'list #'uri (psis topic)))
+								   topic-group))
+						    scopetypes-with-subtypes))))))
 			  (let ((current-json-string
-				 (concatenate 'string "{" json-scopes "],\"cardMin\":\"" card-min "\",\"cardMax\":\"" card-max "\"}")))
+				 (concatenate 'string "{" json-scopes ",\"cardMin\":\"" card-min "\",\"cardMax\":\"" card-max "\"}")))
 			    (setf cleaned-typescope-constraints 
 				  (concatenate 'string cleaned-typescope-constraints current-json-string ",")))))))
 	      (if (string= cleaned-typescope-constraints "[")
@@ -693,9 +730,9 @@
 	      cleaned-typescope-constraints)))))))
     
 
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 ;; --- some basic helpers ------------------------------------------------------
-;; -----------------------------------------------------------------------------
+;; =============================================================================
 (defun get-constraint-topic-values(topic)
   "Returns all constraint values of the passed topic in the
    following form (list :regexp regexp :card-min card-min :card-max card-max)"
@@ -946,11 +983,14 @@
     current-checked-topics))
 
 
-(defun topictype-of-p (topic-instance type-instance &optional checked-topics)
+(defun topictype-of-p (topic-instance type-instance &optional (topictype (get-item-by-psi *topictype-psi*))
+		                                              (topictype-constraint (get-item-by-psi *topictype-constraint-psi*))
+                                                               checked-topics)
   "Returns a list of all types and supertypes of this topic if this topic is a
-   valid instance-topic of the type-topic called type-instance. TMCL 4.4.2"
+   valid instance-topic of the type-topic called type-instance. TMCL 4.4.2.
+   When the type-instance is set to nil there will be checked only if the
+   topic-instance is a valid instance."
   (let ((current-checked-topics (append checked-topics (list topic-instance)))
-	(topictype (get-item-by-psi *topictype-psi*))
 	(isas-of-this (get-direct-types-of-topic topic-instance))
 	(akos-of-this (get-direct-supertypes-of-topic topic-instance)))
 
@@ -962,7 +1002,7 @@
       (return-from topictype-of-p nil))
 
     (loop for isa-of-this in isas-of-this
-       do (let ((found-topics (topictype-p isa-of-this)))
+       do (let ((found-topics (topictype-p isa-of-this topictype topictype-constraint)))
 	    (when (not found-topics)
 	      (return-from topictype-of-p nil))
 	    (dolist (item found-topics)
@@ -970,13 +1010,15 @@
 
     (loop for ako-of-this in akos-of-this
        when (not (find ako-of-this current-checked-topics :test #'eq))
-       do (let ((found-topics (topictype-of-p ako-of-this type-instance current-checked-topics)))
+       do (let ((found-topics (topictype-of-p ako-of-this type-instance topictype topictype-constraint current-checked-topics)))
 	    (when (not found-topics)
 	      (return-from topictype-of-p nil))
 	    (dolist (item found-topics)
 	      (pushnew item current-checked-topics))))
 
-      (when (find type-instance current-checked-topics)
+    (if type-instance
+	(when (find type-instance current-checked-topics)
+	  current-checked-topics)
 	current-checked-topics)))
 
 
@@ -1170,6 +1212,8 @@
 	(constraint-role (get-item-by-psi *constraint-role-psi*))
 	(othertopictype-role (get-item-by-psi *othertopictype-role-psi*))
 	(associationtype-role (get-item-by-psi *associationtype-role-psi*))
+	(associationtype (get-item-by-psi *associationtype-psi*))
+	(associationtype-constraint (get-item-by-psi *associationtype-constraint-psi*))
 	(roleplayer-constraint (get-item-by-psi *roleplayer-constraint-psi*))
 	(otherrole-constraint (get-item-by-psi *otherrole-constraint-psi*))
 	(all-possible-player-topics	 
@@ -1178,9 +1222,6 @@
 	      (topictype-p topic-instance)
 	      (loop for topic in (union (get-direct-types-of-topic topic-instance) (get-direct-supertypes-of-topic topic-instance))
 		 append (topictype-p topic))))))
-    
-
-    ;what's with associationrole-constraints without a player-constraint???
     (let ((all-available-associationtypes
 	   (remove-duplicates
 	    (loop for possible-player-topic in all-possible-player-topics
@@ -1197,5 +1238,81 @@
 						       (eq applies-to (instance-of (parent c-role))))
 					     append (loop for type-role in (roles (parent c-role))
 						       when (eq associationtype-role (instance-of type-role))
-						       collect (player type-role)))))))))
+						       append (map 'list #'(lambda(x)
+									     (topictype-p x associationtype associationtype-constraint)
+									     x)
+								   (getf (list-subtypes (player type-role) associationtype associationtype-constraint) :subtypes))))))))))
       all-available-associationtypes)))
+
+
+(defun list-subtypes (topic-instance &optional (topictype (get-item-by-psi *topictype-psi*))
+		                               (topictype-constraint (get-item-by-psi *topictype-constraint-psi*))
+		                               (checked-topics nil) (valid-subtypes nil))
+  "Returns all valid subtypes of a topic, e.g.:
+   nametype-constraint ako constraint .
+   first-name isa nametype .
+   first-name-1 ako first-name .
+   // ...
+   The return value is a named list of the form (:subtypes (<topic> <...>) :checked-topics (<topic> <...>)"
+  (let ((current-checked-topics (append checked-topics (list topic-instance))))
+
+    (handler-case (topictype-p topic-instance topictype topictype-constraint)
+      (condition () (return-from list-subtypes (list :subtypes nil :checked-topics current-checked-topics))))
+
+    (let ((subtype (get-item-by-psi *subtype-psi*))
+	  (supertype (get-item-by-psi *supertype-psi*))
+	  (supertype-subtype (get-item-by-psi *supertype-subtype-psi*))
+	  (current-valid-subtypes (append valid-subtypes (list topic-instance))))
+      (loop for role in (player-in-roles topic-instance)
+	 when (and (eq supertype (instance-of role))
+		   (eq supertype-subtype (instance-of (parent role))))
+	 do (loop for other-role in (roles (parent role))			 
+	       do (when (and (eq subtype (instance-of other-role))
+			     (not (find (player other-role) current-checked-topics)))
+		    (let ((new-values
+			   (list-subtypes (player other-role) topictype topictype-constraint current-checked-topics current-valid-subtypes)))
+		      (dolist (item (getf new-values :subtypes))
+			(pushnew item current-valid-subtypes))
+		      (dolist (item (getf new-values :checked-topics))
+			(pushnew item current-checked-topics))))))
+      (list :subtypes current-valid-subtypes :checked-topics current-checked-topics))))
+
+
+(defun list-instances (topic-instance &optional (topictype (get-item-by-psi *topictype-psi*))
+                                                (topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
+  "Returns the topic-instance, all subtypes found by the function lis-subtypes and all direct
+   instances for the found subtypes."
+  (let ((all-subtypes-of-this
+	 (getf (list-subtypes topic-instance topictype topictype-constraint) :subtypes))
+	(type (get-item-by-psi *type-psi*))
+	(instance (get-item-by-psi *instance-psi*))
+	(type-instance (get-item-by-psi *type-instance-psi*)))
+    (let ((all-instances-of-this
+	   (remove-duplicates
+	    (loop for subtype-of-this in all-subtypes-of-this
+	       append (loop for role in (player-in-roles subtype-of-this)
+			 when (and (eq type (instance-of role))
+				   (eq type-instance (instance-of (parent role))))
+			 append (loop for other-role in (roles (parent role))
+				   when (eq instance (instance-of other-role))
+				   collect (player other-role)))))))
+      (let ((all-subtypes-of-all-instances
+	     (remove-if #'null
+			(remove-duplicates
+			 (loop for subtype in all-instances-of-this
+			    append (getf (list-subtypes subtype nil nil) :subtypes))))))
+	(remove-if #'null
+		   (map 'list #'(lambda(x)
+				  (handler-case (progn
+						  (topictype-of-p x nil)
+						  x)
+				    (condition () nil)))
+			all-subtypes-of-all-instances))))))
+
+
+(defun topics-to-json-list (topics)
+  "Returns a json list of psi-lists."
+  (json:encode-json-to-string 
+   (map 'list #'(lambda(topic)
+		  (map 'list #'uri (psis topic)))
+	topics)))
