@@ -1,90 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
-
-  <!-- === association-test ================================================ -->
-  <tm:topic id="test-scope-1">
-    <tm:subjectIdentifier href="test-scope-1"/>
-    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
-  </tm:topic>
-
-  <tm:topic id="test-scope-2">
-    <tm:subjectIdentifier href="test-scope-2"/>
-    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
-  </tm:topic>
-
-  <tm:topic id="written-by-test-scope-constraint">
-    <tm:subjectIdentifier href="written-by-test-scope-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#associationtypescope-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type>
-	<tm:topicRef href="#card-min"/>
-      </tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type>
-	<tm:topicRef href="#card-max"/>
-      </tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type>
-      <tm:topicRef href="#applies-to"/>
-    </tm:type>
-    <tm:role>
-      <tm:type>
-	<tm:topicRef href="#constraint-role"/>
-      </tm:type>
-      <tm:topicRef href="#written-by-test-scope-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type>
-	<tm:topicRef href="#associationtype-role"/>
-      </tm:type>
-      <tm:topicRef href="#written-by"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type>
-      <tm:topicRef href="#applies-to"/>
-    </tm:type>
-    <tm:role>
-      <tm:type>
-	<tm:topicRef href="#constraint-role"/>
-      </tm:type>
-      <tm:topicRef href="#written-by-test-scope-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type>
-	<tm:topicRef href="#scopetype-role"/>
-      </tm:type>
-      <tm:topicRef href="#test-scope-1"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type>
-      <tm:topicRef href="#applies-to"/>
-    </tm:type>
-    <tm:role>
-      <tm:type>
-	<tm:topicRef href="#constraint-role"/>
-      </tm:type>
-      <tm:topicRef href="#written-by-test-scope-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type>
-	<tm:topicRef href="#scopetype-role"/>
-      </tm:type>
-      <tm:topicRef href="#test-scope-2"/>
-    </tm:role>
-  </tm:association>
-  <!-- === end association-test ============================================ -->
-
-
   <!-- ===================================================================== -->
   <!-- === TMCL meta-model topics ========================================== -->
   <!-- ===================================================================== -->
@@ -678,6 +593,84 @@
     <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
   </tm:topic>
 
+  <!-- region -->
+  <tm:topic id="region">
+    <tm:subjectIdentifier href="http://some.where/base-psis/region"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="abstract-constraint-for-region">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/abstract-constraint-for-region"/>
+    <tm:instanceOf><tm:topicRef href="#abstract-topictype-constraint"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#abstract-constraint-for-region"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="region-name">
+    <tm:subjectIdentifier href="http://some.where/base-psis/region-name"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="region-population">
+    <tm:subjectIdentifier href="http://some.where/base-psis/region-population"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- city -->
+  <tm:topic id="city">
+    <tm:subjectIdentifier href="http://some.where/base-psis/city"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#city"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- metropolis -->
+  <tm:topic id="metropolis">
+    <tm:subjectIdentifier href="http://some.where/base-psis/metropolis"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#metropolis"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- country -->
+  <tm:topic id="country">
+    <tm:subjectIdentifier href="http://some.where/base-psis/country"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="country-name">
+    <tm:subjectIdentifier href="http://some.where/base-psis/country-name"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
   <!-- association author-poem -->
   <tm:topic id="written-by">
     <tm:subjectIdentifier href="http://some.where/base-psis/written-by"/>
@@ -694,6 +687,34 @@
     <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
   </tm:topic>
 
+  <!-- association country-city -->
+  <tm:topic id="located-in">
+    <tm:subjectIdentifier href="http://some.where/base-psis/located-in"/>
+    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="container">
+    <tm:subjectIdentifier href="http://some.where/base-psis/container"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="containee">
+    <tm:subjectIdentifier href="http://some.where/base-psis/containee"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- association author-city -->
+  <tm:topic id="born-in">
+    <tm:subjectIdentifier href="http://some.where/base-psis/born-in"/>
+    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+  </tm:topic>
+
+  <!-- writer already defined for written-by -->
+
+  <tm:topic id="place">
+    <tm:subjectIdentifier href="http://some.where/base-psis/place"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: exclusive type constraint ======================== -->
@@ -725,6 +746,30 @@
     <tm:role>
       <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
       <tm:topicRef href="#poem"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#exc"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#exc"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
     </tm:role>
   </tm:association>
 
@@ -797,9 +842,69 @@
     </tm:role>
   </tm:association>
 
-  <!-- further subjectidentifiers of author and poem -->
-  <tm:topic id="sic-author-poem">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/sic-author-poem"/>
+  <!-- subjectidentifier of region -->
+  <tm:topic id="sic-region">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/sic-region"/>
+    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://some.where/psis/region/.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-region"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- subjectidentifier of country -->
+  <tm:topic id="sic-country">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/sic-country"/>
+    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://some.where/psis/country/.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-country"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- further subjectidentifiers of all topics -->
+  <tm:topic id="sic-all">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/all"/>
     <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
@@ -819,7 +924,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#sic-author-poem"/>
+      <tm:topicRef href="#sic-all"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
@@ -831,7 +936,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#sic-author-poem"/>
+      <tm:topicRef href="#sic-all"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
@@ -839,15 +944,39 @@
     </tm:role>
   </tm:association>
 
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-all"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#sic-all"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
+    </tm:role>
+  </tm:association>
+
 
   <!-- ===================================================================== -->
-  <!-- === own datamodel: subjectIdentifier constraints ==================== -->
+  <!-- === own datamodel: subjectLocator constraints ======================= -->
   <!-- ===================================================================== -->
-  <!-- all instances of author and poem are not allowed to own a
+  <!-- all instances of author, poem, city and country are not allowed to own a
        subjectLocator -->
 
-  <tm:topic id="slc-author-poem">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/slc-author-poem"/>
+  <tm:topic id="slc-author-poem-city-country">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/slc-author-poem-city-country"/>
     <tm:instanceOf><tm:topicRef href="#subjectlocator-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
@@ -867,7 +996,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#slc-author-poem"/>
+      <tm:topicRef href="#slc-author-poem-city-country"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
@@ -879,7 +1008,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#slc-author-poem"/>
+      <tm:topicRef href="#slc-author-poem-city-country"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
@@ -887,8 +1016,32 @@
     </tm:role>
   </tm:association>
 
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#slc-author-poem-city-country"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#slc-author-poem-city-country"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
+    </tm:role>
+  </tm:association>
+
   <!-- ===================================================================== -->
-  <!-- === own datamodel: names constraints ================================ -->
+  <!-- === own datamodel: name constraints ================================= -->
   <!-- ===================================================================== -->
   <!-- instances of the type author has to own a name of the type first-name
        and one of the type last-name. both must be valid to the regular
@@ -902,11 +1055,11 @@
     <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
         <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">3</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#regexp"/></tm:type>
@@ -944,7 +1097,7 @@
     <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
         <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
@@ -986,7 +1139,7 @@
     <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
@@ -1022,9 +1175,145 @@
     </tm:role>
   </tm:association>  
 
+  <!-- region: region-name -->
+  <tm:topic id="region-name-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/region-name-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#region-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#region-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#region-name"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- country: country-name
+       A country hast to have at least one name with the scope "en" or "de".
+       There can exist both names with the scopes "en" and "de". -->
+  <tm:topic id="country-name-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/country-name-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#country-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#country-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#country-name"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- country-name scopes -->
+  <tm:topic id="scoped-country-name-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-country-name-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#nametypescope-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#country-name"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#en"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#de"/>
+    </tm:role>
+  </tm:association>
+
 
   <!-- ===================================================================== -->
-  <!-- === own datamodel: occurences constraints =========================== -->
+  <!-- === own datamodel: occurence constraints ============================ -->
   <!-- ===================================================================== -->
   <!-- every instance of the topic author can have one occurrence of the type
        author-info which contains a resourceRef (= datatype #anyURI) -->
@@ -1253,6 +1542,69 @@
     </tm:role>
   </tm:association>
 
+  <!-- city population-occurrence -->
+  <tm:topic id="region-population-occurrence-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/region-population-occurrence-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#region-population-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#region-population-occurrence-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#region-population"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- city population-occurrence datatype -->
+  <tm:topic id="region-population-occurrence-datatype-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/region-population-occurrence-datatype-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencedatatype-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#datatype"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#unsignedLong</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#region-population-occurrence-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:topicRef href="#region-population"/>
+    </tm:role>
+  </tm:association>
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: association (-role) constraints ================== -->
@@ -1264,8 +1616,8 @@
 
   <!-- the writer role has to appear exactly once in an association of type
        written-by -->
-  <tm:topic id="writer-role-constraint">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/writer-role-constraint"/>
+  <tm:topic id="written-by-writer-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/written-by-writer-role-constraint"/>
     <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
@@ -1281,7 +1633,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#writer-role-constraint"/>
+      <tm:topicRef href="#written-by-writer-role-constraint"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
@@ -1293,7 +1645,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#writer-role-constraint"/>
+      <tm:topicRef href="#written-by-writer-role-constraint"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
@@ -1302,8 +1654,8 @@
   </tm:association>
 
   <!-- the writer role owns a player of the type author -->
-  <tm:topic id="writer-role-player-constraint">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/writer-role-player-constraint"/>
+  <tm:topic id="written-by-writer-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/written-by-writer-role-player-constraint"/>
     <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
@@ -1319,7 +1671,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#writer-role-player-constraint"/>
+      <tm:topicRef href="#written-by-writer-role-player-constraint"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
@@ -1331,7 +1683,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#writer-role-player-constraint"/>
+      <tm:topicRef href="#written-by-writer-role-player-constraint"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
@@ -1343,7 +1695,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#writer-role-player-constraint"/>
+      <tm:topicRef href="#written-by-writer-role-player-constraint"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
@@ -1453,7 +1805,7 @@
        both cases. -->
 
   <tm:topic id="written-by-otherrole-constraint-for-writer">
-    <tm:subjectIdentifier href="written-by-otherrole-constraint-for-writer"/>
+    <tm:subjectIdentifier href="http://some.where/contraint-psis/written-by-otherrole-constraint-for-writer"/>
     <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type>
@@ -1530,7 +1882,7 @@
   </tm:association>
 
   <tm:topic id="written-by-otherrole-constraint-for-written">
-    <tm:subjectIdentifier href="written-by-otherrole-constraint-for-written"/>
+    <tm:subjectIdentifier href="http://some.where/contraint-psis/written-by-otherrole-constraint-for-written"/>
     <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type>
@@ -1606,9 +1958,797 @@
     </tm:role>
   </tm:association>
 
+  <!-- born-in associations have to have one role of the type writer with a
+       player of the type author. The other role is of type place with the
+       player of the type city. -->
+  <!-- place associationrole-constraint -->
+  <tm:topic id="born-in-place-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/born-in-place-role-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-place-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-place-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#place"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- place-role roleplayer-constraint -->
+  <tm:topic id="born-in-place-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/born-in-place-role-player-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-place-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-place-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-place-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#place"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- writer associationrole-constraint -->
+  <tm:topic id="born-in-writer-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/born-in-writer-role-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-writer-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-writer-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- place-role roleplayer-constraint -->
+  <tm:topic id="born-in-writer-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/born-in-writer-role-player-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-writer-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-writer-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-writer-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- otherplayer-constraints:
+       A "born-in" association must have exactly one writer-role with a
+       player of the type author and one place-role with a player of the
+       type city. -->
+  <tm:topic id="born-in-otherrole-constraint-for-writer">
+    <tm:subjectIdentifier href="http://some.where/contraint-psis/born-in-otherrole-constraint-for-writer"/>
+    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:topicRef href="#place"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-writer"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="born-in-otherrole-constraint-for-place">
+    <tm:subjectIdentifier href="http://some.where/contraint-psis/born-in-otherrole-constraint-for-place"/>
+    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-place"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-place"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#place"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-place"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-place"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:topicRef href="#writer"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#born-in-otherrole-constraint-for-place"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:topicRef href="#author"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- located-in associations have to have one role of the type container with
+       a player of the type country. The other role is of type containee with
+       a player of the type city. -->
+  <!-- place associationrole-constraint -->
+  <tm:topic id="located-in-container-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/located-in-container-role-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-container-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#located-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-container-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#container"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- place-role roleplayer-constraint -->
+  <tm:topic id="located-in-container-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/located-in-container-role-player-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-container-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-container-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#located-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-container-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#container"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- writer associationrole-constraint -->
+  <tm:topic id="located-in-containee-role-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/located-in-containee-role-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-containee-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#located-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-containee-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#containee"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- place-role roleplayer-constraint -->
+  <tm:topic id="located-in-containee-role-player-constraint">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/located-in-containee-role-player-constraint"/>
+    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-containee-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-containee-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#located-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-containee-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#containee"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- otherplayer-constraints:
+       A "born-in" association must have exactly one writer-role with a
+       player of the type author and one place-role with a player of the
+       type city. -->
+  <tm:topic id="located-in-otherrole-constraint-for-container">
+    <tm:subjectIdentifier href="http://some.where/contraint-psis/located-in-otherrole-constraint-for-container"/>
+    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-container"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#located-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-container"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#container"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-container"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-container"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:topicRef href="#containee"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-container"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="located-in-otherrole-constraint-for-containee">
+    <tm:subjectIdentifier href="http://some.where/contraint-psis/located-in-otherrole-constraint-for-containee"/>
+    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+	<tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-containee"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:topicRef href="#born-in"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-containee"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:topicRef href="#containee"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-containee"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-containee"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:topicRef href="#container"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#located-in-otherrole-constraint-for-containee"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:topicRef href="#country"/>
+    </tm:role>
+  </tm:association>
+
   <!-- ===================================================================== -->
   <!-- === the "user's" topic map ========================================== -->
   <!-- ===================================================================== -->
+  <tm:topic id="germany">
+    <tm:subjectIdentifier href="http://some.where/psis/country/germany"/>
+    <tm:instanceOf><tm:topicRef href="#country"/></tm:instanceOf>
+    <tm:name>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:value>Deutschland</tm:value>
+    </tm:name>
+    <tm:name>
+      <tm:scope><tm:topicRef href="#en"/></tm:scope>
+      <tm:value>Germany</tm:value>
+    </tm:name>
+  </tm:topic>
+
+  <tm:topic id="poland">
+    <tm:subjectIdentifier href="http://some.where/psis/country/poland"/>
+    <tm:instanceOf><tm:topicRef href="#country"/></tm:instanceOf>
+    <tm:name>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:value>Polen</tm:value>
+    </tm:name>
+    <tm:name>
+      <tm:scope><tm:topicRef href="#en"/></tm:scope>
+      <tm:value>Poland</tm:value>
+    </tm:name>
+  </tm:topic>
+
+  <tm:topic id="frankfurt_am_main">
+    <tm:subjectIdentifier href="http://some.where/psis/city/frankfurt_am_main"/>
+    <tm:instanceOf><tm:topicRef href="#metropolis"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#region-name"/></tm:type>
+      <tm:value>Frankfurt am Main</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#region-population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">659021</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#located-in"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#container"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#containee"/></tm:type>
+      <tm:topicRef href="#frankfurt_am_main"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="marbach_am_neckar">
+    <tm:subjectIdentifier href="http://some.where/psis/city/marbach_am_neckar"/>
+    <tm:instanceOf><tm:topicRef href="#city"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#region-name"/></tm:type>
+      <tm:value>Marbach am Neckar</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#region-population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">15601</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#located-in"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#container"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#containee"/></tm:type>
+      <tm:topicRef href="#marbach_am_neckar"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="lubowitz">
+    <tm:subjectIdentifier href="http://some.where/psis/city/lubowitz"/>
+    <tm:instanceOf><tm:topicRef href="#city"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#region-name"/></tm:type>
+      <tm:value>Lubowitz</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#region-population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">365</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#located-in"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#container"/></tm:type>
+      <tm:topicRef href="#poland"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#containee"/></tm:type>
+      <tm:topicRef href="#lubowitz"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="eichendorff">
+    <tm:subjectIdentifier href="http://some.where/psis/author/eichendorff"/>
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#first-name"/></tm:type>
+      <tm:value>Joseph Karl Benedikt</tm:value>
+    </tm:name>
+    <tm:name>
+      <tm:type><tm:topicRef href="#last-name"/></tm:type>
+      <tm:value>von Eichendorff</tm:value>
+    </tm:name>
+  </tm:topic>
+
   <tm:topic id="goethe">
     <tm:subjectIdentifier href="http://some.where/psis/author/goethe"/> <!-- must have a psi of this form -->
     <tm:subjectIdentifier href="http://some.where/psis/persons/goethe"/> <!-- can own psis of any form -->
@@ -1627,6 +2767,18 @@
     </tm:occurrence>
   </tm:topic>
 
+  <tm:association>
+    <tm:type><tm:topicRef href="#born-in"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#place"/></tm:type>
+      <tm:topicRef href="#frankfurt_am_main"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+  </tm:association>  
+
   <tm:topic id="schiller">
     <tm:subjectIdentifier href="http://some.where/psis/author/schiller"/> <!-- must have a psi of this form -->
     <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf> <!-- must be an instanceOf author -->
@@ -1644,15 +2796,23 @@
     </tm:occurrence>
   </tm:topic>
 
+  <tm:association>
+    <tm:type><tm:topicRef href="#born-in"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#place"/></tm:type>
+      <tm:topicRef href="#marbach_am_neckar"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#schiller"/>
+    </tm:role>
+  </tm:association> 
+
   <tm:topic id="zauberlehrling">
     <tm:subjectIdentifier href="http://some.where/psis/poem/zauberlehrling"/> <!-- must have a psi of this form -->
     <tm:subjectIdentifier href="http://some.where/psis/der_zauberlehrling"/> <!-- can own psis of any form -->
     <tm:instanceOf>
-      <tm:topicRef href="#poem"/><!--
-      <tm:topicRef href="#author"/>
-      <tm:topicRef href="#zauberlehrling"/>
-      <tm:topicRef href="#topictype-constraint"/>-->
-    </tm:instanceOf> <!-- must be an instanceOf poem -->
+      <tm:topicRef href="#poem"/></tm:instanceOf> <!-- must be an instanceOf poem -->
     <tm:name>
       <tm:type><tm:topicRef href="#title"/></tm:type> <!-- must have a name of the type title -->
       <tm:value>Der Zauberlehrling</tm:value>
@@ -1826,10 +2986,6 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
-  <!-- some assocaitions between goethe and some of his poems,
-       currently there are no associations between the topic schiller
-       and any other topic, because there are no topic representing
-       a poem of schiller -->
   <tm:association>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
     <tm:role>
@@ -1851,6 +3007,189 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
     <tm:role>
       <tm:type><tm:topicRef href="#written"/></tm:type>
       <tm:topicRef href="#erlkoenig"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="resignation">
+    <tm:subjectIdentifier href="http://some.where/psis/poem/resignation"/> <!-- must have a psi of this form -->
+    <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf> <!-- must be an instanceOf poem -->
+    <tm:name>
+      <tm:type><tm:topicRef href="#title"/></tm:type> <!-- must have a name of the type title -->
+      <tm:value>Resignation - Eine Phantasie</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#poem-content"/></tm:type> <!-- must have an occurrence of the type poem-content with the scope de or en -->
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Auch ich war in Arkadien geboren,
+Auch mir hat die Natur
+An meiner Wiege Freude zugeschworen,
+Auch ich war in Arkadien geboren,
+Doch Tränen gab der kurze Lenz mir nur.
+
+Des Lebens Mai blüht einmal und nicht wieder,
+Mir hat er abgeblüht.
+Der stille Gott - o weinet, meine Brüder -
+Der stille Gott taucht meine Fackel nieder,
+Und die Erscheinung flieht.
+
+Da steh ich schon auf deiner Schauerbrücke,
+Ehrwürdge Geistermutter - Ewigkeit.
+Empfange meinen Vollmachtbrief zum Glücke,
+Ich bring ihn unerbrochen dir zurücke,
+Mein Lauf ist aus. Ich weiß von keiner Seligkeit.
+
+Vor deinem Thron erheb ich meine Klage,
+Verhüllte Richterin.
+Auf jenem Stern ging eine frohe Sage,
+Du thronest hier mit des Gerichtes Waage
+Und nennest dich Vergelterin.
+
+Hier - spricht man - warten Schrecken auf den Bösen,
+Und Freuden auf den Redlichen.
+Des Herzens Krümmen werdest du entblößen,
+Der Vorsicht Rätsel werdest du mir lösen
+Und Rechnung halten mit dem Leidenden.
+
+Hier öffne sich die Heimat dem Verbannten,
+Hier endige des Dulders Dornenbahn.
+Ein Götterkind, das sie mir Wahrheit nannten,
+Die meisten flohen, wenige nur kannten,
+Hielt meines Lebens raschen Zügel an.
+
+»Ich zahle dir in einem andern Leben,
+Gib deine Jugend mir!
+Nichts kann ich dir als diese Weisung geben.«
+Ich nahm die Weisung auf das andre Leben,
+Und meiner Jugend Freuden gab ich ihr.
+
+»Gib mir das Weib, so teuer deinem Herzen,
+Gib deine Laura mir.
+Jenseits der Gräber wuchern deine Schmerzen.« -
+Ich riß sie blutend aus dem wunden Herzen
+Und weinte laut und gab sie ihr.
+
+»Du siehst die Zeit nach jenen Ufern fliegen,
+Die blühende Natur
+Bleibt hinter ihr - ein welker Leichnam - liegen.
+Wenn Erd und Himmel trümmernd auseinanderfliegen,
+Daran erkenne den erfüllten Schwur.«
+
+»Die Schuldverschreibung lautet an die Toten«,
+Hohnlächelte die Welt,
+»Die Lügnerin, gedungen von Despoten,
+Hat für die Wahrheit Schatten dir geboten,
+Du bist nicht mehr, wenn dieser Schein verfällt.«
+
+Frech witzelte das Schlangenheer der Spötter:
+»Vor einem Wahn, den nur Verjährung weiht,
+Erzitterst du? Was sollen deine Götter,
+Des kranken Weltplans schlau erdachte Retter,
+Die Menschenwitz des Menschen Notdurft leiht?
+
+Ein Gaukelspiel, ohnmächtigen Gewürmen
+Vom Mächtigen gegönnt,
+Schreckfeuer, angesteckt auf hohen Türmen,
+Die Phantasie des Träumers zu bestürmen,
+Wo des Gesetzes Fackel dunkel brennt.
+
+Was heißt die Zukunft, die uns Gräber decken?
+Die Ewigkeit, mit der du eitel prangst?
+Ehrwürdig nur, weil schlaue Hüllen sie verstecken,
+Der Riesenschatten unsrer eignen Schrecken
+Im hohlen Spiegel der Gewissensangst;
+
+Ein Lügenbild lebendiger Gestalten,
+Die Mumie der Zeit,
+Vom Balsamgeist der Hoffnung in den kalten
+Behausungen des Grabes hingehalten,
+Das nennt dein Fieberwahn - Unsterblichkeit?
+
+Für Hoffnungen - Verwesung straft sie Lügen -
+Gabst du gewisse Güter hin?
+Sechstausend Jahre hat der Tod geschwiegen,
+Kam je ein Leichnam aus der Gruft gestiegen,
+Der Meldung tat von der Vergelterin?" -
+
+Ich sah die Zeit nach deinen Ufern fliegen,
+Die blühende Natur
+Blieb hinter ihr, ein welker Leichnam, liegen,
+Kein Toter kam aus seiner Gruft gestiegen,
+Und fest vertraut ich auf den Götterschwur.
+
+All meine Freuden hab ich dir geschlachtet,
+Jetzt werf ich mich vor deinen Richterthron.
+Der Menge Spott hab ich beherzt verachtet,
+Nur deine Güter hab ich groß geachtet,
+Vergelterin, ich fodre meinen Lohn.
+
+"Mit gleicher Liebe lieb ich meine Kinder!"
+Rief unsichtbar ein Genius.
+"Zwei Blumen", rief er, "- hört es, Menschenkinder -
+Zwei Blumen blühen für den weisen Finder,
+Sie heißen Hoffnung und Genuß.
+
+Wer dieser Blumen eine brach, begehre
+Die andre Schwester nicht.
+Genieße, wer nicht glauben kann. Die Lehre
+Ist ewig wie die Welt. Wer glauben kann, entbehre.
+Die Weltgeschichte ist das Weltgericht.
+
+Du hast gehofft, dein Lohn ist abgetragen,
+Dein Glaube war dein zugewognes Glück.
+Du konntest deine Weisen fragen,
+Was man von der Minute ausgeschlagen,
+Gibt keine Ewigkeit zurück."</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#schiller"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#written"/></tm:type>
+      <tm:topicRef href="#resignation"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="mondnacht">
+    <tm:subjectIdentifier href="http://some.where/psis/poem/mondnacht"/> <!-- must have a psi of this form -->
+    <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf> <!-- must be an instanceOf poem -->
+    <tm:name>
+      <tm:type><tm:topicRef href="#title"/></tm:type> <!-- must have a name of the type title -->
+      <tm:value>Mondnacht</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#poem-content"/></tm:type> <!-- must have an occurrence of the type poem-content with the scope de or en -->
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Es war, als hätt' der Himmel
+Die Erde still geküsst,
+Dass sie im Blütenschimmer
+Von ihm nun träumen müsst'.
+
+Die Luft ging durch die Felder,
+Die Ähren wogten sacht,
+Es rauschten leis' die Wälder,
+So sternklar war die Nacht.
+
+Und meine Seele spannte
+Weit ihre Flügel aus,
+Flog durch die stillen Lande,
+Als flöge sie nach Haus.</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#eichendorff"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#written"/></tm:type>
+      <tm:topicRef href="#mondnacht"/>
     </tm:role>
   </tm:association>
 

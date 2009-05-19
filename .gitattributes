@@ -8,12 +8,14 @@ docs/isidorus_classes.pdf -text svneol=unset#application/pdf
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
 docs/xtm_json.txt -text
-src/ajax/css/home.css -text
+src/ajax/css/frame.css -text
 src/ajax/css/main.css -text
 src/ajax/css/navi.css -text
 src/ajax/isidorus.html -text
 src/ajax/javascripts/constants.js -text
-src/ajax/javascripts/edit_topic.js -text
+src/ajax/javascripts/create.js -text
+src/ajax/javascripts/datamodel.js -text
+src/ajax/javascripts/edit.js -text
 src/ajax/javascripts/external/MIT-LICENSE.txt -text
 src/ajax/javascripts/external/prototype/prototype.js -text
 src/ajax/javascripts/external/scriptaculous/builder.js -text
@@ -25,8 +27,10 @@ src/ajax/javascripts/external/scriptaculous/slider.js -text
 src/ajax/javascripts/external/scriptaculous/sound.js -text
 src/ajax/javascripts/external/scriptaculous/unittest.js -text
 src/ajax/javascripts/home.js -text
-src/ajax/javascripts/make_fragment_node.js -text
 src/ajax/javascripts/navi.js -text
+src/ajax/javascripts/requests.js -text
+src/ajax/javascripts/search.js -text
+src/ajax/javascripts/tmcl_tools.js -text
 src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text

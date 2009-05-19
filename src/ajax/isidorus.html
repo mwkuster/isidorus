@@ -18,7 +18,7 @@
 
     <!-- includes all necessary css-files -->
     <link rel="stylesheet" type="text/css" href="css/main.css"/>
-    <link rel="stylesheet" type="text/css" href="css/home.css"/>
+    <link rel="stylesheet" type="text/css" href="css/frame.css"/>
     <link rel="stylesheet" type="text/css" href="css/navi.css"/>
 
     <!-- error handling for javascript code -->
@@ -45,21 +45,25 @@
 
     <!-- includes own javascript files -->
     <script language="JavaScript" type="text/javascript" src="javascripts/constants.js"></script>
-    <script language="JavaScript" type="text/javascript" src="javascripts/make_fragment_node.js"></script>
-    <script language="JavaScript" type="text/javascript" src="javascripts/edit_topic.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/tmcl_tools.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/requests.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/datamodel.js"></script>
     <script language="JavaScript" type="text/javascript" src="javascripts/home.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/search.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/edit.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascripts/create.js"></script>
     <script language="JavaScript" type="text/javascript" src="javascripts/navi.js"></script>
   </head>
 
   <body>
     <div id="page">
       <div id="navi">
-	<span id="home" class="naviElem clickable">home</span>
-	<span id="searchTopic" class="naviElem clickable">search topic</span>
-	<span id="editTopic" class="naviElem clickable">edit topic</span>
-	<span id="createTopic" class="naviElem clickable">create topic</span>
+	<span id="home" class="isActive">Home</span>
+	<span id="searchTopic" class="clickableButton">Search Topics</span>
+	<span id="editTopic" class="clickableButton">Edit Topics</span>
+	<span id="createTopic" class="clickableButton">Create Topics</span>
       </div>
-      <div id="content" style="border: red solid 1px;">
+      <div id="subPage">
       </div>
     </div>
   </body>

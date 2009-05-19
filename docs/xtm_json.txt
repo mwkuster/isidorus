@@ -186,7 +186,10 @@
 //+    This message constains a list of topics represented as a list of topic
 //+    psis which are exclusive instances for the owner.
 //+-----------------------------------------------------------------------------
-[ [ "topic-1-psi-1", "topic-2-psi-2", "..." ], [ "topic-2-psi", "..." ], <...> ]
+{
+  "owner" : ["psi-1", "..."],
+  "exclusives" : [ [ "topic-1-psi-1", "topic-2-psi-2", "..." ], [ "topic-2-psi", "..." ], <...> ]
+}
 
 
 //+-----------------------------------------------------------------------------
@@ -234,14 +237,14 @@
 //+    The scopeConstraint-Object contains a list of all available scopes of
 //+    for an association/name/occurrence element - this depends where this
 //+    json-onbject is contained.
-//+    The member availableScopeTypes contains a list of topics in psi-list
-//+    representation which can be used as scope.
+//+    The member availableScopeTypes contains a list of lists of topics in
+//+    form of psi-lists.
 //+    cardMin defines the minimum number of all scopes of the parent element
 //+    (association/name/occurrence).
 //+    cardMax defines the maximum number of all scopes of the parent element.
 //+-----------------------------------------------------------------------------
 {
-  "scopeTypes" : [ [ "topic-1-psi-1", "topic-1-psi-2", "..." ], [ "topic-2-psi-1", "..." ] <...> ],
+  "scopeTypes" : [ [ [ "psi-1-1", "psi-1-2", "..." ], [ "subtype-psi-1", "..." ], <...> ], [ "psi-2-1" "..."], <...> ],
   "cardMin" : "unsigned integer in string representation",
   "cardMax" : "unsigend integer in string representation or the string MAX_INT"
 }
@@ -255,7 +258,7 @@
 //+-----------------------------------------------------------------------------
 {
   "nametypescopes" : [ { 
-                         "nametype" : [psi-1, psi-2, "..." ],
+                         "nameType" : [psi-1, psi-2, "..." ],
 			 "scopeConstraints" : [ <scopeConstraints> ]
 		       },
                        <...>

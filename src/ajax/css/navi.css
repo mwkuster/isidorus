@@ -11,11 +11,55 @@
 
 
 #navi {
-    border: solid 1px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    background-color: #aebae3;
+    width: 1022px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    border-left: 1px solid #d1d1d3;
+    border-top: 1px solid #d1d1d3;
+    border-right: 1px solid #d1d1d3;
 }
 
-.naviElem {
-    background-color: silver;
+#navi > span {
+    color: #fbfcff;
+    cursor: pointer;
+    border-left: 1px solid #aebae3;
+    border-top: 1px solid #aebae3;
+    border-right: 1px solid #aebae3;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+#navi > span:first-child {
+    border-left: none;
+}
+
+#navi > span:first-child:hover {
+    border-left: none;
+}
+
+#navi > span:hover {
+    color: #333377;
+    background-color: #fbfcff;
+    border-left: 1px solid #d1d1d3;
+    border-top: 1px solid #d1d1d3;
+    border-right: 1px solid #d1d1d3;
+}
+
+#navi > .isActive {
+    color: #333377;
+    background-color: #fbfcff;
+    border-left: 1px solid #d1d1d3;
+    border-top: 1px solid #d1d1d3;
+    border-right: 1px solid #d1d1d3;
+}
+
+#navi > .isActive:hover {
+    color: #333377;
+    background-color: #fbfcff;
 }

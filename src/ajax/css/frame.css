@@ -9,36 +9,19 @@
 /*  in trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   */
 /*----------------------------------------------------------------------------*/
 
-
-.topicSummaryTd {
-    width: 40px;
-    border: solid 1px gray;
+ul.fragmentFrame {
+    list-style-type: none;
 }
 
-#topicTable {
-    width: 80%;
-    border: solid 1px gray;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
+caption {
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
-th {
-    color: red;
-    border: solid 1px gray;
+td.controlColumn {
+    background-color: #eaeaee;
 }
 
-ul.topicTable {
-    list-style: none;
-}
-
-div.naviTopicTable {
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-select.topicTable {
-    margin-left: 20px;
+tr.showHiddenRows {
+    background-color: #eaeaee;
 }

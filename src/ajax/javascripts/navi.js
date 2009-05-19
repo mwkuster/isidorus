@@ -13,49 +13,55 @@
 // --- adds some event handlers to the navigation elements
 function addHandlersToNavi()
 {
-    $(PAGES.home).observe("click", function(){ makePage(PAGES.home, ""); });
-    $(PAGES.search).observe("click", function(){ makePage(PAGES.search, ""); });
-    $(PAGES.edit).observe("click", function(){	makePage(PAGES.edit, ""); });
-    $(PAGES.create).observe("click", function(){ makePage(PAGES.create, ""); });
+    $(PAGES.home).observe("click", function(event){ setNaviClasses(event.element()); makePage(PAGES.home, ""); });
+    $(PAGES.search).observe("click", function(event){ setNaviClasses(event.element()); makePage(PAGES.search, ""); });
+    $(PAGES.edit).observe("click", function(event){ setNaviClasses(event.element());	makePage(PAGES.edit, ""); });
+    $(PAGES.create).observe("click", function(event){ setNaviClasses(event.element()); makePage(PAGES.create, ""); });
 
     // --- necessary for the first call of the page
-    makePage(PAGES.home);
+    makePage(PAGES.home, "");
+}
+
+
+// --- Sets the classes of all navi-elements to the default class.
+// --- The currently clicked element is set to "isActive".
+function setNaviClasses(activeNaviElement)
+{
+    $(PAGES.home).writeAttribute({"class" : "clickableButton"});
+    $(PAGES.search).writeAttribute({"class" : "clickableButton"});
+    $(PAGES.edit).writeAttribute({"class" : "clickableButton"});
+    $(PAGES.create).writeAttribute({"class" : "clickableButton"});
+    activeNaviElement.writeAttribute({"class" : "isActive"});
 }
 
 
 // --- generates the current page depending on the variable __currentPage
 function makePage(newPage, psi)
 {
+    // --- if there is called the subpage which is already displayed
+    // --- there will be done nothing!
+    if(newPage === PAGES.current) return;
+    PAGES.current = newPage;
+
     // --- removes the old content
-    cleanPage(newPage);
+    $(CLASSES.subPage()).update();
 
     // --- creates the new content
     switch(newPage){
     case PAGES.home:
-	makeHome("content", "topicTable", true);
+	makeHome();
 	break;
     case PAGES.search:
+	makeSearch(psi);
 	break;
     case PAGES.edit:
-	makeEdit(psi);
+	makeEdit(psi)
 	break;
     case PAGES.create:
+	makeCreate(psi);
 	break;
     }
 }
 
 
-// --- removes all old DOM-Elements - if the page to create is not
-// --- the old page
-function cleanPage(newPage)
-{
-    $("content").childElements().each(function(nodeToDelete, idx)
-				      {
-					  if(!nodeToDelete.hasClassName(newPage))
-					      nodeToDelete.remove();
-				      });
-}
-
-
 document.observe("dom:loaded", addHandlersToNavi);
-

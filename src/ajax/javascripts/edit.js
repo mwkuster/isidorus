@@ -10,9 +10,9 @@
 //+-----------------------------------------------------------------------------
 
 
-function makeHome()
+function makeEdit(psi)
 {
     var content = new Element("div", {"class" : CLASSES.content()});
-    var header = new Element("h1").update("Topic Map Overview");
+    var header = new Element("h1").update("Edit a Topic");
     $(CLASSES.subPage()).insert((content.insert(header, {"position" : "bottom"})), {"position" : "bottom"});
 }

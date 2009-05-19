@@ -30,7 +30,7 @@
 		 (eq applies-to (instance-of (parent role))))
        return (loop for other-role in (roles (parent role))
 		 when (and (eq constraint-role (instance-of other-role))
-			   (eq abstract-topictype-constraint (player other-role)))
+			   (topictype-of-p (player other-role) abstract-topictype-constraint))
 		 return t))))
 
 

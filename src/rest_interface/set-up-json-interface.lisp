@@ -15,8 +15,8 @@
 (defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary od all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
 (defparameter *json-get-all-type-psis* "/json/tmcl/types/?$") ;returns a list of all psis that can be a type
 (defparameter *json-get-topic-stub-prefix* "/json/topicstubs/(.+)$") ;the json prefix for getting some topic stub information of a topic
-(defparameter *json-get-type-tmcl-prefix* "/json/tmcl/type/(.+)$") ;the json prefix for getting some tmcl information of a topic treated as a type
-(defparameter *json-get-instance-tmcl-prefix* "/json/tmcl/instance/(.+)$") ;the json prefix for getting some tmcl information of a topic treated as an instance
+(defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$") ;the json url for getting some tmcl information of a topic treated as a type
+(defparameter *json-get-instance-tmcl-url* "/json/tmcl/instance/?$") ;the json url for getting some tmcl information of a topic treated as an instance
 (defparameter *ajax-user-interface-url* "/isidorus/?$") ;the url to the user interface; if you want to get all topics set start=0&end=nil -> localhost:8000/isidorus
 (defparameter *ajax-user-interface-css-prefix* "/css") ;the url to the css files of the user interface
 (defparameter *ajax-user-interface-css-directory-path* "ajax/css") ;the directory contains the css files
@@ -30,8 +30,8 @@
 			      (json-get-summary-url *json-get-summary-url*)
 			      (json-get-all-type-psis *json-get-all-type-psis*)
 			      (json-get-topic-stub-prefix *json-get-topic-stub-prefix*)
-			      (json-get-type-tmcl-prefix *json-get-type-tmcl-prefix*)
-			      (json-get-instance-tmcl-prefix *json-get-instance-tmcl-prefix*)
+			      (json-get-type-tmcl-url *json-get-type-tmcl-url*)
+			      (json-get-instance-tmcl-url *json-get-instance-tmcl-url*)
 			      (ajax-user-interface-url *ajax-user-interface-url*)
 			      (ajax-user-interface-file-path *ajax-user-interface-file-path*)
 			      (ajax-user-interface-css-prefix *ajax-user-interface-css-prefix*)
@@ -84,12 +84,14 @@
    (create-regex-dispatcher json-get-all-type-psis #'return-all-tmcl-types)
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-type-tmcl-prefix #'(lambda(&optional psi)
-							  (return-tmcl-info-of-psi 'json-tmcl::type psi)))
+   (create-regex-dispatcher json-get-type-tmcl-url #'(lambda(&optional param)
+						       (declare (ignorable param))
+						       (return-tmcl-info-of-psis 'json-tmcl::type)))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-instance-tmcl-prefix #'(lambda(&optional psi)
-							      (return-tmcl-info-of-psi 'json-tmcl::instance psi)))
+   (create-regex-dispatcher json-get-instance-tmcl-url #'(lambda(&optional param)
+							   (declare (ignorable param))
+							   (return-tmcl-info-of-psis 'json-tmcl::instance)))
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-commit-url #'json-commit)
@@ -102,6 +104,8 @@
 ;; --- some handlers for the json-rest-interface -------------------------------
 ;; =============================================================================
 (defun return-all-tmcl-types(&optional param)
+  "Returns all topics that are valid types -> so they have to be valid to the
+   topictype-constraint (if it exists) and the can't be abstract."
   (declare (ignorable param))
   (handler-case (let ((all-topics
 		       (elephant:get-instances-by-class 'd:TopicC))
@@ -150,29 +154,55 @@
 	  (format nil "Condition: Topic \"~a\" not found" psi)))))
 
 
-(defun return-tmcl-info-of-psi(treat-as &optional psi)
+(defun return-tmcl-info-of-psis(treat-as)
   "Returns a json string which represents the defined tmcl-constraints of the
    topic and the associations where this topic can be a player."
-    (assert psi)
-    (let ((http-method (hunchentoot:request-method*)))
-      (if (eq http-method :GET)
-	  (let ((identifier (string-replace psi "%23" "#")))
-	    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	    (handler-case (let ((tmcl
-				 (json-tmcl:get-constraints-of-fragment identifier :treat-as treat-as)))
-			    (if tmcl
-				(progn
-				  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-				  tmcl)
-				(progn
-				  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-				  (setf (hunchentoot:content-type*) "text")
-				  (format nil "Topic \"~a\" not found." psi))))
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (or (eq http-method :POST)
+	    (eq http-method :PUT))
+	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
+	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
+	    (handler-case (let ((psis
+				 (json:decode-json-from-string json-data)))
+			    (let ((tmcl 
+				   (json-tmcl:get-constraints-of-fragment psis :treat-as treat-as)))
+			      (if tmcl
+				  (progn
+				    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+				    tmcl)
+				  (progn
+				    (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+				    (setf (hunchentoot:content-type*) "text")
+				    (format nil "Topic \"~a\" not found." psis)))))
 	      (condition (err) (progn
 				 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 				 (setf (hunchentoot:content-type*) "text")
-				 (format nil "Condition: \"~a\"" err)))))
-	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+				 (format nil "Condition: \"~a\"" err))))))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+;(defun return-tmcl-info-of-psis(treat-as &otptional psi)
+;  "Returns a json string which represents the defined tmcl-constraints of the
+;   topic and the associations where this topic can be a player."
+;  (alert psi)
+;  (let ((http-method (hunchentoot:request-method*)))
+;    (if (eq http-method :GET)
+;	(let ((identifier (string-replace psi "%23" "#")))
+;	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+;	  (handler-case (let ((tmcl
+;			       (json-tmcl:get-constraints-of-fragment identifier :treat-as treat-as)))
+;			  (if tmcl
+;			      (progn
+;				(setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+;				tmcl)
+;			      (progn
+;				(setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+;				(setf (hunchentoot:content-type*) "text")
+;				  (format nil "Topic \"~a\" not found." psis))))
+;	    (condition (err) (progn
+;			       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+;			       (setf (hunchentoot:content-type*) "text")
+;			       (format nil "Condition: \"~a\"" err)))))
+;	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
 (defun return-all-topic-psis (&optional param)

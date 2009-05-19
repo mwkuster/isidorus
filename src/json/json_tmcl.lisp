@@ -13,21 +13,32 @@
 ;; =============================================================================
 ;; --- all fragment constraints ------------------------------------------------
 ;; =============================================================================
-(defun get-constraints-of-fragment(topic-psi &key (treat-as 'type))
+(defun get-constraints-of-fragment(topic-psis &key (treat-as 'type))
+  "Returns a json string with all constraints of this topic-psis.
+   topic-psis must contain one item if it is treated as instance other wiese there can be more psis
+   then the fragment will be treated as an instanceOf all passed psis."
   (let ((associationtype (get-item-by-psi *associationtype-psi*))
 	(associationtype-constraint (get-item-by-psi *associationtype-constraint-psi*))
-	(topic
-	 (let ((psi
-		(elephant:get-instance-by-value 'PersistentIdC 'uri topic-psi)))
-	   (when psi
-	     (identified-construct psi)))))
-    (when topic
+	(topics nil))
+    (when (and (not (eql treat-as 'type))
+	       (> (length topic-psis) 1))
+      (error "From get-constraints-of-fragment: when treat-as is set ot instance there must be exactly one item in topic-psis!"))
+
+    (loop for topic-psi in topic-psis
+       do (let ((psi
+		 (elephant:get-instance-by-value 'PersistentIdC 'uri topic-psi)))
+	    (if psi
+		(pushnew (identified-construct psi) topics)
+		(error "Topic \"~a\" not found!" topic-psi))))
+    (when topics
       (let ((topic-constraints
 	     (let ((value
-		    (get-constraints-of-topic topic :treat-as treat-as)))
+		    (get-constraints-of-topic topics :treat-as treat-as)))
 	       (concatenate 'string "\"topicConstraints\":" value))))
 	(let ((available-associations ;what's with association which have only a associationrole-constraint?
-	       (get-available-associations-of-topic topic :treat-as treat-as)))
+	       (remove-duplicates
+		(loop for topic in topics
+		   append (get-available-associations-of-topic topic :treat-as treat-as)))))
 	  (dolist (item available-associations)
 	    (topictype-p item associationtype associationtype-constraint))
 	  (let ((associations-constraints
@@ -46,6 +57,40 @@
 		   (concatenate 'string
 				"{" topic-constraints "," associations-constraints "}")))
 	      json-string)))))))
+
+;(defun get-constraints-of-fragment(topic-psi &key (treat-as 'type))
+;  (let ((associationtype (get-item-by-psi *associationtype-psi*))
+;	(associationtype-constraint (get-item-by-psi *associationtype-constraint-psi*))
+;	(topic
+;	 (let ((psi
+;		(elephant:get-instance-by-value 'PersistentIdC 'uri topic-psi)))
+;	   (when psi
+;	     (identified-construct psi)))))
+;    (when topic
+;      (let ((topic-constraints
+;	     (let ((value
+;		    (get-constraints-of-topic topic :treat-as treat-as)))
+;	       (concatenate 'string "\"topicConstraints\":" value))))
+;	(let ((available-associations ;what's with association which have only a associationrole-constraint?
+;	       (get-available-associations-of-topic topic :treat-as treat-as)))
+;	  (dolist (item available-associations)
+;	    (topictype-p item associationtype associationtype-constraint))
+;	  (let ((associations-constraints
+;		 (concatenate 'string "\"associationsConstraints\":"
+;			      (let ((inner-associations-constraints "["))
+;				(loop for available-association in available-associations
+;				   do (let ((value
+;					     (get-constraints-of-association available-association)))
+;					(setf inner-associations-constraints
+;					      (concatenate 'string inner-associations-constraints value ","))))
+;				(if (string= inner-associations-constraints "[")
+;				    (setf inner-associations-constraints "null")
+;				    (setf inner-associations-constraints
+;					  (concatenate 'string (subseq inner-associations-constraints 0 (- (length inner-associations-constraints) 1)) "]")))))))
+;	    (let ((json-string
+;		   (concatenate 'string
+;				"{" topic-constraints "," associations-constraints "}")))
+;	      json-string)))))))
     
 
 ;; =============================================================================
@@ -351,37 +396,77 @@
 ;; =============================================================================
 ;; --- all topic constraints ---------------------------------------------------
 ;; =============================================================================
-(defun get-constraints-of-topic (topic-instance &key(treat-as 'type))
-    "Returns a constraint list with the constraints:
-     subjectidentifier-constraints, subjectlocator-constraints,
-     topicname-constraints, topicoccurrence-constraints and
-     uniqueoccurrence-constraints."
-  (let ((constraint-topics
-	 (get-all-constraint-topics-of-topic topic-instance :treat-as treat-as)))
+(defun get-constraints-of-topic (topic-instances &key(treat-as 'type))
+  "Returns a constraint list with the constraints:
+   subjectidentifier-constraints, subjectlocator-constraints,
+   topicname-constraints, topicoccurrence-constraints and
+   uniqueoccurrence-constraints.
+   topic-instances should be a list with exactly one item if trea-as is set to type
+   otherwise it can constain more items."
+  (declare (list topic-instances))
+  (when (and (> (length topic-instances) 1)
+	     (not (eql treat-as 'type)))
+    (error "From get-constraints-of-topic: topic-instances must contain exactly one item when treated as instance!"))
+  (let ((abstract-topictype-constraints nil)
+	(exclusive-instance-constraints nil)
+	(subjectidentifier-constraints nil)
+	(subjectlocator-constraints nil)
+	(topicname-constraints nil)
+	(topicoccurrence-constraints nil)
+	(uniqueoccurrence-constraints nil))
+    (loop for topic-instance in topic-instances
+       do (let ((current-constraints
+		 (get-all-constraint-topics-of-topic topic-instance :treat-as treat-as)))
+	    (dolist (item (getf current-constraints :abstract-topictype-constraints))
+	      (pushnew item abstract-topictype-constraints))
+	    (dolist (item (getf current-constraints :exclusive-instance-constraints))
+	      (let ((current-list
+		     (list topic-instance (list item))))
+		(let ((found-item
+		       (find current-list exclusive-instance-constraints :key #'first)))
+		  (if found-item
+		      (dolist (inner-item (second current-list))
+			(pushnew inner-item (second found-item)))
+		      (push current-list exclusive-instance-constraints)))))
+	    (dolist (item (getf current-constraints :subjectidentifier-constraints))
+	      (pushnew item subjectidentifier-constraints))
+	    (dolist (item (getf current-constraints :subjectlocator-constraints))
+	      (pushnew item subjectlocator-constraints))
+	    (dolist (item (getf current-constraints :topicname-constraints))
+	      (pushnew item topicname-constraints))
+	    (dolist (item (getf current-constraints :topicoccurrence-constraints))
+	      (pushnew item topicoccurrence-constraints))
+	    (dolist (item (getf current-constraints :uniqueoccurrence-constraints))
+	      (pushnew item uniqueoccurrence-constraints))))
     (let ((exclusive-instance-constraints
-	   (let ((value
-		  (get-exclusive-instance-constraints (getf constraint-topics :exclusive-instance-constraints))))
+	   (let ((value "["))
+	     (loop for exclusive-instance-constraint in exclusive-instance-constraints
+		do (setf value (concatenate 'string value
+					    (get-exclusive-instance-constraints (first exclusive-instance-constraint)
+										(second exclusive-instance-constraint)) ",")))
+	     (if (string= value "[")
+		 (setf value "null")
+		 (setf value (concatenate 'string (subseq value 0 (- (length value) 1)) "]")))
 	     (concatenate 'string "\"exclusiveInstances\":" value)))
 	  (subjectidentifier-constraints
 	   (let ((value
-		  (get-simple-constraints (getf constraint-topics :subjectidentifier-constraints) :error-msg-constraint-name "subjectidentifier")))
+		  (get-simple-constraints subjectidentifier-constraints :error-msg-constraint-name "subjectidentifier")))
 	     (concatenate 'string "\"subjectIdentifierConstraints\":" value)))
 	  (subjectlocator-constraints
 	   (let ((value
-		  (get-simple-constraints (getf constraint-topics :subjectlocator-constraints) :error-msg-constraint-name "subjectlocator")))
+		  (get-simple-constraints subjectlocator-constraints :error-msg-constraint-name "subjectlocator")))
 	     (concatenate 'string "\"subjectLocatorConstraints\":" value)))
 	  (topicname-constraints
 	   (let ((value
-		  (get-topicname-constraints (getf constraint-topics :topicname-constraints))))
+		  (get-topicname-constraints topicname-constraints)))
 	     (concatenate 'string "\"topicNameConstraints\":" value)))
 	  (topicoccurrence-constraints
 	   (let ((value
-		  (get-topicoccurrence-constraints (getf constraint-topics :topicoccurrence-constraints) 
-						   (getf constraint-topics :uniqueoccurrence-constraints))))
+		  (get-topicoccurrence-constraints topicoccurrence-constraints uniqueoccurrence-constraints)))
 	     (concatenate 'string "\"topicOccurrenceConstraints\":" value)))
 	  (abstract-constraint
 	   (concatenate 'string "\"abstractConstraint\":"
-			(if (getf constraint-topics :abstract-constraint)
+			(if abstract-topictype-constraints
 			    "true"
 			    "false"))))
       (let ((json-string
@@ -390,12 +475,50 @@
 			  topicoccurrence-constraints "," abstract-constraint "}")))
         json-string))))
 
+;(defun get-constraints-of-topic (topic-instances &key(treat-as 'type))
+;  (let ((constraint-topics
+;	 (get-all-constraint-topics-of-topic topic-instance :treat-as treat-as)))
+;    (let ((exclusive-instance-constraints
+;	   (let ((value
+;		  (get-exclusive-instance-constraints (getf constraint-topics :exclusive-instance-constraints))))
+;	     (concatenate 'string "\"exclusiveInstances\":" value)))
+;	  (subjectidentifier-constraints
+;	   (let ((value
+;		  (get-simple-constraints (getf constraint-topics :subjectidentifier-constraints) :error-msg-constraint-name "subjectidentifier")))
+;	     (concatenate 'string "\"subjectIdentifierConstraints\":" value)))
+;	  (subjectlocator-constraints
+;	   (let ((value
+;		  (get-simple-constraints (getf constraint-topics :subjectlocator-constraints) :error-msg-constraint-name "subjectlocator")))
+;	     (concatenate 'string "\"subjectLocatorConstraints\":" value)))
+;	  (topicname-constraints
+;	   (let ((value
+;		  (get-topicname-constraints (getf constraint-topics :topicname-constraints))))
+;	     (concatenate 'string "\"topicNameConstraints\":" value)))
+;	  (topicoccurrence-constraints
+;	   (let ((value
+;		  (get-topicoccurrence-constraints (getf constraint-topics :topicoccurrence-constraints) 
+;						   (getf constraint-topics :uniqueoccurrence-constraints))))
+;	     (concatenate 'string "\"topicOccurrenceConstraints\":" value)))
+;	  (abstract-constraint
+;	   (concatenate 'string "\"abstractConstraint\":"
+;			(if (getf constraint-topics :abstract-topictype-constraints)
+;			    "true"
+;			    "false"))))
+;      (let ((json-string
+;	     (concatenate 'string "{" exclusive-instance-constraints "," subjectidentifier-constraints
+;			  "," subjectlocator-constraints "," topicname-constraints ","
+;			  topicoccurrence-constraints "," abstract-constraint "}")))
+;        json-string))))
 
-(defun get-exclusive-instance-constraints(exclusive-instances-lists)
-  "Returns a list of psis which represents some topics."
+
+(defun get-exclusive-instance-constraints(owner exclusive-instances-lists)
+  "Returns a JSON-obejct of the following form:
+   {owner: [psi-1, psi-2], exclusives: [[psi-1-1, psi-1-2], [psi-2-1, <...>], <...>]}."
   (let ((constraint-role (get-item-by-psi *constraint-role-psi*))
 	(applies-to (get-item-by-psi *applies-to-psi*))
-	(topictype-role (get-item-by-psi *topictype-role-psi*)))
+	(topictype-role (get-item-by-psi *topictype-role-psi*))
+	(topictype (get-item-by-psi *topictype-psi*))
+	(topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
     (let ((topics
 	   (remove-duplicates
 	    (loop for exclusive-instances-list in exclusive-instances-lists
@@ -408,10 +531,13 @@
 				     append (loop for other-role in (roles (parent role))
 					       when (and (eq topictype-role (instance-of other-role))
 							 (not (eq owner (player other-role))))
-					       collect (player other-role)))))))))
-      (json:encode-json-to-string (map 'list #'(lambda(y)
-						 (map 'list #'uri y))
-				       (map 'list #'psis topics))))))
+					       ;collect (player other-role)))))))))
+					       append (getf (list-subtypes (player other-role) topictype topictype-constraint) :subtypes)))))))))
+      (concatenate 'string "{\"owner\":" (json-exporter::identifiers-to-json-string owner)
+		   ",\"exclusives\":"
+		   (json:encode-json-to-string (map 'list #'(lambda(y)
+							      (map 'list #'uri y))
+						    (map 'list #'psis topics))) "}"))))
 
 
 (defun get-simple-constraints(constraint-topics &key (error-msg-constraint-name "uniqueoccurrence"))
@@ -456,7 +582,7 @@
 (defun get-topicname-constraints(constraint-topics)
   "Returns all topicname constraints as a list of the following form:
   [{nametypescopes:[{nameType: [psi-1, psi-2], scopeConstraints: [<scopeConstraint>]},
-                    {nameType: [subtype-1-psi-1], scopeConstriants: [<scopeConstraints>]},
+                    {nameType: [subtype-1-psi-1], scopeConstraints: [<scopeConstraints>]},
     constraints: [<simpleConstraint>, <...>]},
     <...>]."
   (let ((constraint-role (get-item-by-psi *constraint-role-psi*))
@@ -742,7 +868,7 @@
 
 (defun get-constraint-occurrence-value(topic &key (what 'regexp))
   "Checks the occurrence-value of a regexp, card-min or card-max
-   constriant-occurrence.
+   constraint-occurrence.
    If what = 'regexp and the occurrence-value is empty there will be returned
    the value '.*!'.
    If what = 'card-min and the occurrence-value is empty there will be returned
@@ -905,7 +1031,7 @@
 	  :uniqueoccurrence-constraints uniqueoccurrence-constraints)))
 
 
-(defmethod get-all-constraint-topics-of-topic (topic-instance &key (treat-as 'type))
+(defun get-all-constraint-topics-of-topic (topic-instance &key (treat-as 'type))
   "Returns a list of constraint-topics of the topics-instance's base type(s).
    If topic c is instanceOf a and b, there will be returned all
    constraint-topics of the topic types a and b.
