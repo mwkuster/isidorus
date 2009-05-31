@@ -241,7 +241,7 @@
 
 (defun list-instances (topic-instance &optional (topictype (get-item-by-psi *topictype-psi*))
                                                 (topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
-  "Returns the topic-instance, all subtypes found by the function lis-subtypes and all direct
+  "Returns the topic-instance, all subtypes found by the function list-subtypes and all direct
    instances for the found subtypes."
   (let ((all-subtypes-of-this
 	 (getf (list-subtypes topic-instance topictype topictype-constraint) :subtypes))
@@ -262,10 +262,11 @@
 			(remove-duplicates
 			 (loop for subtype in all-instances-of-this
 			    append (getf (list-subtypes subtype nil nil) :subtypes))))))
-	(remove-if #'null
-		   (map 'list #'(lambda(x)
-				  (handler-case (progn
-						  (topictype-of-p x nil)
-						  x)
-				    (condition () nil)))
-			all-subtypes-of-all-instances))))))
+	(union all-instances-of-this 
+	       (remove-if #'null
+			  (map 'list #'(lambda(x)
+					 (handler-case (progn
+							 (topictype-of-p x nil)
+							 x)
+					   (condition () nil)))
+			       all-subtypes-of-all-instances)))))))

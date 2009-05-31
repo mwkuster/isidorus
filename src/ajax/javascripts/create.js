@@ -31,8 +31,18 @@ function makeCreate(psi)
 		    items[i].remove();
 		}
 
+		items = $$("li." + CLASSES.associationContainer());
+		for(var i = 0; i != items.length; ++i){
+		    items[i].remove();
+		}
+
 		var topic = new TopicC(null, (constraints ? constraints.topicConstraints : null));
-		context.insert({"after" : new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame())});
+		var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
+		context.insert({"after" : liT});
+
+		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
+		var liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
+		liT.insert({"after" : liA});
 	    }
 
 	    function onSuccessHandler(xhr){

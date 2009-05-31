@@ -582,7 +582,7 @@
     <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
   </tm:topic>
 
-  <!-- poem scopes -->
+  <!-- available scopes -->
   <tm:topic id="de">
     <tm:subjectIdentifier href="http://some.where/base-psis/de"/>
     <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
@@ -593,6 +593,26 @@
     <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
   </tm:topic>
 
+  <tm:topic id="fr">
+    <tm:subjectIdentifier href="http://some.where/base-psis/fr"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="fin">
+    <tm:subjectIdentifier href="http://some.where/base-psis/fin"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="rus">
+    <tm:subjectIdentifier href="http://some.where/base-psis/rus"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="pl">
+    <tm:subjectIdentifier href="http://some.where/base-psis/pl"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+  
   <!-- region -->
   <tm:topic id="region">
     <tm:subjectIdentifier href="http://some.where/base-psis/region"/>
@@ -1059,7 +1079,7 @@
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">3</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#regexp"/></tm:type>
@@ -1262,8 +1282,9 @@
   </tm:association>
 
   <!-- country-name scopes -->
-  <tm:topic id="scoped-country-name-constraint">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-country-name-constraint"/>
+  <!-- scope constraint 1: there must be either the scope en or de -->
+  <tm:topic id="scoped-country-name-constraint-1">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-country-name-constraint-1"/>
     <tm:instanceOf><tm:topicRef href="#nametypescope-constraint"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-min"/></tm:type>
@@ -1279,7 +1300,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#scoped-country-name-constraint"/>
+      <tm:topicRef href="#scoped-country-name-constraint-1"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
@@ -1291,7 +1312,7 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#scoped-country-name-constraint"/>
+      <tm:topicRef href="#scoped-country-name-constraint-1"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
@@ -1303,14 +1324,111 @@
     <tm:type><tm:topicRef href="#applies-to"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#scoped-country-name-constraint"/>
+      <tm:topicRef href="#scoped-country-name-constraint-1"/>
     </tm:role>
     <tm:role>
       <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
       <tm:topicRef href="#de"/>
     </tm:role>
   </tm:association>
+  
+  <!-- scope constraint 2: there can exist the scopes de, en, pl, fr, fin or rus -->
+  <tm:topic id="scoped-country-name-constraint-2">
+    <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-country-name-constraint-2"/>
+    <tm:instanceOf><tm:topicRef href="#nametypescope-constraint"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">6</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
 
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:topicRef href="#country-name"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#en"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#pl"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#fr"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#fin"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#rus"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:topicRef href="#scoped-country-name-constraint-2"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
+      <tm:topicRef href="#de"/>
+    </tm:role>
+  </tm:association>
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: occurence constraints ============================ -->

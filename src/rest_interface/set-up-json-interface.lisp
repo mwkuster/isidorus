@@ -12,7 +12,7 @@
 (defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psis -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-commit-url* "/json/commit/?$") ;the url to commit a json fragment by "put" or "post"
 (defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
-(defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary od all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
+(defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary of all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
 (defparameter *json-get-all-type-psis* "/json/tmcl/types/?$") ;returns a list of all psis that can be a type
 (defparameter *json-get-topic-stub-prefix* "/json/topicstubs/(.+)$") ;the json prefix for getting some topic stub information of a topic
 (defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$") ;the json url for getting some tmcl information of a topic treated as a type

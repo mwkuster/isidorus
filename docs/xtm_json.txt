@@ -1,11 +1,9 @@
-//+-----------------------------------------------------------------------------
+﻿//+-----------------------------------------------------------------------------
 //+ Overview:
 //+  *Part 1: XTM - data model
 //+  *Part 2: Object summaries
 //+  *Part 3: TMCL - data model
 //+-----------------------------------------------------------------------------
-
-
 
 
 //+-----------------------------------------------------------------------------
@@ -112,7 +110,6 @@
   "roles" : [ { <role> }, { <...> } ]
 }
 
-
 //+-----------------------------------------------------------------------------
 //+ topicStub
 //+-----------------------------------------------------------------------------
@@ -173,7 +170,6 @@
 }
 
 
-
 //+-----------------------------------------------------------------------------
 //+ Part 3: TMCL - data model
 //+   This part explains how the tmcl-rules/suggestions of isidorus are
@@ -198,13 +194,13 @@
 //+    constraint, a cardMin member with the minimum cardinality of
 //+    the referenced element which is represented as an unsignedInt
 //+    and a cardMax member which describes the maximum cardinality of this
-//+    element, this member contains an unsigendInt or the string
+//+    element, this member contains an unsignedInt or the string
 //+    "MAX_INT".
 //+-----------------------------------------------------------------------------
 {
   "regexp" : "regular expression",
   "cardMin" : "unsigned integer in string representation",
-  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+  "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }
 
 
@@ -214,7 +210,7 @@
 //+    subjectIdentifier, a cardMin member with the minimum cardinality of
 //+    this subjectIdentifier in a topic which is represented as an unsignedInt
 //+    and a cardMax member which describes the maximum cardinality of this
-//+    subjectIdentifier, this member contains an unsigendInt or the string
+//+    subjectIdentifier, this member contains an unsignedInt or the string
 //+    "MAX_INT".
 //+-----------------------------------------------------------------------------
 <simpleConstraint>
@@ -226,7 +222,7 @@
 //+    subjectLocator, a cardMin member with the minimum cardinality of
 //+    this subjectLocator in a topic which is represented as an unsignedInt
 //+    and a cardMax member which describes the maximum cardinality of this
-//+    subjectLocator, this member contains an unsigendInt or the string
+//+    subjectLocator, this member contains an unsignedInt or the string
 //+    "MAX_INT".
 //+-----------------------------------------------------------------------------
 <simpleConstraint>
@@ -246,7 +242,7 @@
 {
   "scopeTypes" : [ [ [ "psi-1-1", "psi-1-2", "..." ], [ "subtype-psi-1", "..." ], <...> ], [ "psi-2-1" "..."], <...> ],
   "cardMin" : "unsigned integer in string representation",
-  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+  "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }
 
 
@@ -254,11 +250,18 @@
 //+ topicNameConstraint
 //+    nametypescope constains the original nametype and all valid subtypes
 //+    with the specific scope constraints.
-//+    constriants contains the constraints for the owner topic.
+//+    constraints contains the constraints for the owner topic.
+//+    Note scopeConstraints is a list, because, the can be more scope
+//+    constriants, e.g. one constraints wants 2 scopes of the type "en", and
+//+    "de", and another, wants 3 scopes of the type "fr", "pl" and "sp".
 //+-----------------------------------------------------------------------------
 {
   "nametypescopes" : [ { 
                          "nameType" : [psi-1, psi-2, "..." ],
+			 "scopeConstraints" : [ <scopeConstraints> ]
+		       },
+		       {
+                         "nameType" : [subtype-1-psi-1, subtype-1-psi-2, "..." ],
 			 "scopeConstraints" : [ <scopeConstraints> ]
 		       },
                        <...>
@@ -299,10 +302,15 @@
 			  "scopeConstraints" : [ <scopeConstraints> ],
 			  "datatypeConstraint" : "datatype"			  
 			},
+			{
+                          "occurrenceType" : [ "subtype-1-psi-1", "subtype-1-psi-2", "..." ],
+			  "scopeConstraints" : [ <scopeConstraints> ],
+			  "datatypeConstraint" : "datatype"			  
+			},
 			<...>
 		      ],
   "constraints" : [ <simpleConstraints>, <...>],
-  "uniqueConstraint" : [ <uniqueConstraints>, <...> ]
+  "uniqueConstraints" : [ <uniqueConstraints>, <...> ]
 }
 
 
@@ -316,7 +324,7 @@
 {
   "roleType" : [ [ "topic-psi-1", "topic-psi-2", "..." ], ["subtype-1-psi-1", "..."], <...> ],
   "cardMin" : "unsigned integer in string representation",
-  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+  "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }
 
 
@@ -335,7 +343,7 @@
   "players" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "topic-2-psi-1", "..."], <...> ]
   "roleTypes" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "subtype-psi-1", "..." ], <...> ],
   "cardMin" : "unsigned integer in string representation",
-  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+  "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }
 
 
@@ -353,7 +361,7 @@
   "otherRoleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
   "otherPlayerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
   "cardMin" : "unsigned integer in string representation",
-  "cardMax" : "unsigend integer in string representation or the string MAX_INT"
+  "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }
 
 
@@ -368,6 +376,7 @@
 //+    associationTypeScopes contains all available scopes for this association.
 //+-----------------------------------------------------------------------------
 {
+  "associationType" : [ "topic-psi-1", "topic-psi-2" ],
   "associationRoleConstraints" : [ <associationRoleConstraint>, <...> ],
   "rolePlayerConstraints" : [ <rolePlayerConstraints>, <...> ],
   "otherRoleConstraints" : [ <otherRoleConstraint>, <...> ],
@@ -378,6 +387,8 @@
 //+-----------------------------------------------------------------------------
 //+ topicConstraint
 //+    The topicConstraint contains the members:
+//+    *exclusiveInstances which contains a topic-list of topic-psis depending
+//+     on the users exclusive-instance-constraints
 //+    *subjectIdentifierConstraints which defines the subjectIdentifiers
 //+    *subjectLocatorConstraints which defines the subjectLocators
 //+    *topicNameConstraints which defines the topic names
@@ -398,9 +409,7 @@
 //+-----------------------------------------------------------------------------
 //+ fragmentConstraint
 //+    This JSON-Object contains all constraints necessary for an entire
-//+    fragment but not the exclusive-instance-constraint.
-//+    The exclusive-instance-constraint should be sent before a
-//+    fragmentConstraint separately.
+//+    fragment.
 //+    topicConstraint contains an object with all constraints of all baseTypes
 //+    of the mainTopic.
 //+    associationConstraints contains a list of all association constraints

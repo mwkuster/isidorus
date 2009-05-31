@@ -33,7 +33,10 @@ importer for the XTM version. Does *not* close the store afterwards"
     (if (eq xtm-format '2.0)
         (importer xtm-dom :tm-id tm-id :xtm-id xtm-id)
         (importer-xtm1.0 xtm-dom :tm-id tm-id :xtm-id xtm-id))
-    (format t "#Topics in the store: ~a~%" (length (elephant:get-instances-by-class 'TopicC)))))
+    (format t "#Objects in the store: Topics: ~a, Associations: ~a~%"
+	    (length (elephant:get-instances-by-class 'TopicC))
+	    (length (elephant:get-instances-by-class 'AssociationC)))))
+    ;(format t "#Topics in the store: ~a~%" (length (elephant:get-instances-by-class 'TopicC)))))
 
 (defun setup-repository (xtm-path repository-path 
                          &key

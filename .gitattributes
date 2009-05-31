@@ -1,4 +1,5 @@
 * text=auto !eol
+docs/JSON_model.pdf -text svneol=unset#application/pdf
 docs/LGPL-LICENSE.txt -text
 docs/TODOs.txt svneol=native#text/plain
 docs/collection_feed.png -text svneol=unset#image/png
