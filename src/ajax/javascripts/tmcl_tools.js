@@ -64,3 +64,139 @@ function checkIdentifierConstraints(contents, constraints)
     }
     return true;
 }
+
+
+// --- Returns an array of rolePlayerConstraints belonging to the given type in roleType.
+// --- roleType is of the form [["psi-1", "psi-2", "..."], ["sub-psi-1", "..."], <...>]
+function getRolePlayerConstraintsForRole(roleType, rolePlayerConstraints){
+    if(!roleType || roleType.length === 0 || !rolePlayerConstraints || rolePlayerConstraints.length === 0) return new Array();
+    
+    var foundConstraints = new Array();
+    var allRoleTypes = roleType.flatten();
+    for(var i = 0; i !== rolePlayerConstraints.length; ++i){
+	var allCRoleTypes = rolePlayerConstraints[i].roleType.flatten();
+	for(var j = 0; j !== allRoleTypes.length; ++j){
+	    if(allCRoleTypes.indexOf(allRoleTypes[j]) !== -1){
+		foundConstraints.push(rolePlayerConstraints[i]);
+		break;
+	    }
+	}
+    }
+    return foundConstraints;
+}
+
+
+// --- Returns an array of otherRoleConstraints belonging to the given roleType and players.
+// --- roleType is of the form [["psi-1", "psi-2", "..."], ["sub-psi-1", "..."], <...>]
+// --- players is of the form [["t1-psi-1", "t1-psi-2", "..."], ["t2-psi-1", "..."], <...>]
+function getOtherRoleConstraintsForRole(roleType, players, otherRoleConstraints){
+    if(!roleType || roleType.length === 0 || !players || players.length === 0 || !otherRoleConstraints || otherRoleConstraints.length === 0) return new Array();
+	
+    var foundConstraints = new Array();
+    var allRoleTypes = roleType.flatten();
+    var allPlayers = players.flatten();
+    for(var i = 0; i !== otherRoleConstraints.length; ++i){
+	var roleTypeMatches = false;
+	var allCRoleTypes = otherRoleConstraints[i].roleType.flatten();
+	for(var j = 0; j !== allPlayers.length; ++j){
+	    if(allCRoleTypes.indexOf(allRoleTypes[j]) !== -1){
+		var allCPlayers = otherRoleConstraints[i].players.flatten();
+		for(var k = 0; k !== allPlayers.length; ++k){
+		    if(allCPlayers.indexOf(allPlayers[k]) !== -1){
+			foundConstraints.push(otherRoleConstraints[i]);
+			break;
+		    }
+		}
+		break;
+	    }
+	}
+    }
+    return foundConstraints;
+}
+
+
+// --- Returns the sum of all cardMin values of all rolePlayerConstraints.
+function getRolePlayerMinForRole(anyRoleConstraints){
+    if(!anyRoleConstraints || anyRoleConstraints === 0) return 0;
+    var min = 0;
+    for(var i = 0; i !== anyRoleConstraints.length; ++i){
+	min += parseInt(anyRoleConstraints[i].cardMin);
+    }
+    return min;
+}
+
+
+// --- Returns the sum of all cardMax values of all rolePlayerConstraints.
+function getRolePlayerMaxForRole(anyRoleConstraints){
+    if(!anyRoleConstraints || anyRoleConstraints === 0) return 0;
+    var max = 0;
+    for(var i = 0; i !== anyRoleConstraints.length; ++i){
+	if(anyRoleConstraints[i].cardMax === "MAX_INT") return "*";
+	else max += parseInt(anyRoleConstraints[i].cardMax);
+    }
+    return max;
+}
+
+
+// --- checks the cardinalities of all rolePlayerconstraints depending on a
+// --- given associationRoleConstraint
+function checkCardinalitiesARC_RPC(associationRoleConstraint, rolePlayerConstraints){
+    if(!associationRoleConstraint) throw "From checkCardinalitiesARC(): associationRoleConstraint is not set!";
+    if(!rolePlayerConstraints || rolePlayerConstraints.length === 0) throw "From checkCardinalitiesARC(): rolePlayerConstraints is not set!";
+    var arMin = parseInt(associationRoleConstraint.cardMin);
+    var arMax = associationRoleConstraint.cardMax === "MAX_INT" ? "*" : parseInt(associationRoleConstraint.cardMax);
+    var rpcs = getRolePlayerConstraintsForRole(associationRoleConstraint.roleType, rolePlayerConstraints);
+    var rpMin = getRolePlayerMinForRole(rpcs);
+    var rpMax = getRolePlayerMaxForRole(rpcs);
+    var type = associationRoleConstraint.roleType.flatten()[0];
+
+    if(rpMax !== "*" && rpMax < arMin) throw "Not enough players available for roletype \"" + type + "\" (rpMax=" + rpMax + ", arMin=" + arMin + ")";
+    if(arMax !== "*" && rpMin > arMax) throw "Too much players for the roletype \"" + type + "\" (rpMin=" + rpMin + ", arMax=" + arMax + ")";
+    /*
+    if(rpMin < arMin) throw "sum of card-min(=" + rpMin + ") of all roleplayer-constraints < card-min(=" + arMin + ") of associationrole-constraint for the role \"" + type + "\"! not enough players";
+    if(arMax !== "*" && (rpMax === "*" || rpMax > arMax)) throw "sum of card-max(=" + rpMax + ") of all roleplayer-constraints > card-max(=" + arMax + ") of associationrole-constraint for the role \"" + type + "\"! too much players"
+    if(arMax !== "*" && rpMin > arMax) throw "sum of card-min(=" + rpMin + ") of all roleplayer-constraints > card-max(=" + arMax + ") of associationrole-constraint for the role \"" + type + "\"! too much players";
+    if(rpMax !== "*" && rpMax < arMin) throw "sum of card-max(=" + rpMax + ") of all roleplayer-constraints > card-min(=" + arMin + ") of associationrole-constraint for the role \"" + type + "\"! not enough players";
+    */
+}
+
+
+// --- Returns all listed players of a constraint of the type
+// --- roleplayer-constraint or otherrole-constraint and returns them
+// --- as an array.
+function extractPlayersOfConstraints(anyConstraints){
+    var players = new Array();
+    if(!anyConstraints || anyConstraints.length === 0) return players;
+
+    for(var i = 0; i !== anyConstraints.length; ++i){
+	for(var j = 0; j !== anyConstraints[i].players.length; ++j){
+	    players.push(anyConstraints[i].players[j])
+	}
+    }
+
+    return players;
+}
+
+
+// --- Returns an array of players where the players from playersToClean will
+// --- be deleted from allPlayers.
+function cleanPlayers(allPlayers, playersToClean){
+    var cleanedPlayers = new Array();
+    if(!allPlayers) return cleanedPlayers;
+    if(!playersToClean) return allPlayers;
+
+    for(var i = 0; i !== allPlayers.length; ++i){
+	var toDel = false;
+	for(var j = 0; j !== allPlayers[i].length; ++j){
+	    for(var k = 0; k !== playersToClean.length; ++k){
+		if(playersToClean[k].indexOf(allPlayers[i][j]) !== -1){
+		    toDel = true;
+		    break;
+		}
+	    }
+	    if(toDel === true) break;
+	}
+	if(toDel === false) cleanedPlayers.push(allPlayers[i]);
+    }
+    return cleanedPlayers;
+}

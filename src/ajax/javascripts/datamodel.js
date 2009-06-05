@@ -1276,11 +1276,12 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 
 
 // --- representation of a role element.
-var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdentities, roleTypes, rolePlayers, owner, min, max){
+var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdentities, roleTypes, rolePlayers, owner, removeFunction, addFunction){
 				          $super();
 				          if(!owner.__frames__) owner.__frames__ = new Array();
                                           if(!roleTypes || roleTypes.length === 0) throw "From RoleC(): roleTypes must be set!";
-                                          if(!rolePlayers || rolePlayers.length === 0) throw "From RoleC(): rolePalyers must be set";
+                                          if(!rolePlayers || rolePlayers.length === 0) throw "From RoleC(): rolePlayers must be set";
+                                          if(!removeFunction || !addFunction) throw "From RoleC(): removeFunction and addFunction must be set!";
 				          owner.__frames__.push(this);
 				          this.__frame__.writeAttribute({"class" : CLASSES.roleFrame()});
 				          this.__table__ = new Element("table", {"class" : CLASSES.roleFrame()});
@@ -1291,16 +1292,25 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				          try{
 					      // --- control row + itemIdentity
 					      makeControlRow(this, 3, itemIdentities); // make control row have to be changed to a separate control row for roles
-					      checkRemoveAddButtons(owner, 1, max);
-					      setRemoveAddHandler(this, owner, 1, max, function(){
-						  return new RoleC(null, roleTypes, rolePlayers, owner, min, max);
-					      });
+					      checkRemoveAddButtons(owner, 1, -1);
+					      setRemoveAddHandler(this, owner, 1, -1, function(){ /*do nothing*/ });
+					      // --- resets the add and remove handlers
+					      var cTd = this.__table__.select("tr." + CLASSES.itemIdentityFrame())[0].select("td." + CLASSES.controlColumn())[0].select("span." + CLASSES.clickable());
+					      var removeButton = cTd[1];
+					      var addButton = cTd[2];
+					      removeButton.show();
+					      addButton.show();
+					      removeButton.stopObserving();
+					      addButton.stopObserving();
+					      removeButton.observe("click", removeFunction);
+					      addButton.observe("click", addFunction);
 
 					      // --- type
 					      var types = this.__roleTypes__.flatten();
 					      this.__type__ = new Object();
 					      var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
 					      this.__table__.insert({"bottom" : tr});
+					      // TODO: implement a onTypeChangeHandler
 
 					      // --- player
 					      var players = this.__rolePlayers__.flatten();
@@ -1310,6 +1320,67 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					  }
 				          catch(err){
 					      alert("From RoleC(): " + err);
+					  }
+				      },
+				      "addPlayer" : function(player){
+					  if(!player || player.length === 0) return;
+					  var selected = this.__player__.__frames__[0].getContent();
+					  var select = this.__player__.__frames__[0].getFrame().select("select")[0];
+					  select.update("");
+					  if(this.__rolePlayers__){
+					      var j = 0;
+					      for(var i = 0; i !== player.length; ++i){
+						  j = 0;
+						  for( ; j !== this.__rolePlayers__.length; ++j){
+						      if(this.__rolePlayers__[j].indexOf(player[i]) !== -1) break;
+						  }
+						  if(j !== this.__rolePlayers__.length){
+						      this.__rolePlayers__[j] = player;
+						      alert("test");
+						      break;
+						  }
+					      }
+					      if(j === this.__rolePlayers__.length)this.__rolePlayers__.push(player);
+					  }
+					  else {
+					      this.__rolePlayers__ = new Array(player);
+					  }
+					  for(var i = 0; i !== this.__rolePlayers__.length; ++i){
+					      for(var j = 0; j !== this.__rolePlayers__[i].length; ++j){
+						  var opt = new Element("option", {"value" : this.__rolePlayers__[i][j]}).update(this.__rolePlayers__[i][j]);
+						  if(this.__rolePlayers__[i][j] !== selected){
+						      select.insert({"bottom" : opt});
+						  }
+						  else {
+						      select.insert({"top" : opt});
+						  }
+					      }
+					  }
+				      },
+				      "removePlayer" : function(player){
+					  if(!player || player.length === 0 || !this.__rolePlayers__ || this.__rolePlayers__.length === 0) return;
+					  var selected = this.__player__.__frames__[0].getContent();
+					  var select = this.__player__.__frames__[0].getFrame().select("select")[0];
+					  select.update("");
+					  var j = 0;
+                                          for(var i = 0; i !== player.length; ++i){
+					      j = 0;
+					      for( ; j !== this.__rolePlayers__.length; ++j){
+						  if(this.__rolePlayers__[j].indexOf(player[i]) !== -1) break;
+					      }
+					      if(j !== this.__rolePlayers__.length) break;
+					  }
+					  this.__rolePlayers__ = this.__rolePlayers__.slice(0, j).concat(this.__rolePlayers__.slice(j + 1, this.__rolePlayers__.length));
+					  for(var i = 0; i !== this.__rolePlayers__.length; ++i){
+					      for(var j = 0; j !== this.__rolePlayers__[i].length; ++j){
+						  var opt = new Element("option", {"value" : this.__rolePlayers__[i][j]}).update(this.__rolePlayers__[i][j]);
+						  if(this.__rolePlayers__[i][j] !== selected){
+						      select.insert({"bottom" : opt});
+						  }
+						  else {
+						      select.insert({"top" : opt});
+						  }
+					      }
 					  }
 				      },
 				      "getType" : function(){
@@ -1345,32 +1416,170 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 
 
 // --- contains all roles of an association
-var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, roleConstraints, playerConstraints, otherRoleConstraints){
+var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints){
                                                   $super();
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
-                                                   this.__container__ = new Object();
+                                                   this.__arContainer__ = new Object();
+                                                   this.__orContainer__ = new Object();
+
+    /*
+
+    *associationrole-constraints: A association role constraint defines how many and of what type the roles in associations of given a type must be.
+        *min: card-min indicating the minimum number of times the role can appear in the association
+        *max: card-max indicating the maximum number of times the role can appear in the association
+    *roleplayer-constraints: A role player constraint defines a way to constrain the type of allowed role players of a given role with a given type
+                             in an association of a given type.
+        *min: card-min indicating the minimum number of times a topic can play the role with the given type in the given
+              association of the given type
+        *max: card-max indicating the maximum number of times a topic can play the role with the given type in the given
+              association of the given type
+    *otherrole-constraints: A other role constraint defines a way to constrain the allowed type of role player given the existence of another role
+                            player type in an association.
+        *min: card-min indicating the minimum number of times the other role can occur
+        *max: card-max indicating the maximum number of times the other role can occur
+
+
+algorithmus:
+OK *alle rollen aus associationroleconstraints erstellen in einem __arContainer__
+OK *überprüfen, ob die kardinalitäten der roleplayer mit den kardinalitäten der associationrole übereinstimmen
+OK   *card-min rp < card-min ar -> fehler
+OK   *card-max rp > card-max ar -> fehler
+OK   *card-min rp > card-max ar -> fehler
+OK   *card-max rp < card-min ar -> fehler
+OK *zu allen gefundenen roles vorhandene roleplayer-constraints suchen
+OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend in RoleC anhängen
+*__orContainer__ für otherrole-constraints initialisieren
+*handler hinzufügen
+    */
+    
 
                                                    try{
-						       if((!contents || contents.length === 0) && roleConstraints && playerConstraints){
-							   for(var i = 0; playerConstraints && i !== playerConstraints.length; ++i){
-							       //new RoleC(new Array("itemIdentity " + i), playerConstraints[i].roleTypes, playerConstraints[i].players, this.__container__, 1, 4);
-							       //this.__error__.insert({"before" : this.__container__.__frames__[i].getFrame()});
-							   }
+						       if((!contents || contents.length === 0) && associationRoleConstraints){
+							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
                                                	       }
                                                	       else {
                                                		   // TODO: check already existing contents and order them to the corresponding fields
                                                	       }
-
-
-						       
                                                    }
                                                    catch(err){
                                                	       alert("From RoleContainerC(): " + err);
                                                    }
                                                },
-					       "resetValues" : function(roleConstraints, playerConstraints, otherRoleConstraints){
+					       "resetValues" : function(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints){
+                                                   this.__associationRoleConstraints__ = associationRoleConstraints;
+                                                   this.__rolePlayerConstraints__ = rolePlayerConstraints;
+						   this.__otherRoleConstraints__ = otherRoleConstraints;
+
+						   try{
+						       for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
+							   this.__arContainer__.__frames__[i].remove();
+						       }
+						       this.__arContainer__ = new Object();
+						   }
+						   catch(err){
+						       this.__arContainer__ = new Object();
+						   }
+						   try{
+						       for(var i = 0; this.__orContainer__.__frames__ && i !== this.__orContainer__.__frames__.length; ++i){
+							   this.__orContainer__.__frames__[i].remove();
+						       }
+						       this.__orContainer__ = new Object();
+						   }
+						   catch(err){
+						       this.__orContainer__ = new Object();
+						   }
+
+
+						   // --- creates all roles from existing associationroleconstraints and roleplayerConstraints
+						   // TODO: insert existing contents to the corresponding constraints
+						   for(var i = 0; this.__associationRoleConstraints__ && i !== this.__associationRoleConstraints__.length; ++i){
+						       var arc = this.__associationRoleConstraints__[i];
+						       var foundRpcs = getRolePlayerConstraintsForRole(arc.roleType, this.__rolePlayerConstraints__);
+						       this.__makeRolesFromARC__(arc, foundRpcs);
+						   }
+					       },
+					       "__makeRolesFromARC__" : function(associationRoleConstraint, rolePlayerConstraints){
+						   if(!associationRoleConstraint || !rolePlayerConstraints || rolePlayerConstraints.length === 0) return;
+						   checkCardinalitiesARC_RPC(associationRoleConstraint, rolePlayerConstraints);
+
+						   // --- creates all roles with all needed players
+						   var rolesCreated = 0;
+						   var allAvailablePlayers = extractPlayersOfConstraints(rolePlayerConstraints);
+						   var roleType = associationRoleConstraint.roleType;
+						   var roleMin = associationRoleConstraint.cardMin;
+						   for(var i = 0; i !== rolePlayerConstraints.length; ++i){
+						       var playerMin = rolePlayerConstraints[i].cardMin;
+						       var currentAvailablePlayers = rolePlayerConstraints[i].players;
+						       var cleanedPlayers = cleanPlayers(allAvailablePlayers, currentAvailablePlayers);
+						       for(var j = playerMin; j < currentAvailablePlayers.length; ++j){
+							   cleanedPlayers.push(currentAvailablePlayers[j]);
+						       }
+						       if(currentAvailablePlayers.length < playerMin) throw "From __makeRolesFromARC__(): not enough players(=" + currentAvailablePlayers.length + ") to reach card-min(=" + playerMin + ") of roletype\"" + roleType.flatten()[0] + "\"!";
+						       for(var j = 0; j !== playerMin; ++j){
+							   var removeFunction = function(event){ alert("removeFunction"); };
+							   var addFunction = function(event){ alert("addFunction"); };
+							   var selectedPlayer = currentAvailablePlayers[j];
+							   var _players = cleanedPlayers;
+							   _players.unshift(selectedPlayer);
+							   var role = new RoleC(null, roleType, _players, this.__arContainer__, removeFunction, addFunction);
+							   this.__setRoleChangePlayerHandler__(role);
+							   this.__error__.insert({"before" : role.getFrame()});
+							   ++rolesCreated;
+						       }
+						   }
+
+						   // --- creates all further needed roles with players that owns a card-max > existing players
+						   while(rolesCreated < roleMin){
+						       var currentlyCreated = 0;
+						       for(var i= 0; i !== rolePlayerConstraints.length; ++i){
+							   // existing roles --> all roles that owns a player which is selected of those listed in the roleplayer-constraint
+							   var existingRoles = this.getExistingRoles(roleType, rolePlayerConstraints[i].players, this.__arContainer__.__frames__);
+							   var availablePlayers = rolePlayerConstraints[i].players;
+							   if(existingRoles.length < rolePlayerConstraints[i].cardMax && availablePlayers.length > existingRoles.length){
+							       var currentAvailablePlayers = rolePlayerConstraints[i].players;
+							       var cleanedPlayers = cleanPlayers(allAvailablePlayers, currentAvailablePlayers);
+
+							       // --- adds players that are not selected yet
+							       for(var j = 0; j !== currentAvailablePlayers.length; ++j){
+								   if(this.getExistingRoles(roleType, currentAvailablePlayers[j], this.__arContainer__.__frames__).length === 0){
+								       cleanedPlayers.push(currentAvailablePlayers[j]);
+								   }
+							       }
+							       
+							       // --- removes the player which will be seleted by the new created role of all other select-elements
+							       for(var j = 0; j !== this.__arContainer__.__frames__.length; ++j){
+								   this.__arContainer__.__frames__[j].removePlayer(cleanedPlayers[0]);
+							       }
+							       
+							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__, removeFunction, addFunction);
+							       this.__setRoleChangePlayerHandler__(role);
+							       this.__error__.insert({"before" : role.getFrame()});
+							       ++rolesCreated;
+							       ++currentlyCreated;
+							   }
+						       }
+						       if(currentlyCreated === 0) throw "Not enough players to create all needed roles of the type \"" + roleType.flatten()[0] + "\"!";
+						   }
+					       },
+					       "__makeRolesFromORC__" : function(roleType, player){
+
+					       },
+					       "getExistingRoles" : function(roleType, players, roles){
+						   var rolesFound = new Array();
+						   if(!roles || roles.length === 0) return rolesFound;
 						   
-						   // TODO: implement
+						   var allTypes = roleType && roleType.length !== 0 ? roleType.flatten() : new Array();
+						   var allPlayers = players && players.length !== 0 ? players.flatten() : new Array();
+						   for(var i = 0; i !== roles.length; ++i){
+						       if(allTypes.indexOf(roles[i].getType()) !== -1 && allPlayers.indexOf(roles[i].getPlayer()) !== -1) rolesFound.push(roles[i]);
+						   }
+
+						   return rolesFound;
+					       },
+					       "__setRoleChangePlayerHandler__" : function(role){
+						   var select = role.__table__.select("tr." + CLASSES.playerFrame())[0].select("td." + CLASSES.content())[0].select("select")[0];
+						   select.observe("change", function(event){ alert("changed!"); });
+
 					       },
 					       "getContent" : function(){
 						   // TODO: implement
@@ -1379,9 +1588,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   // TODO: implement
 					       },
 					       "isValid" : function(){
-						   // TODO: implement
-					       },
-					       "isUsed" : function(){
 						   // TODO: implement
 					       }});
 

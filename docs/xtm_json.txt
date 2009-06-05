@@ -341,7 +341,7 @@
 //+-----------------------------------------------------------------------------
 {
   "players" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "topic-2-psi-1", "..."], <...> ]
-  "roleTypes" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "subtype-psi-1", "..." ], <...> ],
+  "roleType" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "subtype-psi-1", "..." ], <...> ],
   "cardMin" : "unsigned integer in string representation",
   "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }
@@ -356,10 +356,10 @@
 //+    The values cardMin and cardMax defines the cardinality of otherRoleType.
 //+-----------------------------------------------------------------------------
 {
-  "playerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
-  "roleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
-  "otherRoleType" : [ "topic-psi-1", "topic-psi-2", "..." ],
-  "otherPlayerType" : [ "topic-psi-1", "topic-psi-2", "..." ],
+  "players" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "topic-2-psi-1", "..."], <...> ] ],
+  "roleType" : [ [ "topic-psi-1", "topic-psi-2", "..." ], [ "subtype-psi-1", "..." ], <...> ],
+  "otherPlayers" : [ "topic-psi-1", "topic-psi-2", "..." ], [ "topic-2-psi-1", "..."], <...> ] ],
+  "otherRoleType" : [ "topic-psi-1", "topic-psi-2", "..." ], [ "subtype-psi-1", "..." ], <...> ],
   "cardMin" : "unsigned integer in string representation",
   "cardMax" : "unsigned integer in string representation or the string MAX_INT"
 }

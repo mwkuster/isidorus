@@ -192,7 +192,7 @@
 				      (topics-to-json-list
 				       (list-instances (getf involved-topic-tupple :player) topictype topictype-constraint))))
 			(json-role
-			 (concatenate 'string "\"roleTypes\":"
+			 (concatenate 'string "\"roleType\":"
 				      (topics-to-json-list
 				       (getf (list-subtypes (getf involved-topic-tupple :role) roletype roletype-constraint) :subtypes))))
 			(json-otherplayer
@@ -291,7 +291,7 @@
 				      (topics-to-json-list
 				       (list-instances (getf role-player-tupple :player) topictype topictype-constraint))))
 			(json-role
-			 (concatenate 'string "\"roleTypes\":"
+			 (concatenate 'string "\"roleType\":"
 				      (topics-to-json-list
 				       (getf (list-subtypes (getf role-player-tupple :role) roletype roletype-constraint) :subtypes))))
 			(card-min
