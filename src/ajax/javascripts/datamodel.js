@@ -1037,7 +1037,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 									"value" : this.__value__.value};
 						    }
 						    return {"itemIdentities" : this.__itemIdentity__.getContent(true, true),
-							    "type" : [this.__type__.__frames__[0].getContent()],
+							    "type" : new Array(this.__type__.__frames__[0].getContent()),
 							    "scopes" : this.__scope__.getContent(),
 							    "resourceRef" : resourceRef,
 							    "resourceData" : resourceData};
@@ -1212,19 +1212,6 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       _constraints = (constraints ? constraints.topicOccurrenceConstraints : null);
 					       this.__occurrence__ = new OccurrenceContainerC(_contents, _constraints);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.occurrenceContainer(), "Occurrences", this.__occurrence__.getFrame())});
-
-
-
-
-
-					       var btn = new Element("input", {"value" : "topic.toJSON()", "type" : "button"});
-					       function addBtnHandler(myself){
-						   btn.observe("click", function(event){
-						       alert(myself.toJSON());
-						   })
-					       }
-					       addBtnHandler(this);
-					       this.__frame__.insert({"bottom" : btn});
 					   }catch(err){
 					       alert("From TopciC(): " + err);
 					   }
@@ -1336,7 +1323,6 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 						  }
 						  if(j !== this.__rolePlayers__.length){
 						      this.__rolePlayers__[j] = player;
-						      alert("test");
 						      break;
 						  }
 					      }
@@ -1421,9 +1407,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
                                                    this.__arContainer__ = new Object();
                                                    this.__orContainer__ = new Object();
-
     /*
-
     *associationrole-constraints: A association role constraint defines how many and of what type the roles in associations of given a type must be.
         *min: card-min indicating the minimum number of times the role can appear in the association
         *max: card-max indicating the maximum number of times the role can appear in the association
@@ -1437,22 +1421,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                             player type in an association.
         *min: card-min indicating the minimum number of times the other role can occur
         *max: card-max indicating the maximum number of times the other role can occur
-
-
-algorithmus:
-OK *alle rollen aus associationroleconstraints erstellen in einem __arContainer__
-OK *überprüfen, ob die kardinalitäten der roleplayer mit den kardinalitäten der associationrole übereinstimmen
-OK   *card-min rp < card-min ar -> fehler
-OK   *card-max rp > card-max ar -> fehler
-OK   *card-min rp > card-max ar -> fehler
-OK   *card-max rp < card-min ar -> fehler
-OK *zu allen gefundenen roles vorhandene roleplayer-constraints suchen
-OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend in RoleC anhängen
-*__orContainer__ für otherrole-constraints initialisieren
-*handler hinzufügen
     */
-    
-
                                                    try{
 						       if((!contents || contents.length === 0) && associationRoleConstraints){
 							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
@@ -1489,13 +1458,16 @@ OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend 
 						       this.__orContainer__ = new Object();
 						   }
 
-
 						   // --- creates all roles from existing associationroleconstraints and roleplayerConstraints
 						   // TODO: insert existing contents to the corresponding constraints
 						   for(var i = 0; this.__associationRoleConstraints__ && i !== this.__associationRoleConstraints__.length; ++i){
 						       var arc = this.__associationRoleConstraints__[i];
 						       var foundRpcs = getRolePlayerConstraintsForRole(arc.roleType, this.__rolePlayerConstraints__);
 						       this.__makeRolesFromARC__(arc, foundRpcs);
+						   }
+						   // --- creates roles from otherrole-constraints
+						   for(var i = 0; i !== this.__arContainer__.__frames__.length; ++i){
+						       this.__makeRolesFromORC__(this.__arContainer__.__frames__[i].getType(), this.__arContainer__.__frames__[i].getPlayer());
 						   }
 					       },
 					       "__makeRolesFromARC__" : function(associationRoleConstraint, rolePlayerConstraints){
@@ -1522,7 +1494,7 @@ OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend 
 							   var _players = cleanedPlayers;
 							   _players.unshift(selectedPlayer);
 							   var role = new RoleC(null, roleType, _players, this.__arContainer__, removeFunction, addFunction);
-							   this.__setRoleChangePlayerHandler__(role);
+							   this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
 							   this.__error__.insert({"before" : role.getFrame()});
 							   ++rolesCreated;
 						       }
@@ -1552,7 +1524,7 @@ OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend 
 							       }
 							       
 							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__, removeFunction, addFunction);
-							       this.__setRoleChangePlayerHandler__(role);
+							       this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
 							       this.__error__.insert({"before" : role.getFrame()});
 							       ++rolesCreated;
 							       ++currentlyCreated;
@@ -1562,7 +1534,38 @@ OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend 
 						   }
 					       },
 					       "__makeRolesFromORC__" : function(roleType, player){
+						   var orpcs = getOtherRoleConstraintsForRole(new Array(roleType), new Array(player), this.__otherRoleConstraints__);
+						   var removeFunction = function(event){ alert("removeFunction"); };
+						   var addFunction = function(event){ alert("addFunction"); };
+						   for(var i = 0; i !== orpcs.length; ++i){
+						       var cPlayers = orpcs[i].players;
+						       var cRoleType = orpcs[i].roleType;
+						       var cOtherPlayers = orpcs[i].otherPlayers;
+						       var cOtherRoleType = orpcs[i].otherRoleType;
+						       var cMin = parseInt(orpcs[i].cardMin);
+						       if(!cOtherPlayers || cOtherPlayers.length < cMin) throw "from __makeRolesFromORC__(): not enough players(=" + cOtherPlayers.length + ") for roletype + \"" + cOtherRoleType.flatten()[0] + "\"!";
+						       var existingRoles = this.getExistingRoles(cOtherRoleType, cOtherPlayers, this.__orContainer__.__frames__);
+						       for(var j = 0; j < cMin - existingRoles.length; ++j){
+							   // --- removes all players that are already selected from the
+							   // --- current players list
+							   var cleanedPlayers = new Array();
+							   for(var k = 0; k !== cOtherPlayers.length; ++k){
+							       if(this.getExistingRoles(cOtherRoleType, cOtherPlayers[k], this.__orContainer__.__frames__).length === 0){
+							   	   cleanedPlayers.push(cOtherPlayers[k]);
+							       }
+							   }
 
+							   // --- removes the player that will be selected in this role
+							   // --- from all existing roles
+							   for(var j = 0; this.__orContainer__.__frames__ && j !== this.__orContainer__.__frames__.length; ++j){
+							       this.__orContainer__.__frames__[j].removePlayer(cleanedPlayers[0]);
+							   }
+							   
+							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, this.__orContainer__, removeFunction, addFunction);
+							   this.__setRoleChangePlayerHandler__(role, this.__orContainer__.__frames__, null, orpcs);
+							   this.__error__.insert({"before" : role.getFrame()});
+						       }
+						   }
 					       },
 					       "getExistingRoles" : function(roleType, players, roles){
 						   var rolesFound = new Array();
@@ -1576,19 +1579,90 @@ OK   *alle roleplayer sammeln und an eine leere option anhängen, anschließend 
 
 						   return rolesFound;
 					       },
-					       "__setRoleChangePlayerHandler__" : function(role){
+					       "__setRoleChangePlayerHandler__" : function(role, roleContainer, arConstraints, orConstraints){
+						   var constraints = null;
+						   if(arConstraints && arConstraints.length !== 0) constraints = arConstraints;
+						   else if(orConstraints && orConstraints.length !== 0) constraints = orConstraints;
+						   else if(arConstraints && orConstraints && arConstraints.length !== 0 && orConstraints.length !== 0) throw "From __setRoleChangePlayerHandler__(): one of the parameters arConstraints or orConstraints must be set to null";
+						   role.__lastPlayer__ = new Array(role.getPlayer());
 						   var select = role.__table__.select("tr." + CLASSES.playerFrame())[0].select("td." + CLASSES.content())[0].select("select")[0];
-						   select.observe("change", function(event){ alert("changed!"); });
-
+						   function setEvent(myself){
+						       select.observe("change", function(event){
+							   role.__lastPlayer__.push(role.getPlayer());
+							   if(role.__lastPlayer__.length > 2) role.__lastPlayer__.shift();
+							   if(!roleContainer || roleContainer.length < 2 || ! constraints || constraints.length === 0) return;
+							   role.getLastPlayer = function(){
+							       return role.__lastPlayer__[role.__lastPlayer__.length - 2];
+							   }
+							   // --- selects the players which have to be removed or added to
+							   // --- the found roles
+							   var playerToAdd = new Array(role.getLastPlayer());
+							   var playerToRemove = new Array(role.getPlayer());
+							   
+							   // --- collects all roles depending on the same constraint as the passed role
+							   var existingRoles = new Array();
+							   for(var i = 0; constraints && i !== constraints.length; ++i){
+							       var roleType = orConstraints ? constraints[i].otherRoleType : constraints[i].roleType;
+							       var players = orConstraints ? constraints[i].otherPlayers : constraints[i].players;
+							       
+							       // --- adds new psi of the roles have to be added
+							       for(var j = 0; j !== players.length; ++j){
+								   if(players[j].indexOf(playerToRemove[0]) !== -1){
+								       for(var l = 0; l !== players[j].length; ++l){
+									   if(players[j][l] !== playerToRemove[0]) playerToRemove.push(players[j][l]);
+								       }
+								   }
+								   if(players[j].indexOf(playerToAdd[0]) !== -1){
+								       for(var l = 0; l !== players[j].length; ++l){
+									   if(players[j][l] !== playerToAdd[0]) playerToAdd.push(players[j][l]);
+								       }
+								   }
+							       }
+							       
+							       var foundRoles = myself.getExistingRoles(roleType, players, roleContainer);
+							       for(var j = 0; j !== foundRoles.length; ++j){
+								   existingRoles.push(foundRoles[j]);
+							       }
+							   }
+							   existingRoles = existingRoles.without(role);
+							   
+							   // --- removes and adds the new selected psi-value
+							   // --- and the old deselected psi if the player is another one
+							   if(playerToRemove.indexOf(role.getLastPlayer()) === -1){
+							       for(var i = 0; i !== existingRoles.length; ++i){
+								   existingRoles[i].addPlayer(playerToAdd);
+								   existingRoles[i].removePlayer(playerToRemove);
+							       }
+							   }
+						       });
+						   }
+						   setEvent(this);
 					       },
 					       "getContent" : function(){
-						   // TODO: implement
+						   if((!this.__orContainer__.__frames__ && this.__orContainer__.frames__.length === 0) || (!this.__arContainer__.__frames__ && this.__arContainer__.__frames__.length === 0)) return null;
+						   var roles = new Array();
+						   for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
+						       roles.push(this.__arContainer__.__frames__[i].getContent());
+						   }
+						   for(var i = 0; this.__orContainer__.__frames__ && i !== this.__orContainer__.__frames__.length; ++i){
+						       roles.push(this.__orContainer__.__frames__[i].getContent());
+						   }
+						   return roles;
 					       },
 					       "toJSON" : function(){
-						   // TODO: implement
+						   if((!this.__orContainer__.__frames__ && this.__orContainer__.frames__.length === 0) || (!this.__arContainer__.__frames__ && this.__arContainer__.__frames__.length === 0)) return "null";
+						   var roles = "[";
+						   for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
+						       roles += this.__arContainer__.__frames__[i].toJSON() + ",";
+						   }
+						   for(var i = 0; this.__orContainer__.__frames__ && i !== this.__orContainer__.__frames__.length; ++i){
+						       roles += this.__orContainer__.__frames__[i].toJSON() + ",";
+						   }
+						   return roles.substring(0, roles.length - 1) + "]";
 					       },
 					       "isValid" : function(){
 						   // TODO: implement
+						   return true;
 					       }});
 
 
@@ -1676,16 +1750,26 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						 this.__roles__.resetValues(_roleConstraints, _playerConstraints, _otherRoleConstraints);
 					     },
 					     "getContent" : function(){
-						 // TODO: implement
+						 if(!this.isUsed()) return null;
+						 return {"itemIdentities" : this.__itemIdentity__.getContent(true, true),
+							 "type" : new Array(this.__type__.__frames__[0].getContent()),
+							 "scopes" : this.__scope__.getContent(),
+							 "roles" : this.__roles__.getContent()};
 					     },
 					     "toJSON" : function(){
-						 // TODO: implement
+						 if(!this.isUsed()) return "null";
+						 return "{\"itemIdentities\":" + this.__itemIdentity__.toJSON(true, true) +
+						     ",\"type\":[" + this.__type__.__frames__[0].toJSON() + "]" +
+						     ",\"scopes\":" + this.__scope__.toJSON() +
+						     ",\"roles\":" + this.__roles__.toJSON() + "}";
 					     },
 					     "isValid" : function(){
 						 // TODO: implement
+						 return true;
 					     },
 					     "isUsed" : function(){
-						 // TODO: implement
+						 // TODO: implement (activate button)
+						 return true;
 					     }});
 
 
@@ -1718,22 +1802,56 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 								  tr.update(td);
 								  this.__table__.insert({"bottom" : tr});
 							      }
+							      function setMinimizeHandler(myself){
+								  myself.__caption__.observe("click", function(event){
+								      myself.minimize();
+								  });
+							      }
+							      setMinimizeHandler(this);
+/*
+							      var button = new Element("input", {"type" : "button", "value" : "toJSON()"});
+							      function test(myself){
+								  button.observe("click", function(event){
+								      alert("content:\n\n" + myself.getContent());
+								      alert("JSON:\n\n" + myself.toJSON());
+								  });
+							      }
+							      test(this);
+							      this.getFrame().insert({"bottom" : button});
+*/
 							  }
 						          catch(err){
 							      alert("From AssociationContainerC(): " + err);
 							  }
 						      },
 						      "getContent" : function(){
-							  // TODO: implement
+							  var associations = new Array();
+							  for(var i = 0; this.__container__.__frames__ && i !== this.__container__.__frames__.length; ++i){
+							      if(this.__container__.__frames__[i].isUsed() === true) associations.push(this.__container__.__frames__[i].getContent());
+							  }
+							  if(associations.length === 0) return null;
+							  return associations;
 						      },
 						      "toJSON" : function(){
-							  // TODO: implement
+							  var associations = "[";
+							  for(var i = 0; this.__container__.__frames__ && i !== this.__container__.__frames__.length; ++i){
+							      if(this.__container__.__frames__[i].isUsed() === true) associations += this.__container__.__frames__[i].toJSON() +",";
+							  }
+
+							  if(associations === "[") return "null";
+							  return associations.substring(0, associations.length - 1) + "]";
 						      },
 						      "isValid" : function(){
 							  // TODO: implement
+							  return true;
 						      },
 						      "minimize" : function(){
-							  // TODO: implement
+							  var rows = this.__table__.select("tr." + CLASSES.associationFrame());
+							  for(var i = 0; i != rows.length; ++i){
+							      if(this.__minimized__ === false) rows[i].hide();
+							      else rows[i].show();
+							  }
+							  this.__minimized__ = !this.__minimized__;
 						      }});
 
 
