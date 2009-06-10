@@ -1270,12 +1270,11 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 
 
 // --- representation of a role element.
-var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdentities, roleTypes, rolePlayers, owner, removeFunction, addFunction){
+var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdentities, roleTypes, rolePlayers, owner){
 				          $super();
 				          if(!owner.__frames__) owner.__frames__ = new Array();
                                           if(!roleTypes || roleTypes.length === 0) throw "From RoleC(): roleTypes must be set!";
                                           if(!rolePlayers || rolePlayers.length === 0) throw "From RoleC(): rolePlayers must be set";
-                                          if(!removeFunction || !addFunction) throw "From RoleC(): removeFunction and addFunction must be set!";
 				          owner.__frames__.push(this);
 				          this.__frame__.writeAttribute({"class" : CLASSES.roleFrame()});
 				          this.__table__ = new Element("table", {"class" : CLASSES.roleFrame()});
@@ -1288,23 +1287,16 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					      makeControlRow(this, 3, itemIdentities); // make control row have to be changed to a separate control row for roles
 					      checkRemoveAddButtons(owner, 1, -1);
 					      setRemoveAddHandler(this, owner, 1, -1, function(){ /*do nothing*/ });
-					      // --- resets the add and remove handlers
+					      // --- gets the add and remove button
 					      var cTd = this.__table__.select("tr." + CLASSES.itemIdentityFrame())[0].select("td." + CLASSES.controlColumn())[0].select("span." + CLASSES.clickable());
-					      var removeButton = cTd[1];
-					      var addButton = cTd[2];
-					      removeButton.show();
-					      addButton.show();
-					      removeButton.stopObserving();
-					      addButton.stopObserving();
-					      removeButton.observe("click", removeFunction);
-					      addButton.observe("click", addFunction);
+					      this.__removeButton__ = cTd[1];
+					      this.__addButton__ = cTd[2];
 
 					      // --- type
 					      var types = this.__roleTypes__.flatten();
 					      this.__type__ = new Object();
 					      var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
 					      this.__table__.insert({"bottom" : tr});
-					      // TODO: implement a onTypeChangeHandler
 
 					      // --- player
 					      var players = this.__rolePlayers__.flatten();
@@ -1315,6 +1307,24 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				          catch(err){
 					      alert("From RoleC(): " + err);
 					  }
+				      },
+				      "setAddHandler" : function(handler){
+					  if(!handler) return;
+					  this.__addButton__.stopObserving();
+					  var addButton = this.__addButton__;
+					  function addHandler(myself){
+					      addButton.observe("click", function(event){ handler(myself); });
+					  }
+					  addHandler(this);
+				      },
+				      "setRemoveHandler" : function(handler){
+					  if(!handler) return;
+					  this.__removeButton__.stopObserving();
+					  var removeButton = this.__removeButton__;
+					  function addHandler(myself){
+					      removeButton.observe("click", function(event){ handler(myself); });
+					  }
+					  addHandler(this);
 				      },
 				      "addPlayer" : function(player){
 					  if(!player || player.length === 0) return;
@@ -1416,21 +1426,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
                                                    this.__arContainer__ = new Object();
                                                    this.__orContainer__ = new Object();
-    /*
-    *associationrole-constraints: A association role constraint defines how many and of what type the roles in associations of given a type must be.
-        *min: card-min indicating the minimum number of times the role can appear in the association
-        *max: card-max indicating the maximum number of times the role can appear in the association
-    *roleplayer-constraints: A role player constraint defines a way to constrain the type of allowed role players of a given role with a given type
-                             in an association of a given type.
-        *min: card-min indicating the minimum number of times a topic can play the role with the given type in the given
-              association of the given type
-        *max: card-max indicating the maximum number of times a topic can play the role with the given type in the given
-              association of the given type
-    *otherrole-constraints: A other role constraint defines a way to constrain the allowed type of role player given the existence of another role
-                            player type in an association.
-        *min: card-min indicating the minimum number of times the other role can occur
-        *max: card-max indicating the maximum number of times the other role can occur
-    */
                                                    try{
 						       if((!contents || contents.length === 0) && associationRoleConstraints){
 							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
@@ -1487,9 +1482,9 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   var rolesCreated = 0;
 						   var allAvailablePlayers = extractPlayersOfConstraints(rolePlayerConstraints);
 						   var roleType = associationRoleConstraint.roleType;
-						   var roleMin = associationRoleConstraint.cardMin;
+						   var roleMin = associationRoleConstraint.cardMin === 0 ? 1 : parseInt(associationRoleConstraint.cardMin);
 						   for(var i = 0; i !== rolePlayerConstraints.length; ++i){
-						       var playerMin = rolePlayerConstraints[i].cardMin;
+						       var playerMin = rolePlayerConstraints[i].cardMin === 0 ? 1 : parseInt(rolePlayerConstraints[i].cardMin);
 						       var currentAvailablePlayers = rolePlayerConstraints[i].players;
 						       var cleanedPlayers = cleanPlayers(allAvailablePlayers, currentAvailablePlayers);
 						       for(var j = playerMin; j < currentAvailablePlayers.length; ++j){
@@ -1497,13 +1492,14 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       }
 						       if(currentAvailablePlayers.length < playerMin) throw "From __makeRolesFromARC__(): not enough players(=" + currentAvailablePlayers.length + ") to reach card-min(=" + playerMin + ") of roletype\"" + roleType.flatten()[0] + "\"!";
 						       for(var j = 0; j !== playerMin; ++j){
-							   var removeFunction = function(event){ alert("removeFunction"); };
-							   var addFunction = function(event){ alert("addFunction"); };
 							   var selectedPlayer = currentAvailablePlayers[j];
 							   var _players = cleanedPlayers;
 							   _players.unshift(selectedPlayer);
-							   var role = new RoleC(null, roleType, _players, this.__arContainer__, removeFunction, addFunction);
+							   var role = new RoleC(null, roleType, _players, this.__arContainer__);
+							   this.__checkARCButtons__(role, associationRoleConstraint, rolePlayerConstraints[i]);
 							   this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
+							   this.__setARCAddHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
+							   this.__setARCRemoveHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
 							   this.__error__.insert({"before" : role.getFrame()});
 							   ++rolesCreated;
 						       }
@@ -1532,8 +1528,11 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								   this.__arContainer__.__frames__[j].removePlayer(cleanedPlayers[0]);
 							       }
 							       
-							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__, removeFunction, addFunction);
+							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__);
+							       this.__checkARCButtons__(role, associationRoleConstraint, rolePlayerConstraints[i]);
 							       this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
+							       this.__setARCAddHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
+							       this.__setARCRemoveHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
 							       this.__error__.insert({"before" : role.getFrame()});
 							       ++rolesCreated;
 							       ++currentlyCreated;
@@ -1544,14 +1543,12 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 					       },
 					       "__makeRolesFromORC__" : function(roleType, player){
 						   var orpcs = getOtherRoleConstraintsForRole(new Array(roleType), new Array(player), this.__otherRoleConstraints__);
-						   var removeFunction = function(event){ alert("removeFunction"); };
-						   var addFunction = function(event){ alert("addFunction"); };
 						   for(var i = 0; i !== orpcs.length; ++i){
 						       var cPlayers = orpcs[i].players;
 						       var cRoleType = orpcs[i].roleType;
 						       var cOtherPlayers = orpcs[i].otherPlayers;
 						       var cOtherRoleType = orpcs[i].otherRoleType;
-						       var cMin = parseInt(orpcs[i].cardMin);
+						       var cMin = orpcs[i].cardMin === 0 ? 1 : parseInt(orpcs[i].cardMin);
 						       if(!cOtherPlayers || cOtherPlayers.length < cMin) throw "from __makeRolesFromORC__(): not enough players(=" + cOtherPlayers.length + ") for roletype + \"" + cOtherRoleType.flatten()[0] + "\"!";
 						       var existingRoles = this.getExistingRoles(cOtherRoleType, cOtherPlayers, this.__orContainer__.__frames__);
 						       for(var j = 0; j < cMin - existingRoles.length; ++j){
@@ -1570,11 +1567,197 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       this.__orContainer__.__frames__[j].removePlayer(cleanedPlayers[0]);
 							   }
 							   
-							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, this.__orContainer__, removeFunction, addFunction);
+							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, this.__orContainer__);
+							   this.__checkORCButtons__(role, orpcs[i]);
 							   this.__setRoleChangePlayerHandler__(role, this.__orContainer__.__frames__, null, orpcs);
+							   this.__setORCAddHandler__(role, orpcs[i], orpcs);
+							   this.__setORCRemoveHandler__(role, orpcs[i], orpcs);
 							   this.__error__.insert({"before" : role.getFrame()});
 						       }
 						   }
+					       },
+					       "__checkORCButtons__" : function(role, constraint){
+						   if(!role || !constraint) return;
+						   var cOtherPlayers = constraint.otherPlayers;
+						   var cOtherRoleType = constraint.otherRoleType;
+						   var cardMax = constraint.cardMax === "MAX_INT" ? "*" : parseInt(constraint.cardMax);
+						   var cardMin = parseInt(constraint.cardMin);
+						   var existingRoles = this.getExistingRoles(cOtherRoleType, cOtherPlayers, this.__orContainer__.__frames__);
+						   var cleanedPlayers = new Array();
+						   for(var i = 0; i !== cOtherPlayers.length; ++i){
+						       if(this.getExistingRoles(cOtherRoleType, cOtherPlayers[i], this.__orContainer__.__frames__).length === 0){
+							   cleanedPlayers.push(cOtherPlayers[i]);
+						       }
+						   }
+
+						   // --- add button
+						   if(cardMax > existingRoles.length && cleanedPlayers.length !== 0){
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showAddButton();
+						   }
+						   else {
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].hideAddButton();
+						   }
+
+						   // --- remove button
+						   if(cardMin > existingRoles.length){
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showRemoveButton();
+						   }
+						   else {
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].hideRemoveButton();
+						   }
+					       },
+					       "__checkARCButtons__" : function(role, arConstraint, rpConstraint){
+						   if(!role || !arConstraint || !rpConstraint) return;
+
+						   var roleMax = arConstraint.cardMax === "MAX_INT" ? "*" : parseInt(arConstraint.cardMax);
+						   var playerMax = rpConstraint.cardMax === "MAX_INT" ? "*" : parseInt(rpConstraint.cardMax);
+						   var playerMin = rpConstraint.cardMin === 0 ? 1 : parseInt(rpConstraint.cardMin);
+						   var players = rpConstraint.players;
+						   var existingRoles = this.getExistingRoles(arConstraint.roleType, rpConstraint.players, this.__arContainer__.__frames__);
+						   var allExistingRoles = new Array();
+						   var tPsis = arConstraint.roleType.flatten();
+						   for(var i = 0; i !== this.__arContainer__.__frames__.length; ++i){
+						       if(tPsis.indexOf(this.__arContainer__.__frames__[i].getType()) !== -1)
+							   allExistingRoles.push(this.__arContainer__.__frames__[i]);
+						   }
+						   var cleanedPlayers = new Array();
+						   for(var i = 0; i !== players.length; ++i){
+						       if(this.getExistingRoles(arConstraint.roleType, players[i], this.__arContainer__.__frames__).length === 0){
+							   cleanedPlayers.push(players[i]);
+						       }
+						   }
+						   
+						   // --- add button
+						   if(cleanedPlayers.length !== 0 && playerMax > existingRoles.length && roleMax > allExistingRoles.length){
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showAddButton();   
+						   }
+						   else {
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].hideAddButton(); 
+						   }
+
+						   // --- remove button
+						   // --- If there is just one roleplayer-constraint to the passed roletype, there will be
+						   // --- checked this card-min otherwise the minimum cardinality of this roletype and the
+						   // --- players depending on the found roleplayer-constraints hast to exist only once.
+						   // --- The defined cardinality will be cheched before committing, so the user will
+						   // --- be warned before committing a bad fragment.
+						   var foundRpcs = getRolePlayerConstraintsForRole(arConstraint.roleType, this.__rolePlayerConstraints__);
+						   if(foundRpcs.length === 1 && playerMin < existingRoles.length){
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showRemoveButton();
+						   }
+						   else if(foundRpcs.length > 1 && existingRoles.length > 1){
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showRemoveButton();
+						   }
+						   else {
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].hideRemoveButton();
+						   }
+					       },
+					       "__setORCAddHandler__" : function(role, currentConstraint, constraints){
+						   if(!role || !currentConstraint || !constraints || constraints.length === 0) return;
+
+						   var roleContainer = this;
+						   function addHandler(myself){
+						       var cOtherPlayers = currentConstraint.otherPlayers;
+						       var cOtherRoleType = currentConstraint.otherRoleType;
+						       var cardMax = currentConstraint.cardMax === "MAX_INT" ? "*" : parseInt(currentConstraint.cardMax);
+						       var cardMin = currentConstraint.cardMin === 0 ? 1 : parseInt(currentConstraint.cardMin);
+						       var existingRoles = roleContainer.getExistingRoles(cOtherRoleType, cOtherPlayers, roleContainer.__orContainer__.__frames__);
+						       var cleanedPlayers = new Array();
+						       for(var i = 0; i !== cOtherPlayers.length; ++i){
+							   if(roleContainer.getExistingRoles(cOtherRoleType, cOtherPlayers[i], roleContainer.__orContainer__.__frames__).length === 0){
+							       cleanedPlayers.push(cOtherPlayers[i]);
+							   }
+						       }
+						       
+						       // --- creates new role
+						       if(cleanedPlayers.length !== 0){
+							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, roleContainer.__orContainer__);
+							   roleContainer.__checkORCButtons__(role, currentConstraint);
+							   roleContainer.__setRoleChangePlayerHandler__(role, roleContainer.__orContainer__.__frames__, null, constraints);
+							   roleContainer.__setORCAddHandler__(role, currentConstraint, constraints);
+							   roleContainer.__setORCRemoveHandler__(role, currentConstraint, constraints);
+							   roleContainer.__error__.insert({"before" : role.getFrame()});
+							   // --- removes the selected player from all other roles
+							   for(var i = 0; i !== existingRoles.length; ++i){
+							       existingRoles[i].removePlayer(new Array(role.getPlayer()));
+							   }
+							   var allRoles = existingRoles;
+							   allRoles.push(role);
+						       	   roleContainer.__innerCheckORCButtons__(allRoles, cardMin, cardMax);
+						       }
+						   }
+						   
+						   role.setAddHandler(addHandler);
+					       },
+					       "__setORCRemoveHandler__" : function(role, currentConstraint, constraints){
+						   if(!role || !currentConstraint || !constraints) return;
+						   
+						   var roleContainer = this;
+						   function removeHandler(myself){
+						       var cOtherPlayers = currentConstraint.otherPlayers;
+						       var cOtherRoleType = currentConstraint.otherRoleType;
+						       var cardMax = currentConstraint.cardMax === "MAX_INT" ? "*" : parseInt(currentConstraint.cardMax);
+						       var cardMin = currentConstraint.cardMin === 0 ? 1 : parseInt(currentConstraint.cardMin);
+						       var playerToAdd = null;
+						       for(var i = 0; i !== cOtherPlayers.length; ++i){
+							   if(cOtherPlayers[i].indexOf(role.getPlayer()) !== -1){
+							       playerToAdd = cOtherPlayers[i];
+							   }
+						       }
+						       roleContainer.__orContainer__.__frames__ = roleContainer.__orContainer__.__frames__.without(role);
+						       role.remove();
+						       var existingRoles = roleContainer.getExistingRoles(cOtherRoleType, cOtherPlayers, roleContainer.__orContainer__.__frames__);
+						       for(var i = 0; i !== existingRoles.length; ++i){
+							   existingRoles[i].addPlayer(playerToAdd);
+						       }
+						       roleContainer.__innerCheckORCButtons__(existingRoles, cardMin, cardMax);
+						   }
+
+						   role.setRemoveHandler(removeHandler);
+					       },
+					       "__innerCheckORCButtons__" : function(existingRoles, cardMin, cardMax){
+						   if(!existingRoles) return;
+						   
+						   // --- checks all control buttons after an add or remove operation
+						   if(cardMax !== "*" && existingRoles.length >= cardMax){
+						       for(var i = 0; i !== existingRoles.length; ++i){
+							   existingRoles[i].hideAddButton();
+						       }
+						   }
+						   else {
+						       for(var i = 0; i !== existingRoles.length; ++i){
+							   existingRoles[i].showAddButton();
+						       }
+						   }
+
+						   if(cardMin < existingRoles.length){
+						       for(var i = 0; i !== existingRoles.length; ++i){
+							   existingRoles[i].showRemoveButton();
+						       }
+						   }
+						   else {
+						       for(var i = 0; i !== existingRoles.length; ++i){
+							   existingRoles[i].hideRemoveButton();
+						       }
+						   }
+					       },
+					       "__setARCAddHandler__" : function(role, arConstraint, rpConstraint){
+						   if(!role || !arConstraint || !rpConstraint) return;
+
+						   function addHandler(myself){
+						       //alert("myself: " + myself + "!!!");
+						   }
+
+						   role.setAddHandler(addHandler);
+					       },
+					       "__setARCRemoveHandler__" : function(role, arConstraint, rpConstraint){
+						   if(!role || !arConstraint || !rpConstraint) return;
+
+						   function removeHandler(myself){
+						       //alert("myself: " + myself + "!!!");
+						   }
+
+						   role.setRemoveHandler(removeHandler);
 					       },
 					       "getExistingRoles" : function(roleType, players, roles){
 						   var rolesFound = new Array();
@@ -1782,6 +1965,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					     }});
 
 
+// --- contains all fragment's associations depending on the main topic
 var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints, mainTopic){
 						          $super();
 						          this.__minimized__ = false;
