@@ -36,11 +36,16 @@ function makeCreate(psi)
 		    items[i].remove();
 		}
 
-		var topic = new TopicC(null, (constraints ? constraints.topicConstraints : null));
+		var instanceOfs = new Array();
+		for(var i = 0; psis && i !== psis.length; ++i){
+		    instanceOfs.push(new Array(psis[i]));
+		}
+		var topic = new TopicC(null, (constraints ? constraints.topicConstraints : null), instanceOfs);
 		var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
 		context.insert({"after" : liT});
 
-		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
+		addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
+		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null), topic);
 		var liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
 		liT.insert({"after" : liA});
 	    }

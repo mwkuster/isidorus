@@ -243,7 +243,8 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
 							    myself.showError(str);
 							}
 							else {
-							    successFun(contents, json);
+							    //successFun(contents, json);							    
+							    successFun(myself.getContent(true, true), json);
 							}
 						    }
 
@@ -1163,9 +1164,10 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 						    
 
 // --- representation of a topic element.
-var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, constraints){
+var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, constraints, instanceOfs){
                                            $super();
                                            this.__minimized__ = false;
+                                           this.__instanceOfs__ = (!instanceOfs || instanceOfs.length === 0 ? null : instanceOfs);
                                            try{
 					       this.__frame__ .writeAttribute({"class" : CLASSES.topicFrame()});
 					       this.__table__ = new Element("table", {"class" : CLASSES.topicFrame()});
@@ -1226,6 +1228,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 						   "itemIdentities" : this.__itemIdentity__.getContent(true, true),
 						   "subjectLocators" : this.__subjectLocator__.getContent(true, true),
 						   "subjectIdentifiers" : this.__subjectIdentifier__.getContent(true, true),
+						   "instanceOfs" : this.__instanceOfs__,
 						   "names" : this.__name__.getContent(),
 						   "occurrences" : this.__occurrence__.getContent()};
 					   }
@@ -1239,6 +1242,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 						   ",\"itemIdentities\":" + this.__itemIdentity__.toJSON(true, true) + 
 						   ",\"subjectLocators\":" + this.__subjectLocator__.toJSON(true, true) +
 						   ",\"subjectIdentifiers\":" + this.__subjectIdentifier__.toJSON(true, true) +
+						   ",\"instanceOfs\":" + (!this.__instanceOfs__ ? "null" : this.__instanceOfs__.toJSON()) +
 						   ",\"names\":" + this.__name__.toJSON() +
 						   ",\"occurrences\":" + this.__occurrence__.toJSON() + "}";
 					   }
@@ -1259,6 +1263,9 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       else rows[i].show();
 					   }
 					   this.__minimized__ = !this.__minimized__;
+				       },
+				       "hasPsi" : function(){
+					   return this.__subjectIdentifier__.getContent(true, true).length !== 0;
 				       }});
 
 
@@ -1311,7 +1318,7 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				      },
 				      "addPlayer" : function(player){
 					  if(!player || player.length === 0) return;
-					  var selected = this.__player__.__frames__[0].getContent();
+					  var selected = this.getPlayer();
 					  var select = this.__player__.__frames__[0].getFrame().select("select")[0];
 					  select.update("");
 					  if(this.__rolePlayers__){
@@ -1338,6 +1345,7 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 						      select.insert({"bottom" : opt});
 						  }
 						  else {
+						      opt.writeAttribute({"selected" : "selected"});
 						      select.insert({"top" : opt});
 						  }
 					      }
@@ -1345,7 +1353,7 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				      },
 				      "removePlayer" : function(player){
 					  if(!player || player.length === 0 || !this.__rolePlayers__ || this.__rolePlayers__.length === 0) return;
-					  var selected = this.__player__.__frames__[0].getContent();
+					  var selected = this.getPlayer();
 					  var select = this.__player__.__frames__[0].getFrame().select("select")[0];
 					  select.update("");
 					  var j = 0;
@@ -1364,6 +1372,7 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 						      select.insert({"bottom" : opt});
 						  }
 						  else {
+						      opt.writeAttribute({"selected" : "selected"});
 						      select.insert({"top" : opt});
 						  }
 					      }
@@ -1773,9 +1782,10 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					     }});
 
 
-var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints){
+var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints, mainTopic){
 						          $super();
 						          this.__minimized__ = false;
+                                                          this.__mainTopic__ = mainTopic;
 						          try{
 							      this.__frame__ .writeAttribute({"class" : CLASSES.associationContainer()});
 							      this.__table__ = new Element("table", {"class" : CLASSES.associationContainer()});
@@ -1808,17 +1818,18 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 								  });
 							      }
 							      setMinimizeHandler(this);
-/*
+
 							      var button = new Element("input", {"type" : "button", "value" : "toJSON()"});
 							      function test(myself){
 								  button.observe("click", function(event){
+								      try{
 								      alert("content:\n\n" + myself.getContent());
-								      alert("JSON:\n\n" + myself.toJSON());
+								      alert("JSON:\n\n" + myself.toJSON().gsub("\"topicRef\":\\[\"\\*\\*current-topic\\*\\*\"\\]", myself.__mainTopic__.getContent().subjectIdentifiers.toJSON()));
+								      }catch(err){ alert("test: " + err); }
 								  });
 							      }
 							      test(this);
 							      this.getFrame().insert({"bottom" : button});
-*/
 							  }
 						          catch(err){
 							      alert("From AssociationContainerC(): " + err);

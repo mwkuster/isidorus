@@ -187,7 +187,10 @@
 			   (uri (first (psis (getf involved-topic-tupple :otherrole))))
 			   constraint-lists))
 
-		  (let ((json-player
+		  (let ((json-player-type
+			 (concatenate 'string "\"playerType\":"
+				      (topics-to-json-list (getf (list-subtypes (getf involved-topic-tupple :player) nil nil) :subtypes))))
+			(json-player
 			 (concatenate 'string "\"players\":"
 				      (topics-to-json-list
 				       (list-instances (getf involved-topic-tupple :player) topictype topictype-constraint))))
@@ -195,6 +198,9 @@
 			 (concatenate 'string "\"roleType\":"
 				      (topics-to-json-list
 				       (getf (list-subtypes (getf involved-topic-tupple :role) roletype roletype-constraint) :subtypes))))
+			(json-otherplayer-type
+			 (concatenate 'string "\"otherPlayerType\":"
+				      (topics-to-json-list (getf (list-subtypes (getf involved-topic-tupple :otherplayer) nil nil) :subtypes))))
 			(json-otherplayer
 			 (concatenate 'string "\"otherPlayers\":"
 				      (topics-to-json-list
@@ -209,7 +215,7 @@
 			 (concatenate 'string "\"cardMax\":" (getf (first constraint-lists) :card-max))))
 		    (setf cleaned-otherrole-constraints
 			  (concatenate 'string cleaned-otherrole-constraints
-				       "{" json-player "," json-role "," json-otherplayer "," json-otherrole "," card-min "," card-max "},")))))
+				       "{" json-player-type "," json-player "," json-role "," json-otherplayer-type "," json-otherplayer "," json-otherrole "," card-min "," card-max "},")))))
 	  (if (string= cleaned-otherrole-constraints "[")
 	      (setf cleaned-otherrole-constraints "null")
 	      (setf cleaned-otherrole-constraints 
@@ -272,7 +278,6 @@
 	      :test #'(lambda(x y)
 			(and (eq (getf x :player) (getf y :player))
 			     (eq (getf x :role) (getf y :role)))))))
-
 	(let ((cleaned-roleplayer-constraints "["))
 	  (loop for role-player-tupple in role-player-tupples
 	     do (let ((constraint-lists
@@ -286,7 +291,10 @@
 			   (uri (first (psis (getf role-player-tupple :role))))
 			   (uri (first (psis (getf role-player-tupple :player))))
 			   constraint-lists))
-		  (let ((json-players
+		  (let ((json-player-type
+			 (concatenate 'string "\"playerType\":"
+				      (topics-to-json-list (getf (list-subtypes (getf role-player-tupple :player) nil nil) :subtypes))))
+			(json-players
 			 (concatenate 'string "\"players\":"
 				      (topics-to-json-list
 				       (list-instances (getf role-player-tupple :player) topictype topictype-constraint))))
@@ -300,7 +308,7 @@
 			 (concatenate 'string "\"cardMax\":" (getf (first constraint-lists) :card-max))))
 		    (setf cleaned-roleplayer-constraints
 			  (concatenate 'string cleaned-roleplayer-constraints
-				       "{" json-players "," json-role "," card-min "," card-max "},")))))
+				       "{" json-player-type "," json-players "," json-role "," card-min "," card-max "},")))))
 	  (if (string= cleaned-roleplayer-constraints "[")
 	      (setf cleaned-roleplayer-constraints "null")
 	      (setf cleaned-roleplayer-constraints 

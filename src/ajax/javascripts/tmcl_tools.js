@@ -152,12 +152,6 @@ function checkCardinalitiesARC_RPC(associationRoleConstraint, rolePlayerConstrai
 
     if(rpMax !== "*" && rpMax < arMin) throw "Not enough players available for roletype \"" + type + "\" (rpMax=" + rpMax + ", arMin=" + arMin + ")";
     if(arMax !== "*" && rpMin > arMax) throw "Too much players for the roletype \"" + type + "\" (rpMin=" + rpMin + ", arMax=" + arMax + ")";
-    /*
-    if(rpMin < arMin) throw "sum of card-min(=" + rpMin + ") of all roleplayer-constraints < card-min(=" + arMin + ") of associationrole-constraint for the role \"" + type + "\"! not enough players";
-    if(arMax !== "*" && (rpMax === "*" || rpMax > arMax)) throw "sum of card-max(=" + rpMax + ") of all roleplayer-constraints > card-max(=" + arMax + ") of associationrole-constraint for the role \"" + type + "\"! too much players"
-    if(arMax !== "*" && rpMin > arMax) throw "sum of card-min(=" + rpMin + ") of all roleplayer-constraints > card-max(=" + arMax + ") of associationrole-constraint for the role \"" + type + "\"! too much players";
-    if(rpMax !== "*" && rpMax < arMin) throw "sum of card-max(=" + rpMax + ") of all roleplayer-constraints > card-min(=" + arMin + ") of associationrole-constraint for the role \"" + type + "\"! not enough players";
-    */
 }
 
 
@@ -199,4 +193,51 @@ function cleanPlayers(allPlayers, playersToClean){
 	if(toDel === false) cleanedPlayers.push(allPlayers[i]);
     }
     return cleanedPlayers;
+}
+
+
+// --- Ads the new created topic as a player to all association constraints
+// --- where the player-type is one of the topic's instanceOf-topics.
+function addTopicAsPlayer(associationsConstraints, topicInstanceOfs){
+    if(!associationsConstraints || associationsConstraints.length === 0 || !topicInstanceOfs || topicInstanceOfs.length === 0) return;
+    var instanceOfsPsis = topicInstanceOfs.flatten();
+    for(var i = 0; i !== associationsConstraints.length; ++i){
+	// --- associationrole-constraints
+	if(associationsConstraints[i].rolePlayerConstraints){
+	    rpcs = associationsConstraints[i].rolePlayerConstraints;
+	    for(var j = 0; j !== rpcs.length; ++j){
+		for(var k = 0; k !== rpcs[j].playerType.length; ++k){
+		    for(var l = 0; l !== rpcs[j].playerType[k].length; ++l){
+			if(instanceOfsPsis.indexOf(rpcs[j].playerType[k][l]) !== -1){
+			    rpcs[j].players.push(new Array(CURRENT_TOPIC));
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+
+	// --- otherrole-constraints
+	if(associationsConstraints[i].otherRoleConstraints){
+	    orcs = associationsConstraints[i].otherRoleConstraints;
+	    for(var j = 0; j !== orcs.length; ++j){
+		for(var k = 0; k !== orcs[j].playerType.length; ++k){
+		    for(var l = 0; l !== orcs[j].playerType[k].length; ++l){
+			if(instanceOfsPsis.indexOf(orcs[j].playerType[k][l]) !== -1){
+			    orcs[j].players.push(new Array(CURRENT_TOPIC));
+			    break;
+			}
+		    }
+		}
+		for(var k = 0; k !== orcs[j].otherPlayerType.length; ++k){
+		    for(var l = 0; l !== orcs[j].otherPlayerType[k].length; ++l){
+			if(instanceOfsPsis.indexOf(orcs[j].otherPlayerType[k][l]) !== -1){
+			    orcs[j].otherPlayers.push(new Array(CURRENT_TOPIC));
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+    }
 }
