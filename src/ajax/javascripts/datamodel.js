@@ -1427,6 +1427,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__arContainer__ = new Object();
                                                    this.__orContainer__ = new Object();
                                                    this.__otherRoleConstraints__ = otherRoleConstraints;
+                                                   this.__rolePlayerConstraints__ = rolePlayerConstraints;
                                                    try{
 						       if((!contents || contents.length === 0) && associationRoleConstraints){
 							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
@@ -1498,8 +1499,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   cleanedPlayers = currentPlayers.concat(cleanedPlayers);
 							   var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__);
 							   this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
-							   this.__setARCAddHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
-							   this.__setARCRemoveHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
 							   this.__error__.insert({"before" : role.getFrame()});
 							   // --- removes the new role's selected item from all other existing roles
 							   for(var j = 0; j !== currentRoles.length; ++j){
@@ -1536,8 +1535,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__);
 							       currentRoles.push(role);
 							       this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
-							       this.__setARCAddHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
-							       this.__setARCRemoveHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
 							       this.__error__.insert({"before" : role.getFrame()});
 							       ++rolesCreated;
 							       ++currentlyCreated;
@@ -1546,8 +1543,10 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       if(currentlyCreated === 0) throw "Not enough players to create all needed roles of the type \"" + roleType.flatten()[0] + "\"!";
 						   };
 						   this.__checkARCButtons__(currentRoles, allAvailablePlayers, associationRoleConstraint);
-						   for(var i = 0; i !== currentRoles.length; ++i)
+						   for(var i = 0; i !== currentRoles.length; ++i){
 						       this.__setARCAddHandler__(currentRoles[i], allAvailablePlayers, associationRoleConstraint);
+						       this.__setARCRemoveHandler__(currentRoles[i], associationRoleConstraint);
+						   }
 					       },
 					       "__makeRolesFromORC__" : function(roleType, player){
 						   var orpcs = getOtherRoleConstraintsForRole(new Array(roleType), new Array(player), this.__otherRoleConstraints__);
@@ -1728,7 +1727,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 
 						   var roleContainer = this;
 						   function addHandler(myself){
-						       try{
 						       var roleType = associationRoleConstraint.roleType.flatten();
 						       var rolesToCheck = new Array();
 						       for(var i = 0; i !== roleContainer.__arContainer__.__frames__.length; ++i){
@@ -1743,28 +1741,32 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   for(var i = 0; i !== rolesToCheck.length; ++i) usedPlayers.push(rolesToCheck[i].getPlayer());
 							   var cleanedPlayers = cleanPlayers(players ? players : new Array(), usedPlayers);
 							   var role = new RoleC(null, roleType, cleanedPlayers, roleContainer.__arContainer__);
+							   var foundRpcs = getRolePlayerConstraintsForRole(roleType, roleContainer.__rolePlayerConstraints__);
+							   alert("frpcs: " + foundRpcs.length);
+							   roleContainer.__setRoleChangePlayerHandler__(role, roleContainer.__arContainer__.__frames__, foundRpcs, null);
+							   roleContainer.__setARCAddHandler__(role, players, associationRoleConstraint);
+							   roleContainer.__setARCRemoveHandler__(role, associationRoleConstraint);
+							   roleContainer.__error__.insert({"before" : role.getFrame()});
 
-//----------------->
-							   /*this.__setRoleChangePlayerHandler__(role, roleContainer.__arContainer__.__frames__, rolePlayerConstraints, null);
-							   this.__setARCAddHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);
-							   this.__setARCRemoveHandler__(role, associationRoleConstraint, rolePlayerConstraints[i]);*/
+							   // --- removes the new role's selected item from all other existing roles
+							   for(var j = 0; j !== rolesToCheck.length; ++j){
+							       rolesToCheck[j].removePlayer(new Array(role.getPlayer()));
+							   }							   
 							   roleContainer.__arContainer__.__frames__[roleContainer.__arContainer__.__frames__.length - 2].getFrame().insert({"after" : role.getFrame()});
 							   rolesToCheck.push(role);
-// TODO: otherrole-constraints 1/3
 						       }
 
 						       roleContainer.__checkARCButtons__(rolesToCheck, players, associationRoleConstraint);
-						       }catch(err){ alert("err: " + err); }
 						   }
 
 						   role.setAddHandler(addHandler);
 					       },
-					       "__setARCRemoveHandler__" : function(role, arConstraint, rpConstraint){
-						   if(!role || !arConstraint || !rpConstraint) return;
+					       "__setARCRemoveHandler__" : function(role, associationRoleConstraint){
+						   if(!role || !associationRoleConstraint) return;
 
 						   function removeHandler(myself){
 						       alert("myself: " + myself + "!!!");
-// TODO: otherrole-constraints 2/3
+
 						   }
 
 						   role.setRemoveHandler(removeHandler);
