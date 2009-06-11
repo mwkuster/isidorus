@@ -1426,6 +1426,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
                                                    this.__arContainer__ = new Object();
                                                    this.__orContainer__ = new Object();
+                                                   this.__otherRoleConstraints__ = otherRoleConstraints;
                                                    try{
 						       if((!contents || contents.length === 0) && associationRoleConstraints){
 							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
@@ -1826,7 +1827,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       }
 							   }
 							   existingRoles = existingRoles.without(role);
-							   
+
 							   // --- removes and adds the new selected psi-value
 							   // --- and the old deselected psi if the player is another one
 							   if(playerToRemove.indexOf(role.getLastPlayer()) === -1){
@@ -1835,10 +1836,46 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								   existingRoles[i].removePlayer(playerToRemove);
 							       }
 							   }
-// TODO: otherrole-constraints 3/3
+
+							   // --- chekcs roles created from otherrole-contraints
+							   myself.__checkORCRoles__(role);
 						       });
 						   }
 						   setEvent(this);
+					       },
+					       "__checkORCRoles__" : function(changedRole){
+						   // --- removes all roles created from otherrole-constraints, which
+						   // --- currently must not exist
+						   var toRemove = new Array();
+						   for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i){
+						       var oRole = this.__orContainer__.__frames__[i];
+						       var orcs = new Array(); // found orcs for the existing orc-roles
+						       var checkedOrcs = new Array();
+						       for(var j = 0; this.__otherRoleConstraints__ && j !== this.__otherRoleConstraints__.length; ++j){
+							   var orc = this.__otherRoleConstraints__[j];
+							   if(orc.otherRoleType.flatten().indexOf(oRole.getType()) !== -1 && orc.otherPlayers.flatten().indexOf(oRole.getPlayer()) !== -1) orcs.push(orc);
+						       }
+						       
+						       for(var j = 0; j !== orcs.length; ++j){
+							   for(var k = 0; this.__arContainer__.__frames__ && k !== this.__arContainer__.__frames__.length; ++k){
+							       var aRole = this.__arContainer__.__frames__[k];
+							       if(orcs[j].roleType.flatten().indexOf(aRole.getType()) !== -1 && orcs[j].players.flatten().indexOf(aRole.getPlayer()) !== -1){
+								   checkedOrcs.push(orcs[j]);
+								   break;
+							       }
+							   }
+						       }
+						       
+						       // --- no otherrole-constraints exist for this roles, so they have to be removed
+						       if(checkedOrcs.length === 0) toRemove.push(oRole);
+						   }
+						   for(var i = 0; i !== toRemove.length; ++i){
+						       this.__orContainer__.__frames__ = this.__orContainer__.__frames__.without(toRemove[i]);
+						       toRemove[i].remove();
+						   }
+						   
+						   // --- creates new roles from other role-constraints, which has to exist or are optional
+						   this.__makeRolesFromORC__(changedRole.getType(), changedRole.getPlayer());
 					       },
 					       "getContent" : function(){
 						   if((!this.__orContainer__.__frames__ && this.__orContainer__.frames__.length === 0) || (!this.__arContainer__.__frames__ && this.__arContainer__.__frames__.length === 0)) return null;
