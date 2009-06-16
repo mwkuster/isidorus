@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
-  <!-- test: defines some scopse constraints for associations of the type "born-in" -->
+  <!-- test: defines some scopes constraints for associations of the type "born-in" -->
   <tm:topic id="scoped-born-in-constraint-1">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-born-in-constraint-1"/>
     <tm:instanceOf><tm:topicRef href="#associationtypescope-constraint"/></tm:instanceOf>
@@ -1301,7 +1301,7 @@
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#regexp"/></tm:type>

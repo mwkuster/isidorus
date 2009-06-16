@@ -72,6 +72,9 @@ var CLASSES = {"__divPage__" : "page",
 	       "__divRoleContainer__" : "roleContainer",
 	       "__divRoleFrame__" : "roleFrame",
 	       "__divPlayerFrame__" : "playerFrame",
+	       "__spanDeselect__" : "deselect",
+	       "__divFog__" : "fog",
+	       "__inputCommitButton__" : "commitButton",
 
 	       "page" : function(){ return this.__divPage__; },
 	       "subPage" : function(){ return this.__divSubPage__; },
@@ -108,5 +111,8 @@ var CLASSES = {"__divPage__" : "page",
 	       "associationFrame" : function(){ return this.__divAssociationFrame__; },
 	       "roleContainer" : function(){ return this.__divRoleContainer__; },
 	       "roleFrame" : function(){ return this.__divRoleFrame__; },
-	       "playerFrame" : function(){ return this.__divPlayerFrame__; }
+	       "playerFrame" : function(){ return this.__divPlayerFrame__; },
+	       "deselect" : function(){ return this.__spanDeselect__; },
+	       "fog" : function(){ return this.__divFog__; },
+	       "commitButton" : function(){ return this.__inputCommitButton__; }
 	      };

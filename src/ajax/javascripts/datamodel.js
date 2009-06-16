@@ -30,6 +30,7 @@ var FrameC = Class.create({"initialize" : function(content, owner, min, max){
                                this.__frame__.insert({"bottom" : this.__content__});
                                this.__frame__.insert({"bottom" : this.__add__});
                                this.__frame__.insert({"bottom" : this.__error__});
+                               this.__disabled__ = false;
 
                                setRemoveAddHandler(this, owner, min, max, function(){
 				   return new FrameC("", owner, min, max);
@@ -74,30 +75,45 @@ var FrameC = Class.create({"initialize" : function(content, owner, min, max){
 			   },
 			   "append" : function(elem){
 			       return this.getFrame().insert({"after" : elem});
+			   },
+			   "isUsed" : function(){
+			       return !this.__disabled__;
 			   }});
 
 
 // --- This class represents a textrow with the functionality of FrameC plus the method isValid
 // --- which returns a boolean value depending on the instance's value and the given regular expression.
-var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, regexp, owner, min, max, cssTitle){
+var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, regexp, owner, min, max, cssTitle, dblClickHandler){
                                          $super(content, owner, min, max);
                                          owner.__frames__.pop();
                                          owner.__frames__.push(this);
+                                         this.__owner__ = owner;
+                                         this.__min__ = min;
+                                         this.__max__ = max;
 
                                          this.__regexp__ = new RegExp(regexp);
                                          this.__frame__.writeAttribute({"class" : CLASSES.textrowWithRemoveButton()});
                                          this.__content__.remove();
                                          this.__content__ = new Element("input", {"type" : "text", "value" : content});
+                                         this.__dblClickHandler__ = dblClickHandler;
                                          if(cssTitle && cssTitle.length){
 					     this.__content__.writeAttribute({"title" : cssTitle});
 					 }
                                          this.__remove__.insert({"after" : this.__content__});
 
                                          checkRemoveAddButtons(owner, min, max);
+                                         var myself = this;
                                          setRemoveAddHandler(this, owner, min, max, function(){
-					     return new TextrowC("", regexp, owner, min, max, cssTitle);
+					     return new TextrowC("", regexp, owner, min, max, cssTitle, dblClickHandler);
+					 });
+    
+                                         this.getFrame().observe("dblclick", function(event){
+					     dblClickHandler(owner, event);
 					 });
                                       },
+				     "dblClick" : function(){
+					 if(this.__dblClickHandler__) this.__dblClickHandler__(this.__owner__);
+				     },
 				     "getContent" : function(){
 					 return this.__content__.value;
 				     },
@@ -111,6 +127,17 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
 				     "hideRemoveButton" : function(){
 					 this.__remove__.hide();
 					 this.getFrame().writeAttribute({"class" : CLASSES.textrowWithoutRemoveButton()});
+				     },
+				     "disable" : function(){
+					 this.__content__.writeAttribute({"readonly" : "readonly"});
+					 this.hideRemoveButton();
+					 this.hideAddButton();
+					 this.__disabled__ = true;
+				     },
+				     "enable" : function(){
+					 this.__content__.removeAttribute("readonly");
+					 checkRemoveAddButtons(this.__owner__, this.__min__, this.__max__);
+					 this.__disabled__ = false;
 				     }});
 
 
@@ -145,8 +172,16 @@ var SelectrowC = Class.create(FrameC, {"initialize" : function($super, contents,
 				       "hideRemoveButton" : function(){
 					   this.__remove__.hide();
 					   this.getFrame().writeAttribute({"class" : CLASSES.selectrowWithoutRemoveButton()});
+				       },
+				       "disable" : function(){
+					   this.__content__.writeAttribute({"disabled" : "disables"});
+					   this.__disabled__ = true;
+				       },
+				       "enable" : function(){
+					   this.__content__.removeAttribute("disabled");
+					   this.__disabled__ = false;
 				       }});
-
+			      
 
 // --- The base Class for alomost all frames which contains other frames like names, occurrences, ...
 var ContainerC = Class.create({"initialize" : function(){
@@ -154,6 +189,7 @@ var ContainerC = Class.create({"initialize" : function(){
                                    this.__error__ = new Element("div", {"class" : CLASSES.error()});
                                    this.__error__.hide();
                                    this.__frame__.insert({"bottom" : this.__error__});
+                                   this.__disabled__ = false;
                                },
 			       "hide" : function(){
 				   this.__frame__.hide();
@@ -194,6 +230,9 @@ var ContainerC = Class.create({"initialize" : function(){
 			       },
 			       "hideAddButton" : function(){
 				   try{ this.__add__.hide(); } catch(err) {}
+			       },
+			       "isUsed" : function(){
+				   return !this.__disabled__;
 			       }});
 
 
@@ -242,8 +281,7 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
 							    }
 							    myself.showError(str);
 							}
-							else {
-							    //successFun(contents, json);							    
+							else {						    
 							    successFun(myself.getContent(true, true), json);
 							}
 						    }
@@ -268,9 +306,8 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
 					    }});
 
 
-
 // --- Representation of a itemIdentity frame.
-var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, contents){
+var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, contents, parent){
                                                   $super();
                                                   this.__frame__.writeAttribute({"class" : CLASSES.itemIdentityFrame()});
                                                   this.__container__ = new Object();
@@ -286,6 +323,25 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 						      new TextrowC("", ".*", this.__container__, 1, -1, null);
                                               	      this.__error__.insert({"before" : this.__container__.__frames__[i].getFrame()});
                                                   }
+                                                  finally {
+						      function setDeactivateHandler(myself){
+							  myself.__frame__.observe("dblclick", function(event){
+							      if(myself.__container__.__frames__.length === 1){
+								  if(myself.isUsed() === true){
+								      myself.disable();
+								      Event.stop(event);
+								  }
+								  else {
+								      myself.enable();
+								      if(parent.isUsed() === true) Event.stop(event);
+								  }
+							      }
+							  });
+						      }
+						      setDeactivateHandler(this);
+
+						      if(!contents || contents.length === 0) this.disable();
+						  }
                                               },
 					      "getContent" : function(unique, removeNull){
 						  var values = new Array();
@@ -299,7 +355,24 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 					      "toJSON" : function(unique, removeNull){
 						  var content = this.getContent(unique, removeNull);
 						  return content.length === 0 ? "null" : content.toJSON();
+					      },
+					      "disable" : function(){
+						  if(this.__container__.__frames__){
+						      for(var i = 0; i !== this.__container__.__frames__.length; ++i){
+							  this.__container__.__frames__[i].disable();
+						      }
+						  }
+						  this.__disabled__ = true;
+					      },
+					      "enable" : function(){
+						  if(this.__container__.__frames__){
+						      for(var i = 0; i !== this.__container__.__frames__.length; ++i){
+							  this.__container__.__frames__[i].enable();
+						      }
+						  }
+						  this.__disabled__ = false;
 					      }});
+
 
 
 // --- Representation of a subjectLocator and subjectIdentifier frames.
@@ -317,8 +390,12 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							    if(max !== 0){
 								var cssTitle = "min: " + min + "   max: " + max + "   regular expression: " + constraints[i].regexp;
 								for(var j = 0; j != (min === 0 ? 1 : min); ++j){
+
+								    var dblClickHandler = null;
+								    if(min === 0) dblClickHandler = dblClickHandlerF;
 								    var row = new TextrowC("", constraints[i].regexp, this.__containers__[i],
-											   min === 0 ? 1 : min, max === "*" ? -1 : max, cssTitle);
+											   min === 0 ? 1 : min, max === "*" ? -1 : max, cssTitle, dblClickHandler);
+								    row.dblClick();
 								    this.__error__.insert({"before" : row.getFrame()});
 								}
 							    }
@@ -384,6 +461,8 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					   if(!contents || contents.length < min) throw "From ScopeC.resetRows(): contents.length (" +
 					       (contents ? contents.length : "null") + ") must be > min (" + min + ")!";
 					   if(max !== -1 && min > max)throw "From FrameC(): min must be > max(" + max + ") and > 0 but is " + min;
+					   this.__min__ = min;
+					   this.__max__ = max;
 
 					   // --- creates an empty div element
 					   if(max === 0){
@@ -555,7 +634,7 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					   }
 				       },
 				       "isUsed" : function(){
-					   return this.getContent(true, true).length !== 0;
+					   return this.getContent(true, true).length !== 0 && !this.__disabled__;
 				       },
 				       "getContent" : function(unique, removeNull){
 					   var values = new Array();
@@ -572,6 +651,26 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					       return new Array();
 					   }
 					   return values;
+				       },
+				       "disable" : function(){
+					   var rows = this.getFrame().select("div");
+					   for(var i = 0; i != rows.length; ++i){
+					       rows[i].select("select")[0].disable();
+					       var buttons = rows[i].select("span." + CLASSES.clickable());
+					       buttons[0].hide();
+					       buttons[1].hide();
+					   }
+					   this.__disabled__ = true;
+				       },
+				       "enable" : function(){
+					   var rows = this.getFrame().select("div");
+					   for(var i = 0; i != rows.length; ++i){
+					       rows[i].select("select")[0].enable();
+					       var buttons = rows[i].select("span." + CLASSES.clickable());
+					       if(this.__min__ < rows.length && rows.length !== 1) buttons[0].show();
+					       if(this.__max__ === -1 || this.__max__ > rows.length) buttons[1].show();
+					   }
+					   this.__disabled__ = false;
 				       }});
 
 
@@ -616,6 +715,7 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 						    }  
 						},
 						"isUsed" : function(){
+						    if(this.__disabled__ === true) return false;
 						    for(var i = 0; i != this.__container__.length; ++i){
 							if(this.__container__[i].isUsed() === true) return true;
 						    }
@@ -645,26 +745,37 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 						"toJSON" : function(){
 						    if(this.getContent().length === 0) return "null";
 						    return this.getContent().toJSON();
+						},
+						"disable" : function(){
+						    for(var i = 0; i !== this.__container__.length; ++i) this.__container__[i].disable();
+						    this.__disabled__ = true;
+						},
+						"enable" : function(){
+						    for(var i = 0; i !== this.__container__.length; ++i) this.__container__[i].enable();
+						    this.__disabled__ = false;
 						}});
 
 
 // --- Representation of a variant element
-var VariantC = Class.create(ContainerC, {"initialize" : function($super, contents, owner){
+var VariantC = Class.create(ContainerC, {"initialize" : function($super, contents, owner, dblClickHandler, parent){
                                              $super();
                                              if(!owner.__frames__) owner.__frames__ = new Array();
                                              owner.__frames__.push(this);
                                              this.__frame__.writeAttribute({"class" : CLASSES.variantFrame()});
                                              this.__table__ = new Element("table", {"class" : CLASSES.variantFrame()});
                                              this.__frame__.insert({"top" : this.__table__});
+                                             this.__owner__ = owner;
+					     this.__owner__ = owner;
+					     this.__dblClickHandler__ = dblClickHandler;
     
                                              try{
 						 // --- control row + itemIdentity
 						 makeControlRow(this, 4, contents ? contents.itemIdentities : null);
 						 checkRemoveAddButtons(owner, 1, -1);
 						 setRemoveAddHandler(this, owner, 1, -1, function(){
-						     return new VariantC(null, owner);
+						     return new VariantC(null, owner, dblClickHandler, parent);
 						 });
-						 
+						 						 
 						 // --- scopes
 						 this.__scopes__ = null;
 						 //TODO: implement -> also in the server
@@ -673,8 +784,10 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 						 // --- resource value and datatype
 						 makeResource(this, contents, null, null, null);
 						 
-						 // --- minimize
-						 this.minimize();
+						 this.getFrame().observe("dblclick", function(event){
+						     dblClickHandler(owner, event);
+						     if(parent.isUsed() === true)Event.stop(event);
+						 });
 					     }
                                              catch(err){
 						 alert("From VariantC(): " + err);
@@ -724,20 +837,29 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 					     return this.__value__.value.strip() !== "";
 					 },
 					 "isUsed" : function(){
-					     return (this.__itemIdentity__.getContent(true, true).length !== 0 || 
-						     this.__value__.value.strip() !== "" || this.__datatype__.__frames__[0].getContent().strip() !== "");
+					     return !this.__disabled__;
 					 },
-					 "showRemoveButton" : function(){
-					     this.__remove__.show();
+					 "disable" : function(){
+					     this.__itemIdentity__.disable();
+					     // TODO: scope
+					     this.__value__.writeAttribute({"readonly" : "readonly"});
+					     this.__datatype__.__frames__[0].disable();
+					     this.hideRemoveButton();
+					     this.hideAddButton();
+					     this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
+					     this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+					     this.__disabled__ = true;
 					 },
-					 "hideRemoveButton" : function(){
-					     this.__remove__.hide();
-					 },
-					 "showAddButton" : function(){
-					     this.__add__.show();
-					 },
-					 "hideAddButton" : function(){
-					     this.__add__.hide();
+					 "enable" : function(){
+					     this.__itemIdentity__.enable();
+					     // TODO: scope
+					     this.__value__.removeAttribute("readonly");
+					     this.__datatype__.__frames__[0].enable();
+					     if(this.__owner__.__frames__.length > 1) this.showRemoveButton();
+					     this.showAddButton();
+					     this.getFrame().setStyle({"backgroundColor" : "inherit"});
+					     this.getFrame().setStyle({"border" : "none"});
+					     this.__disabled__ = false;
 					 },
 					 "minimize" : function(){
 					     var trs = this.__table__.select("tr");
@@ -749,20 +871,22 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 
 
 // --- contains all variants of a name element
-var VariantContainerC = Class.create(ContainerC, {"initialize" : function($super, contents){
+var VariantContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, parent){
                                                       $super();
                                                       this.__frame__.writeAttribute({"class" : CLASSES.variantContainer()});
                                                       this.__container__ = new Object();
 
                                                       if(contents && contents.length != 0){
 							  for(var i = 0; i != contents.length; ++i){
-							      var variant = new VariantC(contents[i], this.__container__);
+							      var variant = new VariantC(contents[i], this.__container__, dblClickHandlerF, parent);
 							      this.__frame__.insert({"bottom" : variant.getFrame()});
+							      variant.minimize();
 							  }
 						      }
                                                       else {
-							  var variant = new VariantC(null, this.__container__);
+							  var variant = new VariantC(null, this.__container__, dblClickHandlerF, parent);
 							  this.__frame__.insert({"bottom" : variant.getFrame()});
+							  variant.minimize();
 						      }
                                                   },
 						  "getContent" : function(){
@@ -793,11 +917,28 @@ var VariantContainerC = Class.create(ContainerC, {"initialize" : function($super
 						      }
 						      str += "]";
 						      return str === "[]" ? null : str;
+						  },
+						  "isUsed" : function(){
+						      return !this.__disabled__;
+						  },
+						  "disable" : function(){
+						      if(this.__container__.__frames__){
+							  for(var i = 0; i !== this.__container__.__frames__.length; ++i)
+							      this.__container__.__frames__[i].disable();
+						      }
+						      this.__disabled__ = true;
+						  },
+						  "enable" : function(){
+						      if(this.__container__.__frames__){
+							  for(var i = 0; i !== this.__container__.__frames__.length; ++i)
+							      this.__container__.__frames__[i].enable();
+						      }
+						      this.__disabled__ = false;
 						  }});
 
 
 // --- representation of a name element
-var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, nametypescopes, simpleConstraint, owner, min, max, cssTitle){
+var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, nametypescopes, simpleConstraint, owner, min, max, cssTitle, dblClickHandler){
                                           $super();
                                           if(!owner) throw "From NameC(): owner must be set but is null";
                                           if(max !== -1 && (min > max || max === 0))throw "From FrameC(): min must be > max(" + max + ") and > 0 but is " + min;
@@ -807,13 +948,16 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
                                           this.__frame__.writeAttribute({"class" : CLASSES.nameFrame()});
                                           this.__table__ = new Element("table", {"class" : CLASSES.nameFrame()});
                                           this.__frame__.insert({"top" : this.__table__});
+                                          this.__max__ = max;
+                                          this.__owner__ = owner;
+                                          this.__dblClickHandler__ = dblClickHandler;
     
                                           try{
 					      // --- control row + ItemIdentity
 					      makeControlRow(this, 5, contents ? contents.itemIdentities : null);
 					      checkRemoveAddButtons(owner, min, max);
 					      setRemoveAddHandler(this, owner, min, max, function(){
-						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, cssTitle);
+						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, cssTitle, dblClickHandler);
 					      });
 					      
 					      // --- type
@@ -842,11 +986,12 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      var _min = parseInt(simpleConstraint.cardMin);
 					      var _max = simpleConstraint.cardMax !== "MAX_INT" ? parseInt(simpleConstraint.cardMax) : "*";
 					      var cssTitleV = "min: " + _min + "   max: " + _max + "   regular expression: " + (simpleConstraint ? simpleConstraint.regexp : ".*");
+					      this.__cssTitle__ = cssTitle;
 					      new TextrowC((contents ? contents.value : ""), (simpleConstraint ? simpleConstraint.regexp : ".*"), this.__value__, 1, 1, cssTitleV);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.valueFrame(), "Value", this.__value__.__frames__[0].getFrame())});
 					      
 					      // --- variants
-					      this.__variants__ = new VariantContainerC(contents? contents.variants : null);
+					      this.__variants__ = new VariantContainerC(contents? contents.variants : null, this);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.variantContainer(), "Variants", this.__variants__.getFrame())});
 					      
 					      // --- adds a second show handler, so the variants will be hidden, when the entire
@@ -862,6 +1007,10 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      }
 					      
 					      addSecondShowHandler(this);
+
+					      this.getFrame().observe("dblclick", function(event){
+						  dblClickHandler(owner, event);
+					      });
                                           }
                                           catch(err){
                                       	      alert("From NameC(): " + err);
@@ -882,11 +1031,6 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      ",\"value\":" + this.__value__.__frames__[0].toJSON() +
 					      ",\"variants\":" + this.__variants__.toJSON() + "}";
 				      },
-				      "isUsed" : function(){
-					  return this.__itemIdentity__.getContent(true, true).length !== 0 ||
-					      this.__value__.__frames__[0].getContent().strip().length !== 0 ||
-					      this.__variants__.getContent().length !== 0;
-				      },
 				      "isValid" : function(){
 					  // TODO: check the content and the constraints + variants.isValid()
 					  return true;
@@ -897,6 +1041,30 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      if(i === 0) trs[i].show();
 					      else trs[i].hide();
 					  }
+				      },
+				      "disable" : function(){
+					  this.__itemIdentity__.disable();
+					  this.__type__.__frames__[0].disable();
+					  this.__scope__.disable();
+					  this.__value__.__frames__[0].disable();
+					  this.__variants__.disable();
+					  this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
+					  this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+					  this.getFrame().writeAttribute({"title" : this.__cssTitle__});
+					  this.hideAddButton();
+					  this.__disabled__ = true;
+				      },
+				      "enable" : function(){
+					  this.__itemIdentity__.enable();
+					  this.__type__.__frames__[0].enable();
+					  this.__scope__.enable();
+					  this.__value__.__frames__[0].enable();
+					  this.__variants__.enable();
+					  this.getFrame().setStyle({"backgroundColor" : "inherit"});
+					  this.getFrame().setStyle({"border" : "none"});
+					  this.getFrame().removeAttribute("title");
+					  checkRemoveAddButtons(this.__owner__, 1, this.__max__);
+					  this.__disabled__ = false;
 				      }});
 
 
@@ -917,9 +1085,13 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								   var max = constraints[i].constraints[j].cardMax !== "MAX_INT" ? parseInt(constraints[i].constraints[j].cardMax) : "*";
 								   var regexp = constraints[i].constraints[j].regexp;
 								   if(max !== 0){
+								       var dblClickHandler = null;
+								       if(min === 0) dblClickHandler = dblClickHandlerF;
+
 								       var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
 								       var name = new NameC("", constraints[i].nametypescopes, constraints[i].constraints[j],
-											    this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title);
+											    this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
+								       if(min === 0)name.disable();
 								       this.__error__.insert({"before" : name.getFrame()});
 								       if(min === 0)name.minimize();
 								   }
@@ -979,20 +1151,23 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 
 
 // --- represenation of an occurrence element
-var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, contents, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle){
+var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, contents, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle, dblClickHandler){
                                                 $super();
                                                 if(!owner.__frames__) owner.__frames__ = new Array();
                                                 owner.__frames__.push(this);
                                                 this.__frame__.writeAttribute({"class" : CLASSES.occurrenceFrame()});
                                                 this.__table__ = new Element("table", {"class" : CLASSES.occurrenceFrame()});
                                                 this.__frame__.insert({"top" : this.__table__});
+                                                this.__max__ = max;
+                                                this.__owner__ = owner;
+                                                this.__dblClickHandler__ = dblClickHandler;
 
                                                 try{
 						    // --- control row + itemIdentity
 						    makeControlRow(this, 5, contents ? contents.itemIdentities : null);
 						    checkRemoveAddButtons(owner, 1, max);
 						    setRemoveAddHandler(this, owner, 1, max, function(){
-							return new OccurrenceC(null, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle);
+							return new OccurrenceC(null, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle, dblClickHandler);
 						    });
 
 						    // --- type
@@ -1014,13 +1189,18 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    // --- scopes
 						    this.__scope__ = new ScopeContainerC(contents && contents.scopes ? contents.scopes : null, occurrenceTypes && occurrenceTypes[0].scopeConstraints ? occurrenceTypes[0].scopeConstraints : null);
 						    this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
-						    onTypeChangeScope(this, contents.scopes, occurrenceTypes, "occurrence");
+						    onTypeChangeScope(this, contents && contents.scopes ? contents.scopes : null, occurrenceTypes, "occurrence");
 
 						    // --- resource value and datatype
 						    var _min = parseInt(constraint.cardMin);
 						    var _max = constraint.cardMax !== "MAX_INT" ? parseInt(constraint.cardMax) : "*";
 						    var cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
+						    this.__cssTitle__ = cssTitle;
 						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle);
+
+						    this.getFrame().observe("dblclick", function(event){
+							dblClickHandler(owner, event);
+						    });
 						}
                                                 catch(err){
 						    alert("From OccurrenceC(): " + err);
@@ -1068,10 +1248,6 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    return "null";
 						}
 					    },
-					    "isUsed" : function(){
-						return this.__itemIdentity__.getContent(true, true).length !== 0 ||
-						    this.__value__.value.strip().length !== 0;
-					    },
 					    "isValid" : function(){
 						// TODO: check the content and the constraints
 						return true;
@@ -1082,6 +1258,30 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    if(i === 0) trs[i].show();
 						    else trs[i].hide();
 						}
+					    },
+					    "disable" : function(){
+						this.__itemIdentity__.disable();
+						this.__type__.__frames__[0].disable();
+						this.__scope__.disable();
+						this.__value__.writeAttribute({"readonly" : "readonly"});
+						this.__datatype__.__frames__[0].disable();
+						this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
+						this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+						this.getFrame().writeAttribute({"title" : this.__cssTitle__});
+						this.hideAddButton();
+						this.__disabled__ = true;
+					    },
+					    "enable" : function(){
+						this.__itemIdentity__.enable();
+						this.__type__.__frames__[0].enable();
+						this.__scope__.enable();
+						this.__value__.removeAttribute("readonly");
+						this.__datatype__.__frames__[0].enable();
+						this.getFrame().setStyle({"backgroundColor" : "inherit"});
+						this.getFrame().setStyle({"border" : "none"});
+						this.getFrame().removeAttribute("title");
+						checkRemoveAddButtons(this.__owner__, 1, this.__max__);
+						this.__disabled__ = false;
 					    }});
 			       
 
@@ -1101,10 +1301,14 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 									 var max = constraints[i].constraints[j].cardMax !== "MAX_INT" ? parseInt(constraints[i].constraints[j].cardMax) : "*";
 									 var regexp = constraints[i].constraints[j].regexp;
 									 if(max !== 0){
+									     var dblClickHandler = null;
+									     if(min === 0) dblClickHandler = dblClickHandlerF;
+
 									     var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
 									     var occurrence = new OccurrenceC("", constraints[i].occurrenceTypes, constraints[i].constraints[j],
 													      constraints[i].uniqueConstraints, this.__containers__[i][j],
-													      min === 0 ? 1 : min, max === "*" ? -1 : max, title);
+													      min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
+									     if(min === 0) occurrence.disable();
 									     this.__error__.insert({"before" : occurrence.getFrame()});
 									     if(min === 0)occurrence.minimize();
 									 }
@@ -1188,7 +1392,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       this.__table__.insert({"bottom" : newRow(CLASSES.topicIdFrame(), "Topic ID", this.__topicid__.__frames__[0].getFrame())});
 					       
 					       // --- itemIdentity
-					       this.__itemIdentity__ = new ItemIdentityC(content ? content.itemIdentities : null);
+					       this.__itemIdentity__ = new ItemIdentityC(content ? content.itemIdentities : null, this);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.itemIdentityFrame(), "ItemIdentity", this.__itemIdentity__.getFrame())});
 
 					       // --- subjectLocator
@@ -1270,7 +1474,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 
 
 // --- representation of a role element.
-var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdentities, roleTypes, rolePlayers, owner){
+var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdentities, roleTypes, rolePlayers, owner, typeMin, parent){
 				          $super();
 				          if(!owner.__frames__) owner.__frames__ = new Array();
                                           if(!roleTypes || roleTypes.length === 0) throw "From RoleC(): roleTypes must be set!";
@@ -1281,6 +1485,9 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				          this.__frame__.insert({"top" : this.__table__});
                                           this.__roleTypes__ = roleTypes;
                                           this.__rolePlayers__ = rolePlayers;
+                                          this.__owner__ = owner;
+                                          this.__typeMin__ = typeMin;
+                                          this.__parentElem__ = parent;
     
 				          try{
 					      // --- control row + itemIdentity
@@ -1303,6 +1510,28 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					      this.__player__ = new Object();
 					      tr = newRow(CLASSES.playerFrame(), "Player", new SelectrowC(players, this.__player__, 1, 1).getFrame());
 					      this.__table__.insert({"bottom" : tr});
+
+					      function setDblClickHandler(myself){
+						  myself.getFrame().observe("dblclick", function(event){
+						      if(myself.__typeMin__ === 0){
+							  var roles = new Array();
+							  for(var i = 0; i !== owner.__frames__.length; ++i){
+							      if(roleTypes.flatten().indexOf(owner.__frames__[i].getType()) !== -1)
+								  roles.push(owner.__frames__[i]);
+							  }
+							  
+							  if(roles.length === 1 && roles[0].isUsed() === true){
+							      roles[0].disable();
+							  }
+							  else if(roles.length === 1 && roles[0].isUsed() === false){
+							      roles[0].enable();
+							  }
+							  if(parent.isUsed() === true)Event.stop(event);
+						      }
+						  });
+					      }
+					      setDblClickHandler(this);
+					      
 					  }
 				          catch(err){
 					      alert("From RoleC(): " + err);
@@ -1416,18 +1645,35 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					  return this.getType().length !== 0 && this.getPlayer().length !== 0;
 				      },
 				      "isUsed" : function(){
-					  return this.getType().length !== 0 || this.getPlayer().length !== 0 || this.__itemIdentity__.getContent(true, true).length !== 0;
+					  return !this.__disabled__;
+				      },
+				      "disable" : function(){
+					  this.__itemIdentity__.disable();
+					  this.__type__.__frames__[0].disable();
+					  this.__player__.__frames__[0].disable();
+					  this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
+					  this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+					  this.__disabled__ = true;
+				      },
+				      "enable" : function(){
+					  this.__itemIdentity__.enable();
+					  this.__type__.__frames__[0].enable();
+					  this.__player__.__frames__[0].enable();
+					  this.getFrame().setStyle({"backgroundColor" : "inherit"});
+					  this.getFrame().setStyle({"border" : "none"});
+					  this.__disabled__ = false;
 				      }});
 
 
 // --- contains all roles of an association
-var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints){
+var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints, parent){
                                                   $super();
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
                                                    this.__arContainer__ = new Object();
                                                    this.__orContainer__ = new Object();
                                                    this.__otherRoleConstraints__ = otherRoleConstraints;
                                                    this.__rolePlayerConstraints__ = rolePlayerConstraints;
+                                                   this.__parentElem__ = parent;
                                                    try{
 						       if((!contents || contents.length === 0) && associationRoleConstraints){
 							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
@@ -1486,6 +1732,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   var allAvailablePlayers = extractPlayersOfConstraints(rolePlayerConstraints);
 						   var roleType = associationRoleConstraint.roleType;
 						   var roleMin = associationRoleConstraint.cardMin === 0 ? 1 : parseInt(associationRoleConstraint.cardMin);
+						   var roleMinOrg = parseInt(associationRoleConstraint.cardMin);
 						   for(var i = 0; i !== rolePlayerConstraints.length; ++i){
 						       var playerMin = rolePlayerConstraints[i].cardMin === 0 ? 1 : parseInt(rolePlayerConstraints[i].cardMin);
 						       if(rolePlayerConstraints[i].players.length < playerMin) throw "From __makeRolesFromARC__(): not enough players(=" + rolePlayerConstraints[i].players.length + ") to reach card-min(=" + playerMin + ") of roletype\"" + roleType.flatten()[0] + "\"!";
@@ -1497,7 +1744,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   var cleanedPlayers = cleanPlayers(allAvailablePlayers, selectedPlayers);
 							   cleanedPlayers = cleanPlayers(cleanedPlayers, currentPlayers);
 							   cleanedPlayers = currentPlayers.concat(cleanedPlayers);
-							   var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__);
+							   var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__, roleMinOrg, this.__parentElem__);
 							   this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
 							   this.__error__.insert({"before" : role.getFrame()});
 							   // --- removes the new role's selected item from all other existing roles
@@ -1532,7 +1779,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								   this.__arContainer__.__frames__[j].removePlayer(cleanedPlayers[0]);
 							       }
 							       
-							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__);
+							       var role = new RoleC(null, roleType, cleanedPlayers, this.__arContainer__, roleMinOrg, this.__parentElem__);
 							       currentRoles.push(role);
 							       this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rolePlayerConstraints, null);
 							       this.__error__.insert({"before" : role.getFrame()});
@@ -1556,6 +1803,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       var cOtherPlayers = orpcs[i].otherPlayers;
 						       var cOtherRoleType = orpcs[i].otherRoleType;
 						       var cMin = orpcs[i].cardMin === 0 ? 1 : parseInt(orpcs[i].cardMin);
+						       var cMinOrg = parseInt(orpcs[i].cardMin);
 						       if(!cOtherPlayers || cOtherPlayers.length < cMin) throw "from __makeRolesFromORC__(): not enough players(=" + cOtherPlayers.length + ") for roletype + \"" + cOtherRoleType.flatten()[0] + "\"!";
 						       var existingRoles = this.getExistingRoles(cOtherRoleType, cOtherPlayers, this.__orContainer__.__frames__);
 						       for(var j = 0; j < cMin - existingRoles.length; ++j){
@@ -1574,7 +1822,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       this.__orContainer__.__frames__[j].removePlayer(cleanedPlayers[0]);
 							   }
 							   
-							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, this.__orContainer__);
+							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, this.__orContainer__, cMinOrg, this.__parentElem__);
 							   this.__checkORCButtons__(role, orpcs[i]);
 							   this.__setRoleChangePlayerHandler__(role, this.__orContainer__.__frames__, null, orpcs);
 							   this.__setORCAddHandler__(role, orpcs[i], orpcs);
@@ -1641,6 +1889,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       var cOtherRoleType = currentConstraint.otherRoleType;
 						       var cardMax = currentConstraint.cardMax === "MAX_INT" ? "*" : parseInt(currentConstraint.cardMax);
 						       var cardMin = currentConstraint.cardMin === 0 ? 1 : parseInt(currentConstraint.cardMin);
+						       var cardMinOrg = parseInt(currentConstraint.cardMin);;
 						       var existingRoles = roleContainer.getExistingRoles(cOtherRoleType, cOtherPlayers, roleContainer.__orContainer__.__frames__);
 						       var cleanedPlayers = new Array();
 						       for(var i = 0; i !== cOtherPlayers.length; ++i){
@@ -1651,7 +1900,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       
 						       // --- creates new role
 						       if(cleanedPlayers.length !== 0){
-							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, roleContainer.__orContainer__);
+							   var role = new RoleC(null, cOtherRoleType, cleanedPlayers, roleContainer.__orContainer__, cardMinOrg, this.__parentElem__);
 							   roleContainer.__checkORCButtons__(role, currentConstraint);
 							   roleContainer.__setRoleChangePlayerHandler__(role, roleContainer.__orContainer__.__frames__, null, constraints);
 							   roleContainer.__setORCAddHandler__(role, currentConstraint, constraints);
@@ -1736,11 +1985,12 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       
 						       // --- creates a new role
 						       var cardMax = associationRoleConstraint.cardMax === "MAX_INT" ? "*" : parseInt(associationRoleConstraint.cardMax);
+						       var cardMin = parseInt(associationRoleConstraint.cardMin);
                					       if(cardMax === "*" || cardMax > rolesToCheck.length){
 							   var usedPlayers = new Array();
 							   for(var i = 0; i !== rolesToCheck.length; ++i) usedPlayers.push(rolesToCheck[i].getPlayer());
 							   var cleanedPlayers = cleanPlayers(players ? players : new Array(), usedPlayers);
-							   var role = new RoleC(null, roleType, cleanedPlayers, roleContainer.__arContainer__);
+							   var role = new RoleC(null, roleType, cleanedPlayers, roleContainer.__arContainer__, cardMin, this.__parentElem__);
 							   var foundRpcs = getRolePlayerConstraintsForRole(roleType, roleContainer.__rolePlayerConstraints__);
 							   roleContainer.__setRoleChangePlayerHandler__(role, roleContainer.__arContainer__.__frames__, foundRpcs, null);
 							   roleContainer.__setARCAddHandler__(role, players, associationRoleConstraint);
@@ -1934,6 +2184,24 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 						   return roles.substring(0, roles.length - 1) + "]";
 					       },
+					       "disable" : function(){
+						   if(this.__orContainer__.__frames__){
+						       for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i) this.__orContainer__.__frames__[i].disable();
+						   }
+						   if(this.__arContainer__.__frames__){
+						       for(var i = 0; i !== this.__arContainer__.__frames__.length; ++i) this.__arContainer__.__frames__[i].disable();
+						   }
+						   this.__disabled__ = true;
+					       },
+					       "enable" : function(){
+						   if(this.__orContainer__.__frames__){
+						       for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i) this.__orContainer__.__frames__[i].enable();
+						   }
+						   if(this.__arContainer__.__frames__){
+						       for(var i = 0; i !== this.__arContainer__.__frames__.length; ++i) this.__arContainer__.__frames__[i].enable();
+						   }
+						   this.__disable__ = false;
+					       },
 					       "isValid" : function(){
 						   // TODO: implement
 						   return true;
@@ -1952,6 +2220,8 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
                                                  this.__frame__.insert({"top" : this.__table__});
                                                  this.__constraints__ = constraints;
                                                  this.__contents__ = contents;
+                                                 this.__owner__ = owner;
+                                                 this.__dblClickHandler__ = dblClickHandlerF;
 
 					         try{
 						     // --- control row + ItemIdentity
@@ -1989,11 +2259,18 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 							 _otherRoleConstraints = this.__constraints__[0].otherRoleConstraints;
 						     }
 
-						     this.__roles__ = new RoleContainerC(this.__contents__ ? this.__contents__.roles : null, _roleConstraints, _playerConstraints, _otherRoleConstraints);
+						     this.__roles__ = new RoleContainerC(this.__contents__ ? this.__contents__.roles : null, _roleConstraints, _playerConstraints, _otherRoleConstraints, this);
 						     this.__table__.insert({"bottom" : newRow(CLASSES.roleContainer(), "Roles", this.__roles__.getFrame())});
 						     
 						     // --- registers the onChangeHandler of the Type-selectrow
 						     onTypeChangeScope(this, null, null, "association");
+
+						     function setDblClickHandler(myself){
+							 myself.getFrame().observe("dblclick", function(event){
+							     myself.__dblClickHandler__(owner, event);
+							 });
+						     }
+						     setDblClickHandler(this);
 						 }
 					         catch(err){
 						     alert("From AssociationC(): " + err);
@@ -2041,9 +2318,27 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						 // TODO: implement
 						 return true;
 					     },
-					     "isUsed" : function(){
-						 // TODO: implement (activate button)
-						 return true;
+					     "disable" : function(){
+						 this.__itemIdentity__.disable();
+						 this.__roles__.disable();
+						 this.__type__.__frames__[0].disable();
+						 this.__scope__.disable();
+						 this.hideRemoveButton();
+						 this.hideAddButton();
+						 this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
+						 this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+						 this.__disabled__ = true;
+					     },
+					     "enable" : function(){
+						 this.__itemIdentity__.enable();
+						 this.__roles__.enable();
+						 this.__type__.__frames__[0].enable();
+						 this.__scope__.enable();
+						 if(this.__owner__.__frames__.length > 1) this.showRemoveButton();
+						 this.showAddButton();
+						 this.getFrame().setStyle({"backgroundColor" : "inherit"});
+						 this.getFrame().setStyle({"border" : "none"});
+						 this.__disabled__ = false;
 					     }});
 
 
@@ -2084,18 +2379,6 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 								  });
 							      }
 							      setMinimizeHandler(this);
-
-							      var button = new Element("input", {"type" : "button", "value" : "toJSON()"});
-							      function test(myself){
-								  button.observe("click", function(event){
-								      try{
-								      alert("content:\n\n" + myself.getContent());
-								      alert("JSON:\n\n" + myself.toJSON().gsub("\"topicRef\":\\[\"\\*\\*current-topic\\*\\*\"\\]", myself.__mainTopic__.getContent().subjectIdentifiers.toJSON()));
-								      }catch(err){ alert("test: " + err); }
-								  });
-							      }
-							      test(this);
-							      this.getFrame().insert({"bottom" : button});
 							  }
 						          catch(err){
 							      alert("From AssociationContainerC(): " + err);
@@ -2173,15 +2456,17 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 
 
 
-
-
-
-
-
-
-
-
-
+// --- A handler for the dblclick-event. So a frame can be disabled or enabled.
+function dblClickHandlerF(owner, event){
+    if(owner.__frames__.length === 1){
+	if(owner.__frames__[0].isUsed() === true){
+	    owner.__frames__[0].disable();
+	}
+	else {
+	    if(!owner.__frames__[0].__parentElem__ || owner.__frames__[0].__parentElem__.isUsed() === true) owner.__frames__[0].enable();
+	}
+    }
+}
 
 
 // --- helper function to create a dom-fragment of the form
@@ -2202,31 +2487,39 @@ function setRemoveAddHandler(myself, owner, min, max, call){
     myself.__remove__.stopObserving();
     myself.__add__.stopObserving();
     myself.__remove__.observe("click", function(event){
-	myself.remove();
-	owner.__frames__ = owner.__frames__.without(myself);
-	if(min >= owner.__frames__.length){
-	    for(var i = 0; i != owner.__frames__.length; ++i){
-		owner.__frames__[i].hideRemoveButton();
+	var disabled = false;
+	try{ disabled = myself.__disabled__; } catch(err){ };
+	if(disabled === false){
+	    myself.remove();
+	    owner.__frames__ = owner.__frames__.without(myself);
+	    if(min >= owner.__frames__.length){
+		for(var i = 0; i != owner.__frames__.length; ++i){
+		    owner.__frames__[i].hideRemoveButton();
+		}
 	    }
-	}
-	if(max > owner.__frames__.length){
-	    for(var i = 0; i != owner.__frames__.length; ++i){
-		owner.__frames__[i].showAddButton();
+	    if(max > owner.__frames__.length){
+		for(var i = 0; i != owner.__frames__.length; ++i){
+		    owner.__frames__[i].showAddButton();
+		}
 	    }
 	}
     });
     
     myself.__add__.observe("click", function(event){
-	var newElem = call();
-	myself.append(newElem.getFrame());
-	if(remove === true && min !== -1 && owner.__frames__.length > min){
-	    for(var i = 0; i != owner.__frames__.length; ++i){
-		owner.__frames__[i].showRemoveButton();
+	var disabled = false;
+	try{ disabled = myself.__disabled__; } catch(err){ };
+	if(disabled === false){
+	    var newElem = call();
+	    myself.append(newElem.getFrame());
+	    if(remove === true && min !== -1 && owner.__frames__.length > min){
+		for(var i = 0; i != owner.__frames__.length; ++i){
+		    owner.__frames__[i].showRemoveButton();
+		}
 	    }
-	}
-	if(max > -1 && max <= owner.__frames__.length){
-	    for(var i = 0; i != owner.__frames__.length; ++i){
-		owner.__frames__[i].hideAddButton();
+	    if(max > -1 && max <= owner.__frames__.length){
+		for(var i = 0; i != owner.__frames__.length; ++i){
+		    owner.__frames__[i].hideAddButton();
+		}
 	    }
 	}
     });
@@ -2255,12 +2548,17 @@ function checkRemoveAddButtons(owner, min, max){
 	    owner.__frames__[i].hideAddButton();
 	}
     }
+
+    if(max === -1 || max > owner.__frames__.length){
+	for(var i = 0; i != owner.__frames__.length; ++i){
+	    owner.__frames__[i].showAddButton();
+	}
+    }
 }
 
 
 // --- creates a control row for NameC, OccurrenceC and VariantC with a nested ItemIdentity frame.
-function makeControlRow(myself, rowspan, contents)
-{
+function makeControlRow(myself, rowspan, contents){
     var tr = new Element("tr", {"class" : CLASSES.itemIdentityFrame()});
     var tdCtrl = new Element("td", {"class" : CLASSES.controlColumn(), "rowspan" : rowspan});
     tr.insert({"top" : tdCtrl})
@@ -2277,7 +2575,7 @@ function makeControlRow(myself, rowspan, contents)
     tdCtrl.insert({"bottom" : myself.__add__});
     var tdCont = new Element("td", {"class" : CLASSES.content()});
     tr.insert({"bottom" : tdCont});
-    myself.__itemIdentity__ = new ItemIdentityC(contents ? contents.itemIdentities : null);
+    myself.__itemIdentity__ = new ItemIdentityC(contents ? contents.itemIdentities : null, myself);
     tdCont.insert({"top" : myself.__itemIdentity__.getFrame()});
     myself.__table__.insert({"bottom" : tr});
 
@@ -2379,7 +2677,7 @@ function makeResource(myself, content, constraints, datatypeConstraint, cssTitle
     }catch(err){}
     try{
 	this.__datatype__.__frames__[0].remove();
-	this.__datytype__ = new Object();
+	this.__datatype__ = new Object();
     }catch(err){}
 
     myself.__value__ = new Element("textarea", {"rows" : 3}).update(value);

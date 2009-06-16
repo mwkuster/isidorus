@@ -180,30 +180,6 @@
 				 (format nil "Condition: \"~a\"" err))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
-;(defun return-tmcl-info-of-psis(treat-as &otptional psi)
-;  "Returns a json string which represents the defined tmcl-constraints of the
-;   topic and the associations where this topic can be a player."
-;  (alert psi)
-;  (let ((http-method (hunchentoot:request-method*)))
-;    (if (eq http-method :GET)
-;	(let ((identifier (string-replace psi "%23" "#")))
-;	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-;	  (handler-case (let ((tmcl
-;			       (json-tmcl:get-constraints-of-fragment identifier :treat-as treat-as)))
-;			  (if tmcl
-;			      (progn
-;				(setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-;				tmcl)
-;			      (progn
-;				(setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-;				(setf (hunchentoot:content-type*) "text")
-;				  (format nil "Topic \"~a\" not found." psis))))
-;	    (condition (err) (progn
-;			       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-;			       (setf (hunchentoot:content-type*) "text")
-;			       (format nil "Condition: \"~a\"" err)))))
-;	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
-
 
 (defun return-all-topic-psis (&optional param)
   "return all psis currently existing in isidorus as a list of list. every topic is a list

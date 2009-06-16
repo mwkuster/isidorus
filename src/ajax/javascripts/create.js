@@ -36,6 +36,11 @@ function makeCreate(psi)
 		    items[i].remove();
 		}
 
+		items = $$("li." + CLASSES.commitButton());
+		for(var i = 0; i !== items.length; ++i){
+		    items[i].remove();
+		}
+
 		var instanceOfs = new Array();
 		for(var i = 0; psis && i !== psis.length; ++i){
 		    instanceOfs.push(new Array(psis[i]));
@@ -48,6 +53,15 @@ function makeCreate(psi)
 		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null), topic);
 		var liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
 		liT.insert({"after" : liA});
+
+		var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
+		commitButton.observe("click", function(event){
+		    alert("commit fragment");
+		});
+		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
+		liCB.update(commitButton);
+		liA.insert({"after" : liCB});
+		
 	    }
 
 	    function onSuccessHandler(xhr){

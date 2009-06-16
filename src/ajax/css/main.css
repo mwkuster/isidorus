@@ -34,6 +34,18 @@ h1 {
     cursor: pointer;
 }
 
+.clickable:hover{
+    color: #ff7f00;
+}
+
+.deselect {
+    cursor: pointer;
+}
+
+.deselect:hover{
+    color: #ff7f00;
+}
+
 .errorMessage {
     color: red;
     font-size: 0.85em;
