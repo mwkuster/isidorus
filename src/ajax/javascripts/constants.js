@@ -76,6 +76,7 @@ var CLASSES = {"__divPage__" : "page",
 	       "__spanDeselect__" : "deselect",
 	       "__divFog__" : "fog",
 	       "__inputCommitButton__" : "commitButton",
+	       "__divTmIdFrame__" : "tmIdFrame",
 
 	       "page" : function(){ return this.__divPage__; },
 	       "subPage" : function(){ return this.__divSubPage__; },
@@ -115,5 +116,6 @@ var CLASSES = {"__divPage__" : "page",
 	       "playerFrame" : function(){ return this.__divPlayerFrame__; },
 	       "deselect" : function(){ return this.__spanDeselect__; },
 	       "fog" : function(){ return this.__divFog__; },
-	       "commitButton" : function(){ return this.__inputCommitButton__; }
+	       "commitButton" : function(){ return this.__inputCommitButton__; },
+	       "tmIdFrame" : function(){ return this.__divTmIdFrame__; }
 	      };

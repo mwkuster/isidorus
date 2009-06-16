@@ -50,9 +50,13 @@ function makeCreate(psi)
 		context.insert({"after" : liT});
 
 		addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
-		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null), topic);
+		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
 		var liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
 		liT.insert({"after" : liA});
+
+		var tmId = new tmIdC(null);
+		var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
+		liA.insert({"after" : liTm});
 
 		var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
 		commitButton.observe("click", function(event){
@@ -61,16 +65,20 @@ function makeCreate(psi)
 		    var referencedTopics = topic.getReferencedTopics().concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
 
 		    function onSuccessHandler(topicStubs){
-			var str = "null";
+			var tsStr = "null";
 			if(topicStubs && topicStubs.length !== 0){
-			    str = "[";
+			    tsStr = "[";
 			    for(var i = 0; i !== topicStubs.length; ++i){
-				str += topicStubs[i];
-				if(i !== topicStubs.length - 1) str += ",";
+				tsStr += topicStubs[i];
+				if(i !== topicStubs.length - 1) tsStr += ",";
 			    }
-			    str += "]";
+			    tsStr += "]";
 			}
-			var json = "{\"topic\":" + topic.toJSON() + ",\"topicStubs\":" + str + ",\"associations\":" + associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis) + ",\"tmIds\":" + "[\"myTM\"]}";
+			var jTopic = "\"topic\":" + topic.toJSON();
+			var jTopicStubs = "\"topicStubs\":" + tsStr;
+			var jAssociations = "\"associations\":" + associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis)
+			var jTmId = "\"tmIds\":" + tmId.toJSON();
+			var json = "{" + jTopic + "," + jTopicStubs + "," + jAssociations + "," + jTmId + "}";
 			alert(json);
 		    }
 
@@ -84,7 +92,7 @@ function makeCreate(psi)
 		});
 		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
 		liCB.update(commitButton);
-		liA.insert({"after" : liCB});
+		liTm.insert({"after" : liCB});
 		
 	    }
 

@@ -2382,10 +2382,9 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 
 
 // --- contains all fragment's associations depending on the main topic
-var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints, mainTopic){
+var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints){
 						          $super();
 						          this.__minimized__ = false;
-                                                          this.__mainTopic__ = mainTopic;
 						          try{
 							      this.__frame__ .writeAttribute({"class" : CLASSES.associationContainer()});
 							      this.__table__ = new Element("table", {"class" : CLASSES.associationContainer()});
@@ -2480,45 +2479,53 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 						      }});
 
 
+// --- Representation of a topic map if frame.
+var tmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
+                                          $super();
+                                          try{
+                                              this.__frame__.writeAttribute({"class" : CLASSES.itemIdentityFrame()});
+                                              this.__container__ = new Object();
+                                              this.__frame__.writeAttribute({"class" : CLASSES.tmIdFrame()});
+                                              this.__table__ = new Element("table", {"class" : CLASSES.tmIdFrame()});
+                                              this.__frame__.insert({"top" : this.__table__});
+                                              this.__caption__ = new Element("caption", {"class" : CLASSES.clickable()}).update("Topic Map ID");
+                                              this.__table__.update(this.__caption__);
+                                              var value = contents && contents.length !== 0 ? contents[0] : "";
+                                              this.__contentrow__ = new Element("input", {"type" : "text", "value" : value});
+                                              this.__tr__ = new Element("tr", {"class" : CLASSES.tmIdFrame()});
+                                              var td =new Element("td", {"class" : CLASSES.content()});
+                                              this.__tr__.update(td);
+                                              td.update(this.__contentrow__);
+                                              this.__table__.insert({"bottom" : this.__tr__});
+					      
+                                              this.__minimized__ = false;
+                                              function setMinimizeHandler(myself){
+						  myself.__caption__.observe("click", function(event){
+						      myself.minimize();
+						  });
+					      }
+                                              setMinimizeHandler(this);
+					  }
+                                          catch(err){
+					      alert("From tmIdC(): " + err);
+					  }
+				      },
+				      "getContent" : function(){
+					  if(this.__contentrow__.value.strip().length === 0) return null;
+					  return new Array(this.__contentrow__.value.strip());
+				      },
+				      "toJSON" : function(){
+					  return (this.getContent() === null ? "null" : this.getContent().toJSON());
+				      },
+				      "isValid" : function(){
+					  return this.getContent() !== null;
+				      },
+				      "minimize": function(){
+					  if(this.__minimized__ === false) this.__tr__.hide();
+					  else this.__tr__.show();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+					  this.__minimized__ = !this.__minimized__;
+				      }});
 
 
 // --- A handler for the dblclick-event. So a frame can be disabled or enabled.
