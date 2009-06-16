@@ -36,6 +36,11 @@ function makeCreate(psi)
 		    items[i].remove();
 		}
 
+		items = $$("li." + CLASSES.tmIdFrame());
+		for(var i = 0; i !== items.length; ++i){
+		    items[i].remove();
+		}
+
 		items = $$("li." + CLASSES.commitButton());
 		for(var i = 0; i !== items.length; ++i){
 		    items[i].remove();
@@ -49,10 +54,17 @@ function makeCreate(psi)
 		var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
 		context.insert({"after" : liT});
 
-		addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
-		var associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
-		var liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
-		liT.insert({"after" : liA});
+		var liA = null;
+		var associations = null;
+		if(constraints && constraints.associationsConstraints && constraints.associationsConstraints.length !== 0){
+		    addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
+		    associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
+		    liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
+		    liT.insert({"after" : liA});
+		}
+		else {
+		    liA = liT;
+		}
 
 		var tmId = new tmIdC(null);
 		var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
@@ -60,10 +72,12 @@ function makeCreate(psi)
 
 		var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
 		commitButton.observe("click", function(event){
-		    try{
 		    var tPsis = topic.getContent().subjectIdentifiers;
-		    var referencedTopics = topic.getReferencedTopics().concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
-
+		    var referencedTopics = topic.getReferencedTopics();
+		    if(associations){
+			referencedTopics = referencedTopics.concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
+		    }
+		    
 		    function onSuccessHandler(topicStubs){
 			var tsStr = "null";
 			if(topicStubs && topicStubs.length !== 0){
@@ -76,19 +90,18 @@ function makeCreate(psi)
 			}
 			var jTopic = "\"topic\":" + topic.toJSON();
 			var jTopicStubs = "\"topicStubs\":" + tsStr;
-			var jAssociations = "\"associations\":" + associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis)
+			var jAssociations = "\"associations\":" + (associations ? associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis) : "null");
 			var jTmId = "\"tmIds\":" + tmId.toJSON();
 			var json = "{" + jTopic + "," + jTopicStubs + "," + jAssociations + "," + jTmId + "}";
-			alert(json);
+			commitFragment(json, function(xhr){ alert("The fragment was committed succesfully!"); }, null);
 		    }
-
+		    
 		    function onErrorHandler(){
-			// --- currently there is not neede a special handling for errors
+			// --- currently there is not needed a special handling for errors
 			// --- occurred during this operation
 		    }
-
+		    
 		    getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
-		    }catch(err){ alert("test: " + err); }
 		});
 		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
 		liCB.update(commitButton);

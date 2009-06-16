@@ -650,6 +650,9 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					   catch(err){
 					       return new Array();
 					   }
+
+					   for(var i = 0; i !== values.length; ++i)
+					       values[i] = new Array(values[i]);
 					   return values;
 				       },
 				       "disable" : function(){
@@ -1486,7 +1489,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 						   var scopes = names[i].scopes;
 						   if(scopes){
 						       for(var j = 0; j !== scopes.length; ++j){
-							   if(referencedTopics.indexOf(scopes[j]) === -1) referencedTopics.push(scopes[j]);
+							   if(referencedTopics.indexOf(scopes[j][0]) === -1) referencedTopics.push(scopes[j][0]);
 						       }
 						   }
 					       }
@@ -1502,7 +1505,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 						   var scopes = occurrences[i].scopes;
 						   if(scopes){
 						       for(var j = 0; j !== scopes.length; ++j){
-							   if(referencedTopics.indexOf(scopes[j]) === -1) referencedTopics.push(scopes[j]);
+							   if(referencedTopics.indexOf(scopes[j][0]) === -1) referencedTopics.push(scopes[j][0]);
 						       }
 						   }
 					       }
@@ -2461,7 +2464,7 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 								  var scopes = associations[i].scopes;
 								  if(scopes){
 								      for(var j = 0; j !== scopes.length; ++j){
-									  if(referencedTopics.indexOf(scopes[j]) === -1) referencedTopics.push(scopes[j]);
+									  if(referencedTopics.indexOf(scopes[j][0]) === -1) referencedTopics.push(scopes[j][0]);
 								      }
 								  }
 								  var roles = associations[i].roles;

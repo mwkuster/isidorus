@@ -89,7 +89,7 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
 	function checkRequests(){
 	    var delta = 100;
 	    neededTime += delta;
-	    if(delta > maxTimeout){
+	    if(delta > maxTimeout && psis && psis.length !== 0){
 		alert("From getTopicStubs(): Please check your network-connection - the request timed out!!!");
 		onFailureHandler();
 		return;
@@ -104,5 +104,23 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
     }
     catch(err){
 	alert("From getTopicStubs(): Could not request topicStubs information for: " + psis + "\n\n" + err);
+    }
+}
+
+
+function commitFragment(json, onSuccessHandler, onFailureHandler)
+{
+    if(!json || !onSuccessHandler) throw "From commitFragment(): json and onSuccessHandler must be set!";
+    try{
+	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
+	
+	new Ajax.Request(COMMIT_URL, {
+	    "method" : "post",
+	    "postBody" : json,
+	    "onSuccess" : onSuccessHandler,
+	    "onFailure" : onFailure});
+    }
+    catch(err){
+	alert("From commitFragment(): " + err);
     }
 }

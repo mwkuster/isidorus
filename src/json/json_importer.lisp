@@ -391,9 +391,8 @@
 	      (t
 	       (error "json-importer:get-topicStub-values-from-json-string:
                        bad item-specifier found in json-list"))))
-       (unless (or itemIdentities subjectLocators subjectIdentifiers)
-	(error "json-importer:get-topicStub-values-from-json-string: one of the elements
-                  itemIdentity, sbjectLocator or subjectIdentifier must be set"))
+       (unless subjectIdentifiers
+	(error "json-importer:get-topicStub-values-from-json-string: the element subjectIdentifiers mus be set!"))
       (unless id
 	(error "json-importer:get-topic-valuesStub-from-json-string: the element id must be set"))
       (list :id id
@@ -433,9 +432,8 @@
 	      (t
 	       (error "json-importer:get-topic-values-from-json-string:
                        bad item-specifier found in json-list ~a" (car j-elem)))))
-      (unless (or itemIdentities subjectLocators subjectIdentifiers)
-	(error "json-importer:get-topic-values-from-json-string: one of the elements
-                  itemIdentity, sbjectLocator or subjectIdentifier must be set"))
+      (unless subjectIdentifiers
+	(error "json-importer:get-topic-values-from-json-string: the element subjectIdentifiers must be set!"))
       (unless id
 	(error "json-importer:get-topic-values-from-json-string: the element id must be set"))
       (let ((names-list (map 'list #'get-name-values-from-json-list names))
