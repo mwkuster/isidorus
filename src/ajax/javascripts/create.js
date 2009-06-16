@@ -56,7 +56,31 @@ function makeCreate(psi)
 
 		var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
 		commitButton.observe("click", function(event){
-		    alert("commit fragment");
+		    try{
+		    var tPsis = topic.getContent().subjectIdentifiers;
+		    var referencedTopics = topic.getReferencedTopics().concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
+
+		    function onSuccessHandler(topicStubs){
+			var str = "null";
+			if(topicStubs && topicStubs.length !== 0){
+			    str = "[";
+			    for(var i = 0; i !== topicStubs.length; ++i){
+				str += topicStubs[i];
+				if(i !== topicStubs.length - 1) str += ",";
+			    }
+			    str += "]";
+			}
+			var json = "{\"topic\":" + topic.toJSON() + ",\"topicStubs\":" + str + ",\"associations\":" + associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis) + ",\"tmIds\":" + "[\"myTM\"]}";
+			alert(json);
+		    }
+
+		    function onErrorHandler(){
+			// --- currently there is not neede a special handling for errors
+			// --- occurred during this operation
+		    }
+
+		    getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
+		    }catch(err){ alert("test: " + err); }
 		});
 		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
 		liCB.update(commitButton);

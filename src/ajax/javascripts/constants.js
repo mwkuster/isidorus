@@ -31,6 +31,7 @@ var PAGES = {"home" : "home", "search" : "searchTopic", "edit" : "editTopic", "c
 var ANY_URI = "http://www.w3.org/2001/XMLSchema#anyURI";
 var STRING = "http://www.w3.org/2001/XMLSchema#string";
 var CURRENT_TOPIC = "**current-topic**";
+var CURRENT_TOPIC_ESCAPED = "\\*\\*current-topic\\*\\*";
 
 // --- Contains most css classes used in this project
 // --- There should be called only the function to be sure to don't override

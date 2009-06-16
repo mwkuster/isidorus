@@ -1018,7 +1018,9 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
                                       },
 				      "getContent" : function(){
 					  if(this.isUsed() === false) return null;
+					  var type = this.__type__.__frames__[0].getContent();
 					  return {"itemIdentities" : this.__itemIdentity__.getContent(true, true),
+						  "type" : type ? new Array(type) : null,
 						  "scopes" : this.__scope__.getContent(),
 						  "value" : this.__value__.__frames__[0].getContent(),
 						  "variants" : this.__variants__.getContent()};
@@ -1470,6 +1472,42 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 				       },
 				       "hasPsi" : function(){
 					   return this.__subjectIdentifier__.getContent(true, true).length !== 0;
+				       },
+				       "getReferencedTopics" : function(){
+					   var referencedTopics = new Array();
+					   var names = this.getContent().names;
+					   if(names){
+					       for(var i = 0; i !== names.length; ++i){
+						   // TODO: variant (-scope topicStubs)
+						   var type = names[i].type;
+						   if(type){
+						       if(referencedTopics.indexOf(type[0]) === -1) referencedTopics.push(type[0]);
+						   }
+						   var scopes = names[i].scopes;
+						   if(scopes){
+						       for(var j = 0; j !== scopes.length; ++j){
+							   if(referencedTopics.indexOf(scopes[j]) === -1) referencedTopics.push(scopes[j]);
+						       }
+						   }
+					       }
+					   }
+
+					   var occurrences = this.getContent().occurrences;
+					   if(occurrences){
+					       for(var i = 0; i !== occurrences.length; ++i){
+						   var type = occurrences[i].type;
+						   if(type){
+						       if(referencedTopics.indexOf(type[0]) === -1) referencedTopics.push(type[0]);
+						   }
+						   var scopes = occurrences[i].scopes;
+						   if(scopes){
+						       for(var j = 0; j !== scopes.length; ++j){
+							   if(referencedTopics.indexOf(scopes[j]) === -1) referencedTopics.push(scopes[j]);
+						       }
+						   }
+					       }
+					   }
+					   return referencedTopics;
 				       }});
 
 
@@ -2302,8 +2340,9 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					     },
 					     "getContent" : function(){
 						 if(!this.isUsed()) return null;
+						 var type = this.__type__.__frames__[0].getContent();
 						 return {"itemIdentities" : this.__itemIdentity__.getContent(true, true),
-							 "type" : new Array(this.__type__.__frames__[0].getContent()),
+							 "type" : type ? new Array(type) : null,
 							 "scopes" : this.__scope__.getContent(),
 							 "roles" : this.__roles__.getContent()};
 					     },
@@ -2412,6 +2451,32 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 							      else rows[i].show();
 							  }
 							  this.__minimized__ = !this.__minimized__;
+						      },
+						      "getReferencedTopics" : function(){
+							  var referencedTopics = new Array();
+							  var associations = this.getContent();
+							  if(associations){
+							      for(var i = 0; i !== associations.length; ++i){
+								  var assType = associations[i].type;
+								  if(referencedTopics.indexOf(assType[0]) === -1) referencedTopics.push(assType[0]);
+								  var scopes = associations[i].scopes;
+								  if(scopes){
+								      for(var j = 0; j !== scopes.length; ++j){
+									  if(referencedTopics.indexOf(scopes[j]) === -1) referencedTopics.push(scopes[j]);
+								      }
+								  }
+								  var roles = associations[i].roles;
+								  if(roles){
+								      for(var j = 0; j !== roles.length; ++j){
+									  var roleType = roles[j].type;
+									  if(roleType && referencedTopics.indexOf(roleType[0]) === -1) referencedTopics.push(roleType[0]);
+									  var player = roles[j].topicRef;
+									  if(player && referencedTopics.indexOf(player[0]) === -1) referencedTopics.push(player[0]);
+								      }
+								  }
+							      }
+							  }
+							  return referencedTopics;
 						      }});
 
 

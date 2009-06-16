@@ -53,3 +53,56 @@ function requestConstraints(psis, onSuccessHandler, onFailureHandler)
 	alert("Could not request contraints, please try again!\n\n" + err);
     }
 }
+
+
+// --- gets all topicStubs information for the passed psis and
+// --- executes the onSuccessHandler or the on FailureHandler
+// --- if all stubs are requested or one request fails.
+function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
+{
+    if(!onSuccessHandler || !onFailureHandler) throw "From getTopicStubs(): onsuccessHandler and onFailureHandler must be set!";
+    try{
+	var topicStubs = new Array();
+
+	if(psis){
+	    for(var i = 0; i !== psis.length; ++i){
+		var url = GET_STUB_PREFIX + psis[i].gsub("#", "%23");
+		new Ajax.Request(url, {
+		    "method" : "get",
+		    "requestHeaders" : ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
+		    "onSuccess" : function(xhr){
+			if(xhr.responseText.length === 0 || xhr.responseText.isJSON() === false) errorHandler("Got bad JSON-Data for \"" + psis[i] + "\"!");
+			else topicStubs.push(xhr.responseText);
+		    },
+		    "onFailure" : function(xhr){
+			alert("From getTopicStubs(): Could not equest topicStub information for \"" + xhr.request.url + "\"!!!");
+			onFailureHandler();
+		    }});
+	    }
+	}
+
+	// --- Checks the requested value. If there are all values requested, there will be called the
+	// --- onSuccessHandler - otherwise (after the maximum time out or an faild request) there will
+	// --- be called the onErrorHandler.
+	var maxTimeout = psis.length * TIMEOUT;
+	var neededTime = 0;
+	function checkRequests(){
+	    var delta = 100;
+	    neededTime += delta;
+	    if(delta > maxTimeout){
+		alert("From getTopicStubs(): Please check your network-connection - the request timed out!!!");
+		onFailureHandler();
+		return;
+	    }
+
+	    if(topicStubs.length === psis.length) onSuccessHandler(topicStubs);
+	    else setTimeout(checkRequests, delta);
+	}
+
+	checkRequests();
+
+    }
+    catch(err){
+	alert("From getTopicStubs(): Could not request topicStubs information for: " + psis + "\n\n" + err);
+    }
+}
