@@ -13,6 +13,8 @@ src/ajax/css/frame.css -text
 src/ajax/css/main.css -text
 src/ajax/css/navi.css -text
 src/ajax/isidorus.html -text
+src/ajax/javascripts/ajaxLoader_big.gif -text
+src/ajax/javascripts/ajaxLoader_small.gif -text
 src/ajax/javascripts/constants.js -text
 src/ajax/javascripts/create.js -text
 src/ajax/javascripts/datamodel.js -text
