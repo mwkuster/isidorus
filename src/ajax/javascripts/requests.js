@@ -10,6 +10,29 @@
 //+-----------------------------------------------------------------------------
 
 
+// --- Sets a timeout function which alerts a message.
+function setAjaxTimeout(time, url)
+{
+    return setTimeout(function(){
+	alert("The AJAX request for \"" + url + "\" timed out. Please check your network connection!");
+    }, time);
+}
+
+
+// --- Returns a function whihc can be used as an XHR-Handler.
+// --- The returned function is the passed handler wrapped in
+// --- a lambda-function which additionally clears the passed timeout
+// --- function.
+function createXHRHandler(handler, timeFun)
+{
+    function fun(xhr){
+	clearTimeout(timeFun);
+	handler(xhr);
+    }
+    return fun;
+}
+
+
 // --- This is the default error handler of the used ajax.requests.
 function defaultFailureHandler(xhr)
 {
@@ -23,12 +46,13 @@ function getTypePsis(onSuccessHandler, onFailureHandler)
 {
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
-	
+	var timeFun = setAjaxTimeout(TIMEOUT, TYPE_PSIS_URL);
+
 	new Ajax.Request(TYPE_PSIS_URL, {
 	    "method" : "get",
 	    "requestHeaders" : ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
-	    "onSuccess" : onSuccessHandler,
-	    "onFailure" : onFailure});
+	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
+	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }
     catch(err){
 	alert("Could not request all type PSIs, please try again!\n\n" + err);
@@ -42,12 +66,13 @@ function requestConstraints(psis, onSuccessHandler, onFailureHandler)
 {
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
-	
+	var timeFun = setAjaxTimeout(TIMEOUT, TMCL_TYPE_URL);
+
 	new Ajax.Request(TMCL_TYPE_URL, {
 	    "method" : "post",
 	    "postBody" : psis,
-	    "onSuccess" : onSuccessHandler,
-	    "onFailure" : onFailure});
+	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
+	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }
     catch(err){
 	alert("Could not request contraints, please try again!\n\n" + err);
@@ -108,17 +133,19 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
 }
 
 
+// --- Sends a POST-Message to the server with the fragment data which hast to be committed.
 function commitFragment(json, onSuccessHandler, onFailureHandler)
 {
     if(!json || !onSuccessHandler) throw "From commitFragment(): json and onSuccessHandler must be set!";
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
+	var timeFun = setAjaxTimeout(TIMEOUT, COMMIT_URL);
 	
 	new Ajax.Request(COMMIT_URL, {
 	    "method" : "post",
 	    "postBody" : json,
-	    "onSuccess" : onSuccessHandler,
-	    "onFailure" : onFailure});
+	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
+	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }
     catch(err){
 	alert("From commitFragment(): " + err);
