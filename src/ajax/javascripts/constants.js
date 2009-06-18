@@ -32,6 +32,9 @@ var ANY_URI = "http://www.w3.org/2001/XMLSchema#anyURI";
 var STRING = "http://www.w3.org/2001/XMLSchema#string";
 var CURRENT_TOPIC = "**current-topic**";
 var CURRENT_TOPIC_ESCAPED = "\\*\\*current-topic\\*\\*";
+var INIT_DATE = ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"];
+var MAX_INT = "MAX_INT";
+var MMAX_INT = "*";
 
 // --- Contains most css classes used in this project
 // --- There should be called only the function to be sure to don't override
@@ -77,6 +80,7 @@ var CLASSES = {"__divPage__" : "page",
 	       "__divFog__" : "fog",
 	       "__inputCommitButton__" : "commitButton",
 	       "__divTmIdFrame__" : "tmIdFrame",
+	       "__divLoad__" : "loadFrame",
 
 	       "page" : function(){ return this.__divPage__; },
 	       "subPage" : function(){ return this.__divSubPage__; },
@@ -117,5 +121,6 @@ var CLASSES = {"__divPage__" : "page",
 	       "deselect" : function(){ return this.__spanDeselect__; },
 	       "fog" : function(){ return this.__divFog__; },
 	       "commitButton" : function(){ return this.__inputCommitButton__; },
-	       "tmIdFrame" : function(){ return this.__divTmIdFrame__; }
+	       "tmIdFrame" : function(){ return this.__divTmIdFrame__; },
+	       "load" : function(){ return this.__divLoad__; }
 	      };

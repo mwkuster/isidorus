@@ -10,6 +10,8 @@
 //+-----------------------------------------------------------------------------
 
 
+
+
 // --- Sets a timeout function which alerts a message.
 function setAjaxTimeout(time, url)
 {
@@ -26,10 +28,29 @@ function setAjaxTimeout(time, url)
 function createXHRHandler(handler, timeFun)
 {
     function fun(xhr){
-	clearTimeout(timeFun);
-	handler(xhr);
+	try{
+	    clearTimeout(timeFun);
+	    var loading = $$("div." + CLASSES.load());
+	    if(loading.length === 1) loading[0].remove();
+	    var content = $$("div." + CLASSES.content());
+	    if(content.length === 1) content[0].show();
+	    handler(xhr);
+	}
+	catch(err) {alert("err: " + err); }
     }
     return fun;
+}
+
+
+function onLoad(text)
+{
+    var div = new Element("div", {"class" : CLASSES.load()}).update(content);
+    var content = $$("div." + CLASSES.content());
+    if(content.length === 1){
+	content[0].hide();
+	var load = new Element("div", {"class" : CLASSES.load()}).update(text);
+	content[0].insert({"before" : load});
+    }
 }
 
 
@@ -47,10 +68,11 @@ function getTypePsis(onSuccessHandler, onFailureHandler)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TYPE_PSIS_URL);
+	onLoad("Requesting all Type PSIs");
 
 	new Ajax.Request(TYPE_PSIS_URL, {
 	    "method" : "get",
-	    "requestHeaders" : ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
+	    "requestHeaders" : INIT_DATE,
 	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
 	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }
@@ -67,6 +89,7 @@ function requestConstraints(psis, onSuccessHandler, onFailureHandler)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TMCL_TYPE_URL);
+	onLoad("Requesting all constraints for psis:\<br/>" + psis.gsub("\\[", "").gsub("\\]", ""));
 
 	new Ajax.Request(TMCL_TYPE_URL, {
 	    "method" : "post",
@@ -89,12 +112,13 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
     try{
 	var topicStubs = new Array();
 
-	if(psis){
+	if(psis && psis.length !== 0){
+	    onLoad("Requesting topicStubs information for<br/>" + psis);
 	    for(var i = 0; i !== psis.length; ++i){
 		var url = GET_STUB_PREFIX + psis[i].gsub("#", "%23");
 		new Ajax.Request(url, {
 		    "method" : "get",
-		    "requestHeaders" : ["If-Modified-Since", "Thu, 1 Jan 1970 00:00:00 GMT"],
+		    "requestHeaders" : INIT_DATE,
 		    "onSuccess" : function(xhr){
 			if(xhr.responseText.length === 0 || xhr.responseText.isJSON() === false) errorHandler("Got bad JSON-Data for \"" + psis[i] + "\"!");
 			else topicStubs.push(xhr.responseText);
@@ -116,11 +140,21 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
 	    neededTime += delta;
 	    if(delta > maxTimeout && psis && psis.length !== 0){
 		alert("From getTopicStubs(): Please check your network-connection - the request timed out!!!");
+		var loading = $$("div." + CLASSES.load());
+		if(loading.length === 1) loading[0].remove();
+		var content = $$("div." + CLASSES.content());
+		if(content.length === 1) content[0].show();
 		onFailureHandler();
 		return;
 	    }
 
-	    if(topicStubs.length === psis.length) onSuccessHandler(topicStubs);
+	    if(topicStubs.length === psis.length){
+		var loading = $$("div." + CLASSES.load());
+		if(loading.length === 1) loading[0].remove();
+		var content = $$("div." + CLASSES.content());
+		if(content.length === 1) content[0].show();
+		onSuccessHandler(topicStubs);
+	    }
 	    else setTimeout(checkRequests, delta);
 	}
 
@@ -140,6 +174,7 @@ function commitFragment(json, onSuccessHandler, onFailureHandler)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, COMMIT_URL);
+	onLoad("Committing current fragment to " + COMMIT_URL);
 	
 	new Ajax.Request(COMMIT_URL, {
 	    "method" : "post",

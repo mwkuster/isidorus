@@ -294,6 +294,7 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
 
                                             	    myself.__commit__.observe("click", function(event){
 							myself.hideError();
+							clearFragment();
                                                         requestConstraints(myself.toJSON(true), onSuccessHandler, null);
                                                     });
                                                 }
@@ -395,7 +396,7 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							for(var i = 0; i != constraints.length; ++i){
 							    this.__containers__.push(new Object());
 							    var min = parseInt(constraints[i].cardMin);
-							    var max = constraints[i].cardMax !== "MAX_INT" ? parseInt(constraints[i].cardMax) : "*";
+							    var max = constraints[i].cardMax !== MAX_INT ? parseInt(constraints[i].cardMax) : MMAX_INT;
 							    if(max !== 0){
 								var cssTitle = "min: " + min + "   max: " + max + "   regular expression: " + constraints[i].regexp;
 								for(var j = 0; j != (min === 0 ? 1 : min); ++j){
@@ -403,7 +404,7 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 								    var dblClickHandler = null;
 								    if(min === 0) dblClickHandler = dblClickHandlerF;
 								    var row = new TextrowC("", constraints[i].regexp, this.__containers__[i],
-											   min === 0 ? 1 : min, max === "*" ? -1 : max, cssTitle, dblClickHandler);
+											   min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, cssTitle, dblClickHandler);
 								    row.dblClick();
 								    this.__error__.insert({"before" : row.getFrame()});
 								}
@@ -470,7 +471,7 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    for(var i = 0; i !== this.__constraints__.length; ++i){
 							var regexp = new RegExp(this.__constraints__[i].regexp);
 							var cardMin = parseInt(this.__constraints__[i].cardMin);
-							var cardMax = this.__constraints__[i].cardMax === "MAX_INT" ? "*" : parseInt(this.__constraints__[i].cardMax);
+							var cardMax = this.__constraints__[i].cardMax === MAX_INT ? MMAX_INT : parseInt(this.__constraints__[i].cardMax);
 							var currentIdentifiers = new Array();
 							for(var j = 0; j !== allIdentifiers.length; ++j){
 							    if(regexp.match(allIdentifiers[j].getContent()) === true) currentIdentifiers.push(allIdentifiers[j]);
@@ -482,7 +483,7 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							    errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMin + ")!<br/>";
 							    ret = false;
 							}
-							if(cardMax !== "*" && cardMax < currentIdentifiers.length){
+							if(cardMax !== MMAX_INT && cardMax < currentIdentifiers.length){
 							    errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMax + ")!<br/>";
 							    ret = false;
 							}
@@ -773,7 +774,7 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 							for(var i = 0; i != constraints.length; ++i){
 							    var scopeTypes = constraints[i].scopeTypes;
 							    var min = parseInt(constraints[i].cardMin);
-							    var max = constraints[i].cardMax !== "MAX_INT" ? parseInt(constraints[i].cardMax) : "*";
+							    var max = constraints[i].cardMax !== MAX_INT ? parseInt(constraints[i].cardMax) : MMAX_INT;
 							    
 							    // TODO: check and adds contents to the types
 							    
@@ -781,7 +782,7 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 							    if(min === 0){ // TODO: check contents of this type
 								scopeTypes.unshift(new Array(new Array(""))); // [[""]]
 							    }
-							    this.__container__.push(new ScopeC(scopeTypes, min === 0 ? 1 : min, max === "*" ? -1 : max));
+							    this.__container__.push(new ScopeC(scopeTypes, min === 0 ? 1 : min, max === MMAX_INT ? -1 : max));
 							    this.__error__.insert({"before" : this.__container__[this.__container__.length - 1].getFrame()});
 							}
 						    }
@@ -1071,7 +1072,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      // --- value
 					      this.__value__ = new Object();
 					      var _min = parseInt(simpleConstraint.cardMin);
-					      var _max = simpleConstraint.cardMax !== "MAX_INT" ? parseInt(simpleConstraint.cardMax) : "*";
+					      var _max = simpleConstraint.cardMax !== MAX_INT ? parseInt(simpleConstraint.cardMax) : MMAX_INT;
 					      var cssTitleV = "min: " + _min + "   max: " + _max + "   regular expression: " + (simpleConstraint ? simpleConstraint.regexp : ".*");
 					      this.__cssTitle__ = cssTitle;
 					      new TextrowC((contents ? contents.value : ""), (simpleConstraint ? simpleConstraint.regexp : ".*"), this.__value__, 1, 1, cssTitleV);
@@ -1179,7 +1180,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       for(var j = 0; j != constraints[i].constraints.length; ++j){
 								   this.__containers__[i].push(new Object());
 								   var min = parseInt(constraints[i].constraints[j].cardMin);
-								   var max = constraints[i].constraints[j].cardMax !== "MAX_INT" ? parseInt(constraints[i].constraints[j].cardMax) : "*";
+								   var max = constraints[i].constraints[j].cardMax !== MAX_INT ? parseInt(constraints[i].constraints[j].cardMax) : MMAX_INT;
 								   var regexp = constraints[i].constraints[j].regexp;
 								   if(max !== 0){
 								       var dblClickHandler = null;
@@ -1187,7 +1188,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 
 								       var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
 								       for(var k = 0; k !== (min === 0 ? 1 : min); ++k){
-									   var name = new NameC("", constraints[i].nametypescopes, constraints[i].constraints[j], this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
+									   var name = new NameC("", constraints[i].nametypescopes, constraints[i].constraints[j], this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, title, dblClickHandler);
 									   if(min === 0)name.disable();
 									   this.__error__.insert({"before" : name.getFrame()});
 									   if(min === 0)name.minimize();
@@ -1300,7 +1301,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       for(var j = 0; j !== this.__constraints__[i].constraints.length; ++j){
 							   var regexp = new RegExp(this.__constraints__[i].constraints[j].regexp);
 							   var cardMin = parseInt(this.__constraints__[i].constraints[j].cardMin);
-							   var cardMax = this.__constraints__[i].constraints[j].cardMax === "MAX_INT" ? "*" : parseInt(this.__constraints__[i].constraints[j].cardMax);
+							   var cardMax = this.__constraints__[i].constraints[j].cardMax === MAX_INT ? MMAX_INT : parseInt(this.__constraints__[i].constraints[j].cardMax);
 							   var matchedNames = 0;
 							   for(var k = 0; k !== currentNames.length; ++k){
 							       if(regexp.match(currentNames[k].getContent().value) === true){
@@ -1313,7 +1314,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							       errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the nametype \"" + currentConstraintTypes + " is not satisfied (" + matchedNames + ")!";
 							   }
-							   if(cardMax !== "*" && matchedNames > cardMax){
+							   if(cardMax !== MMAX_INT && matchedNames > cardMax){
 							       ret = false;
 							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							       errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the nametype \"" + currentConstraintTypes + " is not satisfied (" + matchedNames + ")!";
@@ -1381,7 +1382,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 
 						    // --- resource value and datatype
 						    var _min = parseInt(constraint.cardMin);
-						    var _max = constraint.cardMax !== "MAX_INT" ? parseInt(constraint.cardMax) : "*";
+						    var _max = constraint.cardMax !== MAX_INT ? parseInt(constraint.cardMax) : MMAX_INT;
 						    var cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
 						    this.__cssTitle__ = cssTitle;
 						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle);
@@ -1493,7 +1494,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 								     for(var j = 0; j != constraints[i].constraints.length; ++j){
 									 this.__containers__[i].push(new Object());
 									 var min = parseInt(constraints[i].constraints[j].cardMin);
-									 var max = constraints[i].constraints[j].cardMax !== "MAX_INT" ? parseInt(constraints[i].constraints[j].cardMax) : "*";
+									 var max = constraints[i].constraints[j].cardMax !== MAX_INT ? parseInt(constraints[i].constraints[j].cardMax) : MMAX_INT;
 									 var regexp = constraints[i].constraints[j].regexp;
 									 if(max !== 0){
 									     var dblClickHandler = null;
@@ -1501,7 +1502,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 
 									     var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
 									     for(var k = 0; k !== (min === 0 ? 1 : min); ++k){
-										 var occurrence = new OccurrenceC("", constraints[i].occurrenceTypes, constraints[i].constraints[j], constraints[i].uniqueConstraints, this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
+										 var occurrence = new OccurrenceC("", constraints[i].occurrenceTypes, constraints[i].constraints[j], constraints[i].uniqueConstraints, this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, title, dblClickHandler);
 										 if(min === 0) occurrence.disable();
 										 this.__error__.insert({"before" : occurrence.getFrame()});
 										 if(min === 0)occurrence.minimize();
@@ -1572,7 +1573,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 							     for(var j = 0; j !== this.__constraints__[i].constraints.length; ++j){
 								 var regexp = new RegExp(this.__constraints__[i].constraints[j].regexp);
 								 var cardMin = parseInt(this.__constraints__[i].constraints[j].cardMin);
-								 var cardMax = this.__constraints__[i].constraints[j].cardMax === "MAX_INT" ? "*" : parseInt(this.__constraints__[i].constraints[j].cardMax);
+								 var cardMax = this.__constraints__[i].constraints[j].cardMax === MAX_INT ? MMAX_INT : parseInt(this.__constraints__[i].constraints[j].cardMax);
 								 var matchedOccurrences = 0;
 								 for(var k = 0; k !== currentOccurrences.length; ++k){
 								     var value = currentOccurrences[k].getContent().resourceRef;
@@ -1589,7 +1590,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 								     if(errorStr.length !== 0) errorStr += "<br/><br/>";
 								     errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the occurrencetype \"" + currentConstraintTypes + " is not satisfied (" + matchedOccurrences + ")!";
 								 }
-								 if(cardMax !== "*" && matchedOccurrences > cardMax){
+								 if(cardMax !== MMAX_INT && matchedOccurrences > cardMax){
 								     ret = false;
 								     if(errorStr.length !== 0) errorStr += "<br/><br/>";
 								     errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the occurrencetype \"" + currentConstraintTypes + " is not satisfied (" + matchedOccurrences + ")!";
@@ -2170,7 +2171,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   if(!role || !constraint) return;
 						   var cOtherPlayers = constraint.otherPlayers;
 						   var cOtherRoleType = constraint.otherRoleType;
-						   var cardMax = constraint.cardMax === "MAX_INT" ? "*" : parseInt(constraint.cardMax);
+						   var cardMax = constraint.cardMax === MAX_INT ? MMAX_INT : parseInt(constraint.cardMax);
 						   var cardMin = parseInt(constraint.cardMin);
 						   var existingRoles = this.getExistingRoles(cOtherRoleType, cOtherPlayers, this.__orContainer__.__frames__);
 						   var cleanedPlayers = new Array();
@@ -2199,7 +2200,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 					       "__checkARCButtons__" : function(rolesToCheck, players, associationRoleConstraint){
 						   if(!rolesToCheck || !associationRoleConstraint) return;
 						   var cardMin = associationRoleConstraint.cardMin === 0 ? 1 : parseInt(associationRoleConstraint.cardMin);
-						   var cardMax = associationRoleConstraint.cardMax === "MAX_INT" ? "*" : parseInt(associationRoleConstraint.cardMax);
+						   var cardMax = associationRoleConstraint.cardMax === MAX_INT ? MMAX_INT : parseInt(associationRoleConstraint.cardMax);
 						   var lenPlayers = players ? players.length : 0;
 						   if(cardMin < rolesToCheck.length) {
 						       for(var i = 0; i !== rolesToCheck.length; ++i) rolesToCheck[i].showRemoveButton();
@@ -2208,7 +2209,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       for(var i = 0; i !== rolesToCheck.length; ++i) rolesToCheck[i].hideRemoveButton();
 						   }
 
-						   if(cardMax === "*" || cardMax > rolesToCheck.length && rolesToCheck.length < lenPlayers){
+						   if(cardMax === MMAX_INT || cardMax > rolesToCheck.length && rolesToCheck.length < lenPlayers){
 						       for(var i = 0; i !== rolesToCheck.length; ++i) rolesToCheck[i].showAddButton();
 						   }
 						   else {
@@ -2222,7 +2223,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   function addHandler(myself){
 						       var cOtherPlayers = currentConstraint.otherPlayers;
 						       var cOtherRoleType = currentConstraint.otherRoleType;
-						       var cardMax = currentConstraint.cardMax === "MAX_INT" ? "*" : parseInt(currentConstraint.cardMax);
+						       var cardMax = currentConstraint.cardMax === MAX_INT ? MMAX_INT : parseInt(currentConstraint.cardMax);
 						       var cardMin = currentConstraint.cardMin === 0 ? 1 : parseInt(currentConstraint.cardMin);
 						       var cardMinOrg = parseInt(currentConstraint.cardMin);;
 						       var existingRoles = roleContainer.getExistingRoles(cOtherRoleType, cOtherPlayers, roleContainer.__orContainer__.__frames__);
@@ -2260,7 +2261,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   function removeHandler(myself){
 						       var cOtherPlayers = currentConstraint.otherPlayers;
 						       var cOtherRoleType = currentConstraint.otherRoleType;
-						       var cardMax = currentConstraint.cardMax === "MAX_INT" ? "*" : parseInt(currentConstraint.cardMax);
+						       var cardMax = currentConstraint.cardMax === MAX_INT ? MMAX_INT : parseInt(currentConstraint.cardMax);
 						       var cardMin = currentConstraint.cardMin === 0 ? 1 : parseInt(currentConstraint.cardMin);
 						       var playerToAdd = null;
 						       for(var i = 0; i !== cOtherPlayers.length; ++i){
@@ -2283,7 +2284,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   if(!existingRoles) return;
 						   
 						   // --- checks all control buttons after an add or remove operation
-						   if(cardMax !== "*" && existingRoles.length >= cardMax){
+						   if(cardMax !== MMAX_INT && existingRoles.length >= cardMax){
 						       for(var i = 0; i !== existingRoles.length; ++i){
 							   existingRoles[i].hideAddButton();
 						       }
@@ -2319,9 +2320,9 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       }
 						       
 						       // --- creates a new role
-						       var cardMax = associationRoleConstraint.cardMax === "MAX_INT" ? "*" : parseInt(associationRoleConstraint.cardMax);
+						       var cardMax = associationRoleConstraint.cardMax === MAX_INT ? MMAX_INT : parseInt(associationRoleConstraint.cardMax);
 						       var cardMin = parseInt(associationRoleConstraint.cardMin);
-               					       if(cardMax === "*" || cardMax > rolesToCheck.length){
+               					       if(cardMax === MMAX_INT || cardMax > rolesToCheck.length){
 							   var usedPlayers = new Array();
 							   for(var i = 0; i !== rolesToCheck.length; ++i) usedPlayers.push(rolesToCheck[i].getPlayer());
 							   var cleanedPlayers = cleanPlayers(players ? players : new Array(), usedPlayers);
@@ -2582,7 +2583,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       var currentRoles = new Array();
 						       var rType = arcs[i].roleType.flatten();
 						       var cardMin = parseInt(arcs[i].cardMin);
-						       var cardMax = arcs[i].cardMax === "MAX_INT" ? "*" : parseInt(arcs[i].cardMax);
+						       var cardMax = arcs[i].cardMax === MAX_INT ? MMAX_INT : parseInt(arcs[i].cardMax);
 						       
 						       // --- collects all roles for the current constraint
 						       for(var j = 0; j !== allAroles.length; ++j){
@@ -2595,7 +2596,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							   errorStr += "card-min of the associationrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " is not satisfied (" + currentRoles.length + ")!";
 						       }
-						       if(cardMax !== "*" && cardMax < currentRoles.length){
+						       if(cardMax !== MMAX_INT && cardMax < currentRoles.length){
 							   ret = false;
 							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							   errorStr += "card-max of the associationrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " is not satisfied (" + currentRoles.length + ")!";
@@ -2611,14 +2612,14 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   var players = currentRpcs[i].players;
 							   var pType = currentRpcs[i].playerType.flatten();
 							   cardMin = parseInt(currentRpcs[i].cardMin);
-							   cardMax = currentRpcs[i].cardMax === "MAX_INT" ? "*" : parseInt(currentRpcs[i].cardMax);
+							   cardMax = currentRpcs[i].cardMax === MAX_INT ? MMAX_INT : parseInt(currentRpcs[i].cardMax);
 							   var foundRoles = this.getExistingRoles(rType, players, currentRoles);
 							   if(cardMin > foundRoles.length){
 							       ret = false;
 							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							       errorStr += "card-min of the roleplayer-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
 							   }
-							   if(cardMax !== "*" && cardMax < foundRoles.length){
+							   if(cardMax !== MMAX_INT && cardMax < foundRoles.length){
 							       ret = false;
 							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							       errorStr += "card-max of the roleplayer-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
@@ -2649,7 +2650,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       var pType = usedOrcs[i].otherPlayerType;
 						       var rType = usedOrcs[i].otherRoleType;
 						       var cardMin = parseInt(usedOrcs[i].cardMin);
-						       var cardMax = usedOrcs[i].cardMax === "MAX_INT" ? "*" : parseInt(usedOrcs[i].cardMax);
+						       var cardMax = usedOrcs[i].cardMax === MAX_INT ? MMAX_INT : parseInt(usedOrcs[i].cardMax);
 						       var foundRoles = this.getExistingRoles(rType, players, allOroles);
 						       checkedRoles = checkedRoles.concat(foundRoles);
 						       if(cardMin > foundRoles.length){
@@ -2657,7 +2658,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							   errorStr += "card-min of the otherrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
 						       }
-						       if(cardMax !== "*" && cardMax < foundRoles.length){
+						       if(cardMax !== MMAX_INT && cardMax < foundRoles.length){
 							   ret = false;
 							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
 							   errorStr += "card-max of the otherrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
@@ -2835,6 +2836,7 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 								  td.update(association.getFrame());
 								  tr.update(td);
 								  this.__table__.insert({"bottom" : tr});
+								  association.disable();
 							      }
 							      function setMinimizeHandler(myself){
 								  myself.__caption__.observe("click", function(event){

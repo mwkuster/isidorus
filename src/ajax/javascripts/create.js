@@ -26,26 +26,7 @@ function makeCreate(psi)
 	
 	function makeInstanceOfFrame(context){
 	    function makeFragment(psis, constraints){
-		var items = $$("li." + CLASSES.topicFrame());
-		for(var i = 0; i != items.length; ++i){
-		    items[i].remove();
-		}
-
-		items = $$("li." + CLASSES.associationContainer());
-		for(var i = 0; i != items.length; ++i){
-		    items[i].remove();
-		}
-
-		items = $$("li." + CLASSES.tmIdFrame());
-		for(var i = 0; i !== items.length; ++i){
-		    items[i].remove();
-		}
-
-		items = $$("li." + CLASSES.commitButton());
-		for(var i = 0; i !== items.length; ++i){
-		    items[i].remove();
-		}
-		
+		clearFragment();
 		var instanceOfs = new Array();
 		for(var i = 0; psis && i !== psis.length; ++i){
 		    instanceOfs.push(new Array(psis[i]));
@@ -115,8 +96,7 @@ function makeCreate(psi)
 		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
 		liCB.update(commitButton);
 		liTm.insert({"after" : liCB});
-		
-	    }
+	    } //makeFragment
 
 	    function onSuccessHandler(xhr){
 		var json = null;
@@ -134,13 +114,38 @@ function makeCreate(psi)
 		catch(innerErr){
 		    alert("There occurred an error by creating an InstanceOfC frame, please reload this page!\n\n" + innerErr);
 		}
-	    }
+	    } //onSuccessHandler
 
 	    getTypePsis(onSuccessHandler, null);
-	}
+	} //makeInstanceOfFrame
 
 	makeInstanceOfFrame(liTopicSelect);
     }catch(err){
 	alert(err);
+    }
+}
+
+
+// --- removes old elements from the fragment frame
+function clearFragment()
+{
+    var items = $$("li." + CLASSES.topicFrame());
+    for(var i = 0; i != items.length; ++i){
+	items[i].remove();
+    }
+    
+    items = $$("li." + CLASSES.associationContainer());
+    for(var i = 0; i != items.length; ++i){
+	items[i].remove();
+    }
+    
+    items = $$("li." + CLASSES.tmIdFrame());
+    for(var i = 0; i !== items.length; ++i){
+	items[i].remove();
+    }
+    
+    items = $$("li." + CLASSES.commitButton());
+    for(var i = 0; i !== items.length; ++i){
+	items[i].remove();
     }
 }

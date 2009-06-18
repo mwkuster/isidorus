@@ -47,6 +47,12 @@ h1 {
 }
 
 .errorMessage {
+    margin: 0.5em;
     color: red;
     font-size: 0.85em;
+}
+
+div.loadFrame {
+    padding: 2em;
+    color: #ff7f00;
 }
