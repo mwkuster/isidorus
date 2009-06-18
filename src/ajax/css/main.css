@@ -55,4 +55,10 @@ h1 {
 div.loadFrame {
     padding: 2em;
     color: #ff7f00;
+    text-align: center;
+}
+
+img.ajaxLoader {
+    display: none;
+    margin-left: 412px; /* the image has a width of 100px */
 }

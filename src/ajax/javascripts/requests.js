@@ -11,7 +11,6 @@
 
 
 
-
 // --- Sets a timeout function which alerts a message.
 function setAjaxTimeout(time, url)
 {
@@ -24,16 +23,13 @@ function setAjaxTimeout(time, url)
 // --- Returns a function whihc can be used as an XHR-Handler.
 // --- The returned function is the passed handler wrapped in
 // --- a lambda-function which additionally clears the passed timeout
-// --- function.
+// --- function and call onLoad.
 function createXHRHandler(handler, timeFun)
 {
     function fun(xhr){
 	try{
 	    clearTimeout(timeFun);
-	    var loading = $$("div." + CLASSES.load());
-	    if(loading.length === 1) loading[0].remove();
-	    var content = $$("div." + CLASSES.content());
-	    if(content.length === 1) content[0].show();
+	    removeLoad();
 	    handler(xhr);
 	}
 	catch(err) {alert("err: " + err); }
@@ -42,14 +38,40 @@ function createXHRHandler(handler, timeFun)
 }
 
 
+// --- Removes all divs with the class ajaxLoader. The inner image with the
+// --- class ajaxLoader will be moved to the top of div.content and the
+// --- display attribute will be set to none;
+function removeLoad()
+{
+    var img = $$("img." + CLASSES.ajaxLoader());
+    if(img.length === 1){
+	img[0].setStyle({"display" : "none"})
+	$("page").insert({"top" : img[0]});
+    }
+
+    var loading = $$("div." + CLASSES.load());
+    if(loading.length === 1) loading[0].remove();
+    var content = $$("div." + CLASSES.content());
+    if(content.length === 1) content[0].show();
+}
+
+
+// --- The hidden image with the class ajaxLoader will be moved to the new created
+// --- div with the given message. The div with the class content will be hidden and instaed
+// --- of the hidden div there will be shown the new created element.
 function onLoad(text)
 {
     var div = new Element("div", {"class" : CLASSES.load()}).update(content);
     var content = $$("div." + CLASSES.content());
     if(content.length === 1){
 	content[0].hide();
-	var load = new Element("div", {"class" : CLASSES.load()}).update(text);
+	var load = new Element("div", {"class" : CLASSES.load()}).update("<br/><br/>" + text);
 	content[0].insert({"before" : load});
+	var img = $$("img." + CLASSES.ajaxLoader());
+	if(img.length === 1){
+	    img[0].setStyle({"display" : "block"})
+	    load.insert({"top" : img[0]})
+	}
     }
 }
 
@@ -68,7 +90,7 @@ function getTypePsis(onSuccessHandler, onFailureHandler)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TYPE_PSIS_URL);
-	onLoad("Requesting all Type PSIs");
+	onLoad("Requesting all type PSIs");
 
 	new Ajax.Request(TYPE_PSIS_URL, {
 	    "method" : "get",
@@ -89,7 +111,7 @@ function requestConstraints(psis, onSuccessHandler, onFailureHandler)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TMCL_TYPE_URL);
-	onLoad("Requesting all constraints for psis:\<br/>" + psis.gsub("\\[", "").gsub("\\]", ""));
+	onLoad("Requesting all constraints for the psis:\<br/>" + psis.gsub("\\[", "").gsub("\\]", ""));
 
 	new Ajax.Request(TMCL_TYPE_URL, {
 	    "method" : "post",
@@ -140,20 +162,13 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
 	    neededTime += delta;
 	    if(delta > maxTimeout && psis && psis.length !== 0){
 		alert("From getTopicStubs(): Please check your network-connection - the request timed out!!!");
-		var loading = $$("div." + CLASSES.load());
-		if(loading.length === 1) loading[0].remove();
-		var content = $$("div." + CLASSES.content());
-		if(content.length === 1) content[0].show();
+		removeLoad();
 		onFailureHandler();
 		return;
 	    }
 
 	    if(topicStubs.length === psis.length){
-		var loading = $$("div." + CLASSES.load());
-		if(loading.length === 1) loading[0].remove();
-		var content = $$("div." + CLASSES.content());
-		if(content.length === 1) content[0].show();
-		onSuccessHandler(topicStubs);
+		removeLoad();
 	    }
 	    else setTimeout(checkRequests, delta);
 	}
