@@ -92,6 +92,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
                                          this.__max__ = max;
 
                                          this.__regexp__ = new RegExp(regexp);
+                                         this.__regExpString__ = regexp;
                                          this.__frame__.writeAttribute({"class" : CLASSES.textrowWithRemoveButton()});
                                          this.__content__.remove();
                                          this.__content__ = new Element("input", {"type" : "text", "value" : content});
@@ -129,6 +130,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
 					 this.getFrame().writeAttribute({"class" : CLASSES.textrowWithoutRemoveButton()});
 				     },
 				     "disable" : function(){
+					 this.hideError();
 					 this.__content__.writeAttribute({"readonly" : "readonly"});
 					 this.hideRemoveButton();
 					 this.hideAddButton();
@@ -138,6 +140,9 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
 					 this.__content__.removeAttribute("readonly");
 					 checkRemoveAddButtons(this.__owner__, this.__min__, this.__max__);
 					 this.__disabled__ = false;
+				     },
+				     "getRegexp" : function(){
+					 return this.__regExpString__;
 				     }});
 
 
@@ -174,6 +179,7 @@ var SelectrowC = Class.create(FrameC, {"initialize" : function($super, contents,
 					   this.getFrame().writeAttribute({"class" : CLASSES.selectrowWithoutRemoveButton()});
 				       },
 				       "disable" : function(){
+					   this.hideError();
 					   this.__content__.writeAttribute({"disabled" : "disables"});
 					   this.__disabled__ = true;
 				       },
@@ -314,7 +320,7 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
  
                                                   try{
                                               	      for(var i = 0; i != contents.length; ++i){
-                                              		  new TextrowC(contents[i], ".*", this.__container__, 1, -1, null);
+                                              		  new TextrowC(decodeURI(contents[i]), ".*", this.__container__, 1, -1, null);
                                               		  this.__error__.insert({"before" : this.__container__.__frames__[i].getFrame()});
                                               	      }
                                                   }
@@ -350,6 +356,7 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 						      if(removeNull === true && this.__container__.__frames__[i].getContent().strip().length === 0) continue;
 						      values.push(this.__container__.__frames__[i].getContent().strip());
 						  }
+						  for(var i = 0; i !== values.length; ++i)values[i] = encodeURI(values[i]);
 						  return values;
 					      },
 					      "toJSON" : function(unique, removeNull){
@@ -357,6 +364,7 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 						  return content.length === 0 ? "null" : content.toJSON();
 					      },
 					      "disable" : function(){
+						  this.hideError();
 						  if(this.__container__.__frames__){
 						      for(var i = 0; i !== this.__container__.__frames__.length; ++i){
 							  this.__container__.__frames__[i].disable();
@@ -380,6 +388,7 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						$super();
 						this.__frame__.writeAttribute({"class" : cssClass});
                                                 this.__containers__ = new Array();
+                                                this.__constraints__ = constraints;
 
 						try{
 						    if((!contents || contents.length === 0) && constraints && constraints.length > 0){
@@ -421,8 +430,10 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    }
 						}
 						catch(err){
+						    for(var i = 0; i !== values.length; ++i) values[i] = encodeURI(values[i]);
 						    return values;
 						}
+						for(var i = 0; i !== values.length; ++i) values[i] = encodeURI(values[i]);
 						return values;
 					    },
 					    "toJSON" : function(unique, removeNull){
@@ -430,8 +441,68 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						return content.length === 0 ? "null" : content.toJSON();
 					    },
 					    "isValid" : function(){
-						// TODO: check the validity of this frame with the passed constraints and return a boolean value
-						return true;
+						try {
+						    var allIdentifiers = new Array();
+						    var errorStr = "";
+						    var ret = true;
+						    
+						    // --- checks if there are any constraints
+						    if((!this.__constraints__ || this.__constraints__.length === 0) && this.__containers__.length !== 0){
+							for(var i = 0; i !== this.__containers__.length; ++i){
+							    for(var j = 0; this.__containers__[i].__frames__ && j !== this.__containers__[i].__frames__.length; ++j){
+								this.__containers__[i].__frames__[j].showError("No constraints found for this identifier!");
+							    }
+							}
+							return false;
+						    }
+						    else if(!this.__constraints__ || this.__constraints__.length === 0) return true;
+
+						    // --- collects all non-empty identifiers
+						    for(var i = 0; i !== this.__containers__.length; ++i){
+							for(var j = 0; this.__containers__[i].__frames__ && j !== this.__containers__[i].__frames__.length; ++j){
+							    var row = this.__containers__[i].__frames__[j];
+							    row.hideError();
+							    if(row.isUsed() === true && row.getContent().strip().length !== 0) allIdentifiers.push(row);
+							}
+						    }
+						    
+						    var checkedIdentifiers = new Array();
+						    for(var i = 0; i !== this.__constraints__.length; ++i){
+							var regexp = new RegExp(this.__constraints__[i].regexp);
+							var cardMin = parseInt(this.__constraints__[i].cardMin);
+							var cardMax = this.__constraints__[i].cardMax === "MAX_INT" ? "*" : parseInt(this.__constraints__[i].cardMax);
+							var currentIdentifiers = new Array();
+							for(var j = 0; j !== allIdentifiers.length; ++j){
+							    if(regexp.match(allIdentifiers[j].getContent()) === true) currentIdentifiers.push(allIdentifiers[j]);
+							}
+							checkedIdentifiers = checkedIdentifiers.concat(currentIdentifiers);
+
+							// --- checks card-min and card-max for the current constraint
+							if(cardMin > currentIdentifiers.length){
+							    errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMin + ")!<br/>";
+							    ret = false;
+							}
+							if(cardMax !== "*" && cardMax < currentIdentifiers.length){
+							    errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMax + ")!<br/>";
+							    ret = false;
+							}
+						    }
+
+						    // --- checks if there are some identifiers which don't satisfies any constraint
+						    checkedIdentifiers = checkedIdentifiers.uniq();
+						    if(checkedIdentifiers.length < allIdentifiers.length){							
+							ret = false;
+							for(var i = 0; i !== allIdentifiers.length; ++i){
+							    if(checkedIdentifiers.indexOf(allIdentifiers[i]) === -1) allIdentifiers[i].showError("This Identifier does not satisfie any constraint!");
+							}
+						    }
+
+						    if(ret === true) this.hideError();
+						    else this.showError(errorStr);
+						    return ret;
+						}catch(err){ alert("err: " + err); }
+
+
 					    }});
 
 
@@ -656,6 +727,7 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					   return values;
 				       },
 				       "disable" : function(){
+					   this.hideError();
 					   var rows = this.getFrame().select("div");
 					   for(var i = 0; i != rows.length; ++i){
 					       rows[i].select("select")[0].disable();
@@ -750,6 +822,7 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 						    return this.getContent().toJSON();
 						},
 						"disable" : function(){
+						    this.hideError();
 						    for(var i = 0; i !== this.__container__.length; ++i) this.__container__[i].disable();
 						    this.__disabled__ = true;
 						},
@@ -836,13 +909,24 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 						 ",\"scopes\":null,\"resourceRef\":" +  resourceRef + ",\"resourceData\":" + resourceData + "}";
 					     
 					 },
+					 "isEmpty" : function(){
+					     return this.__value__.value.length === 0;
+					 },
 					 "isValid" : function(){
-					     return this.__value__.value.strip() !== "";
+					     if(this.__value__.value.strip() === ""){
+						 this.showError("Resource Value must be set!");
+						 return false;
+					     }
+					     else {
+						 this.hideError();
+						 return true;
+					     }
 					 },
 					 "isUsed" : function(){
 					     return !this.__disabled__;
 					 },
 					 "disable" : function(){
+					     this.hideError();
 					     this.__itemIdentity__.disable();
 					     // TODO: scope
 					     this.__value__.writeAttribute({"readonly" : "readonly"});
@@ -890,41 +974,41 @@ var VariantContainerC = Class.create(ContainerC, {"initialize" : function($super
 							  var variant = new VariantC(null, this.__container__, dblClickHandlerF, parent);
 							  this.__frame__.insert({"bottom" : variant.getFrame()});
 							  variant.minimize();
+							  variant.disable();
 						      }
                                                   },
 						  "getContent" : function(){
 						      var values = new Array();
 						      for(var i = 0; i != this.__container__.__frames__.length; ++i){
-							  if(this.__container__.__frames__[i].isUsed() === true){
+							  if(this.__container__.__frames__[i].isUsed() === true && this.__container__.__frames__[i].isEmpty() === false){
 							      values.push(this.__container__.__frames__[i].getContent());
 							  }
 						      }
 						      return values;
 						  },
 						  "isValid" : function(){
+						      var ret = true;
 						      for(var i = 0; i != this.__container__.__frames__.length; ++i){
 							  if(this.__container__.__frames__[i].isUsed() === true && 
-							     this.__container__.__frames__[i].isValid() === false) return false;
+							     this.__container__.__frames__[i].isValid() === false) ret = false;;
 						      }
-						      return true;
+						      return ret;
 						  },
 						  "toJSON" : function(){
 						      var str = "[";
 						      for(var i = 0; i != this.__container__.__frames__.length; ++i){
-							  if(this.__container__.__frames__[i].isUsed() === true){
-							      str += this.__container__.__frames__[i].toJSON();
-							  }
-							  if(i < this.__container__.__frames__.length - 1){
-							      str += ","
+							  if(this.__container__.__frames__[i].isUsed() === true  && this.__container__.__frames__[i].isEmpty() === false){
+							      str += this.__container__.__frames__[i].toJSON() + ",";
 							  }
 						      }
-						      str += "]";
-						      return str === "[]" ? null : str;
+						      str = str.substring(0, str.length - 1) + "]"
+						      return str === "]" ? null : str;
 						  },
 						  "isUsed" : function(){
 						      return !this.__disabled__;
 						  },
 						  "disable" : function(){
+						      this.hideError();
 						      if(this.__container__.__frames__){
 							  for(var i = 0; i !== this.__container__.__frames__.length; ++i)
 							      this.__container__.__frames__[i].disable();
@@ -1019,6 +1103,9 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
                                       	      alert("From NameC(): " + err);
                                           }
                                       },
+				      "isEmpty" : function(){
+					  return  this.__value__.__frames__[0].getContent().length === 0;
+				      },
 				      "getContent" : function(){
 					  if(this.isUsed() === false) return null;
 					  var type = this.__type__.__frames__[0].getContent();
@@ -1037,8 +1124,11 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      ",\"variants\":" + this.__variants__.toJSON() + "}";
 				      },
 				      "isValid" : function(){
-					  // TODO: check the content and the constraints + variants.isValid()
-					  return true;
+					  var valueValid = this.__value__.__frames__[0].isValid();
+					  if(valueValid === false) this.showError("The name-value \"" + this.__value__.__frames__[0].getContent() + "\" doesn't matches the constraint \"" + this.__value__.__frames__[0].getRegexp() + "\"!");
+					  else this.hideError();
+					  var variantsValid = this.__variants__.isValid();
+					  return valueValid && variantsValid;
 				      },
 				      "minimize" : function(){
 					  var trs = this.__table__.select("tr");
@@ -1048,6 +1138,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  }
 				      },
 				      "disable" : function(){
+					  this.hideError();
 					  this.__itemIdentity__.disable();
 					  this.__type__.__frames__[0].disable();
 					  this.__scope__.disable();
@@ -1079,6 +1170,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    $super();
                                                    this.__frame__.writeAttribute({"class" : CLASSES.nameContainer()});
                                                    this.__containers__ = new Array();
+                                                   this.__constraints__ = constraints;
 
                                                    try{
 						       if((!contents || contents.length === 0) && constraints && constraints.length > 0){
@@ -1094,11 +1186,12 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								       if(min === 0) dblClickHandler = dblClickHandlerF;
 
 								       var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
-								       var name = new NameC("", constraints[i].nametypescopes, constraints[i].constraints[j],
-											    this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
-								       if(min === 0)name.disable();
-								       this.__error__.insert({"before" : name.getFrame()});
-								       if(min === 0)name.minimize();
+								       for(var k = 0; k !== (min === 0 ? 1 : min); ++k){
+									   var name = new NameC("", constraints[i].nametypescopes, constraints[i].constraints[j], this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
+									   if(min === 0)name.disable();
+									   this.__error__.insert({"before" : name.getFrame()});
+									   if(min === 0)name.minimize();
+								       }
 								   }
 							       }
 							   }
@@ -1117,7 +1210,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       for(var i = 0; i != this.__containers__.length; ++i){
 							   for(var j = 0; j != this.__containers__[i].length; ++j){
 							       for(var k = 0; k != this.__containers__[i][j].__frames__.length; ++k){
-								   if(this.__containers__[i][j].__frames__[k].isUsed() === true){
+								   if(this.__containers__[i][j].__frames__[k].isUsed() === true && this.__containers__[i][j].__frames__[k].isEmpty() === false){
 								       values.push(this.__containers__[i][j].__frames__[k].getContent());
 								   }
 							       }
@@ -1135,7 +1228,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       for(var i = 0; i != this.__containers__.length; ++i){
 							   for(var j = 0; j != this.__containers__[i].length; ++j){
 							       for(var k = 0; k != this.__containers__[i][j].__frames__.length; ++k){
-								   if(this.__containers__[i][j].__frames__[k].isUsed() === true){
+								   if(this.__containers__[i][j].__frames__[k].isUsed() === true  && this.__containers__[i][j].__frames__[k].isEmpty() === false){
 								       str += this.__containers__[i][j].__frames__[k].toJSON() + ",";
 								   }
 							       }
@@ -1150,8 +1243,97 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 					       },
 					       "isValid" : function(){
-						   // TODO: check the validity of this frame with the passed constraints and return a boolean value + isValid() of all names
-						   return true;
+						   var ret = true;
+						   var errorStr = "";
+						   
+						   // --- checks if there are any constraints
+						   if((!this.__constraints__ || this.__constraints__.length === 0) && this.__containers__.length !== 0){
+						       var nameTypes = new Array();
+						       for(var i = 0; i !== this.__containers__.length; ++i){
+							   for(var j = 0; j !== this.__containers__[i].length; ++j){
+							       for(var k = 0; k !== this.__containers__[i][j].__frames__.length; ++k){
+								   this.__containers__[i][j].__frames__[k].hideError();
+								   if(this.__containers__[i][j].__frames__[k].isUsed() === true){
+								       this.__containers__[i][j].__frames__[k].showError("No constraints found for this name!");
+								   }
+							       }
+							   }
+						       }
+						       return false;
+						   }
+						   else if(!this.__constraints__ || this.__constraints__.length === 0) return true;
+						   
+						   // --- summarizes all names
+						   var allNames = new Array();
+						   for(var i = 0; i !== this.__containers__.length; ++i){
+						       for(var j = 0; j !== this.__containers__[i].length; ++j){
+							   for(var k = 0; k !== this.__containers__[i][j].__frames__.length; ++k){
+							       this.__containers__[i][j].__frames__[k].hideError();
+							       if(this.__containers__[i][j].__frames__[k].isUsed() === true && this.__containers__[i][j].__frames__[k].isEmpty() === false){
+								   allNames.push(this.__containers__[i][j].__frames__[k]);
+							       }
+							   }
+						       }
+						   }
+						   
+						   // --- checks every constraint and the existing names corresponding to the constraint
+						   for(var i = 0; i !== this.__constraints__.length; ++i){
+						       var currentConstraintTypes = new Array();
+						       for(var j = 0; j !== this.__constraints__[i].nametypescopes.length; ++j){
+							   currentConstraintTypes = currentConstraintTypes.concat(this.__constraints__[i].nametypescopes[j].nameType);
+						       }
+						       currentConstraintTypes = currentConstraintTypes.uniq();
+						       
+						       // --- collects all names to the current constraint
+						       var currentNames = new Array();
+						       for(var j = 0; j !== allNames.length; ++j){
+							   var type = allNames[j].getContent().type;
+							   if(type && currentConstraintTypes.indexOf(type[0]) !== -1) currentNames.push(allNames[j]);
+							   
+						       }
+						       // --- removes all current found names from "allNames"
+						       for(var j = 0; j !== currentNames.length; ++j) allNames = allNames.without(currentNames[j]);
+						       // --- removes empty names (for constraints that have a subset of regexp)
+						    
+						       // --- checks the regExp, card-min and card-max for the found types
+						       var satisfiedNames = new Array();
+						       for(var j = 0; j !== this.__constraints__[i].constraints.length; ++j){
+							   var regexp = new RegExp(this.__constraints__[i].constraints[j].regexp);
+							   var cardMin = parseInt(this.__constraints__[i].constraints[j].cardMin);
+							   var cardMax = this.__constraints__[i].constraints[j].cardMax === "MAX_INT" ? "*" : parseInt(this.__constraints__[i].constraints[j].cardMax);
+							   var matchedNames = 0;
+							   for(var k = 0; k !== currentNames.length; ++k){
+							       if(regexp.match(currentNames[k].getContent().value) === true){
+								   ++matchedNames;
+								   satisfiedNames.push(currentNames[k]);
+							       }
+							   }
+							   if(matchedNames < cardMin){
+							       ret = false;
+							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							       errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the nametype \"" + currentConstraintTypes + " is not satisfied (" + matchedNames + ")!";
+							   }
+							   if(cardMax !== "*" && matchedNames > cardMax){
+							       ret = false;
+							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							       errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the nametype \"" + currentConstraintTypes + " is not satisfied (" + matchedNames + ")!";
+							   }
+						       }
+						       
+						       // --- checks if there are names which wasn't checked --> bad value
+						       satisfiedNames = satisfiedNames.uniq();
+						       for(var j = 0; j !== satisfiedNames.length; ++j)currentNames = currentNames.without(satisfiedNames[j]);
+						       if(currentNames.length !== 0){
+							   ret = false;
+							   for(var j = 0; j !== currentNames.length; ++j)
+							       currentNames[j].showError("This name does not satisfie any constraint!");
+						       }    
+						   }
+						       
+						   // --- all names are valid -> hide the error-div-element
+						   if(ret === true) this.hideError();
+						   else this.showError(errorStr);
+						   return ret;
 					       }});
 
 
@@ -1164,6 +1346,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
                                                 this.__table__ = new Element("table", {"class" : CLASSES.occurrenceFrame()});
                                                 this.__frame__.insert({"top" : this.__table__});
                                                 this.__max__ = max;
+                                                this.__constraint__ = constraint;
                                                 this.__owner__ = owner;
                                                 this.__dblClickHandler__ = dblClickHandler;
 
@@ -1253,9 +1436,14 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    return "null";
 						}
 					    },
+					    "isEmpty" : function(){
+						return this.__value__.value.length === 0;
+					    },
 					    "isValid" : function(){
-						// TODO: check the content and the constraints
-						return true;
+						var regexp = new RegExp(this.__constraint__.regexp);
+						// TODO: validate the data via the given datatype
+						// TODO: validate the uniqeuoccurrence-constraint
+						return regexp.match(this.__value__.value);
 					    },
 					    "minimize" : function(){
 						var trs = this.__table__.select("tr");
@@ -1265,6 +1453,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						}
 					    },
 					    "disable" : function(){
+						this.hideError();
 						this.__itemIdentity__.disable();
 						this.__type__.__frames__[0].disable();
 						this.__scope__.disable();
@@ -1295,6 +1484,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 						         $super();
 						         this.__containers__ = new Array();
                                                          this.__frame__.writeAttribute({"class" : CLASSES.occurrenceContainer()});
+                                                         this.__constraints__ = constraints;
 
 						         try{
 							     if((!contents || contents.length === 0) && constraints && constraints.length > 0){
@@ -1310,12 +1500,12 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 									     if(min === 0) dblClickHandler = dblClickHandlerF;
 
 									     var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
-									     var occurrence = new OccurrenceC("", constraints[i].occurrenceTypes, constraints[i].constraints[j],
-													      constraints[i].uniqueConstraints, this.__containers__[i][j],
-													      min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
-									     if(min === 0) occurrence.disable();
-									     this.__error__.insert({"before" : occurrence.getFrame()});
-									     if(min === 0)occurrence.minimize();
+									     for(var k = 0; k !== (min === 0 ? 1 : min); ++k){
+										 var occurrence = new OccurrenceC("", constraints[i].occurrenceTypes, constraints[i].constraints[j], constraints[i].uniqueConstraints, this.__containers__[i][j], min === 0 ? 1 : min, max === "*" ? -1 : max, title, dblClickHandler);
+										 if(min === 0) occurrence.disable();
+										 this.__error__.insert({"before" : occurrence.getFrame()});
+										 if(min === 0)occurrence.minimize();
+									     }
 									 }
 								     }
 								 }
@@ -1329,8 +1519,97 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 						         }
 						     },
 						     "isValid" : function(){
-							 // TODO: implement this method
-							 return true;
+							 var ret = true;
+							 var errorStr = "";
+							 
+							 // --- checks if there are any constraints
+							 if((!this.__constraints__ || this.__constraints__.length === 0) && this.__containers__.length !== 0){
+							     for(var i = 0; i !== this.__containers__.length; ++i){
+								 for(var j = 0; j !== this.__containers__[i].length; ++j){
+								     for(var k = 0; k !== this.__containers__[i][j].__frames__.length; ++k){
+									 this.__containers__[i][j].__frames__[k].hideError();
+									 if(this.__containers__[i][j].__frames__[k].isUsed() === true){
+									     var type = this.__containers__[i][j].__frames__[k].showError("No constraints found for this occurrence!");
+									 }
+								     }
+								 }
+							     }
+							     return false;
+							 }
+							 else if(!this.__constraints__ || this.__constraints__.length === 0) return true;
+
+							 // --- summarizes all occurrences
+							 var allOccurrences = new Array();
+							 for(var i = 0; i !== this.__containers__.length; ++i){
+							     for(var j = 0; j !== this.__containers__[i].length; ++j){
+								 for(var k = 0; k !== this.__containers__[i][j].__frames__.length; ++k){
+								     if(this.__containers__[i][j].__frames__[k].isUsed() === true && this.__containers__[i][j].__frames__[k].isEmpty() === false){
+									 allOccurrences.push(this.__containers__[i][j].__frames__[k]);
+								     }
+								     this.__containers__[i][j].__frames__[k].hideError();
+								 }
+							     }
+							 }
+							 
+							 // --- checks every constraint and the existing occurrences corresponding to the current constraint
+							 for(var i = 0; i !== this.__constraints__.length; ++i){
+							     var currentConstraintTypes = new Array();
+							     for(var j = 0; j !== this.__constraints__[i].occurrenceTypes.length; ++j){
+								 currentConstraintTypes = currentConstraintTypes.concat(this.__constraints__[i].occurrenceTypes[j].occurrenceType);
+							     }
+							     currentConstraintTypes = currentConstraintTypes.uniq();
+							     
+							     // --- collects all occurrences to the current constraint
+							     var currentOccurrences = new Array();
+							     for(var j = 0; j !== allOccurrences.length; ++j){
+								 var type = allOccurrences[j].getContent().type;
+								 if(type && currentConstraintTypes.indexOf(type[0]) !== -1) currentOccurrences.push(allOccurrences[j]);
+							     }
+							     // --- removes all current found occurrences from "allOccurrences"
+							     for(var j = 0; j !== currentOccurrences.length; ++j) allOccurrences = allOccurrences.without(currentOccurrences[j]);
+							     // --- checks the regExp, card-min and card-max for the found types
+							     var satisfiedOccurrences = new Array();
+							     for(var j = 0; j !== this.__constraints__[i].constraints.length; ++j){
+								 var regexp = new RegExp(this.__constraints__[i].constraints[j].regexp);
+								 var cardMin = parseInt(this.__constraints__[i].constraints[j].cardMin);
+								 var cardMax = this.__constraints__[i].constraints[j].cardMax === "MAX_INT" ? "*" : parseInt(this.__constraints__[i].constraints[j].cardMax);
+								 var matchedOccurrences = 0;
+								 for(var k = 0; k !== currentOccurrences.length; ++k){
+								     var value = currentOccurrences[k].getContent().resourceRef;
+								     if(!value) value = currentOccurrences[k].getContent().resourceData.value;
+								     if(regexp.match(value) === true){
+									 ++matchedOccurrences;
+									 satisfiedOccurrences.push(currentOccurrences[k]);
+								     }
+								 }
+								 // TODO: check the unique-occurrence
+								 // TODO: check the occurrence's datatype and its content
+								 if(matchedOccurrences < cardMin){
+								     ret = false;
+								     if(errorStr.length !== 0) errorStr += "<br/><br/>";
+								     errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the occurrencetype \"" + currentConstraintTypes + " is not satisfied (" + matchedOccurrences + ")!";
+								 }
+								 if(cardMax !== "*" && matchedOccurrences > cardMax){
+								     ret = false;
+								     if(errorStr.length !== 0) errorStr += "<br/><br/>";
+								     errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].constraints[j].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " for the occurrencetype \"" + currentConstraintTypes + " is not satisfied (" + matchedOccurrences + ")!";
+								 }
+							     }
+							     
+							     // --- checks if there are any occurrences which wasn't checked --> bad value
+							     satisfiedOccurrences = satisfiedOccurrences.uniq();
+							     for(var j = 0; j !== satisfiedOccurrences.length; ++j)
+								 currentOccurrences = currentOccurrences.without(satisfiedOccurrences[j]);
+							     if(currentOccurrences.length !== 0){
+								 ret = false;
+								 for(var j = 0; j !== currentOccurrences.length; ++j)
+								     currentOccurrences[j].showError("This occurrence does not satisfie any constraint!");
+							     }
+							 }
+							 
+							 if(ret === true) this.hideError();
+							 else this.showError(errorStr);
+							 return ret;
 						     },
 						     "getContent" : function(){
 							 var values = new Array();
@@ -1377,6 +1656,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
                                            $super();
                                            this.__minimized__ = false;
                                            this.__instanceOfs__ = (!instanceOfs || instanceOfs.length === 0 ? null : instanceOfs);
+
                                            try{
 					       this.__frame__ .writeAttribute({"class" : CLASSES.topicFrame()});
 					       this.__table__ = new Element("table", {"class" : CLASSES.topicFrame()});
@@ -1427,10 +1707,6 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       alert("From TopciC(): " + err);
 					   }
                                        },
-				       "isValid" : function(){
-					   // TODO: implement
-					   return true;
-				       },
 				       "getContent" : function(){
 					   try{
 					   return {"id" : this.__topicid__.__frames__[0].getContent().strip(),
@@ -1475,6 +1751,24 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 				       },
 				       "hasPsi" : function(){
 					   return this.__subjectIdentifier__.getContent(true, true).length !== 0;
+				       },
+				       "isValid" : function(){
+					   try{
+					   var ret = true;
+					   if(this.__topicid__.__frames__[0].getContent().strip().length === 0){
+					       ret = false;
+					       this.__topicid__.__frames__[0].showError("The topic must contain a topic ID!");
+					   }
+					   else {
+					       this.__topicid__.__frames__[0].hideError();
+					   }
+
+					   if(this.__subjectLocator__.isValid() === false) ret = false;
+					   if(this.__subjectIdentifier__.isValid() === false) ret = false;
+					   if(this.__name__.isValid() === false) ret = false;
+					   if(this.__occurrence__.isValid() === false) ret = false;
+					   }catch(err){ alert("err: " + err); }
+					   return ret;
 				       },
 				       "getReferencedTopics" : function(){
 					   var referencedTopics = new Array();
@@ -1682,13 +1976,11 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 
 					  return "null";
 				      },
-				      "isValid" : function(){
-					  return this.getType().length !== 0 && this.getPlayer().length !== 0;
-				      },
 				      "isUsed" : function(){
 					  return !this.__disabled__;
 				      },
 				      "disable" : function(){
+					  this.hideError();
 					  this.__itemIdentity__.disable();
 					  this.__type__.__frames__[0].disable();
 					  this.__player__.__frames__[0].disable();
@@ -1712,9 +2004,11 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
                                                    this.__arContainer__ = new Object();
                                                    this.__orContainer__ = new Object();
+                                                   this.__associationRoleConstraints__ = associationRoleConstraints;
                                                    this.__otherRoleConstraints__ = otherRoleConstraints;
                                                    this.__rolePlayerConstraints__ = rolePlayerConstraints;
                                                    this.__parentElem__ = parent;
+
                                                    try{
 						       if((!contents || contents.length === 0) && associationRoleConstraints){
 							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
@@ -2226,6 +2520,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   return roles.substring(0, roles.length - 1) + "]";
 					       },
 					       "disable" : function(){
+						   this.hideError();
 						   if(this.__orContainer__.__frames__){
 						       for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i) this.__orContainer__.__frames__[i].disable();
 						   }
@@ -2244,8 +2539,135 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   this.__disable__ = false;
 					       },
 					       "isValid" : function(){
-						   // TODO: implement
-						   return true;
+						   var ret = true;
+						   var errorStr = "";
+						   
+						   var arcs = this.__associationRoleConstraints__;
+                                                   var orcs = this.__otherRoleConstraints__;
+                                                   var rpcs = this.__rolePlayerConstraints__;
+						   
+						   // --- checks if there exist any constraints
+						   if(!arcs || arcs.length === 0){
+						       this.showError("No association-constraints found for this association!");
+						       return false;
+						   }
+						   
+						   if(!rpcs || rpcs.length === 0){
+						       this.showError("No roleplayer-constraints found for this association!");
+						       return false;
+						   }
+						   
+						   // --- collects all used roles depending on associationrole-constraints
+						   var allAroles = new Array();
+						   var allAroles2 = new Array();
+						   for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
+						       this.__arContainer__.__frames__[i].hideError();
+						       if(this.__arContainer__.__frames__[i].isUsed() === true){
+							   allAroles.push(this.__arContainer__.__frames__[i]);
+							   allAroles2.push(this.__arContainer__.__frames__[i]);
+						       }
+						   }
+						   
+						   // --- collects all used roles depending on otherrole-constraints
+						   var allOroles = new Array();
+						   for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i){
+						       this.__orContainer__.__frames__[i].hideError();
+						       if(this.__orContainer__.__frames__[i].isUsed() === true)
+							   allOroles.push(this.__orContainer__.__frames__[i]);
+						   }
+						   
+						   // --- checks all associationrole-constraints
+						   var checkedRoles = new Array();
+						   for(var i = 0; i !== arcs.length; ++i){
+						       var currentRoles = new Array();
+						       var rType = arcs[i].roleType.flatten();
+						       var cardMin = parseInt(arcs[i].cardMin);
+						       var cardMax = arcs[i].cardMax === "MAX_INT" ? "*" : parseInt(arcs[i].cardMax);
+						       
+						       // --- collects all roles for the current constraint
+						       for(var j = 0; j !== allAroles.length; ++j){
+							   if(rType.indexOf(allAroles[j].getType()) !== -1) currentRoles.push(allAroles[j]);
+						       }
+						       allAroles = allAroles.uniq();
+						       
+						       if(cardMin > currentRoles.length){
+							   ret = false;
+							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							   errorStr += "card-min of the associationrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " is not satisfied (" + currentRoles.length + ")!";
+						       }
+						       if(cardMax !== "*" && cardMax < currentRoles.length){
+							   ret = false;
+							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							   errorStr += "card-max of the associationrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " is not satisfied (" + currentRoles.length + ")!";
+						       }
+						       
+						       // --- checks roleplayer-constraints for the found roles
+						       var currentRpcs = getRolePlayerConstraintsForRole(rType, rpcs);
+						       if(currentRpcs.length === 0){
+							   ret = false;
+							   for(var j = 0; j !== currentRoles.length; ++j) currentRoles[j].showError("This role does not satisfie any roleplayer-constraint!");
+						       }
+						       for(var j = 0; j !== currentRpcs.length; ++j){
+							   var players = currentRpcs[i].players;
+							   var pType = currentRpcs[i].playerType.flatten();
+							   cardMin = parseInt(currentRpcs[i].cardMin);
+							   cardMax = currentRpcs[i].cardMax === "MAX_INT" ? "*" : parseInt(currentRpcs[i].cardMax);
+							   var foundRoles = this.getExistingRoles(rType, players, currentRoles);
+							   if(cardMin > foundRoles.length){
+							       ret = false;
+							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							       errorStr += "card-min of the roleplayer-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
+							   }
+							   if(cardMax !== "*" && cardMax < foundRoles.length){
+							       ret = false;
+							       if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							       errorStr += "card-max of the roleplayer-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
+							   }
+							   // --- marks all found roles from "allAroles"
+							   for(var k = 0; k !== foundRoles.length; ++k) checkedRoles.push(foundRoles[k]);
+						       }
+						   }
+						   
+						   // --- checks roles that does not belong to any constraint
+						   for(var i = 0; i !== checkedRoles.length; ++i) allAroles = allAroles.without(checkedRoles[i]);
+						   
+						   if(allAroles.length !== 0){
+						       for(var i = 0; i !== allAroles.length; ++i) allAroles[i].showError("This role does not satisfie any associationrole- or roleplayer-constraints!");
+						   }
+						   
+						   // --- checks otherrole-constraints
+						   // --- collects all neede otherrole-constraints
+						   var usedOrcs = new Array();
+						   allAroles = allAroles2;
+						   for(var i = 0; i !== allAroles.length; ++i){
+						       usedOrcs = usedOrcs.concat(getOtherRoleConstraintsForRole(new Array(allAroles[i].getType()), new Array(allAroles[i].getPlayer()), orcs));
+						   }
+						   
+						   checkedRole = new Array();
+						   for(var i = 0; i !== usedOrcs.length; ++i){
+						       var players = usedOrcs[i].otherPlayers;
+						       var pType = usedOrcs[i].otherPlayerType;
+						       var rType = usedOrcs[i].otherRoleType;
+						       var cardMin = parseInt(usedOrcs[i].cardMin);
+						       var cardMax = usedOrcs[i].cardMax === "MAX_INT" ? "*" : parseInt(usedOrcs[i].cardMax);
+						       var foundRoles = this.getExistingRoles(rType, players, allOroles);
+						       checkedRoles = checkedRoles.concat(foundRoles);
+						       if(cardMin > foundRoles.length){
+							   ret = false;
+							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							   errorStr += "card-min of the otherrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
+						       }
+						       if(cardMax !== "*" && cardMax < foundRoles.length){
+							   ret = false;
+							   if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							   errorStr += "card-max of the otherrole-constraint card-min: " + cardMin + " card-max: " + cardMax + " for the roletype \"" + rType + " and the playertype \"" + pType + "\" is not satisfied (" + foundRoles.length + ")!";
+						       }
+						   }
+						   
+						   
+						   if(ret === false) this.showError(errorStr);
+						   else this.hideError();
+						   return ret;
 					       }});
 
 
@@ -2255,12 +2677,13 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					         if(!owner) throw "From NameC(): owner must be set but is null";
                                                  if(!owner.__frames__) owner.__frames__ = new Array();
                                                  owner.__frames__.push(this);
-    
+
                                                  this.__frame__.writeAttribute({"class" : CLASSES.associationFrame()});
                                                  this.__table__ = new Element("table", {"class" : CLASSES.associationFrame()});
                                                  this.__frame__.insert({"top" : this.__table__});
                                                  this.__constraints__ = constraints;
                                                  this.__contents__ = contents;
+                                                 this.__constraints__ = constraints;
                                                  this.__owner__ = owner;
                                                  this.__dblClickHandler__ = dblClickHandlerF;
 
@@ -2357,10 +2780,10 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     ",\"roles\":" + this.__roles__.toJSON() + "}";
 					     },
 					     "isValid" : function(){
-						 // TODO: implement
-						 return true;
+						 return this.__roles__.isValid();
 					     },
 					     "disable" : function(){
+						 this.hideError();
 						 this.__itemIdentity__.disable();
 						 this.__roles__.disable();
 						 this.__type__.__frames__[0].disable();
@@ -2394,7 +2817,6 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 							      this.__frame__.insert({"top" : this.__table__});
 							      this.__caption__ = new Element("caption", {"class" : CLASSES.clickable()}).update("Associations");
 							      this.__table__.insert({"top" : this.__caption__})
-
 							      this.__container__ = new Object();
 
 							      for(var i = 0; contents && i != contents.length; ++i){
@@ -2443,8 +2865,13 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 							  return associations.substring(0, associations.length - 1) + "]";
 						      },
 						      "isValid" : function(){
-							  // TODO: implement
-							  return true;
+							  var ret = true;
+							  for(var i = 0; i !== this.__container__.__frames__.length; ++i){
+							      if(this.__container__.__frames__[i].isUsed() === true && this.__container__.__frames__[i].isValid() === false)
+								  ret = false;
+							  }
+
+							  return ret;
 						      },
 						      "minimize" : function(){
 							  var rows = this.__table__.select("tr." + CLASSES.associationFrame());
@@ -2483,7 +2910,7 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 
 
 // --- Representation of a topic map if frame.
-var tmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
+var TmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
                                           $super();
                                           try{
                                               this.__frame__.writeAttribute({"class" : CLASSES.itemIdentityFrame()});
@@ -2493,7 +2920,7 @@ var tmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
                                               this.__frame__.insert({"top" : this.__table__});
                                               this.__caption__ = new Element("caption", {"class" : CLASSES.clickable()}).update("Topic Map ID");
                                               this.__table__.update(this.__caption__);
-                                              var value = contents && contents.length !== 0 ? contents[0] : "";
+                                              var value = contents && contents.length !== 0 ? decodeURI(contents[0]) : "";
                                               this.__contentrow__ = new Element("input", {"type" : "text", "value" : value});
                                               this.__tr__ = new Element("tr", {"class" : CLASSES.tmIdFrame()});
                                               var td =new Element("td", {"class" : CLASSES.content()});
@@ -2515,13 +2942,20 @@ var tmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
 				      },
 				      "getContent" : function(){
 					  if(this.__contentrow__.value.strip().length === 0) return null;
-					  return new Array(this.__contentrow__.value.strip());
+					  return new Array(encodeURI(this.__contentrow__.value.strip()));
 				      },
 				      "toJSON" : function(){
 					  return (this.getContent() === null ? "null" : this.getContent().toJSON());
 				      },
 				      "isValid" : function(){
-					  return this.getContent() !== null;
+					  if(this.getContent() !== null){
+					      this.hideError();
+					      return true;
+					  }
+					  else {
+					      this.showError("Please enter a Topic Map ID!");
+					      return false;
+					  }
 				      },
 				      "minimize": function(){
 					  if(this.__minimized__ === false) this.__tr__.hide();

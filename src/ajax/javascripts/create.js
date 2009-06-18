@@ -45,7 +45,7 @@ function makeCreate(psi)
 		for(var i = 0; i !== items.length; ++i){
 		    items[i].remove();
 		}
-
+		
 		var instanceOfs = new Array();
 		for(var i = 0; psis && i !== psis.length; ++i){
 		    instanceOfs.push(new Array(psis[i]));
@@ -66,12 +66,21 @@ function makeCreate(psi)
 		    liA = liT;
 		}
 
-		var tmId = new tmIdC(null);
+		var tmId = new TmIdC(null);
 		var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
 		liA.insert({"after" : liTm});
 
 		var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
 		commitButton.observe("click", function(event){
+		    // --- validates the given data
+		    var ret = true;
+		    if(topic.isValid() === false) ret = false;
+		    if(associations.isValid() === false) ret = false;
+		    if(tmId.isValid() === false) ret = false;
+
+		    if(ret === false) return;
+
+		    // --- if the validation succeeded the fragment will be sent to the server
 		    var tPsis = topic.getContent().subjectIdentifiers;
 		    var referencedTopics = topic.getReferencedTopics();
 		    if(associations){
