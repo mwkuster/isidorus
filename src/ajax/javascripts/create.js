@@ -23,108 +23,108 @@ function makeCreate(psi)
 	var liTopicSelect = new Element("li", {"class" : CLASSES.instanceOfFrame()});
 	fragmentFrame.insert({"bottom" : liTopicSelect});
 
+	function innerMakeFragment(psis, constraints){
+	    makeFragment(liTopicSelect, psis, constraints);
+	}
+
+	function onSuccessHandler(xhr){
+	    var json = null;
+	    try{
+		json = xhr.responseText.evalJSON();
+	    }
+	    catch(innerErr){
+		alert("Got bad JSON data from " + xhr.request.url + "\n\n" + innerErr);
+	    }
+	    var instanceOf = null;
+	    try{
+		instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment);
+		liTopicSelect.insert({"bottom" : instanceOf.getFrame()});
+	    }
+	    catch(innerErr){
+		alert("There occurred an error by creating an InstanceOfC frame, please reload this page!\n\n" + innerErr);
+	    }
+	} //onSuccessHandler
 	
-	function makeInstanceOfFrame(context){
-	    function makeFragment(psis, constraints){
-		clearFragment();
-		var instanceOfs = new Array();
-		for(var i = 0; psis && i !== psis.length; ++i){
-		    instanceOfs.push(new Array(psis[i]));
-		}
-		var topic = new TopicC(null, (constraints ? constraints.topicConstraints : null), instanceOfs);
-		var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
-		context.insert({"after" : liT});
-
-		var liA = null;
-		var associations = null;
-		if(constraints && constraints.associationsConstraints && constraints.associationsConstraints.length !== 0){
-		    addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
-		    associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
-		    liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
-		    liT.insert({"after" : liA});
-		}
-		else {
-		    liA = liT;
-		}
-
-		var tmId = new TmIdC(null);
-		var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
-		liA.insert({"after" : liTm});
-
-		var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
-		commitButton.observe("click", function(event){
-		    // --- validates the given data
-		    var ret = true;
-		    if(topic.isValid() === false) ret = false;
-		    if(associations.isValid() === false) ret = false;
-		    if(tmId.isValid() === false) ret = false;
-
-		    if(ret === false){
-			alert("The fragment wasn't committed!");
-			return;
-		    }
-
-		    // --- if the validation succeeded the fragment will be sent to the server
-		    var tPsis = topic.getContent().subjectIdentifiers;
-		    var referencedTopics = topic.getReferencedTopics();
-		    if(associations){
-			referencedTopics = referencedTopics.concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
-		    }
-
-		    function onSuccessHandler(topicStubs){
-			var tsStr = "null";
-			if(topicStubs && topicStubs.length !== 0){
-			    tsStr = "[";
-			    for(var i = 0; i !== topicStubs.length; ++i){
-				tsStr += topicStubs[i];
-				if(i !== topicStubs.length - 1) tsStr += ",";
-			    }
-			    tsStr += "]";
-			}
-			var jTopic = "\"topic\":" + topic.toJSON();
-			var jTopicStubs = "\"topicStubs\":" + tsStr;
-			var jAssociations = "\"associations\":" + (associations ? associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis) : "null");
-			var jTmId = "\"tmIds\":" + tmId.toJSON();
-			var json = "{" + jTopic + "," + jTopicStubs + "," + jAssociations + "," + jTmId + "}";
-			commitFragment(json, function(xhr){ alert("The fragment was committed succesfully!"); }, null);
-		    }
-		    
-		    function onErrorHandler(){
-			// --- currently there is not needed a special handling for errors
-			// --- occurred during this operation
-		    }
-		    getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
-		});
-		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
-		liCB.update(commitButton);
-		liTm.insert({"after" : liCB});
-	    } //makeFragment
-
-	    function onSuccessHandler(xhr){
-		var json = null;
-		try{
-		    json = xhr.responseText.evalJSON();
-		}
-		catch(innerErr){
-		    alert("Got bad JSON data from " + xhr.request.url + "\n\n" + innerErr);
-		}
-		var instanceOf = null;
-		try{
-  		    instanceOf = new InstanceOfC(json.flatten().sort(), makeFragment);
-		    context.insert({"bottom" : instanceOf.getFrame()});
-		}
-		catch(innerErr){
-		    alert("There occurred an error by creating an InstanceOfC frame, please reload this page!\n\n" + innerErr);
-		}
-	    } //onSuccessHandler
-
-	    getTypePsis(onSuccessHandler, null);
-	} //makeInstanceOfFrame
-
-	makeInstanceOfFrame(liTopicSelect);
+	getTypePsis(onSuccessHandler, null);
     }catch(err){
 	alert("From makeCreate(): " + err);
     }
+}
+
+
+// --- Creates the sub-elemts Topic, Associations and Topic Maps ID of a Fragment element.
+function makeFragment(context, psis, constraints){
+    clearFragment();
+    
+    var instanceOfs = new Array();
+    for(var i = 0; psis && i !== psis.length; ++i){
+	instanceOfs.push(new Array(psis[i]));
+    }
+    var topic = new TopicC(null, (constraints ? constraints.topicConstraints : null), instanceOfs);
+    var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
+    context.insert({"after" : liT});
+    
+    var liA = null;
+    var associations = null;
+    if(constraints && constraints.associationsConstraints && constraints.associationsConstraints.length !== 0){
+	addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
+	associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
+	liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
+	liT.insert({"after" : liA});
+    }
+    else {
+	liA = liT;
+    }
+    
+    var tmId = new TmIdC(null);
+    var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
+    liA.insert({"after" : liTm});
+    var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
+    commitButton.observe("click", function(event){
+	// --- validates the given data
+	var ret = true;
+	if(topic.isValid() === false) ret = false;
+	if(associations && associations.isValid() === false) ret = false;
+	if(tmId.isValid() === false) ret = false;
+
+	if(ret === false){
+	    alert("The fragment wasn't committed - Please correct your input date!");
+	    return;
+	}
+	
+	// --- if the validation succeeded the fragment will be sent to the server
+	var tPsis = topic.getContent().subjectIdentifiers;
+	var referencedTopics = topic.getReferencedTopics();
+	if(associations){
+	    referencedTopics = referencedTopics.concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
+	}
+	function onSuccessHandler(topicStubs){
+	    var tsStr = "null";
+	    if(topicStubs && topicStubs.length !== 0){
+		tsStr = "[";
+		for(var i = 0; i !== topicStubs.length; ++i){
+		    tsStr += topicStubs[i];
+		    if(i !== topicStubs.length - 1) tsStr += ",";
+		}
+		tsStr += "]";
+	    }
+	    var jTopic = "\"topic\":" + topic.toJSON();
+	    var jTopicStubs = "\"topicStubs\":" + tsStr;
+	    var jAssociations = "\"associations\":" + (associations ? associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis) : "null");
+	    var jTmId = "\"tmIds\":" + tmId.toJSON();
+	    var json = "{" + jTopic + "," + jTopicStubs + "," + jAssociations + "," + jTmId + "}";
+	    commitFragment(json, function(xhr){ alert("The fragment was committed succesfully!"); }, null);
+	}
+	
+	function onErrorHandler(){
+	    // --- currently there is not needed a special handling for errors
+	    // --- occurred during this operation
+	}
+	getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
+    });
+    var liCB = new Element("li", {"class" : CLASSES.commitButton()});
+    liCB.update(commitButton);
+    liTm.insert({"after" : liCB});
 }
 
 

@@ -255,7 +255,7 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
                                             	    throw "From InstanceOfC(): The following exception was thrown:\n" + err;
                                             	    this.__container__ = null;
                                                 }
-                                                this.__commit__ = new Element("input", {"type" : "button", "value" : "get constraints"});
+                                                this.__commit__ = new Element("input", {"type" : "button", "value" : "generate fragment"});
 
                                                 function setHandler(myself){
 						    function onSuccessHandler(xhr){
@@ -442,68 +442,64 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						return content.length === 0 ? "null" : content.toJSON();
 					    },
 					    "isValid" : function(){
-						try {
-						    var allIdentifiers = new Array();
-						    var errorStr = "";
-						    var ret = true;
-						    
-						    // --- checks if there are any constraints
-						    if((!this.__constraints__ || this.__constraints__.length === 0) && this.__containers__.length !== 0){
-							for(var i = 0; i !== this.__containers__.length; ++i){
-							    for(var j = 0; this.__containers__[i].__frames__ && j !== this.__containers__[i].__frames__.length; ++j){
-								this.__containers__[i].__frames__[j].showError("No constraints found for this identifier!");
-							    }
-							}
-							return false;
-						    }
-						    else if(!this.__constraints__ || this.__constraints__.length === 0) return true;
-
-						    // --- collects all non-empty identifiers
+						var allIdentifiers = new Array();
+						var errorStr = "";
+						var ret = true;
+						
+						// --- checks if there are any constraints
+						if((!this.__constraints__ || this.__constraints__.length === 0) && this.__containers__.length !== 0){
 						    for(var i = 0; i !== this.__containers__.length; ++i){
 							for(var j = 0; this.__containers__[i].__frames__ && j !== this.__containers__[i].__frames__.length; ++j){
-							    var row = this.__containers__[i].__frames__[j];
-							    row.hideError();
-							    if(row.isUsed() === true && row.getContent().strip().length !== 0) allIdentifiers.push(row);
+							    this.__containers__[i].__frames__[j].showError("No constraints found for this identifier!");
 							}
 						    }
+						    return false;
+						}
+						else if(!this.__constraints__ || this.__constraints__.length === 0) return true;
+						
+						// --- collects all non-empty identifiers
+						for(var i = 0; i !== this.__containers__.length; ++i){
+						    for(var j = 0; this.__containers__[i].__frames__ && j !== this.__containers__[i].__frames__.length; ++j){
+							var row = this.__containers__[i].__frames__[j];
+							row.hideError();
+							if(row.isUsed() === true && row.getContent().strip().length !== 0) allIdentifiers.push(row);
+						    }
+						}
+						
+						var checkedIdentifiers = new Array();
+						for(var i = 0; i !== this.__constraints__.length; ++i){
+						    var regexp = new RegExp(this.__constraints__[i].regexp);
+						    var cardMin = parseInt(this.__constraints__[i].cardMin);
+						    var cardMax = this.__constraints__[i].cardMax === MAX_INT ? MMAX_INT : parseInt(this.__constraints__[i].cardMax);
+						    var currentIdentifiers = new Array();
+						    for(var j = 0; j !== allIdentifiers.length; ++j){
+							if(regexp.match(allIdentifiers[j].getContent()) === true) currentIdentifiers.push(allIdentifiers[j]);
+						    }
+						    checkedIdentifiers = checkedIdentifiers.concat(currentIdentifiers);
 						    
-						    var checkedIdentifiers = new Array();
-						    for(var i = 0; i !== this.__constraints__.length; ++i){
-							var regexp = new RegExp(this.__constraints__[i].regexp);
-							var cardMin = parseInt(this.__constraints__[i].cardMin);
-							var cardMax = this.__constraints__[i].cardMax === MAX_INT ? MMAX_INT : parseInt(this.__constraints__[i].cardMax);
-							var currentIdentifiers = new Array();
-							for(var j = 0; j !== allIdentifiers.length; ++j){
-							    if(regexp.match(allIdentifiers[j].getContent()) === true) currentIdentifiers.push(allIdentifiers[j]);
-							}
-							checkedIdentifiers = checkedIdentifiers.concat(currentIdentifiers);
-
-							// --- checks card-min and card-max for the current constraint
-							if(cardMin > currentIdentifiers.length){
-							    errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMin + ")!<br/>";
-							    ret = false;
-							}
-							if(cardMax !== MMAX_INT && cardMax < currentIdentifiers.length){
-							    errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMax + ")!<br/>";
-							    ret = false;
-							}
-						    }
-
-						    // --- checks if there are some identifiers which don't satisfies any constraint
-						    checkedIdentifiers = checkedIdentifiers.uniq();
-						    if(checkedIdentifiers.length < allIdentifiers.length){							
+						    // --- checks card-min and card-max for the current constraint
+						    if(cardMin > currentIdentifiers.length){
+							errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMin + ")!<br/>";
 							ret = false;
-							for(var i = 0; i !== allIdentifiers.length; ++i){
-							    if(checkedIdentifiers.indexOf(allIdentifiers[i]) === -1) allIdentifiers[i].showError("This Identifier does not satisfie any constraint!");
-							}
 						    }
-
-						    if(ret === true) this.hideError();
-						    else this.showError(errorStr);
-						    return ret;
-						}catch(err){ alert("err: " + err); }
-
-
+						    if(cardMax !== MMAX_INT && cardMax < currentIdentifiers.length){
+							errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMax + ")!<br/>";
+							ret = false;
+						    }
+						}
+						
+						// --- checks if there are some identifiers which don't satisfies any constraint
+						checkedIdentifiers = checkedIdentifiers.uniq();
+						if(checkedIdentifiers.length < allIdentifiers.length){							
+						    ret = false;
+						    for(var i = 0; i !== allIdentifiers.length; ++i){
+							if(checkedIdentifiers.indexOf(allIdentifiers[i]) === -1) allIdentifiers[i].showError("This Identifier does not satisfie any constraint!");
+						    }
+						}
+						
+						if(ret === true) this.hideError();
+						else this.showError(errorStr);
+						return ret;
 					    }});
 
 
@@ -1754,7 +1750,6 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					   return this.__subjectIdentifier__.getContent(true, true).length !== 0;
 				       },
 				       "isValid" : function(){
-					   try{
 					   var ret = true;
 					   if(this.__topicid__.__frames__[0].getContent().strip().length === 0){
 					       ret = false;
@@ -1768,7 +1763,6 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					   if(this.__subjectIdentifier__.isValid() === false) ret = false;
 					   if(this.__name__.isValid() === false) ret = false;
 					   if(this.__occurrence__.isValid() === false) ret = false;
-					   }catch(err){ alert("err: " + err); }
 					   return ret;
 				       },
 				       "getReferencedTopics" : function(){

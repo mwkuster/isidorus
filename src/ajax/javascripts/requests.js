@@ -27,12 +27,9 @@ function setAjaxTimeout(time, url)
 function createXHRHandler(handler, timeFun)
 {
     function fun(xhr){
-	try{
-	    clearTimeout(timeFun);
-	    hideLoad();
-	    handler(xhr);
-	}
-	catch(err) {alert("err: " + err); }
+	clearTimeout(timeFun);
+	hideLoad();
+	handler(xhr);
     }
     return fun;
 }

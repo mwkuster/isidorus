@@ -18,7 +18,35 @@ function makeEdit(psi)
     $(CLASSES.subPage()).insert({"bottom" : content});
 
     try{
+	var fragmentFrame = new Element("ul", {"class" : CLASSES.fragmentFrame()});
+	content.insert({"bottom" : fragmentFrame});
+	var liTopicSelect = new Element("li", {"class" : CLASSES.instanceOfFrame()});
+	fragmentFrame.insert({"bottom" : liTopicSelect});
+
+	// --- creates the sub-elements topic, associations and topic map id
+	function innerMakeFragment(psis, constraints){
+	    makeFragment(liTopicSelect, psis, constraints);
+	}
 	
+	function onSuccessHandler(xhr){
+	    var json = null;
+	    try{
+		json = xhr.responseText.evalJSON();
+		}
+	    catch(innerErr){
+		alert("Got bad JSON data from " + xhr.request.url + "\n\n" + innerErr);
+	    }
+	    var instanceOf = null;
+	    try{
+		instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment);
+		liTopicSelect.insert({"bottom" : instanceOf.getFrame()});
+	    }
+	    catch(innerErr){
+		alert("There occurred an error by creating an InstanceOfC frame, please reload this page!\n\n" + innerErr);
+	    }
+	} //onSuccessHandler
+	
+	getTypePsis(onSuccessHandler, null);
     }
     catch(err){
 	alert("From makeEdit(): " + err);
