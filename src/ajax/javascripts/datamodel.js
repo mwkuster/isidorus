@@ -1805,6 +1805,12 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 						   }
 					       }
 					   }
+
+					   if(this.__instanceOfs__){
+					       for(var i = 0; i !== this.__instanceOfs__.length; ++i){
+						   if(referencedTopics.indexOf(this.__instanceOfs__[i][0]) === -1) referencedTopics.push(this.__instanceOfs__[i][0]);
+					       }
+					   }
 					   return referencedTopics;
 				       }});
 

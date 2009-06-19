@@ -14,5 +14,6 @@ function makeSearch(psi)
 {
     var content = new Element("div", {"class" : CLASSES.content()});
     var header = new Element("h1").update("Search a Topic");
-    $(CLASSES.subPage()).insert((content.insert(header, {"position" : "bottom"})), {"position" : "bottom"});
+    content.insert({"bottom" : header});
+    $(CLASSES.subPage()).insert({"bottom" : content});
 }

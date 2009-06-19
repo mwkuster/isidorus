@@ -29,7 +29,7 @@ function createXHRHandler(handler, timeFun)
     function fun(xhr){
 	try{
 	    clearTimeout(timeFun);
-	    removeLoad();
+	    hideLoad();
 	    handler(xhr);
 	}
 	catch(err) {alert("err: " + err); }
@@ -41,7 +41,7 @@ function createXHRHandler(handler, timeFun)
 // --- Removes all divs with the class ajaxLoader. The inner image with the
 // --- class ajaxLoader will be moved to the top of div.content and the
 // --- display attribute will be set to none;
-function removeLoad()
+function hideLoad()
 {
     var img = $$("img." + CLASSES.ajaxLoader());
     if(img.length === 1){
@@ -162,19 +162,20 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
 	    neededTime += delta;
 	    if(delta > maxTimeout && psis && psis.length !== 0){
 		alert("From getTopicStubs(): Please check your network-connection - the request timed out!!!");
-		removeLoad();
+		hideLoad();
 		onFailureHandler();
 		return;
 	    }
 
 	    if(topicStubs.length === psis.length){
-		removeLoad();
+		hideLoad();
+		onSuccessHandler(topicStubs);
+		
 	    }
 	    else setTimeout(checkRequests, delta);
 	}
 
 	checkRequests();
-
     }
     catch(err){
 	alert("From getTopicStubs(): Could not request topicStubs information for: " + psis + "\n\n" + err);

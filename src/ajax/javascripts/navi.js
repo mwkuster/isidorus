@@ -44,6 +44,7 @@ function makePage(newPage, psi)
     PAGES.current = newPage;
 
     // --- removes the old content
+    hideLoad(); // to prevent the load-gif of beeing removed when it is used in the error-div
     $(CLASSES.subPage()).update();
 
     // --- creates the new content

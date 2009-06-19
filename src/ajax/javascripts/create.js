@@ -14,8 +14,8 @@ function makeCreate(psi)
 {
     var content = new Element("div", {"class" : CLASSES.content()});
     var header = new Element("h1").update("Create a Topic");
-    content.insert(header, {"position" : "bottom"});
-    $(CLASSES.subPage()).insert(content, {"position" : "bottom"});
+    content.insert({"bottom" : header});
+    $(CLASSES.subPage()).insert({"bottom" : content});
 
     try{
 	var fragmentFrame = new Element("ul", {"class" : CLASSES.fragmentFrame()});
@@ -59,7 +59,10 @@ function makeCreate(psi)
 		    if(associations.isValid() === false) ret = false;
 		    if(tmId.isValid() === false) ret = false;
 
-		    if(ret === false) return;
+		    if(ret === false){
+			alert("The fragment wasn't committed!");
+			return;
+		    }
 
 		    // --- if the validation succeeded the fragment will be sent to the server
 		    var tPsis = topic.getContent().subjectIdentifiers;
@@ -67,7 +70,7 @@ function makeCreate(psi)
 		    if(associations){
 			referencedTopics = referencedTopics.concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
 		    }
-		    
+
 		    function onSuccessHandler(topicStubs){
 			var tsStr = "null";
 			if(topicStubs && topicStubs.length !== 0){
@@ -90,7 +93,6 @@ function makeCreate(psi)
 			// --- currently there is not needed a special handling for errors
 			// --- occurred during this operation
 		    }
-		    
 		    getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
 		});
 		var liCB = new Element("li", {"class" : CLASSES.commitButton()});
@@ -121,7 +123,7 @@ function makeCreate(psi)
 
 	makeInstanceOfFrame(liTopicSelect);
     }catch(err){
-	alert(err);
+	alert("From makeCreate(): " + err);
     }
 }
 

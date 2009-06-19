@@ -14,5 +14,13 @@ function makeEdit(psi)
 {
     var content = new Element("div", {"class" : CLASSES.content()});
     var header = new Element("h1").update("Edit a Topic");
-    $(CLASSES.subPage()).insert((content.insert(header, {"position" : "bottom"})), {"position" : "bottom"});
+    content.insert({"bottom" : header});
+    $(CLASSES.subPage()).insert({"bottom" : content});
+
+    try{
+	
+    }
+    catch(err){
+	alert("From makeEdit(): " + err);
+    }
 }
