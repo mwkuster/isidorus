@@ -82,6 +82,7 @@ var CLASSES = {"__divPage__" : "page",
 	       "__divTmIdFrame__" : "tmIdFrame",
 	       "__divLoad__" : "loadFrame",
 	       "__imgAjaxLoader__" : "ajaxLoader",
+	       "__divEditFrame__" : "editFrame",
 
 	       "page" : function(){ return this.__divPage__; },
 	       "subPage" : function(){ return this.__divSubPage__; },
@@ -124,5 +125,6 @@ var CLASSES = {"__divPage__" : "page",
 	       "commitButton" : function(){ return this.__inputCommitButton__; },
 	       "tmIdFrame" : function(){ return this.__divTmIdFrame__; },
 	       "load" : function(){ return this.__divLoad__; },
-	       "ajaxLoader" : function(){ return this.__imgAjaxLoader__; }
+	       "ajaxLoader" : function(){ return this.__imgAjaxLoader__; },
+	       "editFrame" : function(){ return this.__divEditFrame__; }
 	      };

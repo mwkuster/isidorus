@@ -81,36 +81,43 @@ function defaultFailureHandler(xhr)
 }
 
 
-// --- Gets all type psis from the server.
-function getTypePsis(onSuccessHandler, onFailureHandler)
+// --- Gets all psis from the server. If typePsis is set to true
+// --- there will be requested only TopicType's psis.
+function getPsis(onSuccessHandler, onFailureHandler, typePsis)
 {
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TYPE_PSIS_URL);
 	onLoad("Requesting all type PSIs");
 
-	new Ajax.Request(TYPE_PSIS_URL, {
+	var url = ALL_PSIS_URL;
+	if(typePsis === true) url = TYPE_PSIS_URL;
+
+	new Ajax.Request(url, {
 	    "method" : "get",
 	    "requestHeaders" : INIT_DATE,
 	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
 	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }
     catch(err){
-	alert("Could not request all type PSIs, please try again!\n\n" + err);
+	alert("From getTypePsis(): could not request all type PSIs, please try again!\n\n" + err);
     }
 }
 
 
 // --- Sends a post-request to the server with the passed psis as postBody.
 // --- Gets a constraint-object.
-function requestConstraints(psis, onSuccessHandler, onFailureHandler)
+function requestConstraints(psis, onSuccessHandler, onFailureHandler, typeConstraints)
 {
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TMCL_TYPE_URL);
 	onLoad("Requesting all constraints for the psis:\<br/>" + psis.gsub("\\[", "").gsub("\\]", ""));
 
-	new Ajax.Request(TMCL_TYPE_URL, {
+	url = TMCL_INSTANCE_URL;
+	if(typeConstraints === true) url = TMCL_TYPE_URL;
+
+	new Ajax.Request(url, {
 	    "method" : "post",
 	    "postBody" : psis,
 	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
@@ -197,5 +204,30 @@ function commitFragment(json, onSuccessHandler, onFailureHandler)
     }
     catch(err){
 	alert("From commitFragment(): " + err);
+    }
+}
+
+
+// --- Requests a JSON-Fragment for the passed psi and calls the onSuccessHandler function
+// --- after a succeeded request.
+function requestFragment(psi, onSuccessHandler, onFailureHandler)
+{
+    if(!psi || !onSuccessHandler) throw "From requestFragment(): psi and onSuccessHandler must be set!";
+
+    try{
+	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
+	var timeFun = setAjaxTimeout(TIMEOUT, COMMIT_URL);
+	onLoad("Requesting fragment for the topic " + psi);
+	
+	var url = GET_PREFIX + psi.gsub("#", "%23");
+
+	new Ajax.Request(url, {
+	    "method" : "get",
+	    "requestHeaders" : INIT_DATE,
+	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
+	    "onFailure" : createXHRHandler(onFailure, timeFun)});
+    }
+    catch(err){
+	alert("From requestFragment(): " + err);
     }
 }

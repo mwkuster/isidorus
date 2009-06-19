@@ -10,6 +10,7 @@
 //+-----------------------------------------------------------------------------
 
 
+// --- Creates the "create"-sub-page.
 function makeCreate(psi)
 {
     var content = new Element("div", {"class" : CLASSES.content()});
@@ -24,7 +25,7 @@ function makeCreate(psi)
 	fragmentFrame.insert({"bottom" : liTopicSelect});
 
 	function innerMakeFragment(psis, constraints){
-	    makeFragment(liTopicSelect, psis, constraints);
+	    makeFragment(liTopicSelect, psis, constraints, null);
 	}
 
 	function onSuccessHandler(xhr){
@@ -45,7 +46,7 @@ function makeCreate(psi)
 	    }
 	} //onSuccessHandler
 	
-	getTypePsis(onSuccessHandler, null);
+	getPsis(onSuccessHandler, null, true);
     }catch(err){
 	alert("From makeCreate(): " + err);
     }
@@ -53,22 +54,31 @@ function makeCreate(psi)
 
 
 // --- Creates the sub-elemts Topic, Associations and Topic Maps ID of a Fragment element.
-function makeFragment(context, psis, constraints){
+function makeFragment(context, psis, constraints, contents){
     clearFragment();
+
+    var topicContent = null;
+    var associationsContent = null;
+    var tmContent = null;
+    if(contents){
+	topicContent = contents.topic;
+	associationsContent = contents.associations;
+	tmContent = contents.tmIds;
+    }
     
     var instanceOfs = new Array();
     for(var i = 0; psis && i !== psis.length; ++i){
 	instanceOfs.push(new Array(psis[i]));
     }
-    var topic = new TopicC(null, (constraints ? constraints.topicConstraints : null), instanceOfs);
+    var topic = new TopicC(topicContent, (constraints ? constraints.topicConstraints : null), instanceOfs);
     var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
     context.insert({"after" : liT});
     
     var liA = null;
     var associations = null;
-    if(constraints && constraints.associationsConstraints && constraints.associationsConstraints.length !== 0){
+    if((constraints && constraints.associationsConstraints && constraints.associationsConstraints.length !== 0) || associationsContent && associationsContent.length !== 0){
 	addTopicAsPlayer((constraints ? constraints.associationsConstraints : null), topic.getContent().instanceOfs);
-	associations = new AssociationContainerC(null, (constraints ? constraints.associationsConstraints : null));
+	associations = new AssociationContainerC(associationsContent, (constraints ? constraints.associationsConstraints : null));
 	liA = new Element("li", {"class" : CLASSES.associationContainer()}).update(associations.getFrame());
 	liT.insert({"after" : liA});
     }
@@ -76,10 +86,10 @@ function makeFragment(context, psis, constraints){
 	liA = liT;
     }
     
-    var tmId = new TmIdC(null);
+    var tmId = new TmIdC(tmContent);
     var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
     liA.insert({"after" : liTm});
-    var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment", "style" : "float: right; margin-top: -10px;"})
+    var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment"})
     commitButton.observe("click", function(event){
 	// --- validates the given data
 	var ret = true;

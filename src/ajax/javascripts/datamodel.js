@@ -242,6 +242,51 @@ var ContainerC = Class.create({"initialize" : function(){
 			       }});
 
 
+// --- Representation of a
+var EditC = Class.create(ContainerC, {"initialize" : function($super, contents, successFun){
+                                          $super();
+                                          this.__frame__.writeAttribute({"class" : CLASSES.editFrame()});
+                                          this.__container__ = new Object();
+                                          try{
+					      var row = new SelectrowC(contents, this.__container__, 1, 1);
+					      this.__error__.insert({"before" : row.getFrame()});
+					  }
+                                          catch(err){
+					      throw "From EditC(): The following exception was thrown:\n" + err;
+					      this.__container__ = null;
+					  }
+                                          this.__commit__ = new Element("input", {"type" : "button", "value" : "generate fragment"});
+
+                                          function setHandler(myself){
+					      function onSuccessHandler(xhr){
+						  var json = null;
+						  try{
+						      json = xhr.responseText.evalJSON();
+						  }
+						  catch(err){
+						      alert("Got bad JSON data from " + xhr.request.url + "!\n\n" + err);
+						  }
+						  successFun(new Array(myself.getContent()), json);
+					      }
+					      
+                                              myself.__commit__.observe("click", function(event){
+						  myself.hideError();
+						  clearFragment();
+                                                  requestConstraints("[" + myself.toJSON() + "]", onSuccessHandler, null)
+                                              });
+                                          }
+                                          setHandler(this);
+
+                                          this.__error__.insert({"before" : this.__commit__});
+                                      },
+				      "getContent" : function(){
+					  return this.__container__.__frames__[0].getContent();
+				      },
+				      "toJSON" : function(){
+					  return this.getContent().toJSON();
+				      }});
+
+
 // --- Represents a container for all instanceOf-Psis of a fragment's topic
 var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, contents, successFun){
                                                 $super();
@@ -281,10 +326,7 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
 								    str += "<br/>";
 								}
 							    }
-							    var items = $$("li." + CLASSES.topicFrame());
-							    for(var i = 0; i != items.length; ++i){
-								items[i].remove();
-							    }
+							    clearFragment();
 							    myself.showError(str);
 							}
 							else {						    
@@ -295,7 +337,7 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
                                             	    myself.__commit__.observe("click", function(event){
 							myself.hideError();
 							clearFragment();
-                                                        requestConstraints(myself.toJSON(true), onSuccessHandler, null);
+                                                        requestConstraints(myself.toJSON(true), onSuccessHandler, null, true);
                                                     });
                                                 }
                                                 setHandler(this);
@@ -479,11 +521,11 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    
 						    // --- checks card-min and card-max for the current constraint
 						    if(cardMin > currentIdentifiers.length){
-							errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMin + ")!<br/>";
+							errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + currentIdentifiers.length + ")!<br/>";
 							ret = false;
 						    }
 						    if(cardMax !== MMAX_INT && cardMax < currentIdentifiers.length){
-							errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + cardMax + ")!<br/>";
+							errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + currentIdentifiers.length + ")!<br/>";
 							ret = false;
 						    }
 						}
@@ -842,8 +884,15 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 					     this.__dblClickHandler__ = dblClickHandler;
     
                                              try{
+						 var itemIdentityContent = null;
+						 var scopesContent = null;
+						 if(contents){
+						     itemIdentityContent = contents.itemIdentities;
+						     scopesContent = contents.scopes;
+						 }
+
 						 // --- control row + itemIdentity
-						 makeControlRow(this, 4, contents ? contents.itemIdentities : null);
+						 makeControlRow(this, 4, itemIdentityContent);
 						 checkRemoveAddButtons(owner, 1, -1);
 						 setRemoveAddHandler(this, owner, 1, -1, function(){
 						     return new VariantC(null, owner, dblClickHandler, parent);
@@ -1037,8 +1086,21 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
                                           this.__dblClickHandler__ = dblClickHandler;
     
                                           try{
+					      var itemIdentityContent = null;
+					      var typeContent = null;
+					      var scopesContent = null;
+					      var valueContent = "";
+					      var variantsContent = null;
+					      if(contents){
+						  itemIdentityContent = contents.itemIdentities;
+						  typeContent = contents.type;
+						  scopesContent = contents.scopes;
+						  valueContent = contents.value;
+						  variantsContent = contents.variants;
+					      }
+
 					      // --- control row + ItemIdentity
-					      makeControlRow(this, 5, contents ? contents.itemIdentities : null);
+					      makeControlRow(this, 5, itemIdentityContent);
 					      checkRemoveAddButtons(owner, min, max);
 					      setRemoveAddHandler(this, owner, min, max, function(){
 						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, cssTitle, dblClickHandler);
@@ -1049,7 +1111,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      for(var i = 0; nametypescopes && i !== nametypescopes.length; ++i){
 						  for(var j = 0; j != nametypescopes[i].nameType.length; ++j){
 						      types.push(nametypescopes[i].nameType[j]);
-						      if(contents && contents.type && contents.type[0] === nametypescopes[i].nameType[j]){
+						      if(typeContent && typeContent[0] === nametypescopes[i].nameType[j]){
 							  var selected = nametypescopes[i].nameType[j];
 							  types[types.length - 1] = types[0];
 							  types[0] = selected;
@@ -1061,7 +1123,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      this.__table__.insert({"bottom" : tr});
 					      
 					      // --- scopes
-					      this.__scope__ = new ScopeContainerC(contents && contents.scopes ? scopes : null, nametypescopes && nametypescopes[0].scopeConstraints ? nametypescopes[0].scopeConstraints : null);
+					      this.__scope__ = new ScopeContainerC(scopesContent, nametypescopes && nametypescopes[0].scopeConstraints ? nametypescopes[0].scopeConstraints : null);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 					      onTypeChangeScope(this, contents ? contents.scopes : null, nametypescopes, "name");
 
@@ -1071,11 +1133,11 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      var _max = simpleConstraint.cardMax !== MAX_INT ? parseInt(simpleConstraint.cardMax) : MMAX_INT;
 					      var cssTitleV = "min: " + _min + "   max: " + _max + "   regular expression: " + (simpleConstraint ? simpleConstraint.regexp : ".*");
 					      this.__cssTitle__ = cssTitle;
-					      new TextrowC((contents ? contents.value : ""), (simpleConstraint ? simpleConstraint.regexp : ".*"), this.__value__, 1, 1, cssTitleV);
+					      new TextrowC(valueContent, (simpleConstraint ? simpleConstraint.regexp : ".*"), this.__value__, 1, 1, cssTitleV);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.valueFrame(), "Value", this.__value__.__frames__[0].getFrame())});
 					      
 					      // --- variants
-					      this.__variants__ = new VariantContainerC(contents? contents.variants : null, this);
+					      this.__variants__ = new VariantContainerC(variantsContent, this);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.variantContainer(), "Variants", this.__variants__.getFrame())});
 					      
 					      // --- adds a second show handler, so the variants will be hidden, when the entire
@@ -1348,8 +1410,17 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
                                                 this.__dblClickHandler__ = dblClickHandler;
 
                                                 try{
+						    var itemIdentityContent = null;
+						    var typeContent = null;
+						    var scopesContent = null;
+						    if(contents){
+							itemIdentityContent = contents.itemIdentities;
+							typeContent = contents.type;
+							scopesContent = contents.scopes;
+						    }
+						    
 						    // --- control row + itemIdentity
-						    makeControlRow(this, 5, contents ? contents.itemIdentities : null);
+						    makeControlRow(this, 5, itemIdentityContent);
 						    checkRemoveAddButtons(owner, 1, max);
 						    setRemoveAddHandler(this, owner, 1, max, function(){
 							return new OccurrenceC(null, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle, dblClickHandler);
@@ -1360,7 +1431,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    for(var i = 0; occurrenceTypes && i !== occurrenceTypes.length; ++i){
 							for(var j = 0; j != occurrenceTypes[i].occurrenceType.length; ++j){
 							    types.push(occurrenceTypes[i].occurrenceType[j]);
-							    if(contents && contents.type && contents.type[0] === ooccurrenceTypes[i].occurrenceType[j]){
+							    if(typeContent && typeContent[0] === ooccurrenceTypes[i].occurrenceType[j]){
 								var selected = occurrenceTypes[i].occurrenceType[j];
 								types[types.length - 1] = types[0];
 								types[0] = selected;
@@ -1372,7 +1443,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    this.__table__.insert({"bottom" : tr});
 
 						    // --- scopes
-						    this.__scope__ = new ScopeContainerC(contents && contents.scopes ? contents.scopes : null, occurrenceTypes && occurrenceTypes[0].scopeConstraints ? occurrenceTypes[0].scopeConstraints : null);
+						    this.__scope__ = new ScopeContainerC(scopesContent, occurrenceTypes && occurrenceTypes[0].scopeConstraints ? occurrenceTypes[0].scopeConstraints : null);
 						    this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 						    onTypeChangeScope(this, contents && contents.scopes ? contents.scopes : null, occurrenceTypes, "occurrence");
 
@@ -1655,6 +1726,20 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
                                            this.__instanceOfs__ = (!instanceOfs || instanceOfs.length === 0 ? null : instanceOfs);
 
                                            try{
+					       var topicidContent = null;
+					       var itemIdentityContent = null;
+					       var subjectLocatorContent = null;
+					       var subjectIdentifierContent = null;
+					       var namesContent = null;
+					       var occurrencesContent = null;
+					       if(content){
+						   topicidContent = content.id
+						   itemIdentityContent = content.itemIdentities
+						   subjectLocatorContent = content.subjectLocators;
+						   subjectIdentifierContent = content.subjectIdentifiers;
+						   namesContent = content.names;
+						   occurrencesContent = content.occurrences;
+					       }
 					       this.__frame__ .writeAttribute({"class" : CLASSES.topicFrame()});
 					       this.__table__ = new Element("table", {"class" : CLASSES.topicFrame()});
 					       this.__frame__.insert({"top" : this.__table__});
@@ -1670,35 +1755,31 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       
 					       // --- topic id
 					       this.__topicid__ = new Object();
-					       new TextrowC((content ? content.topicid : null), ".*", this.__topicid__, 1, 1, null);
+					       new TextrowC(topicidContent, ".*", this.__topicid__, 1, 1, null);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.topicIdFrame(), "Topic ID", this.__topicid__.__frames__[0].getFrame())});
 					       
 					       // --- itemIdentity
-					       this.__itemIdentity__ = new ItemIdentityC(content ? content.itemIdentities : null, this);
+					       this.__itemIdentity__ = new ItemIdentityC(itemIdentityContent, this);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.itemIdentityFrame(), "ItemIdentity", this.__itemIdentity__.getFrame())});
 
 					       // --- subjectLocator
-					       var _contents = (content ? content.subjectLocators : null);
 					       var _constraints = (constraints ? constraints.subjectLocatorConstraints : null);
-					       this.__subjectLocator__ = new IdentifierC(_contents, _constraints, CLASSES.subjectLocatorFrame());
+					       this.__subjectLocator__ = new IdentifierC(subjectLocatorContent, _constraints, CLASSES.subjectLocatorFrame());
 					       this.__table__.insert({"bottom" : newRow(CLASSES.subjectLocatorFrame(), "SubjectLocator", this.__subjectLocator__.getFrame())});
 
 					       // --- subjectIdentifier
-					       _contents = (content ? content.subjectIdentifiers : null);
 					       _constraints = (constraints ? constraints.subjectIdentifierConstraints : null);
-					       this.__subjectIdentifier__ = new IdentifierC(_contents, _constraints, CLASSES.subjectIdentifierFrame());
+					       this.__subjectIdentifier__ = new IdentifierC(subjectIdentifierContent, _constraints, CLASSES.subjectIdentifierFrame());
 					       this.__table__.insert({"bottom" : newRow(CLASSES.subjectIdentifierFrame(), "SubjectIdentifier", this.__subjectIdentifier__.getFrame())});
 
 					       // --- names
-					       _contents = (content ? content.names : null);
 					       _constraints = (constraints ? constraints.topicNameConstraints : null);
-					       this.__name__ = new NameContainerC(_contents, _constraints);
+					       this.__name__ = new NameContainerC(namesContent, _constraints);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.nameContainer(), "Names", this.__name__.getFrame())});
 					       
 					       // --- occurrences
-					       _contents = (content ? content.occurrences : null);
 					       _constraints = (constraints ? constraints.topicOccurrenceConstraints : null);
-					       this.__occurrence__ = new OccurrenceContainerC(_contents, _constraints);
+					       this.__occurrence__ = new OccurrenceContainerC(occurrencesContent, _constraints);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.occurrenceContainer(), "Occurrences", this.__occurrence__.getFrame())});
 					   }catch(err){
 					       alert("From TopciC(): " + err);
@@ -2689,8 +2770,20 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
                                                  this.__dblClickHandler__ = dblClickHandlerF;
 
 					         try{
+						     var itemIdentityContent = null;
+						     var typeContent = null;
+						     var scopesContent = null;
+						     var rolesContent = null;
+						     if(contents){
+							 itemIdentityContent = contents.itemIdentities;
+							 typeContent = contents.type;
+							 scopesContent = contents.scopes;
+							 rolesContent = contents.roles;
+						     }
+
+
 						     // --- control row + ItemIdentity
-						     makeControlRow(this, 4, contents ? contents.itemIdentities : null);
+						     makeControlRow(this, 4, itemIdentityContent);
 						     checkRemoveAddButtons(owner, 1, -1);
 						     setRemoveAddHandler(this, owner, 1, -1, function(){
 							 return new AssociationC(null, constraints, owner);
@@ -2701,7 +2794,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     for(var i = 0; constraints && i !== constraints.length; ++i){
 							 for(var j = 0; j != constraints[i].associationType.length; ++j){
 							     types.push(constraints[i].associationType[j]);
-							     if(contents && contents.type && contents.type[0] === constraints[i].associationType[j]){
+							     if(typeContent && typeContent[0] === constraints[i].associationType[j]){
 								 var selected = constraints[i].associationType[j];
 								 types[types.length - 1] = types[0];
 								 types[0] = selected;
@@ -2713,7 +2806,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     this.__table__.insert({"bottom" : tr});
 						     
 						     // --- scopes
-						     this.__scope__ = new ScopeContainerC(this.__contents__ && this.__contents__.scopes ? this.__contents__.scopes : null, this.__constraints__ && this.__constraints__[0].scopeConstraints ? this.__constraints__[0].scopeConstraints : null);
+						     this.__scope__ = new ScopeContainerC(scopesContent, this.__constraints__ && this.__constraints__[0].scopeConstraints ? this.__constraints__[0].scopeConstraints : null);
 						     this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 
 						     // --- roles
@@ -2724,7 +2817,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 							 _otherRoleConstraints = this.__constraints__[0].otherRoleConstraints;
 						     }
 
-						     this.__roles__ = new RoleContainerC(this.__contents__ ? this.__contents__.roles : null, _roleConstraints, _playerConstraints, _otherRoleConstraints, this);
+						     this.__roles__ = new RoleContainerC(rolesContent, _roleConstraints, _playerConstraints, _otherRoleConstraints, this);
 						     this.__table__.insert({"bottom" : newRow(CLASSES.roleContainer(), "Roles", this.__roles__.getFrame())});
 						     
 						     // --- registers the onChangeHandler of the Type-selectrow

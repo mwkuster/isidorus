@@ -25,28 +25,37 @@ function makeEdit(psi)
 
 	// --- creates the sub-elements topic, associations and topic map id
 	function innerMakeFragment(psis, constraints){
-	    makeFragment(liTopicSelect, psis, constraints);
+	    function rSuccessHandler(xhr){
+		var json = null;
+		try{
+		    json = xhr.responseText.evalJSON();
+		}
+		catch(innrErr){}
+
+		makeFragment(liTopicSelect, psis, constraints, json);
+	    }
+	    requestFragment(psis && psis.length !== 0 ? psis[0] : null, rSuccessHandler, null)
 	}
 	
 	function onSuccessHandler(xhr){
 	    var json = null;
 	    try{
 		json = xhr.responseText.evalJSON();
-		}
-	    catch(innerErr){
-		alert("Got bad JSON data from " + xhr.request.url + "\n\n" + innerErr);
 	    }
-	    var instanceOf = null;
+	    catch(err){
+		alert("Got bad JSON data from " + xhr.request.url + "\n\n" + err);
+	    }
+	    var edit = null;
+	    
 	    try{
-		instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment);
-		liTopicSelect.insert({"bottom" : instanceOf.getFrame()});
+		edit = new EditC(json.flatten().sort(), innerMakeFragment);
+		liTopicSelect.insert({"bottom" : edit.getFrame()});
 	    }
-	    catch(innerErr){
-		alert("There occurred an error by creating an InstanceOfC frame, please reload this page!\n\n" + innerErr);
+	    catch(err){
+		alert("There occurred an error by creating an EditC frame, please reload this page!\n\n" + err);
 	    }
-	} //onSuccessHandler
-	
-	getTypePsis(onSuccessHandler, null);
+	}
+	getPsis(onSuccessHandler, null, false);
     }
     catch(err){
 	alert("From makeEdit(): " + err);
