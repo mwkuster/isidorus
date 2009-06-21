@@ -426,7 +426,7 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 
 
 
-// --- Representation of a subjectLocator and subjectIdentifier frames.
+// --- Representation of a subjectLocator and subjectIdentifier frame.
 var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints, cssClass){
 						$super();
 						this.__frame__.writeAttribute({"class" : cssClass});
@@ -434,27 +434,116 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
                                                 this.__constraints__ = constraints;
 
 						try{
-						    if((!contents || contents.length === 0) && constraints && constraints.length > 0){
+						    if(constraints && constraints.length > 0){
+							var cContents = new Array();
+							if(contents) cContents = contents.clone();
+
+							var constraintsAndContents = new Array();
+							// --- searches a constraint for every content with the longest string.length
+							for(var i = 0; i !== cContents.length; ++i){
+							    var tmpConstraint = null;
+							    for(var j = 0; j !== constraints.length; ++j){
+								var rex = new RegExp(constraints[j].regexp);
+								if(rex.match(cContents[i]) === true && (tmpConstraint === null || (tmpConstraint && (constraints[j].regexp.length > tmpConstraint.regexp.length)))){
+								    tmpConstraint = constraints[j];
+								}
+							    }
+							    if(tmpConstraint){
+								var found = false;
+								for(var j = 0; j !== constraintsAndContents.length; ++j){
+								    if(constraintsAndContents[j].constraint === tmpConstraint){
+									constraintsAndContents[j].contents.push(cContents[i]);
+									found = true;
+									break;
+								    }
+								}
+								if(found === false){
+								    constraintsAndContents.push({"constraint" : tmpConstraint, "contents" : new Array(cContents[i])})
+								}
+							    }
+							}
+							// --- removes all moved contents from cContents
+							for(var i = 0; i !== constraintsAndContents.length; ++i){
+							    for(var j = 0; j !== constraintsAndContents[i].contents.length; ++j){
+								cContents = cContents.without(constraintsAndContents[i].contents[j]);
+							    }
+							}
+
+							// --- checks the card-min of all used constraints
+							for(var i = 0; i !== constraintsAndContents.length; ++i){
+							    var min = parseInt(constraintsAndContents[i].constraint.cardMin);
+							    var len = constraintsAndContents[i].contents.length;
+							    var rex = new RegExp(constraintsAndContents[i].constraint.regexp);
+							    if(len < min){
+								for(var j = 0; j !== constraintsAndContents.length; ++j){
+								    if(constraintsAndContents[i] === constraintsAndContents[j]) continue;
+								    var _min = parseInt(constraintsAndContents[j].constraint.cardMin);
+								    var _len = constraintsAndContents[j].contents.length;
+								    var contentsToMove = new Array();
+								    for(var k = 0; k !== constraintsAndContents[j].contents.length; ++k){
+									if(_min >= _len + contentsToMove.length || min <= len + contentsToMove.length) break;
+									if(rex.match(constraintsAndContents[j].contents[k]) === true){
+									    contentsToMove.push(constraintsAndContents[j].contents[k]);
+									}
+								    }
+								    constraintsAndContents[i].contents = constraintsAndContents[i].contents.concat(contentsToMove);
+								    // --- removes the moved contents from the source object
+								    for(var k = 0; k !== contentsToMove.length; ++k){
+									constraintsAndContents[j].contents = constraintsAndContents[j].contents.without(contentsToMove[k]);
+								    }
+								    if(constraintsAndContents[i].contents.length >= min) break;
+								}
+							    }
+							}
+
+							// --- to check card-max is not necessary, because if there is any constraint not satisfied the
+							// --- validation will fail anyway
+
+							// --- creates all rows
 							for(var i = 0; i != constraints.length; ++i){
 							    this.__containers__.push(new Object());
 							    var min = parseInt(constraints[i].cardMin);
 							    var max = constraints[i].cardMax !== MAX_INT ? parseInt(constraints[i].cardMax) : MMAX_INT;
-							    if(max !== 0){
+							    var regexp = constraints[i].regexp;
+							    var contents = null;
+							    for(var j = 0; j !== constraintsAndContents.length; ++j){
+								if(constraintsAndContents[j].constraint === constraints[i]) contents = constraintsAndContents[j].contents;
+							    }
+							    if(max !== 0 || contents && contents.length){
+								// -- creates the roles
 								var cssTitle = "min: " + min + "   max: " + max + "   regular expression: " + constraints[i].regexp;
-								for(var j = 0; j != (min === 0 ? 1 : min); ++j){
-
+								var endIdx = (min === 0 ? 1 : min);
+								endIdx = contents && contents.length > endIdx ? contents.length : endIdx;
+								for(var j = 0; j != endIdx; ++j){
 								    var dblClickHandler = null;
 								    if(min === 0) dblClickHandler = dblClickHandlerF;
-								    var row = new TextrowC("", constraints[i].regexp, this.__containers__[i],
+								    var _content = "";
+								    if(contents && contents.length > j) _content = contents[j];
+								    var row = new TextrowC(_content, constraints[i].regexp, this.__containers__[i],
 											   min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, cssTitle, dblClickHandler);
-								    row.dblClick();
+								    if(!_content) row.dblClick();
 								    this.__error__.insert({"before" : row.getFrame()});
 								}
 							    }
 							}
+							// --- not used contents
+							this.__containers__.push(new Object());
+							for(var i = 0; i !== cContents.length; ++i){
+							    var owner = this.__containers__[this.__containers__.length - 1];
+							    var cssTitle = "No constraint found for this identifier!";
+							    var row = new TextrowC(cContents[i], "^.+$", owner, 0, 1, cssTitle, null);
+							    this.__error__.insert({"before" : row.getFrame()});
+							}
+
 						    }
-						    else {
-							// TODO: check already existing contents and order them to the corresponding fields
+						    else if(contents && contents.length !== 0){
+							this.__containers__.push(new Object());
+							var cssTitle = "No constraint found for this identifier";
+							for(var i = 0; i !== contents.length; ++i){
+							    var row = new TextrowC(contents[i], null, this.__containers__[0], 0, 1, cssTitle, null);
+							    row.dblClick();
+							    this.__error__.insert({"before" : row.getFrame()});
+							}
 						    }
 						}
 						catch(err){
@@ -521,11 +610,13 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    
 						    // --- checks card-min and card-max for the current constraint
 						    if(cardMin > currentIdentifiers.length){
-							errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + currentIdentifiers.length + ")!<br/>";
+							if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							errorStr += "card-min of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + currentIdentifiers.length + ")!";
 							ret = false;
 						    }
 						    if(cardMax !== MMAX_INT && cardMax < currentIdentifiers.length){
-							errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + currentIdentifiers.length + ")!<br/>";
+							if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							errorStr += "card-max of the constraint regexp: \"" + this.__constraints__[i].regexp + "\" card-min: " + cardMin + " card-max: " + cardMax + " is not satisfied (" + currentIdentifiers.length + ")!";
 							ret = false;
 						    }
 						}
@@ -1098,7 +1189,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 						  valueContent = contents.value;
 						  variantsContent = contents.variants;
 					      }
-
+					      
 					      // --- control row + ItemIdentity
 					      makeControlRow(this, 5, itemIdentityContent);
 					      checkRemoveAddButtons(owner, min, max);
@@ -1231,6 +1322,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__containers__ = new Array();
                                                    this.__constraints__ = constraints;
 
+// ------------------>
                                                    try{
 						       if((!contents || contents.length === 0) && constraints && constraints.length > 0){
 							   for(var i = 0; i != constraints.length; ++i){

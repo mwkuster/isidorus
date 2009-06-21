@@ -2374,7 +2374,7 @@
   </tm:topic>
 
   <tm:topic id="frankfurt_am_main">
-    <tm:subjectIdentifier href="http://some.where/psis/city/frankfurt_am_main"/>
+    <tm:subjectIdentifier href="http://some.where/psis/region/frankfurt_am_main"/>
     <tm:instanceOf><tm:topicRef href="#metropolis"/></tm:instanceOf>
     <tm:name>
       <tm:type><tm:topicRef href="#region-name"/></tm:type>
@@ -2399,7 +2399,7 @@
   </tm:association>
 
   <tm:topic id="marbach_am_neckar">
-    <tm:subjectIdentifier href="http://some.where/psis/city/marbach_am_neckar"/>
+    <tm:subjectIdentifier href="http://some.where/psis/region/marbach_am_neckar"/>
     <tm:instanceOf><tm:topicRef href="#city"/></tm:instanceOf>
     <tm:name>
       <tm:type><tm:topicRef href="#region-name"/></tm:type>
@@ -2424,7 +2424,7 @@
   </tm:association>
 
   <tm:topic id="lubowitz">
-    <tm:subjectIdentifier href="http://some.where/psis/city/lubowitz"/>
+    <tm:subjectIdentifier href="http://some.where/psis/region/lubowitz"/>
     <tm:instanceOf><tm:topicRef href="#city"/></tm:instanceOf>
     <tm:name>
       <tm:type><tm:topicRef href="#region-name"/></tm:type>
