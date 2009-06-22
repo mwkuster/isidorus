@@ -1568,7 +1568,7 @@
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 

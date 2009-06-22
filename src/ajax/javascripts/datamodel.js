@@ -1331,7 +1331,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       this.__containers__.push(new Array(new Object()));
 							       var owner = this.__containers__[0][0];
 							       var cssTitle = "No constraint found for this name";
-							       for(var i = 0; i !== contents.length; ++i){
+							       for(var i = 0; i !== cContents.length; ++i){
 								   var name = new NameC(cContents[i], null, null, owner, 0, 1, null);
 								   this.__error__.insert({"before" : name.getFrame()});
 							       }
@@ -1519,13 +1519,15 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    for(var i = 0; occurrenceTypes && i !== occurrenceTypes.length; ++i){
 							for(var j = 0; j != occurrenceTypes[i].occurrenceType.length; ++j){
 							    types.push(occurrenceTypes[i].occurrenceType[j]);
-							    if(typeContent && typeContent[0] === ooccurrenceTypes[i].occurrenceType[j]){
+							    if(typeContent && typeContent[0] ===  occurrenceTypes[i].occurrenceType[j]){
 								var selected = occurrenceTypes[i].occurrenceType[j];
 								types[types.length - 1] = types[0];
 								types[0] = selected;
 							    }
 							}
 						    }
+						    if(types.length === 0 && contents && contents.length !== 0) types = contents.type;
+						    if(types.length === 0) throw "From OccurrenceC(): There must be given an occurrencetype or any occurrencetype-constraint!";
 						    this.__type__ = new Object();
 						    var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
 						    this.__table__.insert({"bottom" : tr});
@@ -1536,9 +1538,15 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    onTypeChangeScope(this, contents && contents.scopes ? contents.scopes : null, occurrenceTypes, "occurrence");
 
 						    // --- resource value and datatype
+						    var noConstraint = false;
+						    if(!constraint){
+							constraint = {"regexp" : ".*", "cardMin" : 0, "cardMax" : MAX_INT};
+							noConstraint = true;
+						    }
 						    var _min = parseInt(constraint.cardMin);
 						    var _max = constraint.cardMax !== MAX_INT ? parseInt(constraint.cardMax) : MMAX_INT;
-						    var cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
+						    var cssTitle = "No constraint found for this occurrence";
+						    if(noConstraint === false) cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
 						    this.__cssTitle__ = cssTitle;
 						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle);
 
@@ -1643,21 +1651,58 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
                                                          this.__constraints__ = constraints;
 
 						         try{
-							     if((!contents || contents.length === 0) && constraints && constraints.length > 0){
+							     if(constraints && constraints.length > 0){
+								 var cContents = new Array();
+								 if(contents) cContents = contents.clone();
+								 
 								 for(var i = 0; i != constraints.length; ++i){
+								     var simpleConstraints = constraints[i].constraints;
+								     
+								     var allTypes = new Array();
+								     for(var k = 0; k !== constraints[i].occurrenceTypes.length; ++k){
+									 allTypes = allTypes.concat(constraints[i].occurrenceTypes[k].occurrenceType);
+								     }
+								     allTypes = allTypes.flatten().uniq();
+								     
+								     var ret = makeConstraintsAndContents(cContents, simpleConstraints, allTypes);
+								     var constraintsAndContents = ret.constraintsAndContents;
+								     cContents = ret.contents;
+
+								     var _c_ = "";
+								     for(var j = 0; j !== constraintsAndContents.length; ++j){
+									 for(var k = 0; k !== constraintsAndContents[j].contents.length; ++k){
+									     var val = constraintsAndContents[j].contents[k].resourceRef;
+									     if(!val){
+										 if(constraintsAndContents[j].contents[k].resourceData)
+										     val = constraintsAndContents[j].contents[k].resourceData.value;
+									     }
+									     _c_ +=  val + "\n";
+									 }
+								     }
+
 								     this.__containers__.push(new Array());
 								     for(var j = 0; j != constraints[i].constraints.length; ++j){
 									 this.__containers__[i].push(new Object());
 									 var min = parseInt(constraints[i].constraints[j].cardMin);
 									 var max = constraints[i].constraints[j].cardMax !== MAX_INT ? parseInt(constraints[i].constraints[j].cardMax) : MMAX_INT;
+									 var _contents = null;
+									 for(var k = 0; k !== constraintsAndContents.length; ++k){
+									     if(constraintsAndContents[k].constraint === constraints[i].constraints[j]){
+										 _contents = constraintsAndContents[k].contents;
+										 break;
+									     }
+									 }
+									 var endIdx = min;
+									 endIdx = _contents && _contents.length > endIdx ? _contents.length : endIdx;
 									 var regexp = constraints[i].constraints[j].regexp;
-									 if(max !== 0){
+									 if(max !== 0 || (_contents && contents.length)){
 									     var dblClickHandler = null;
 									     if(min === 0) dblClickHandler = dblClickHandlerF;
-
 									     var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
-									     for(var k = 0; k !== (min === 0 ? 1 : min); ++k){
-										 var occurrence = new OccurrenceC("", constraints[i].occurrenceTypes, constraints[i].constraints[j], constraints[i].uniqueConstraints, this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, title, dblClickHandler);
+									     for(var k = 0; k !== endIdx; ++k){
+										 var _content = null;
+										 if(_contents && _contents.length > k) _content = _contents[k];
+										 var occurrence = new OccurrenceC(_content, constraints[i].occurrenceTypes, constraints[i].constraints[j], constraints[i].uniqueConstraints, this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, title, dblClickHandler);
 										 if(min === 0) occurrence.disable();
 										 this.__error__.insert({"before" : occurrence.getFrame()});
 										 if(min === 0)occurrence.minimize();
@@ -1665,10 +1710,26 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 									 }
 								     }
 								 }
+								 // --- inserts not used contents
+								 if(cContents.length !== 0){
+								     this.__containers__.push(new Array(new Object()));
+								     var owner = this.__containers__[0][0];
+								     var cssTitle = "No constraint found for this occurrence";
+								     for(var i = 0; i !== cContents.length; ++i){
+									 var occurrence = new OccurrenceC(cContents[i], null, null, null, owner, 0, 1, cssTitle, null);
+									 this.__error__.insert({"before" : occurrence.getFrame()});
+								     }
+								 }
                                                		     }
-                                               		     else {
-                                               			 // TODO: check already existing contents and order them to the corresponding fields
-                                               		     }
+							     else if(contents && contents.length !== 0){
+								 this.__containers__.push(new Array(new Object()));
+								 var owner = this.__containers__[0][0];
+								 var cssTitle = "No constraint found for this occurrence";
+								 for(var i = 0; i !== contents.length; ++i){
+								     var occurrence = new OccurrenceC(contents[i], null, null, null, owner, 0, 1, null);
+								     this.__error__.insert({"before" : occurrence.getFrame()});
+								 }
+							     }
 							 }
 						         catch(err){
 							     alert("From OccurrenceContainerC(): " + err);
@@ -3367,9 +3428,9 @@ function makeResource(myself, content, constraints, datatypeConstraint, cssTitle
     }
     else if(content && content.resourceData){
 	value = content.resourceData.value;
-	datatype = contents.resourceData.datatype;
+	datatype = content.resourceData.datatype;
     }
-    
+
     try{
 	this.__value__.remove();
 	this.__value__ = null;
@@ -3435,6 +3496,10 @@ function makeConstraintsAndContents(contents, simpleConstraints, forTypes)
 	for(var k = 0; k !== simpleConstraints.length; ++k){
 	    var rex = new RegExp(simpleConstraints[k].regexp);
 	    var contentValue = (isForTypes === true ? contents[j].value : contents[j]);
+	    if(!contentValue){ // must be an occurrence
+		if(contents[j].resourceRef) contentValue = contents[j].resourceRef;
+		else if(contents[j].resourceData) contentValue = contents[j].resourceData.value;
+	    }
 	    if(rex.match(contentValue) === true && (tmpConstraint === null || (tmpConstraint && (simpleConstraints[k].regexp.length > tmpConstraint.regexp.length)))){
 		tmpConstraint = simpleConstraints[k];
 	    }
@@ -3487,6 +3552,10 @@ function makeConstraintsAndContents(contents, simpleConstraints, forTypes)
 		for(var l = 0; l !== constraintsAndContents[k].contents.length; ++l){
 		    if(_min >= _len - contentsToMove.length || min <= len + contentsToMove.length) break;
 		    var contentValue = (isForTypes === true ? constraintsAndContents[k].contents[l].value : constraintsAndContents[k].contents[l]);
+		    if(!contentValue){ // must be an occurrence
+			if(constraintsAndContents[k].contents[l].resourceRef) contentValue = constraintsAndContents[k].contents[l].resourceRef;
+			else if(constraintsAndContents[k].contents[l].resourceData) contentValue = constraintsAndContents[k].contents[l].resourceData.value;
+		    }
 		    if(rex.match(contentValue) === true){
 			contentsToMove.push(constraintsAndContents[k].contents[l]);
 		    }
