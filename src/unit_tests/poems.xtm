@@ -924,7 +924,7 @@
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#regexp"/></tm:type>
@@ -2351,12 +2351,9 @@
     <tm:subjectIdentifier href="http://some.where/psis/country/germany"/>
     <tm:instanceOf><tm:topicRef href="#country"/></tm:instanceOf>
     <tm:name>
+      <tm:type><tm:topicRef href="#country-name"/></tm:type>
       <tm:scope><tm:topicRef href="#de"/></tm:scope>
       <tm:value>Deutschland</tm:value>
-    </tm:name>
-    <tm:name>
-      <tm:scope><tm:topicRef href="#en"/></tm:scope>
-      <tm:value>Germany</tm:value>
     </tm:name>
   </tm:topic>
 
@@ -2364,12 +2361,9 @@
     <tm:subjectIdentifier href="http://some.where/psis/country/poland"/>
     <tm:instanceOf><tm:topicRef href="#country"/></tm:instanceOf>
     <tm:name>
+      <tm:type><tm:topicRef href="#country-name"/></tm:type>
       <tm:scope><tm:topicRef href="#de"/></tm:scope>
       <tm:value>Polen</tm:value>
-    </tm:name>
-    <tm:name>
-      <tm:scope><tm:topicRef href="#en"/></tm:scope>
-      <tm:value>Poland</tm:value>
     </tm:name>
   </tm:topic>
 

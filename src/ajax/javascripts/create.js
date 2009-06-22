@@ -98,7 +98,7 @@ function makeFragment(context, psis, constraints, contents){
 	if(tmId.isValid() === false) ret = false;
 
 	if(ret === false){
-	    alert("The fragment wasn't committed - Please correct your input date!");
+	    alert("The fragment wasn't committed - Please correct your input data!");
 	    return;
 	}
 	

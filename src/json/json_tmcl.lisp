@@ -546,15 +546,16 @@
 				   append (loop for other-role in (roles (parent role))
 					     when (eq nametype-role (instance-of other-role))
 					     collect (let ((nametype-topic (player other-role))
-							   (constraint-list (get-constraint-topic-values constraint-topic)))				    
+							   (constraint-list (get-constraint-topic-values constraint-topic)))
 						       (list :type nametype-topic :constraint constraint-list))))))))
       (let ((nametype-topics
-	     (map 'list #'(lambda(x)
-			    (let ((topicname-type
-				   (getf x :type)))
-			      (topictype-p topicname-type nametype nametype-constraint)
-			      topicname-type))
-		  topicname-constraints)))
+	     (remove-duplicates
+	      (map 'list #'(lambda(x)
+			     (let ((topicname-type
+				    (getf x :type)))
+			       (topictype-p topicname-type nametype nametype-constraint)
+			       topicname-type))
+		   topicname-constraints))))
 	(let ((cleaned-topicname-constraints "["))
 	  (loop for nametype-topic in nametype-topics
 	     do (let ((constraint-lists
@@ -615,11 +616,12 @@
 							   (constraint-list (get-constraint-topic-values constraint-topic)))
 						       (list :type occurrencetype-topic :constraint constraint-list))))))))
       (let ((occurrencetype-topics
-	     (remove-duplicates (map 'list #'(lambda(x)
-					       (let ((occurrence-type (getf x :type)))
-						 (topictype-p occurrence-type occurrencetype occurrencetype-constraint)
-						 occurrence-type))
-				     topicoccurrence-constraints))))
+	     (remove-duplicates
+	      (map 'list #'(lambda(x)
+			     (let ((occurrence-type (getf x :type)))
+			       (topictype-p occurrence-type occurrencetype occurrencetype-constraint)
+			       occurrence-type))
+		   topicoccurrence-constraints))))
 	(let ((cleaned-topicoccurrence-constraints "["))
 	  (loop for occurrencetype-topic in occurrencetype-topics
 	     do (let ((constraint-lists

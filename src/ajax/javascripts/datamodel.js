@@ -148,7 +148,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
 
 // --- This class represents a selectrow with the functionality of FrameC.
 var SelectrowC = Class.create(FrameC, {"initialize" : function($super, contents, owner, min, max){
-                                           if(!contents || !contents.length)throw "From SelectrowC(): contents must be an array!";
+                                           if(!contents || !contents.length)throw "From SelectrowC(): contents must be a non-empty array!";
                                            $super(contents, owner, min, max);
                                            owner.__frames__.pop();
                                            owner.__frames__.push(this);
@@ -425,7 +425,6 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 					      }});
 
 
-
 // --- Representation of a subjectLocator and subjectIdentifier frame.
 var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, contents, constraints, cssClass){
 						$super();
@@ -438,66 +437,9 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							var cContents = new Array();
 							if(contents) cContents = contents.clone();
 
-							var constraintsAndContents = new Array();
-							// --- searches a constraint for every content with the longest string.length
-							for(var i = 0; i !== cContents.length; ++i){
-							    var tmpConstraint = null;
-							    for(var j = 0; j !== constraints.length; ++j){
-								var rex = new RegExp(constraints[j].regexp);
-								if(rex.match(cContents[i]) === true && (tmpConstraint === null || (tmpConstraint && (constraints[j].regexp.length > tmpConstraint.regexp.length)))){
-								    tmpConstraint = constraints[j];
-								}
-							    }
-							    if(tmpConstraint){
-								var found = false;
-								for(var j = 0; j !== constraintsAndContents.length; ++j){
-								    if(constraintsAndContents[j].constraint === tmpConstraint){
-									constraintsAndContents[j].contents.push(cContents[i]);
-									found = true;
-									break;
-								    }
-								}
-								if(found === false){
-								    constraintsAndContents.push({"constraint" : tmpConstraint, "contents" : new Array(cContents[i])})
-								}
-							    }
-							}
-							// --- removes all moved contents from cContents
-							for(var i = 0; i !== constraintsAndContents.length; ++i){
-							    for(var j = 0; j !== constraintsAndContents[i].contents.length; ++j){
-								cContents = cContents.without(constraintsAndContents[i].contents[j]);
-							    }
-							}
-
-							// --- checks the card-min of all used constraints
-							for(var i = 0; i !== constraintsAndContents.length; ++i){
-							    var min = parseInt(constraintsAndContents[i].constraint.cardMin);
-							    var len = constraintsAndContents[i].contents.length;
-							    var rex = new RegExp(constraintsAndContents[i].constraint.regexp);
-							    if(len < min){
-								for(var j = 0; j !== constraintsAndContents.length; ++j){
-								    if(constraintsAndContents[i] === constraintsAndContents[j]) continue;
-								    var _min = parseInt(constraintsAndContents[j].constraint.cardMin);
-								    var _len = constraintsAndContents[j].contents.length;
-								    var contentsToMove = new Array();
-								    for(var k = 0; k !== constraintsAndContents[j].contents.length; ++k){
-									if(_min >= _len + contentsToMove.length || min <= len + contentsToMove.length) break;
-									if(rex.match(constraintsAndContents[j].contents[k]) === true){
-									    contentsToMove.push(constraintsAndContents[j].contents[k]);
-									}
-								    }
-								    constraintsAndContents[i].contents = constraintsAndContents[i].contents.concat(contentsToMove);
-								    // --- removes the moved contents from the source object
-								    for(var k = 0; k !== contentsToMove.length; ++k){
-									constraintsAndContents[j].contents = constraintsAndContents[j].contents.without(contentsToMove[k]);
-								    }
-								    if(constraintsAndContents[i].contents.length >= min) break;
-								}
-							    }
-							}
-
-							// --- to check card-max is not necessary, because if there is any constraint not satisfied the
-							// --- validation will fail anyway
+							var ret = makeConstraintsAndContents(cContents, constraints, null);
+							var constraintsAndContents = ret.constraintsAndContents;
+							cContents = ret.contents;
 
 							// --- creates all rows
 							for(var i = 0; i != constraints.length; ++i){
@@ -505,20 +447,25 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							    var min = parseInt(constraints[i].cardMin);
 							    var max = constraints[i].cardMax !== MAX_INT ? parseInt(constraints[i].cardMax) : MMAX_INT;
 							    var regexp = constraints[i].regexp;
-							    var contents = null;
+							    var _contents = null;
 							    for(var j = 0; j !== constraintsAndContents.length; ++j){
-								if(constraintsAndContents[j].constraint === constraints[i]) contents = constraintsAndContents[j].contents;
+								if(constraintsAndContents[j].constraint === constraints[i]){
+								    _contents = constraintsAndContents[j].contents;
+								    break;
+								}
 							    }
-							    if(max !== 0 || contents && contents.length){
+							    var _c_ = "";
+							    for(var x = 0; x !== _contents.length; ++x) _c_ += "[" + x + "/" +  _contents.length + "]: " + _contents[x] + "\n";
+							    if(max !== 0 || _contents && _contents.length){
 								// -- creates the roles
 								var cssTitle = "min: " + min + "   max: " + max + "   regular expression: " + constraints[i].regexp;
 								var endIdx = (min === 0 ? 1 : min);
-								endIdx = contents && contents.length > endIdx ? contents.length : endIdx;
+								endIdx = _contents && _contents.length > endIdx ? _contents.length : endIdx;
 								for(var j = 0; j != endIdx; ++j){
 								    var dblClickHandler = null;
 								    if(min === 0) dblClickHandler = dblClickHandlerF;
 								    var _content = "";
-								    if(contents && contents.length > j) _content = contents[j];
+								    if(_contents && _contents.length > j) _content = _contents[j];
 								    var row = new TextrowC(_content, constraints[i].regexp, this.__containers__[i],
 											   min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, cssTitle, dblClickHandler);
 								    if(!_content) row.dblClick();
@@ -527,12 +474,14 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							    }
 							}
 							// --- not used contents
-							this.__containers__.push(new Object());
-							for(var i = 0; i !== cContents.length; ++i){
-							    var owner = this.__containers__[this.__containers__.length - 1];
-							    var cssTitle = "No constraint found for this identifier!";
-							    var row = new TextrowC(cContents[i], "^.+$", owner, 0, 1, cssTitle, null);
-							    this.__error__.insert({"before" : row.getFrame()});
+							if(cContents.length !== 0){
+							    this.__containers__.push(new Object());
+							    for(var i = 0; i !== cContents.length; ++i){
+								var owner = this.__containers__[this.__containers__.length - 1];
+								var cssTitle = "No constraint found for this identifier!";
+								var row = new TextrowC(cContents[i], "^.+$", owner, 0, 1, cssTitle, null);
+								this.__error__.insert({"before" : row.getFrame()});
+							    }
 							}
 
 						    }
@@ -541,7 +490,6 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 							var cssTitle = "No constraint found for this identifier";
 							for(var i = 0; i !== contents.length; ++i){
 							    var row = new TextrowC(contents[i], null, this.__containers__[0], 0, 1, cssTitle, null);
-							    row.dblClick();
 							    this.__error__.insert({"before" : row.getFrame()});
 							}
 						    }
@@ -1162,7 +1110,7 @@ var VariantContainerC = Class.create(ContainerC, {"initialize" : function($super
 
 
 // --- representation of a name element
-var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, nametypescopes, simpleConstraint, owner, min, max, cssTitle, dblClickHandler){
+var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, nametypescopes, simpleConstraint, owner, min, max, dblClickHandler){
                                           $super();
                                           if(!owner) throw "From NameC(): owner must be set but is null";
                                           if(max !== -1 && (min > max || max === 0))throw "From FrameC(): min must be > max(" + max + ") and > 0 but is " + min;
@@ -1194,9 +1142,8 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      makeControlRow(this, 5, itemIdentityContent);
 					      checkRemoveAddButtons(owner, min, max);
 					      setRemoveAddHandler(this, owner, min, max, function(){
-						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, cssTitle, dblClickHandler);
+						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, dblClickHandler);
 					      });
-					      
 					      // --- type
 					      var types = new Array();
 					      for(var i = 0; nametypescopes && i !== nametypescopes.length; ++i){
@@ -1209,22 +1156,32 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 						      }
 						  }
 					      }
+					      if(types.length === 0 && contents && contents.length !== 0) types = contents.type;
+					      if(types.length === 0) throw "From NameC(): There must be given a nametype or any nametype-constraint!";
 					      this.__type__ = new Object();
+					      
 					      var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
 					      this.__table__.insert({"bottom" : tr});
-					      
 					      // --- scopes
 					      this.__scope__ = new ScopeContainerC(scopesContent, nametypescopes && nametypescopes[0].scopeConstraints ? nametypescopes[0].scopeConstraints : null);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 					      onTypeChangeScope(this, contents ? contents.scopes : null, nametypescopes, "name");
 
 					      // --- value
+					      var noConstraint = false;
+					      if(!simpleConstraint){
+						  simpleConstraint = {"regexp" : ".*", "cardMin" : 0, "cardMax" : MAX_INT};
+						  noConstraint = true;
+					      }
 					      this.__value__ = new Object();
 					      var _min = parseInt(simpleConstraint.cardMin);
 					      var _max = simpleConstraint.cardMax !== MAX_INT ? parseInt(simpleConstraint.cardMax) : MMAX_INT;
-					      var cssTitleV = "min: " + _min + "   max: " + _max + "   regular expression: " + (simpleConstraint ? simpleConstraint.regexp : ".*");
+					      var cssTitle = "No constraint found for this name";
+					      if(noConstraint === false){
+						  cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + (simpleConstraint ? simpleConstraint.regexp : ".*");
+					      }
 					      this.__cssTitle__ = cssTitle;
-					      new TextrowC(valueContent, (simpleConstraint ? simpleConstraint.regexp : ".*"), this.__value__, 1, 1, cssTitleV);
+					      new TextrowC(valueContent, (simpleConstraint ? simpleConstraint.regexp : ".*"), this.__value__, 1, 1, cssTitle);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.valueFrame(), "Value", this.__value__.__frames__[0].getFrame())});
 					      
 					      // --- variants
@@ -1322,23 +1279,46 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__containers__ = new Array();
                                                    this.__constraints__ = constraints;
 
-// ------------------>
                                                    try{
-						       if((!contents || contents.length === 0) && constraints && constraints.length > 0){
+						       if(constraints && constraints.length > 0){
+							   var cContents = new Array();
+							   if(contents) cContents = contents.clone();
 							   for(var i = 0; i != constraints.length; ++i){
+							       var simpleConstraints = constraints[i].constraints;
+
+							       var allTypes = new Array();
+							       for(var k = 0; k !== constraints[i].nametypescopes.length; ++k){
+								   allTypes = allTypes.concat(constraints[i].nametypescopes[k].nameType);
+							       }
+							       allTypes = allTypes.flatten().uniq();
+
+							       var ret = makeConstraintsAndContents(cContents, simpleConstraints, allTypes);
+							       var constraintsAndContents = ret.constraintsAndContents;
+							       cContents = ret.contents;
+
+							       // --- creation of the frames with the found contents
 							       this.__containers__.push(new Array());
 							       for(var j = 0; j != constraints[i].constraints.length; ++j){
 								   this.__containers__[i].push(new Object());
 								   var min = parseInt(constraints[i].constraints[j].cardMin);
 								   var max = constraints[i].constraints[j].cardMax !== MAX_INT ? parseInt(constraints[i].constraints[j].cardMax) : MMAX_INT;
+								   var _contents = null;
+								   for(var k = 0; k !== constraintsAndContents.length; ++k){
+								       if(constraintsAndContents[k].constraint === constraints[i].constraints[j]){
+									   _contents = constraintsAndContents[k].contents;
+									   break;
+								       }
+								   }
+								   var endIdx = (min === 0 ? 1 : min);
+								   endIdx = _contents && _contents.length > endIdx ? _contents.length : endIdx;
 								   var regexp = constraints[i].constraints[j].regexp;
-								   if(max !== 0){
+								   if(max !== 0 || _contents && _contents.length){
 								       var dblClickHandler = null;
 								       if(min === 0) dblClickHandler = dblClickHandlerF;
-
-								       var title = "min: " + min + "   max: " + max + "   regular expression: " + regexp;
-								       for(var k = 0; k !== (min === 0 ? 1 : min); ++k){
-									   var name = new NameC("", constraints[i].nametypescopes, constraints[i].constraints[j], this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, title, dblClickHandler);
+								       for(var k = 0; k !== endIdx; ++k){
+									   var _content = null;
+									   if(_contents && _contents.length > k) _content = _contents[k];
+									   var name = new NameC(_content, constraints[i].nametypescopes, constraints[i].constraints[j], this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, dblClickHandler);
 									   if(min === 0)name.disable();
 									   this.__error__.insert({"before" : name.getFrame()});
 									   if(min === 0)name.minimize();
@@ -1346,10 +1326,26 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								   }
 							       }
 							   }
+							   // --- inserts not used contents
+							   if(cContents.length !== 0){
+							       this.__containers__.push(new Array(new Object()));
+							       var owner = this.__containers__[0][0];
+							       var cssTitle = "No constraint found for this name";
+							       for(var i = 0; i !== contents.length; ++i){
+								   var name = new NameC(cContents[i], null, null, owner, 0, 1, null);
+								   this.__error__.insert({"before" : name.getFrame()});
+							       }
+							   }
                                                	       }
-                                               	       else {
-                                               		   // TODO: check already existing contents and order them to the corresponding fields
-                                               	       }
+						       else if(contents && contents.length !== 0){
+							   this.__containers__.push(new Array(new Object()));
+							   var owner = this.__containers__[0][0];
+							   var cssTitle = "No constraint found for this name";
+							   for(var i = 0; i !== contents.length; ++i){
+							       var name = new NameC(contents[i], null, null, owner, 0, 1, null);
+							       this.__error__.insert({"before" : name.getFrame()});
+							   }
+						       }
                                                    }
                                                    catch(err){
                                                	       alert("From NameContainerC(): " + err);
@@ -3153,7 +3149,8 @@ var TmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
 
 
 // --- A handler for the dblclick-event. So a frame can be disabled or enabled.
-function dblClickHandlerF(owner, event){
+function dblClickHandlerF(owner, event)
+{
     if(owner.__frames__.length === 1){
 	if(owner.__frames__[0].isUsed() === true){
 	    owner.__frames__[0].disable();
@@ -3168,7 +3165,8 @@ function dblClickHandlerF(owner, event){
 // --- helper function to create a dom-fragment of the form
 // --- <tr class="rowClass"><td class="description">description</td>
 //----  <td class="content">content</td></tr>
-function newRow(rowClass, description, content){
+function newRow(rowClass, description, content)
+{
     var tr = new Element("tr", {"class" : rowClass});
     tr.insert({"top" : new Element("td", {"class" : CLASSES.description()}).update(description)});
     tr.insert({"bottom" : new Element("td", {"class" : CLASSES.content()}).update(content)});
@@ -3179,7 +3177,8 @@ function newRow(rowClass, description, content){
 // --- Helper function for the constructors of all classes
 // --- of the type FrameC.
 // --- There will be set the remome and add handler.
-function setRemoveAddHandler(myself, owner, min, max, call){
+function setRemoveAddHandler(myself, owner, min, max, call)
+{
     myself.__remove__.stopObserving();
     myself.__add__.stopObserving();
     myself.__remove__.observe("click", function(event){
@@ -3226,7 +3225,8 @@ function setRemoveAddHandler(myself, owner, min, max, call){
 // --- of the type FrameC.
 // --- There will be checked the visibility of the remove and
 // --- add buttons.
-function checkRemoveAddButtons(owner, min, max){
+function checkRemoveAddButtons(owner, min, max)
+{
     if(min >= owner.__frames__.length){
 	for(var i = 0; i != owner.__frames__.length; ++i){
 	    owner.__frames__[i].hideRemoveButton();
@@ -3254,7 +3254,8 @@ function checkRemoveAddButtons(owner, min, max){
 
 
 // --- creates a control row for NameC, OccurrenceC and VariantC with a nested ItemIdentity frame.
-function makeControlRow(myself, rowspan, contents){
+function makeControlRow(myself, rowspan, contents)
+{
     var tr = new Element("tr", {"class" : CLASSES.itemIdentityFrame()});
     var tdCtrl = new Element("td", {"class" : CLASSES.controlColumn(), "rowspan" : rowspan});
     tr.insert({"top" : tdCtrl})
@@ -3301,7 +3302,8 @@ function makeControlRow(myself, rowspan, contents){
 // --- On changing there will be reset the scope frame to the corresponding
 // --- type and when what is set to "occurrence" there will be set a corresponding
 // --- datatype-value.
-function onTypeChangeScope(myself, contents, constraints, what){
+function onTypeChangeScope(myself, contents, constraints, what)
+{
     try{
 	var select = myself.__table__.select("tr." + CLASSES.typeFrame())[0].select("td." + CLASSES.content())[0].select("select")[0];
 	select.observe("change", function(event){
@@ -3355,7 +3357,8 @@ function onTypeChangeScope(myself, contents, constraints, what){
 
 
 // --- sets the resource value and datatype of names and occurrences
-function makeResource(myself, content, constraints, datatypeConstraint, cssTitle){
+function makeResource(myself, content, constraints, datatypeConstraint, cssTitle)
+{
     var value = "";
     var datatype = "";
     if(content && content.resourceRef && content.resourceRef.length !== 0){
@@ -3390,4 +3393,116 @@ function makeResource(myself, content, constraints, datatypeConstraint, cssTitle
 	new TextrowC(datatype, ".*", myself.__datatype__, 1, 1, null);
     }
     myself.__table__.insert({"bottom" : newRow(CLASSES.datatypeFrame(), "Datatype", myself.__datatype__.__frames__[0].getFrame())});
+}
+
+
+// --- Orders the passed contents to a corresponding constraint.
+// --- There will be searched for every content the constraint
+// --- with the longest string.length of the regular expression.
+// --- If there is a constraint invalidated by card-min
+// --- there will be tried to move some contents to other constraint
+// --- with a matching regular expression and a card-min/card-max that is
+// --- not bad.
+// --- If for types ist set to an array of a length > 0, the constraint
+// --- and content type must be for a name or occurrence.
+// --- The return value is an object of the form
+// --- {"constraintsAndContents" : constraintsAndContents, "contents" : contents}
+// --- constraintsAndContents contains all constraints with an array of contents
+// --- belonging to the constraint, contents is an array of all contents
+// --- which were passed to this function without the matched contents for found
+// --- constraints.
+function makeConstraintsAndContents(contents, simpleConstraints, forTypes)
+{
+    var isForTypes = forTypes && forTypes.length !== 0;
+
+    var constraintsAndContents = new Array();
+    for(var j = 0; j !== contents.length; ++j){
+	// --- searches only for contents that have the given type of the current constraint
+	if(isForTypes){
+	    var cContentIsInConstraint = false;
+	    for(var k = 0; contents[j].type && k !== contents[j].type.length; ++k){
+		if(forTypes.indexOf(contents[j].type[k]) !== -1){
+		    cContentIsInConstraint = true;
+		    break;
+		}
+	    }
+	    // --- cContent's type is not in the current constraint
+	    if(cContentIsInConstraint === false) continue;
+	}
+	
+	// --- searches a constraint for every existing content
+	var tmpConstraint = null;
+	for(var k = 0; k !== simpleConstraints.length; ++k){
+	    var rex = new RegExp(simpleConstraints[k].regexp);
+	    var contentValue = (isForTypes === true ? contents[j].value : contents[j]);
+	    if(rex.match(contentValue) === true && (tmpConstraint === null || (tmpConstraint && (simpleConstraints[k].regexp.length > tmpConstraint.regexp.length)))){
+		tmpConstraint = simpleConstraints[k];
+	    }
+	}
+	if(tmpConstraint){
+	    var found = false;
+	    for(var k = 0; k !== constraintsAndContents.length; ++k){
+		if(constraintsAndContents[k].constraint === tmpConstraint){
+		    constraintsAndContents[k].contents.push(contents[j]);
+		    found = true;
+		    break;
+		}
+	    }
+	    if(found === false){
+		constraintsAndContents.push({"constraint" : tmpConstraint, "contents" : new Array(contents[j])})
+	    }
+	}
+    }
+    // --- removes all moved contents from contents
+    for(var j = 0; j !== constraintsAndContents.length; ++j){
+	for(var k = 0; k !== constraintsAndContents[j].contents.length; ++k){
+	    contents = contents.without(constraintsAndContents[j].contents[k]);
+	}
+    }
+
+    // --- adds all constraints to constraintsAndcontents that are not used now
+    // --- this is neccessary to find constraint with card-min > 0, but which has
+    // --- still no contents because the regular expression is too short,
+    for(var j = 0; j !== simpleConstraints.length; ++j){
+	var k = 0;
+	for( ; k !== constraintsAndContents.length; ++k){
+	    if(constraintsAndContents[k].constraint === simpleConstraints[j]) break;
+	}
+	if(k === constraintsAndContents.length){
+	    constraintsAndContents.push({"constraint" : simpleConstraints[j], "contents" : new Array()});
+	}
+    }
+
+    // --- checks the card-min of all used constraints
+    for(var j = 0; j !== constraintsAndContents.length; ++j){
+	var min = parseInt(constraintsAndContents[j].constraint.cardMin);
+	var len = constraintsAndContents[j].contents.length;
+	var rex = new RegExp(constraintsAndContents[j].constraint.regexp);
+	if(len < min){
+	    for(var k = 0; k !== constraintsAndContents.length; ++k){
+		if(constraintsAndContents[j] === constraintsAndContents[k]) continue;
+		var _min = parseInt(constraintsAndContents[k].constraint.cardMin);
+		var _len = constraintsAndContents[k].contents.length;
+		var contentsToMove = new Array();
+		for(var l = 0; l !== constraintsAndContents[k].contents.length; ++l){
+		    if(_min >= _len - contentsToMove.length || min <= len + contentsToMove.length) break;
+		    var contentValue = (isForTypes === true ? constraintsAndContents[k].contents[l].value : constraintsAndContents[k].contents[l]);
+		    if(rex.match(contentValue) === true){
+			contentsToMove.push(constraintsAndContents[k].contents[l]);
+		    }
+		}
+		constraintsAndContents[j].contents = constraintsAndContents[j].contents.concat(contentsToMove);
+		// --- removes the moved contents from the source object
+		for(var l = 0; l !== contentsToMove.length; ++l){
+		    constraintsAndContents[k].contents = constraintsAndContents[k].contents.without(contentsToMove[l]);
+		}
+		if(constraintsAndContents[j].contents.length >= min) break;
+	    }
+	}
+    }
+    
+    // --- to check card-max is not necessary, because if there is any constraint not satisfied the
+    // --- validation will fail anyway
+    
+    return {"constraintsAndContents" : constraintsAndContents, "contents" : contents};
 }
