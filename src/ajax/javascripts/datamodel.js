@@ -728,8 +728,77 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					       }
 
 					       function changeHandler(event){
-						   alert("changed!");
-					       }
+						   try{
+						   var eventOwner = event.element();
+						   var newValue = eventOwner.value;
+						   var oldValue = null;
+						   var allValues = new Array();
+						   var allOpts = myself.getFrame().select("option");
+						   var allOwnOpts = eventOwner.select("option");
+						   for(var i = 0; i !== allOwnOpts.length; ++i) allOpts = allOpts.without(allOwnOpts[i]);
+
+						   // --- collects all selected values
+						   for(var i = 0; i !== allOpts.length; ++i) allValues.push(allOpts[i].value);
+						   allValues = allValues.uniq();
+						   var foundContent = new Array();
+						   for(var i = 0; i !== allValues.length; ++i){
+						       for(var j = 0; contents && j !== contents.length; ++j){
+							   for(var k = 0; k !== contents[j].length; ++k){
+							       if(contents[j][k].indexOf(allValues[i]) !== -1) foundContent.push(contents[j]);
+							       if(contents[j][k].indexOf(newValue) !== -1) foundContent.push(contents[j]);
+							   }
+						       }
+						   }
+						   foundContent = foundContent.uniq();
+						   // --- searches for the content to be removed from all other select elements
+						   // --- and for the values to be inserted to all other elements
+						   var contentToAdd = null;
+						   var contentToRemove = null;
+						   if(contents && contents.length !== 0){
+						       for(var i = 0; i !== contents.length; ++i){
+							   if(foundContent.indexOf(contents[i]) === -1) contentToAdd = contents[i];
+							   if(!contentToRemove){
+							       for(var j = 0; j !== contents[i].length; ++j){
+								   if(contentToRemove) break;
+								   for(var k = 0; k !== contents[i][j].length; ++k){
+								       if(contents[i][j][k].indexOf(newValue) !== -1){
+									   contentToRemove = contents[i];
+									   break;
+								       }
+								   }
+							       }
+							   }
+						       }
+						   }
+
+						   // --- iterates through all select elements and adds/removes the found values
+						   var selects = myself.getFrame().select("select");
+						   selects = selects.without(eventOwner);
+						   if(contentToAdd) contentToAdd = contentToAdd.flatten();
+						   if(contentToRemove) contentToRemove = contentToRemove.flatten();
+						   for(var i = 0; i !== selects.length; ++i){
+						       var opts = selects[i].select("option");
+						       var val = selects[i].value;
+						       for(var j = 0; j !== opts.length; ++j){
+							   if(contentToRemove.indexOf(opts[j].value) !== -1) opts[j].remove();
+						       }
+						       
+						       if(contentToAdd){
+							   var selectOpts = new Array();
+							   for(var j = 0; j !== opts.length; ++j) selectOpts.push(opts[j].value);
+							   var iter = 0;
+							   for( ; iter !== contentToAdd.length; ++iter){
+							       if(selectOpts.indexOf(contentToAdd[iter]) !== -1) break;
+							   }
+							   if(iter === contentToAdd.length){
+							       for(var j = 0; j !== contentToAdd.length; ++j){
+								   selects[i].insert({"bottom" : new Element("option", {"value" : contentToAdd[j]}).update(contentToAdd[j])});
+							       }
+							   }
+						       }
+						   }
+						   }catch(err){ alert("ch: " + err);}
+					       } // changeHandler
 
 					       for(var i = 0; i != rows.length; ++i){
 						   var selectE = rows[i].select("select");
