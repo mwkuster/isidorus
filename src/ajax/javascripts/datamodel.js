@@ -930,6 +930,7 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
                                                     this.__frame__.writeAttribute({"class" : CLASSES.scopeContainer()});
                                                     this.__container__ = new Array();
                                                     this.resetValues(contents, constraints);
+                                                    this.__constraints__ = constraints;
                                                 },
 						"resetValues" : function(contents, constraints){
 						    try{
@@ -941,6 +942,8 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 						    catch(err){
 							this.__container__ = new Array();
 						    }
+
+						    this.__constraints__ = constraints;
 
 						    // --- sets contents corresponding to the passed constraints
 						    if(constraints && constraints.length){
@@ -1010,10 +1013,81 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 						    return false;
 						},
 						"isValid" : function(){
-						    for(var i = 0; i != this.__container__.length; ++i){
-							if(this.__container__[i].isUsed() === true) return true;
+						    var errorStr = "";
+						    var ret = true;
+						    var allContent = this.getContent();
+						    if(!allContent) allContent = new Array();
+						    var allFoundContent = new Array();
+						    if(allContent) allContent = allContent.flatten();
+						    if((!this.__constraints__ || this.__constraints__length === 0) && allContent.length !== 0){
+							this.showError("No constraints found for the existing scopes!");
+							return false;
 						    }
-						    return false;
+						    for(var i = 0; this.__constraints__ && i !== this.__constraints__.length; ++i){
+							var min = parseInt(this.__constraints__[i].cardMin);
+							var max = this.__constraints__[i].cardMax === MAX_INT ? MMAX_INT : parseInt(this.__constraints__[i].cardMax);
+							var scopes = this.__constraints__[i].scopeTypes;
+							if(scopes) scopes = scopes.flatten();
+							else scopes = new Array();
+							
+							// --- checks all available types for the current constraint
+							var currentFoundContent = new Array();
+							for(var j = 0; j !== allContent.length; ++j){
+							    if(scopes.indexOf(allContent[j]) !== -1){
+								currentFoundContent.push(allContent[j]);
+								allFoundContent.push(allContent[j]);
+							    }
+							}
+							currentFoundContent = currentFoundContent.uniq();
+							allFoundContent = allFoundContent.uniq();
+							
+							// --- find topics for the found psis
+							var foundScopes = 0;
+							var _scopes = this.__constraints__[i].scopeTypes;
+							for(var j = 0; _scopes && j !== _scopes.length; ++j){
+							    for(var k = 0; k !== _scopes[j].length; ++k){
+								for(var l = 0; l !== currentFoundContent.length; ++l){
+								    if(_scopes[j][k].indexOf(currentFoundContent[l]) !== -1){
+									++foundScopes;
+									break;
+								    }
+								}
+							    }
+							}
+							// --- checks card-min/card-max
+							var scStr = "";
+							for(var j = 0; j !== scopes.length; ++j){
+							    if(scopes[j].length !== 0) scStr += "<br/>&nbsp;&nbsp;*" + scopes[j];
+							}
+							
+							if(min > foundScopes){
+							    if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							    errorStr += "card-min(" + min + ") of the scope-constraint with the available scopes" + scStr + "<br/>is not satisfied(" + foundScopes + ")!"
+							    ret = false;
+							}
+							if(max !== MMAX_INT && max < foundScopes){
+							    if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							    errorStr += "card-max(" + max + ") of the scope-constraint with the available scopes" + scStr + "<br/>is not satisfied(" + foundScopes + ")!"
+							    ret = false;
+							}
+						    }
+						    
+						    // --- removes all checked contents
+						    for(var i = 0; i !== allFoundContent.length; ++i) allContent = allContent.without(allFoundContent[i]);
+						    if(allContent && allContent.length !== 0){
+							allContent = allContent.flatten();
+							scStr = "";
+							for(var j = 0; j !== allContent.length; ++j){
+							    if(allContent[j].length !== 0) scStr += "<br/>&nbsp;&nbsp;*" + allContent[j];
+							}
+							if(errorStr.length !== 0) errorStr += "<br/><br/>";
+							errorStr += "No constraint found for the scopes \"" + scStr + "\"!";
+							ret = false;
+						    }
+						    
+						    if(ret === true) this.hideError();
+						    else if(errorStr.length !== 0)this.showError(errorStr);
+						    return ret;
 						},
 						"getContent" : function(){
 						    var values = new Array();
@@ -1022,16 +1096,19 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 							var cValues = this.__container__[i].getContent(true, true);
 							for(var j = 0; j != cValues.length; ++j){
 							    if(values.indexOf(cValues[j]) !== -1) continue;
-							    values.push(cValues[j]);
+							    values.push(cValues[j][0]);
 							}
 						    }
 						    }catch(err){
 							return new Array();
 						    }
+						    if(values.length === 0) return null;
+						    values = values.uniq();
+						    for(var i = 0; i !== values.length; ++i) values[i] = new Array(values[i]);
 						    return values;
 						},
 						"toJSON" : function(){
-						    if(this.getContent().length === 0) return "null";
+						    if(!this.getContent() || this.getContent().length === 0) return "null";
 						    return this.getContent().toJSON();
 						},
 						"disable" : function(){
@@ -1356,7 +1433,11 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  if(valueValid === false) this.showError("The name-value \"" + this.__value__.__frames__[0].getContent() + "\" doesn't matches the constraint \"" + this.__value__.__frames__[0].getRegexp() + "\"!");
 					  else this.hideError();
 					  var variantsValid = this.__variants__.isValid();
-					  return valueValid && variantsValid;
+					  var scopeValid = this.scopeIsValid();
+					  return valueValid && variantsValid && scopeValid;
+				      },
+				      "scopeIsValid" : function(){
+					  return this.__scope__.isValid();
 				      },
 				      "minimize" : function(){
 					  var trs = this.__table__.select("tr");
@@ -1537,6 +1618,7 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       for(var j = 0; j !== this.__containers__[i].length; ++j){
 							   for(var k = 0; k !== this.__containers__[i][j].__frames__.length; ++k){
 							       this.__containers__[i][j].__frames__[k].hideError();
+							       if(this.__containers__[i][j].__frames__[k].scopeIsValid() === false) ret = false;
 							       if(this.__containers__[i][j].__frames__[k].isUsed() === true && this.__containers__[i][j].__frames__[k].isEmpty() === false){
 								   allNames.push(this.__containers__[i][j].__frames__[k]);
 							       }
@@ -1730,7 +1812,11 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						var regexp = new RegExp(this.__constraint__.regexp);
 						// TODO: validate the data via the given datatype
 						// TODO: validate the uniqeuoccurrence-constraint
-						return regexp.match(this.__value__.value);
+						var scopeValid = this.scopeIsValid();
+						return regexp.match(this.__value__.value) && scopeValid;
+					    },
+					    "scopeIsValid" : function(){
+						return this.__scope__.isValid();
 					    },
 					    "minimize" : function(){
 						var trs = this.__table__.select("tr");
@@ -1887,6 +1973,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 									 allOccurrences.push(this.__containers__[i][j].__frames__[k]);
 								     }
 								     this.__containers__[i][j].__frames__[k].hideError();
+								     if(this.__containers__[i][j].__frames__[k].scopeIsValid() === false) ret = false;
 								 }
 							     }
 							 }
@@ -2892,6 +2979,9 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 						   this.__disable__ = false;
 					       },
+					       "scopeIsValid" : function(){
+						   return this.__scope__.isValid();
+					       },
 					       "isValid" : function(){
 						   var ret = true;
 						   var errorStr = "";
@@ -3018,10 +3108,10 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       }
 						   }
 						   
-						   
+						   var scopeValid = this.scopeIsValid();
 						   if(ret === false) this.showError(errorStr);
 						   else this.hideError();
-						   return ret;
+						   return ret && scopeIsValid;
 					       }});
 
 
