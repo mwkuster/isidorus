@@ -3273,7 +3273,7 @@ function checkRemoveAddButtons(owner, min, max)
 
 
 // --- creates a control row for NameC, OccurrenceC and VariantC with a nested ItemIdentity frame.
-function makeControlRow(myself, rowspan, contents)
+function makeControlRow(myself, rowspan, itemIdentities)
 {
     var tr = new Element("tr", {"class" : CLASSES.itemIdentityFrame()});
     var tdCtrl = new Element("td", {"class" : CLASSES.controlColumn(), "rowspan" : rowspan});
@@ -3291,7 +3291,7 @@ function makeControlRow(myself, rowspan, contents)
     tdCtrl.insert({"bottom" : myself.__add__});
     var tdCont = new Element("td", {"class" : CLASSES.content()});
     tr.insert({"bottom" : tdCont});
-    myself.__itemIdentity__ = new ItemIdentityC(contents ? contents.itemIdentities : null, myself);
+    myself.__itemIdentity__ = new ItemIdentityC(itemIdentities, myself);
     tdCont.insert({"top" : myself.__itemIdentity__.getFrame()});
     myself.__table__.insert({"bottom" : tr});
 
