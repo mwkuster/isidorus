@@ -586,16 +586,16 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 
 // --- Represantation of a scope frame, doesn't contain SelectrowCs, because the values must be unique!
 // --- So this class uses another implementation.
-var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents, min, max){
+var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents, selectedContents, min, max){
                                            $super();
                                            this.__frame__.writeAttribute({"class" : CLASSES.scopeFrame()});
                                            this.__error__ = this.__error__.remove();
 
                                            this.__container__ = null;
                                            this.__contents__ = contents;
-                                           this.resetRows(this.__contents__, min, max);
+                                           this.resetRows(this.__contents__, min, max, selectedContents);
                                         },
-				       "resetRows" : function(contents, min, max){
+				       "resetRows" : function(contents, min, max, selectedContents){
 					   try{
 					       for(var i = 0; i != this.__container__.__frames__.length; ++i){
 						   this.__container__.__frames__[i].remove();
@@ -637,6 +637,7 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 					   function checkValues(myself){
 					       var rows = myself.getFrame().select("div");
 					       var selectedItems = new Array();
+
 					       // --- collects all old selected values and removes the elements
 					       for(var i = 0; i != rows.length; ++i){
 						   var selects = rows[i].select("select");
@@ -664,11 +665,11 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 						   for(var k = 0; k != values.length; ++k){
 						       if(selectedIdx.indexOf(k) === -1){
 							   cleanedValues.push(values[k]);
-							   }
+						       }
 						   }
 						   values = cleanedValues;
 					       }
-
+					       
 					       // --- if there is an empty value "" (if cardMin == 0), this value should be the last
 					       // --- in the array (only when there is another value selected)
 					       for(var h = 0; h != rows.length; ++h){
@@ -726,7 +727,12 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 						   addHandlers(myself);
 					       }
 
+					       function changeHandler(event){
+						   alert("changed!");
+					       }
+
 					       for(var i = 0; i != rows.length; ++i){
+						   var selectE = rows[i].select("select");
 						   var spans = rows[i].select("span." + CLASSES.clickable());
 						   var removeS = null;
 						   var addS = null;
@@ -762,21 +768,42 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 						       rows[i].writeAttribute({"class" : CLASSES.selectrowWithoutRemoveButton()});
 						       removeS.hide();
 						   }
+						   if(selectE.length !== 0){
+						       selectE[0].stopObserving("change");
+						       selectE[0].observe("change", changeHandler);
+						   }
 					       }
 					   } // addHandlers
 
-					   for(var i = 0; i != (min === -1 ? 1 : min); ++i){
-					       var div = new Element("div", {"class" : CLASSES.selectrowWithoutRemoveButton()});
-					       var select = new Element("select");
-					       for(var j = 0; j != options.length; ++j){
-						   if(j === i || j > min){
-						       for(var k = 0; k != options[j].length; ++k){
-							   select.insert({"bottom" : new Element("option", {"value" : options[j][k]}).update(options[j][k])});
+
+					   var endIdx = (min === -1 ? 1 : min);
+					   if(selectedContents && selectedContents.length > endIdx) endIdx = selectedContents.length;
+					   if(endIdx > options.length) throw "From ScopeC(): not enough scope-topics(" + options.length + ") to satisfie card-min(" + min + ")!";
+					   for(var i = 0; i != endIdx; ++i){
+					       var currentScope = null;
+					       if(selectedContents && selectedContents.length > i) currentScope = selectedContents[i];
+					       var currentOptions = options.clone();
+					       
+					       var optionsToRemove = new Array();
+					       for(var j = 0; selectedContents && j !== selectedContents.length; ++j){
+						   for(var k = 0; k !== selectedContents[j].length; ++k){
+						       for(var l = 0; l !== currentOptions.length; ++l){
+							   if(currentOptions[l].indexOf(selectedContents[j][k]) !== -1) optionsToRemove.push(currentOptions[l]);
 						       }
 						   }
 					       }
-
 					       
+					       optionsToRemove = optionsToRemove.uniq();
+					       for(var j = 0; j !== optionsToRemove.length; ++j) currentOptions = currentOptions.without(optionsToRemove[j]);
+					       if(currentScope) currentOptions.unshift(currentScope);
+					       var div = new Element("div", {"class" : CLASSES.selectrowWithoutRemoveButton()});
+					       var select = new Element("select");
+					       for(var j = 0; j != currentOptions.length; ++j){
+						   for(var k = 0; k != currentOptions[j].length; ++k){
+						       select.insert({"bottom" : new Element("option", {"value" : currentOptions[j][k]}).update(currentOptions[j][k])});
+						   }
+					       }
+				       
 					       div.insert({"top" : select});
 					       this.getFrame().insert({"bottom" : div});
 					       addHandlers(this);
@@ -848,19 +875,58 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
 
 						    // --- sets contents corresponding to the passed constraints
 						    if(constraints && constraints.length){
+							var cContents = contents ? contents.clone() : null;
+							var foundContents = new Array();
 							for(var i = 0; i != constraints.length; ++i){
 							    var scopeTypes = constraints[i].scopeTypes;
 							    var min = parseInt(constraints[i].cardMin);
 							    var max = constraints[i].cardMax !== MAX_INT ? parseInt(constraints[i].cardMax) : MMAX_INT;
 							    
-							    // TODO: check and adds contents to the types
-							    
-							    // --- if min === 0 && there is no content, adds an empty option
-							    if(min === 0){ // TODO: check contents of this type
+							    // --- checks already existing scopes with the given scope-constraints
+							    var currentFoundContents = new Array();
+							    if(cContents && cContents.length !== 0){
+								var allCurrentTypes = scopeTypes ? scopeTypes.flatten() : new Array();
+								for(var j = 0; j !== cContents.length; ++j){
+								    for(var k = 0; k !== allCurrentTypes.length; ++k){
+									if(cContents[j].indexOf(allCurrentTypes[k]) !== -1){
+									    foundContents.push(cContents[j]);
+									    currentFoundContents.push(cContents[j]);
+									    break;
+									}
+								    }
+								}
+								foundContents = foundContents.uniq();
+							    }
+							    							    							    
+							    // --- if min === 0 adds an empty option
+							    if(min === 0){
 								scopeTypes.unshift(new Array(new Array(""))); // [[""]]
 							    }
-							    this.__container__.push(new ScopeC(scopeTypes, min === 0 ? 1 : min, max === MMAX_INT ? -1 : max));
-							    this.__error__.insert({"before" : this.__container__[this.__container__.length - 1].getFrame()});
+							    
+							    var scp  = new ScopeC(scopeTypes, currentFoundContents, min === 0 ? 1 : min, max === MMAX_INT ? -1 : max);
+							    this.__container__.push(scp);
+							    this.__error__.insert({"before" : scp.getFrame()});
+							}
+							
+							// --- removes contents that are already used
+							if(cContents && cContents.length !== 0){
+							    for(var i = 0; i !== foundContents.length; ++i) cContents = cContents.without(foundContents[i]);
+							    
+							    // --- inserts all contents that doesn't correspond with any constraint
+							    for(var i = 0; i !== cContents.length; ++i) cContents[i] = new Array(cContents[i]);
+							    var cmax = cContents.length;
+							    for(var i = 0; i !== cContents.length; ++i){
+								var scp = new ScopeC(new Array(cContents[i]), null, 1, 1);
+								this.__container__.push(scp);
+								this.__error__.insert({"before" : scp.getFrame()});
+							    }
+							}
+						    }
+						    else if(contents && contents.length){
+							for(var i = 0; i !== contents.length; ++i){
+							    var scp = new ScopeC(new Array(new Array(contents[i])), null, 1, 1);
+							    this.__container__.push(scp);
+							    this.__error__.insert({"before" : scp.getFrame()});
 							}
 						    }
 						    else {
@@ -1504,7 +1570,24 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    var types = makeTypes(this, typeContent, occurrenceTypes);
 						    
 						    // --- scopes
-						    this.__scope__ = new ScopeContainerC(scopesContent, occurrenceTypes && occurrenceTypes[0].scopeConstraints ? occurrenceTypes[0].scopeConstraints : null);
+						    var scopes = null;
+						    if(contents){
+							if(typeContent){
+							    for(var i = 0; occurrenceTypes && i !== occurrenceTypes.length; ++i){
+								if(scopes) break;
+								for(var j = 0; j !== occurrenceTypes[i].occurrenceType.length; ++j){
+								    if(typeContent.indexOf(occurrenceTypes[i].occurrenceType[j]) !== -1){
+									scopes = occurrenceTypes[i].scopeConstraints;
+									break;
+								    }
+								}
+							    }
+							}
+						    }
+						    else if(occurrenceTypes && occurrenceTypes[0].scopeConstraints){
+							scopes = occurrenceTypes[0].scopeConstraints;
+						    }
+						    this.__scope__ = new ScopeContainerC(scopesContent, scopes);
 						    this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 						    onTypeChangeScope(this, contents && contents.scopes ? contents.scopes : null, occurrenceTypes, "occurrence");
 
@@ -1663,7 +1746,7 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 										 break;
 									     }
 									 }
-									 var endIdx = min;
+									 var endIdx = (min === 0 ? 1 : min);
 									 endIdx = _contents && _contents.length > endIdx ? _contents.length : endIdx;
 									 var regexp = constraints[i].constraints[j].regexp;
 									 if(max !== 0 || (_contents && contents.length)){
