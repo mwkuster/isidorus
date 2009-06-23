@@ -1144,24 +1144,10 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      setRemoveAddHandler(this, owner, min, max, function(){
 						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, dblClickHandler);
 					      });
+
 					      // --- type
-					      var types = new Array();
-					      for(var i = 0; nametypescopes && i !== nametypescopes.length; ++i){
-						  for(var j = 0; j != nametypescopes[i].nameType.length; ++j){
-						      types.push(nametypescopes[i].nameType[j]);
-						      if(typeContent && typeContent[0] === nametypescopes[i].nameType[j]){
-							  var selected = nametypescopes[i].nameType[j];
-							  types[types.length - 1] = types[0];
-							  types[0] = selected;
-						      }
-						  }
-					      }
-					      if(types.length === 0 && contents && contents.length !== 0) types = contents.type;
-					      if(types.length === 0) throw "From NameC(): There must be given a nametype or any nametype-constraint!";
-					      this.__type__ = new Object();
-					      
-					      var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
-					      this.__table__.insert({"bottom" : tr});
+					      var types = makeTypes(this, typeContent, nametypescopes);
+
 					      // --- scopes
 					      this.__scope__ = new ScopeContainerC(scopesContent, nametypescopes && nametypescopes[0].scopeConstraints ? nametypescopes[0].scopeConstraints : null);
 					      this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
@@ -1515,23 +1501,8 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    });
 
 						    // --- type
-						    var types = new Array();
-						    for(var i = 0; occurrenceTypes && i !== occurrenceTypes.length; ++i){
-							for(var j = 0; j != occurrenceTypes[i].occurrenceType.length; ++j){
-							    types.push(occurrenceTypes[i].occurrenceType[j]);
-							    if(typeContent && typeContent[0] ===  occurrenceTypes[i].occurrenceType[j]){
-								var selected = occurrenceTypes[i].occurrenceType[j];
-								types[types.length - 1] = types[0];
-								types[0] = selected;
-							    }
-							}
-						    }
-						    if(types.length === 0 && contents && contents.length !== 0) types = contents.type;
-						    if(types.length === 0) throw "From OccurrenceC(): There must be given an occurrencetype or any occurrencetype-constraint!";
-						    this.__type__ = new Object();
-						    var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
-						    this.__table__.insert({"bottom" : tr});
-
+						    var types = makeTypes(this, typeContent, occurrenceTypes);
+						    
 						    // --- scopes
 						    this.__scope__ = new ScopeContainerC(scopesContent, occurrenceTypes && occurrenceTypes[0].scopeConstraints ? occurrenceTypes[0].scopeConstraints : null);
 						    this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
@@ -2939,20 +2910,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     });
 
 						     // --- type
-						     var types = new Array();
-						     for(var i = 0; constraints && i !== constraints.length; ++i){
-							 for(var j = 0; j != constraints[i].associationType.length; ++j){
-							     types.push(constraints[i].associationType[j]);
-							     if(typeContent && typeContent[0] === constraints[i].associationType[j]){
-								 var selected = constraints[i].associationType[j];
-								 types[types.length - 1] = types[0];
-								 types[0] = selected;
-							     }
-							 }
-						     }
-						     this.__type__ = new Object();
-						     var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, this.__type__, 1, 1).getFrame());
-						     this.__table__.insert({"bottom" : tr});
+						     var types = makeTypes(this, typeContent, constraints);
 						     
 						     // --- scopes
 						     this.__scope__ = new ScopeContainerC(scopesContent, this.__constraints__ && this.__constraints__[0].scopeConstraints ? this.__constraints__[0].scopeConstraints : null);
@@ -3574,4 +3532,30 @@ function makeConstraintsAndContents(contents, simpleConstraints, forTypes)
     // --- validation will fail anyway
     
     return {"constraintsAndContents" : constraintsAndContents, "contents" : contents};
+}
+
+
+// --- creates a type frames for a name- or an occurrence- frame.
+function makeTypes(myself, typeContent, xtypescopes)
+{
+    var types = new Array();
+    for(var i = 0; xtypescopes && i !== xtypescopes.length; ++i){
+	var xtype = xtypescopes[i].nameType;
+	if(!xtype) xtype = xtypescopes[i].occurrenceType;
+	if(!xtype) xtype = xtypescopes[i].associationType;
+	for(var j = 0; xtype && j != xtype.length; ++j){
+	    types.push(xtype[j]);
+	    if(typeContent && typeContent[0] === xtype[j]){
+		var selected = xtype[j];
+		if(types.length !== 0) types[types.length - 1] = types[0];
+		types[0] = selected;
+	    }
+	}
+    }
+    if(types.length === 0 && typeContent && typeContent.length !== 0) types = typeContent;
+    if(!types || types.length === 0) types = new Array("");
+    myself.__type__ = new Object();
+    var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, myself.__type__, 1, 1).getFrame());
+    myself.__table__.insert({"bottom" : tr});
+    return types;
 }
