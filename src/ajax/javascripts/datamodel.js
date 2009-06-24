@@ -653,9 +653,9 @@ var ScopeC = Class.create(ContainerC, {"initialize" : function($super, contents,
 						   for(var j = 0; j != values.length; ++j){
 						       if(values[j].indexOf(selectedItems[i]) !== -1){
 							   for(var k = 0; k != values[j].length; ++k){
-							       select.insert({"bottom" : new Element("option", {"value" : values[j][k]}).update(values[j][k])});
-							       if(values[j][k] === selectedItems[i])select.writeAttribute({"selected" : "selected"});
-							       //values = values.without(values[j]);
+							       var opt = new Element("option", {"value" : values[j][k]}).update(values[j][k]);
+							       select.insert({"bottom" : opt});
+							       if(values[j][k] === selectedItems[i]) opt.writeAttribute({"selected" : "selected"});
 							       selectedIdx.push(j);
 							   }
 							   break;
@@ -931,6 +931,7 @@ var ScopeContainerC = Class.create(ContainerC, {"initialize" : function($super, 
                                                     this.__container__ = new Array();
                                                     this.resetValues(contents, constraints);
                                                     this.__constraints__ = constraints;
+
                                                 },
 						"resetValues" : function(contents, constraints){
 						    try{
