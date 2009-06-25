@@ -12,7 +12,7 @@
 
 // --- Some constants fot the http connections via the XMLHttpRequest-Object
 var TIMEOUT = 10000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
-var HOST_PREF = "http://localhost:8000/";
+var HOST_PREF = "192.168.178.21/"; //"http://localhost:8000/";
 var GET_PREFIX = HOST_PREF + "json/get/";
 var GET_STUB_PREFIX = HOST_PREF + "json/topicstubs/";
 var TMCL_TYPE_URL = HOST_PREF + "json/tmcl/type/";

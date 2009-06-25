@@ -1913,9 +1913,11 @@ var OccurrenceContainerC = Class.create(ContainerC, {"initialize" : function($su
 										 var _content = null;
 										 if(_contents && _contents.length > k) _content = _contents[k];
 										 var occurrence = new OccurrenceC(_content, constraints[i].occurrenceTypes, constraints[i].constraints[j], constraints[i].uniqueConstraints, this.__containers__[i][j], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, title, dblClickHandler);
-										 if(min === 0) occurrence.disable();
+										 if(min === 0 && !_content){
+										     occurrence.disable();
+										     occurrence.minimize();
+										 }
 										 this.__error__.insert({"before" : occurrence.getFrame()});
-										 if(min === 0)occurrence.minimize();
 									     }
 									 }
 								     }
@@ -2199,11 +2201,19 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					   else {
 					       this.__topicid__.__frames__[0].hideError();
 					   }
+					   if(this.__subjectIdentifier__.getContent().length === 0){
+					       ret = false;
+					       this.showError("The topic must contain at least one SubjectIdentifier!<br/>If it is not possible to insert one - please create a subjectidentifier-constraint for this topic (-type)!");
+					   }
+					   else if(ret === true){
+					       this.hideError();
+					   }
 
 					   if(this.__subjectLocator__.isValid() === false) ret = false;
 					   if(this.__subjectIdentifier__.isValid() === false) ret = false;
 					   if(this.__name__.isValid() === false) ret = false;
 					   if(this.__occurrence__.isValid() === false) ret = false;
+
 					   return ret;
 				       },
 				       "getReferencedTopics" : function(){
@@ -2488,8 +2498,8 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, contents, associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints, parent){
                                                   $super();
                                                    this.__frame__.writeAttribute({"class" : CLASSES.roleContainer()});
-                                                   this.__arContainer__ = new Object();
-                                                   this.__orContainer__ = new Object();
+                                                   this.__arContainer__ = new Object(); this.__arContainer__.__frames__ = new Array();
+                                                   this.__orContainer__ = new Object(); this.__orContainer__.__frames__ = new Array();
                                                    this.__associationRoleConstraints__ = associationRoleConstraints;
                                                    this.__otherRoleConstraints__ = otherRoleConstraints;
                                                    this.__rolePlayerConstraints__ = rolePlayerConstraints;
@@ -2567,7 +2577,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   return {"usedContents" : usedContents, "contents" : contents, "alreadyUsedRoles" : alreadyUsedRoles};
 					       },
 					       "__createAdditionalRolesFromContents__" : function(contents,usedContents, alreadyUsedRoles, isARC){
-						   var roleContainer = this.__orContainer__.__frames__;
+						   var roleContainer = this.__orContainer__.__frames__; 
 						   if(isARC === true) roleContainer = this.__arContainer__.__frames__;
 						       
 						   if(roleContainer && roleContainer.length !== 0){
@@ -3972,8 +3982,7 @@ function makeResource(myself, content, constraints, datatypeConstraint, cssTitle
 	this.__datatype__.__frames__[0].remove();
 	this.__datatype__ = new Object();
     }catch(err){}
-
-    myself.__value__ = new Element("textarea", {"rows" : 3}).update(value);
+    myself.__value__ = new Element("textarea", {"rows" : 3}).setValue(value);
     myself.__table__.insert({"bottom" : newRow(CLASSES.valueFrame(), "Resource Value", myself.__value__)});
     if(cssTitle && cssTitle.length !== 0) myself.__value__.writeAttribute({"title" : cssTitle});
 

@@ -121,7 +121,7 @@
 		     (not akos-are-topictype)
 		     topictype-constraint)
 	    ;(return-from topictype-p nil))
-	    (error "~a is not a valid -- type for ~a" (uri (first (psis topic-instance))) (uri (first (psis topictype)))))
+	    (error "~a is not a valid type for ~a" (uri (first (psis topic-instance))) (uri (first (psis topictype)))))
 	  
 	  (loop for isa-of-this in isas-of-this
 	     when (and (not (find isa-of-this current-checked-topics :test #'eq))
@@ -270,3 +270,25 @@
 							 x)
 					   (condition () nil)))
 			       all-subtypes-of-all-instances)))))))
+
+
+(defun return-all-tmcl-types ()
+  "Returns all topics that are valid tmcl-types"
+  (let ((all-topics
+	 (elephant:get-instances-by-class 'd:TopicC))
+	(topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*))
+	(topictype-constraint (get-item-by-psi json-tmcl-constants::*topictype-constraint-psi*)))
+    (let ((all-types
+	   (remove-if #'null
+		      (map 'list #'(lambda(x)
+				     (handler-case (progn
+						     (json-tmcl::topictype-p x topictype topictype-constraint)
+						     x)
+				       (condition () nil))) all-topics))))
+      (let ((not-abstract-types
+	     (remove-if #'null
+			(map 'list #'(lambda(x)
+				       (unless (json-tmcl:abstract-p x)
+					 x))
+			     all-types))))
+	not-abstract-types))))

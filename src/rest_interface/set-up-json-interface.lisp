@@ -107,28 +107,12 @@
   "Returns all topics that are valid types -> so they have to be valid to the
    topictype-constraint (if it exists) and the can't be abstract."
   (declare (ignorable param))
-  (handler-case (let ((all-topics
-		       (elephant:get-instances-by-class 'd:TopicC))
-		      (topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*))
-		      (topictype-constraint (get-item-by-psi json-tmcl-constants::*topictype-constraint-psi*)))
-		  (let ((all-types
-			 (remove-if #'null
-				    (map 'list #'(lambda(x)
-						   (handler-case (progn
-								   (json-tmcl::topictype-p x topictype topictype-constraint)
-								   x)
-						     (condition () nil))) all-topics))))
-		    (let ((not-abstract-types
-			   (remove-if #'null
-				      (map 'list #'(lambda(x)
-						     (unless (json-tmcl:abstract-p x)
-						       x))
-					   all-types))))
-		      (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-		      (json:encode-json-to-string
-		       (map 'list #'(lambda(y)
-				      (map 'list #'uri y))
-			    (map 'list #'psis not-abstract-types))))))
+  (handler-case (let ((topic-types (json-tmcl::return-all-tmcl-types)))
+		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+		  (json:encode-json-to-string
+		   (map 'list #'(lambda(y)
+				  (map 'list #'uri y))
+			(map 'list #'psis topic-types))))
     (condition (err) (progn
 		       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 		       (setf (hunchentoot:content-type*) "text")
