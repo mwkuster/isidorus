@@ -89,6 +89,14 @@ function makeFragment(context, psis, constraints, contents){
     var tmId = new TmIdC(tmContent);
     var liTm = new Element("li", {"class" : CLASSES.tmIdFrame()}).update(tmId.getFrame());
     liA.insert({"after" : liTm});
+
+    // --- validates the data if there is any content
+    if(contents){
+	topic.isValid();
+	if(associations) associations.isValid();
+	tmId.isValid();
+    }
+
     var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment"})
     commitButton.observe("click", function(event){
 	// --- validates the given data

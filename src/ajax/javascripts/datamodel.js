@@ -3294,9 +3294,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 						   this.__disable__ = false;
 					       },
-					       "scopeIsValid" : function(){
-						   return this.__scope__.isValid();
-					       },
 					       "isValid" : function(){
 						   var ret = true;
 						   var errorStr = "";
@@ -3423,10 +3420,9 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       }
 						   }
 						   
-						   var scopeValid = this.scopeIsValid();
 						   if(ret === false) this.showError(errorStr);
 						   else this.hideError();
-						   return ret && scopeIsValid;
+						   return ret;
 					       }});
 
 
@@ -3537,7 +3533,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     ",\"roles\":" + this.__roles__.toJSON() + "}";
 					     },
 					     "isValid" : function(){
-						 return this.__roles__.isValid();
+						 return this.__roles__.isValid() && this.__scope__.isValid();
 					     },
 					     "disable" : function(){
 						 this.hideError();
