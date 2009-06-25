@@ -82,7 +82,7 @@ function getRolePlayerConstraintsForRole(roleType, rolePlayerConstraints){
 	    }
 	}
     }
-    return foundConstraints;
+    return foundConstraints.uniq();
 }
 
 

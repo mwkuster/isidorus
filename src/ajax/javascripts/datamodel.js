@@ -2314,6 +2314,36 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					      alert("From RoleC(): " + err);
 					  }
 				      },
+				      "selectPlayer" : function(playerPsi){
+					  if(this.getPlayer() === playerPsi) return;
+					  var opts = this.__player__.__frames__[0].getFrame().select("select")[0].select("option");
+					  for(var i = 0; i !== opts.length; ++i){
+					      if(opts[i].value !== playerPsi) opts[i].removeAttribute("selected");
+					      else {
+						  opts[i].writeAttribute({"selected" : "selected"});
+						  this.__player__.__frames__[0].getFrame().select("select")[0].insert({"top" : opts[i]});
+					      }
+					  }
+				      },
+				      "selectType" : function(typePsi){
+					  if(this.getType() === typePsi) return;
+					  var opts = this.__type__.__frames__[0].getFrame().select("select")[0].select("option");
+					  for(var i = 0; i !== opts.length; ++i){
+					      if(opts[i].value !== typePsi) opts[i].removeAttribute("selected");
+					      else {
+						  opts[i].writeAttribute({"selected" : "selected"});
+						  this.__type__.__frames__[0].getFrame().select("select")[0].insert({"top" : opts[i]});
+					      }
+					  }
+				      },
+				      "getAllPlayers" : function(){
+					  if(!this.__rolePlayers__ || this.__rolePlayers__.length === 0) return new Array();
+					  return this.__rolePlayers__.clone();
+				      },
+				      "getAllTypes" : function(){
+					  if(!this.__roleTypes__ || this.__roleTypes__.length === 0) return new Array();
+					  return this.__roleTypes__;
+				      },
 				      "setAddHandler" : function(handler){
 					  if(!handler) return;
 					  this.__addButton__.stopObserving();
@@ -2452,17 +2482,250 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    this.__parentElem__ = parent;
 
                                                    try{
-						       if((!contents || contents.length === 0) && associationRoleConstraints){
-							   this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints);
-                                               	       }
-                                               	       else {
-                                               		   // TODO: check already existing contents and order them to the corresponding fields
-                                               	       }
-                                                   }
+						       this.resetValues(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints, contents);
+						       this.__createFromContent__(contents);
+						   }
                                                    catch(err){
                                                	       alert("From RoleContainerC(): " + err);
                                                    }
                                                },
+					       "__orderContentsToRoles__" : function(contents, roleContainer, usedContents, alreadyUsedRoles){
+						   for(var i = 0; i !== contents.length; ++i){
+						       var rType = contents[i].type;
+						       var player = contents[i].topicRef;
+						       
+						       // --- searches existing roles in the role-container
+						       for(var j = 0; j !== roleContainer.length; ++j){
+							   var role = roleContainer[j];
+							   if(alreadyUsedRoles.indexOf(role) !== -1) continue;
+							   
+							   var typesOfRole = role.getAllTypes().flatten();
+							   var playersOfRole = role.getAllPlayers().flatten();
+							   var iter = 0;
+							   for( ; iter !== rType.length; ++iter){
+							       if(typesOfRole.indexOf(rType[iter]) !== -1) break;
+							   }
+							   if(iter === rType.length) continue;
+							   for(iter = 0; iter !== player.length; ++iter){
+							       if(playersOfRole.indexOf(player[iter]) !== -1) break;
+							   }
+							   if(iter === player.length) continue;
+							   
+							   alreadyUsedRoles.push(role);
+							   usedContents.push(contents[i]);
+							   
+							   // --- inserts the deselected player of all other roles of this type
+							   var oldPlayer = new Array(role.getPlayer());
+							   var _tmp = role.getAllPlayers();
+							   for(var i = 0; i !== _tmp.length; ++i){
+							       if(_tmp[i].indexOf(oldPlayer[0]) !== -1){
+								   oldPlayer = _tmp[i];
+								   break;
+							       }
+							   }
+							   
+							   for(var k = 0; k !== roleContainer.length; ++k){
+							       if(roleContainer[k] === role) continue;
+							       roleContainer[k].addPlayer(oldPlayer);
+							   }
+							   
+							   // --- removes the current player from all other roles with this type
+							   for(var k = 0; k !== roleContainer.length; ++k){
+							       if(roleContainer[k] === role) continue;
+							       roleContainer[k].removePlayer(player);
+							   }
+							   
+							   // --- selects the currentPlayer/type
+							   role.selectPlayer(player[0]);
+
+							   // --- selects the current roletype
+							   role.selectType(rType[0]);
+							   break;
+						       }
+						   }
+						   // --- removes all used contents from contents
+						   for(var i = 0; i !== usedContents.length; ++i) contents = contents.without(usedContents[i]);
+						   
+						   return {"usedContents" : usedContents, "contents" : contents, "alreadyUsedRoles" : alreadyUsedRoles};
+					       },
+					       "__createAdditionalRolesFromContents__" : function(contents,usedContents, alreadyUsedRoles, isARC){
+						   var roleContainer = this.__orContainer__.__frames__;
+						   if(isARC === true) roleContainer = this.__arContainer__.__frames__;
+						       
+						   if(roleContainer && roleContainer.length !== 0){
+						       for(var i = 0; i !== contents.length; ++i){
+							   var rType = contents[i].type;
+							   var player = contents[i].topicRef;
+							   
+							   // --- gets all existing roles corresponding to the current content
+							   var existingRoles = new Array();
+							   for(var j = 0; j !== roleContainer.length; ++j){
+							       var iTypes = roleContainer[j].getAllTypes().flatten();
+							       var iPlayers = roleContainer[j].getAllPlayers().flatten();
+							       var iter = 0;
+							       for( ; iter !== rType.length; ++iter) if(iTypes.indexOf(rType[iter]) !== -1) break;
+							       if(iter === rType.length) continue;
+							       for(iter = 0; iter !== player.length; ++iter) if(iPlayers.indexOf(player[iter]) !== -1) break;
+							       if(iter === player.length) continue;
+							       
+							       existingRoles.push(roleContainer[j]);
+							   }
+							   
+							   // --- collects the selected players
+							   if(existingRoles && existingRoles.length > 0){
+							       var selectedPlayers = new Array();
+							       for(var j = 0; j !== existingRoles.length; ++j){
+								   var _tmp = existingRoles[j].getAllPlayers();
+								   for(var k = 0; k !== _tmp.length; ++k){
+								       if(_tmp[k].indexOf(existingRoles[j].getPlayer()) !== -1){
+									   selectedPlayers.push(_tmp[k]);
+									   break;
+								       }
+								   }
+							       }
+							       selectedPlayers = selectedPlayers.flatten();
+							       var allPlayers = existingRoles[0].getAllPlayers();
+							       var playersToRemove = new Array();
+							       for(var j = 0; j !== allPlayers.length; ++j){
+								   for(var k = 0; k !== selectedPlayers.length; ++k){
+								       if(allPlayers[j].indexOf(selectedPlayers[k]) !== -1){
+									   playersToRemove.push(allPlayers[j]);
+									   break;
+								       }
+								   }
+							       }
+							       for(var j = 0; j !== playersToRemove.length; ++j) allPlayers = allPlayers.without(playersToRemove[j]);
+							       var newTypes = existingRoles[0].getAllTypes();
+							       var min = 0;
+							       var arc = null;
+							       var orc = null;
+							       if(isARC === true){
+								   for(var j = 0; this.__associationRoleConstraints__ && j !== this.__associationRoleConstraints__.length; ++j){
+								       if(arc) break;
+								       var arcTypes = this.__associationRoleConstraints__[j].roleType;
+								       if(arcTypes) arcTypes = arcTypes.flatten();
+								       var nTs = newTypes.flatten();
+								       for(var k = 0; k !== nTs.length; ++k){
+									   if(arcTypes.indexOf(nTs[k]) !== -1){
+									       arc = this.__associationRoleConstraints__[j];
+									       min = parseInt(arc.cardMin);
+									       break;
+									   }
+								       }
+								   }
+							       }
+							       else {
+								   for(var j = 0; this.__otherRoleConstraints__ && j !== this.__otherRoleConstraints__.length; ++j){
+								       if(orc) break;
+								       var oPlayers = this.__otherRoleConstraints__[j].otherPlayers;
+								       if(oPlayers) oPlayers = oPlayers.flatten();
+								       var oTypes = this.__otherRoleConstraints__[j].otherRoleType;
+								       if(oTypes) oTypes = oTypes.flatten();
+
+								       for(var k = 0; k !== rType.length; ++k){
+									   if(orc) break;
+									   if(oTypes.indexOf(rType[k]) !== -1){
+									       for(var l = 0; l !== player.length; ++l){
+										   if(oPlayers.indexOf(player[l]) !== -1){
+										       orc = this.__otherRoleConstraints__[j];
+										       min = parseInt(orc.cardMin);
+										       break;
+										   }
+									       }
+									   }
+								       }
+								   }
+							       }
+							       var role = null;
+							       if(isARC === true) role = new RoleC(null, newTypes, allPlayers, this.__arContainer__, min, this.__parentElem__);
+							       else role = new RoleC(null, newTypes, allPlayers, this.__orContainer__, min, this.__parentElem__);
+							       for(var j = 0; j !== roleContainer.length; ++j){
+								   if(roleContainer[j] !== role) roleContainer[j].removePlayer(player);
+							       }
+							       role.selectPlayer(player[0]);
+							       role.selectType(rType[0]);
+							       
+							       if(isARC === true){
+								   var rpcs = getRolePlayerConstraintsForRole(newTypes, this.__rolePlayerConstraints__);
+								   var allAvailablePlayers = extractPlayersOfConstraints(rpcs);
+								   var allRolesToCheck = existingRoles;
+								   allRolesToCheck.push(role);
+								   this.__checkARCButtons__(allRolesToCheck, allAvailablePlayers, arc);
+								   this.__setARCAddHandler__(role, allAvailablePlayers, arc);
+								   this.__setARCRemoveHandler__(role, arc);
+								   this.__setRoleChangePlayerHandler__(role, this.__arContainer__.__frames__, rpcs, null);
+							       }
+							       else {
+								   var orpcs = new Array();
+								   var ac = this.__arContainer__.__frames__;
+								   for(var j = 0; ac && j !== ac.length; ++j){
+								       var fType = new Array(ac[j].getType());
+								       var fPlayer = new Array(ac[j].getPlayer());
+								       orpcs = orpcs.concat(getOtherRoleConstraintsForRole(fType, fPlayer, this.__otherRoleConstraints__));
+								   }
+								   var _orpcs = new Array();
+								   for(var j = 0; j !== orpcs.length; ++j){
+								       var players = orpcs[j].otherPlayers;
+								       if(players) players = players.flatten();
+								       var types = orpcs[j].otherRoleType;
+								       if(types) types = types.flatten();
+								       if(!types || !players) continue;
+								       for(var k = 0; k !== rType.length; ++k){
+									   if(types.indexOf(rType[k]) !== -1){
+									       for(var l = 0; l !== player.length; ++l){
+										   if(players.indexOf(player[l]) !== -1) _orpcs.push(orpcs[j]);
+									       }
+									   }
+								       }
+								   }
+
+								   orpcs = _orpcs.uniq();
+								   this.__checkORCButtons__(role, orc);
+								   this.__setRoleChangePlayerHandler__(role, this.__orContainer__.__frames__, null, orpcs);
+								   this.__setORCAddHandler__(role, orc, orpcs);
+								   this.__setORCRemoveHandler__(role, orc, orpcs);
+							       }
+							       
+							       var lastRole = roleContainer[roleContainer.length -2];
+							       lastRole.getFrame().insert({"after" : role.getFrame()});
+							   }
+						       }    
+						   }
+						   return {"usedContents" : usedContents, "contents" : contents, "alreadyUsedRoles" : alreadyUsedRoles};
+					       },
+					       "__createFromContent__" : function(contents){
+						   if(!contents || contents.lenght === 0) return;
+						   
+						   var cContents = contents;
+						   var usedContents = new Array();
+						   var alreadyUsedRoles = new Array();
+						       
+						   // --- searches for associaitonrole-constraints and roleplayer-constraints
+						   var ret = this.__orderContentsToRoles__(cContents, this.__arContainer__.__frames__, usedContents, alreadyUsedRoles);
+						   cContents = ret.contents;
+						   usedContents = ret.usedContents;
+						   alreadyUsedRoles = ret.alreadyUsedRoles;
+
+						   // --- searches for otherrole-constraints
+						   ret = this.__orderContentsToRoles__(cContents, this.__orContainer__.__frames__, usedContents, alreadyUsedRoles);
+						   cContents = ret.contents;
+						   usedContents = ret.usedContents;
+						   alreadyUsedRoles = ret.alreadyUsedRoles;
+						   
+						   // --- creates additional roles (associationrole-constraints)
+						   ret = this.__createAdditionalRolesFromContents__(cContents, usedContents, alreadyUsedRoles, true);
+						   cContents = ret.contents;
+						   usedContents = ret.usedContents;
+						   alreadyUsedRoles = ret.alreadyUsedRoles;
+
+						   // --- creates additional roles (associationrole-constraints)
+						   ret = this.__createAdditionalRolesFromContents__(cContents, usedContents, alreadyUsedRoles, false);
+						   cContents = ret.contents;
+						   usedContents = ret.usedContents;
+						   alreadyUsedRoles = ret.alreadyUsedRoles;
+
+						   // TODO: create roles that does not belong to any constraint
+					       },
 					       "resetValues" : function(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints){
                                                    this.__associationRoleConstraints__ = associationRoleConstraints;
                                                    this.__rolePlayerConstraints__ = rolePlayerConstraints;
@@ -2488,7 +2751,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 
 						   // --- creates all roles from existing associationroleconstraints and roleplayerConstraints
-						   // TODO: insert existing contents to the corresponding constraints
 						   for(var i = 0; this.__associationRoleConstraints__ && i !== this.__associationRoleConstraints__.length; ++i){
 						       var arc = this.__associationRoleConstraints__[i];
 						       var foundRpcs = getRolePlayerConstraintsForRole(arc.roleType, this.__rolePlayerConstraints__);
@@ -2502,7 +2764,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 					       "__makeRolesFromARC__" : function(associationRoleConstraint, rolePlayerConstraints){
 						   if(!associationRoleConstraint || !rolePlayerConstraints || rolePlayerConstraints.length === 0) return;
 						   checkCardinalitiesARC_RPC(associationRoleConstraint, rolePlayerConstraints);
-
+						   
 						   // --- creates all roles with all needed players
 						   var currentRoles = new Array();
 						   var rolesCreated = 0;
@@ -2631,11 +2893,11 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 
 						   // --- remove button
-						   if(cardMin > existingRoles.length){
-						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showRemoveButton();
+						   if(cardMin >= existingRoles.length){
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].hideRemoveButton();
 						   }
 						   else {
-						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].hideRemoveButton();
+						       for(var i = 0; i !== existingRoles.length; ++i) existingRoles[i].showRemoveButton();
 						   }
 					       },
 					       "__checkARCButtons__" : function(rolesToCheck, players, associationRoleConstraint){
@@ -3143,8 +3405,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 							 scopesContent = contents.scopes;
 							 rolesContent = contents.roles;
 						     }
-
-
+						     
 						     // --- control row + ItemIdentity
 						     makeControlRow(this, 4, itemIdentityContent);
 						     checkRemoveAddButtons(owner, 1, -1);
