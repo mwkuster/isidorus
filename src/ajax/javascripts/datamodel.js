@@ -2724,7 +2724,27 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 					       "__createNewRolesFromContents__" : function(contents){
 						   if(!contents || contents.length === 0) return;
 
-						   // TODO: implement
+						   for(var i = 0; i !== contents.length; ++i){
+						       var rType = contents[i].type;
+						       if(!rType) rType = new Array("");
+						       rType = new Array(rType);
+						       var rPlayer = contents[i].topicRef;
+						       if(!rPlayer) rPlayer = new Array("");
+						       rPlayer = new Array(rPlayer);
+						       var itemIdentities = contents[i].itemIdentities;
+
+						       // itemIdentities, roleTypes, rolePlayers, owner, typeMin, parent){
+						       var role = new RoleC(itemIdentities, rType, rPlayer, this.__arContainer__, 0, this.__parentElem__);
+						       if(this.__arContainer__.__frames__ && this.__arContainer__.__frames__.length > 1){
+							   var insertPoint = this.__arContainer__.__frames__[this.__arContainer__.__frames__.length - 2];
+							   insertPoint.getFrame().insert({"after" : role.getFrame()});
+						       }
+						       else {
+							   this.__error__.insert({"before" : role.getFrame()})
+						       }
+						       role.hideAddButton();
+						       
+						   }
 					       },
 					       "__createFromContent__" : function(contents){
 						   if(!contents || contents.lenght === 0) return;
