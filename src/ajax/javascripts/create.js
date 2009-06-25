@@ -70,6 +70,10 @@ function makeFragment(context, psis, constraints, contents){
     for(var i = 0; psis && i !== psis.length; ++i){
 	instanceOfs.push(new Array(psis[i]));
     }
+    if(contents) {
+	if(topicContent) instanceOfs = topicContent.instanceOfs;
+	else instanceOfs = new Array();
+    }
     var topic = new TopicC(topicContent, (constraints ? constraints.topicConstraints : null), instanceOfs);
     var liT = new Element("li", {"class" : CLASSES.topicFrame()}).update(topic.getFrame());
     context.insert({"after" : liT});

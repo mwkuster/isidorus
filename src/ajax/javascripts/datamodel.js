@@ -3465,7 +3465,8 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     var types = makeTypes(this, typeContent, constraints);
 						     
 						     // --- scopes
-						     this.__scope__ = new ScopeContainerC(scopesContent, this.__constraints__ && this.__constraints__[0].scopeConstraints ? this.__constraints__[0].scopeConstraints : null);
+						     var currentConstraint = this.getCurrentConstraint();
+						     this.__scope__ = new ScopeContainerC(scopesContent, currentConstraint && currentConstraint.scopeConstraints ? currentConstraint.scopeConstraints : null);
 						     this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 
 						     // --- roles
@@ -3532,7 +3533,29 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     ",\"scopes\":" + this.__scope__.toJSON() +
 						     ",\"roles\":" + this.__roles__.toJSON() + "}";
 					     },
+					     "getCurrentConstraint" : function(){
+						 if(!this.__constraints__ || this.__constraints__.length === 0) return null;
+						 var currentConstraint = null;
+						 for(var i = 0; i !== this.__constraints__.length; ++i){
+						     var aType = this.__constraints__[i].associationType;
+						     aType = aType.flatten();
+						     if(aType.indexOf(this.__type__.__frames__[0].getContent()) !== -1){
+							 currentConstraint = this.__constraints__[i];
+							 break;
+						     }
+						 }
+
+						 return currentConstraint;
+					     },
 					     "isValid" : function(){
+						 if(!this.getCurrentConstraint()){
+						     this.showError("No constraints found for this association!");
+						     return false;
+						 }
+						 else {
+						     this.hideError();
+						 }
+
 						 return this.__roles__.isValid() && this.__scope__.isValid();
 					     },
 					     "disable" : function(){

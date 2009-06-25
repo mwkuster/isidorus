@@ -121,7 +121,7 @@
 		     (not akos-are-topictype)
 		     topictype-constraint)
 	    ;(return-from topictype-p nil))
-	    (error "~a is not a valid type for ~a" (uri (first (psis topic-instance))) (uri (first (psis topictype)))))
+	    (error "~a is not a valid -- type for ~a" (uri (first (psis topic-instance))) (uri (first (psis topictype)))))
 	  
 	  (loop for isa-of-this in isas-of-this
 	     when (and (not (find isa-of-this current-checked-topics :test #'eq))
