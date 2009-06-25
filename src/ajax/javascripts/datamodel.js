@@ -2743,7 +2743,6 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							   this.__error__.insert({"before" : role.getFrame()})
 						       }
 						       role.hideAddButton();
-						       
 						   }
 					       },
 					       "__createFromContent__" : function(contents){
@@ -4096,6 +4095,7 @@ function makeConstraintsAndContents(contents, simpleConstraints, forTypes)
 function makeTypes(myself, typeContent, xtypescopes)
 {
     var types = new Array();
+    var matched = false;
     for(var i = 0; xtypescopes && i !== xtypescopes.length; ++i){
 	var xtype = xtypescopes[i].nameType;
 	if(!xtype) xtype = xtypescopes[i].occurrenceType;
@@ -4104,11 +4104,14 @@ function makeTypes(myself, typeContent, xtypescopes)
 	    types.push(xtype[j]);
 	    if(typeContent && typeContent[0] === xtype[j]){
 		var selected = xtype[j];
+		matched = true;
 		if(types.length !== 0) types[types.length - 1] = types[0];
 		types[0] = selected;
 	    }
 	}
     }
+    if(matched === false && typeContent && typeContent.length !== 0) types.unshift(typeContent);
+
     if(types.length === 0 && typeContent && typeContent.length !== 0) types = typeContent;
     if(!types || types.length === 0) types = new Array("");
     myself.__type__ = new Object();
