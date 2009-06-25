@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
+  <!-- test: subtype for the roletype written -->
+  <tm:topic id="sub-written">
+    <tm:subjectIdentifier href="sub-written-psi"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#sub-written"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#written"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- end test -->
+
+
   <!-- test: defines some scopes constraints for associations of the type "born-in" -->
   <tm:topic id="scoped-born-in-constraint-1">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-born-in-constraint-1"/>
@@ -637,6 +657,7 @@
   <!-- available scopes -->
   <tm:topic id="de">
     <tm:subjectIdentifier href="http://some.where/base-psis/de"/>
+    <tm:subjectIdentifier href="http://some.where/base-psis/ger"/>
     <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
   </tm:topic>
 
@@ -924,7 +945,7 @@
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#regexp"/></tm:type>
@@ -2474,6 +2495,7 @@
   </tm:topic>
 
   <tm:association>
+    <tm:itemIdentity href="born-in-frankfurt-goethe"/>
     <tm:type><tm:topicRef href="#born-in"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#place"/></tm:type>
@@ -2525,7 +2547,7 @@
     </tm:name>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#poem-content"/></tm:type> <!-- must have an occurrence of the type poem-content with the scope de or en -->
-      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:scope><tm:topicRef href="#en"/></tm:scope>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Hat der alte Hexenmeister
 sich doch einmal wegbegeben!
 Und nun sollen seine Geister
@@ -2693,7 +2715,9 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
   </tm:topic>
 
   <tm:association>
+    <tm:itemIdentity href="wirtten-by-zauberlehrling-goethe"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#goethe"/>
@@ -2705,7 +2729,9 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
   </tm:association>
 
   <tm:association>
+    <tm:itemIdentity href="wirtten-by-erlkoenig-goethe"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#goethe"/>
@@ -2849,12 +2875,16 @@ Gibt keine Ewigkeit zurück."</tm:resourceData>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:itemIdentity href="written-by-association-shiller-resignation"/>
+    <tm:type><tm:topicRef href="#place"/></tm:type>
+    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
+      <tm:itemIdentity href="writer-role-schiller"/>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#schiller"/>
     </tm:role>
     <tm:role>
+      <tm:itemIdentity href="written-role-resignation"/>
       <tm:type><tm:topicRef href="#written"/></tm:type>
       <tm:topicRef href="#resignation"/>
     </tm:role>
@@ -2889,6 +2919,7 @@ Als flöge sie nach Haus.</tm:resourceData>
 
   <tm:association>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#eichendorff"/>

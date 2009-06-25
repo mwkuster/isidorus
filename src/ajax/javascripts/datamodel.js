@@ -3442,7 +3442,6 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					         if(!owner) throw "From NameC(): owner must be set but is null";
                                                  if(!owner.__frames__) owner.__frames__ = new Array();
                                                  owner.__frames__.push(this);
-
                                                  this.__frame__.writeAttribute({"class" : CLASSES.associationFrame()});
                                                  this.__table__ = new Element("table", {"class" : CLASSES.associationFrame()});
                                                  this.__frame__.insert({"top" : this.__table__});
@@ -3451,7 +3450,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
                                                  this.__constraints__ = constraints;
                                                  this.__owner__ = owner;
                                                  this.__dblClickHandler__ = dblClickHandlerF;
-
+    
 					         try{
 						     var itemIdentityContent = null;
 						     var typeContent = null;
@@ -3472,7 +3471,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     });
 
 						     // --- type
-						     var types = makeTypes(this, typeContent, constraints);
+						     var types = makeTypes(this, typeContent, constraints);				     
 						     
 						     // --- scopes
 						     var currentConstraint = this.getCurrentConstraint();
@@ -3480,11 +3479,14 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", this.__scope__.getFrame())});
 
 						     // --- roles
-						     var _roleConstraints = _playerConstraints = _otherRoleConstraints = null;
-						     if(this.__constraints__){
-							 _roleConstraints = this.__constraints__[0].associationRoleConstraints;
-							 _playerConstraints = this.__constraints__[0].rolePlayerConstraints;
-							 _otherRoleConstraints = this.__constraints__[0].otherRoleConstraints;
+						     var _roleConstraints = null;
+						     var _playerConstraints = null;
+						     var _otherRoleConstraints = null;
+						     var cc = this.getCurrentConstraint();
+						     if(cc){
+							 _roleConstraints =  cc.associationRoleConstraints;
+							 _playerConstraints = cc.rolePlayerConstraints;
+							 _otherRoleConstraints = cc.otherRoleConstraints;
 						     }
 
 						     this.__roles__ = new RoleContainerC(rolesContent, _roleConstraints, _playerConstraints, _otherRoleConstraints, this);
@@ -3505,26 +3507,16 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						 }
 					     },
 					     "resetValues" : function(){
-						 // --- scope, depends only to the associationtype, roles can be ignored				 
-						 // --- finds the scopes depending to the selected type
-						 var foundIdx = -1;
-						 for(var i = 0; this.__constraints__ && i != this.__constraints__.length; ++i)
-						 {
-						     if(foundIdx !== -1) break;
-						     for(var j = 0; j != this.__constraints__[i].associationType.length; ++j){
-							 if(this.__type__.__frames__[0].getContent() === this.__constraints__[i].associationType[j]){
-							     foundIdx = i;
-							     break;
-							 }
-						     }
-						 }
-						 this.__scope__.resetValues(null, (foundIdx === -1 ? null : this.__constraints__[foundIdx].scopeConstraints));
+						 var cc = this.getCurrentConstraint();
+						 this.__scope__.resetValues(null, (cc ? cc.scopeConstraints : null));
 
-						 var _roleConstraints = _playerConstraints = _otherRoleConstraints = null;
-						 if(foundIdx !== -1){
-						     _roleConstraints = this.__constraints__[foundIdx].associationRoleConstraints;
-						     _playerConstraints = this.__constraints__[foundIdx].rolePlayerConstraints;
-						     _otherRoleConstraints = this.__constraints__[foundIdx].otherRoleConstraints;
+						 var _roleConstraints = null;
+						 var _playerConstraints = null;
+						 var _otherRoleConstraints = null;
+						 if(cc){
+						     _roleConstraints = cc.associationRoleConstraints;
+						     _playerConstraints = cc.rolePlayerConstraints;
+						     _otherRoleConstraints = cc.otherRoleConstraints;
 						 }
 						 this.__roles__.resetValues(_roleConstraints, _playerConstraints, _otherRoleConstraints);
 					     },
