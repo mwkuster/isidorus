@@ -2314,6 +2314,20 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					      alert("From RoleC(): " + err);
 					  }
 				      },
+				      "addItemIdentities" : function(additionalItemIdentities){
+					  if(!additionalItemIdentities || additionalItemIdentities.length === 0) return;
+
+					  var con = this.getContent();
+					  if(!con) con = new Array();
+					  else con = con.itemIdentities;
+
+					  con = con.concat(additionalItemIdentities);
+					  var td = this.__itemIdentity__.getFrame().parentNode;
+					  this.__itemIdentity__.remove();
+					  
+					  this.__itemIdentity__ = new ItemIdentityC(con.uniq(), this);
+					  td.update(this.__itemIdentity__.getFrame());
+				      },
 				      "selectPlayer" : function(playerPsi){
 					  if(this.getPlayer() === playerPsi) return;
 					  var opts = this.__player__.__frames__[0].getFrame().select("select")[0].select("option");
@@ -2493,6 +2507,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   for(var i = 0; i !== contents.length; ++i){
 						       var rType = contents[i].type;
 						       var player = contents[i].topicRef;
+						       var itemIdentities = contents[i].itemIdentities;
 						       
 						       // --- searches existing roles in the role-container
 						       for(var j = 0; j !== roleContainer.length; ++j){
@@ -2540,6 +2555,9 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 
 							   // --- selects the current roletype
 							   role.selectType(rType[0]);
+
+							   // --- creates itemIdentities for the current role
+							   role.addItemIdentities(itemIdentities);
 							   break;
 						       }
 						   }
@@ -2553,9 +2571,11 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   if(isARC === true) roleContainer = this.__arContainer__.__frames__;
 						       
 						   if(roleContainer && roleContainer.length !== 0){
+						       var currentUsedContents = new Array();
 						       for(var i = 0; i !== contents.length; ++i){
 							   var rType = contents[i].type;
 							   var player = contents[i].topicRef;
+							   var itemIdentities = contents[i].itemIdentities;
 							   
 							   // --- gets all existing roles corresponding to the current content
 							   var existingRoles = new Array();
@@ -2685,13 +2705,26 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 								   this.__setORCAddHandler__(role, orc, orpcs);
 								   this.__setORCRemoveHandler__(role, orc, orpcs);
 							       }
+							       // --- adds itemIdentities
+							       role.addItemIdentities(itemIdentities);
 							       
 							       var lastRole = roleContainer[roleContainer.length -2];
 							       lastRole.getFrame().insert({"after" : role.getFrame()});
+							       currentUsedContents.push(contents[i]);
 							   }
-						       }    
+						       }
+
+						       // --- removes all used contents from contents
+						       if(!usedContents) usedContents = new Array();
+						       usedContents = usedContents.concat(currentUsedContents).uniq();
+						       for(var i = 0; i !== usedContents.length; ++i) contents = contents.without(usedContents[i]);
 						   }
 						   return {"usedContents" : usedContents, "contents" : contents, "alreadyUsedRoles" : alreadyUsedRoles};
+					       },
+					       "__createNewRolesFromContents__" : function(contents){
+						   if(!contents || contents.length === 0) return;
+
+						   // TODO: implement
 					       },
 					       "__createFromContent__" : function(contents){
 						   if(!contents || contents.lenght === 0) return;
@@ -2724,7 +2757,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   usedContents = ret.usedContents;
 						   alreadyUsedRoles = ret.alreadyUsedRoles;
 
-						   // TODO: create roles that does not belong to any constraint
+						   this.__createNewRolesFromContents__(cContents);
 					       },
 					       "resetValues" : function(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints){
                                                    this.__associationRoleConstraints__ = associationRoleConstraints;
