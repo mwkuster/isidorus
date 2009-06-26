@@ -144,6 +144,7 @@ function makeFragment(context, psis, constraints, contents){
 	}
 	getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
     });
+
     var liCB = new Element("li", {"class" : CLASSES.commitButton()});
     liCB.update(commitButton);
     liTm.insert({"after" : liCB});

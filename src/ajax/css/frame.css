@@ -37,6 +37,5 @@ input[value="generate fragment"] {
 }
 
 input[value="commit fragment"] {
-    margin-top: -20px;
     float: right;
 }
