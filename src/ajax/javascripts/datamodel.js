@@ -3888,7 +3888,7 @@ function makeControlRow(myself, rowspan, itemIdentities)
     myself.__table__.insert({"bottom" : tr});
 
     var trCtrl = new Element("tr", {"class" : CLASSES.showHiddenRows()});
-    trCtrl.insert({"top" : new Element("td", {"class" : CLASSES.clickable()}).update("&#187")});
+    trCtrl.insert({"top" : new Element("td", {"class" : CLASSES.clickable()}).update("&#187;")});
     myself.__table__.insert({"top" : trCtrl});
     trCtrl.hide();
     trCtrl.observe("click", function(){
