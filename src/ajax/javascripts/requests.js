@@ -83,7 +83,7 @@ function defaultFailureHandler(xhr)
 
 // --- Gets all psis from the server. If typePsis is set to true
 // --- there will be requested only TopicType's psis.
-function getPsis(onSuccessHandler, onFailureHandler, typePsis)
+function getPsis(onSuccessHandler, onFailureHandler, what)
 {
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
@@ -91,7 +91,9 @@ function getPsis(onSuccessHandler, onFailureHandler, typePsis)
 	onLoad("Requesting all type PSIs");
 
 	var url = ALL_PSIS_URL;
-	if(typePsis === true) url = TYPE_PSIS_URL;
+	if(what && what.types && what.types === true) url = TYPE_PSIS_URL;
+	else if(what && what.instances && what.instances === true) url = INSTANCE_PSIS_URL;
+	else if(what && what.all && what.all === true) url = ALL_PSIS_URL;
 
 	new Ajax.Request(url, {
 	    "method" : "get",

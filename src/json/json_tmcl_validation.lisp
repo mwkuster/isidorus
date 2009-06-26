@@ -12,6 +12,7 @@
   (:export :get-constraints-of-fragment
 	   :topictype-p
 	   :abstract-p
+	   :valid-instance-p
 	   :list-subtypes))
 
 
@@ -272,6 +273,64 @@
 			       all-subtypes-of-all-instances)))))))
 
 
+(defun valid-instance-p (topic-instance &optional (akos-checked nil) (all-checked-topics nil))
+  "Returns a list of all checked topics or throws an exception if the given
+   topic is not a valid instance of any topictype in elephant."
+  (let ((isas-of-this
+	 (get-direct-types-of-topic topic-instance))
+	(akos-of-this
+	 (get-direct-supertypes-of-topic topic-instance))
+	(psi-of-this (uri (first (psis topic-instance))))
+	(topictype (d:get-item-by-psi json-tmcl-constants::*topictype-psi*))
+	(topictype-constraint (d:get-item-by-psi json-tmcl-constants::*topictype-constraint-psi*))
+	(local-all-checked-topics all-checked-topics)
+	(local-akos-checked))
+
+    (when (not topictype-constraint)
+      (return-from valid-instance-p topic-instance))
+
+    (when (and topictype-constraint
+	       (not topictype))
+      (error (format nil "From valid-instance-p(): The topic \"~a\" does not exist - please create it or remove the topic \"~a\""
+		     json-tmcl-constants::*topictype-psi* json-tmcl-constants::*topictype-constraint-psi*)))
+
+    (when (eql topic-instance topictype)
+      (return-from valid-instance-p (remove-duplicates (append all-checked-topics (list topic-instance)))))
+
+    (unless (or isas-of-this akos-of-this)
+      (error (format nil "The topic \"~a\" is not a valid topic-instance for any topic-type" psi-of-this)))
+
+    (when (find topic-instance akos-checked)
+      (return-from valid-instance-p all-checked-topics))
+
+    (pushnew topic-instance local-all-checked-topics)
+    (pushnew topic-instance local-akos-checked)
+
+    (dolist (isa isas-of-this)
+      (handler-case (let ((topics
+			   (topictype-p isa topictype topictype-constraint)))
+		      (dolist (top topics)
+			(pushnew top local-all-checked-topics)))
+	(condition (err) (error (format nil "The topic \"~a\" is not a valid topic-instance for any topic-type~%~%~a" psi-of-this err)))))
+
+    (dolist (ako akos-of-this)
+      (when (not (handler-case (let ((topics
+				      (topictype-p ako topictype topictype-constraint all-checked-topics)))
+				 (dolist (top topics)
+				   (pushnew top local-all-checked-topics))
+				 (pushnew ako local-akos-checked)
+				 topics)
+		   (condition () nil)))
+	(handler-case (let ((topics
+			     (valid-instance-p ako akos-checked (append all-checked-topics (list ako)))))
+			(dolist (top topics)
+			  (pushnew top local-all-checked-topics)
+			  (pushnew top local-akos-checked))
+			topics)
+	  (condition (err) (error (format nil "The topic \"~a\" is not a valid topic-instance for any topic-type~%~%~a" psi-of-this err))))))
+    local-all-checked-topics))
+
+
 (defun return-all-tmcl-types ()
   "Returns all topics that are valid tmcl-types"
   (let ((all-topics
@@ -282,7 +341,7 @@
 	   (remove-if #'null
 		      (map 'list #'(lambda(x)
 				     (handler-case (progn
-						     (json-tmcl::topictype-p x topictype topictype-constraint)
+						     (topictype-p x topictype topictype-constraint)
 						     x)
 				       (condition () nil))) all-topics))))
       (let ((not-abstract-types
@@ -292,3 +351,19 @@
 					 x))
 			     all-types))))
 	not-abstract-types))))
+
+
+(defun return-all-tmcl-instances ()
+  "Returns all topics that are valid instances of any topic type.
+   The validity is only oriented on the typing of topics, e.g.
+   type-instance or supertype-subtype."
+  (let ((all-topics
+	 (elephant:get-instances-by-class 'd:TopicC)))
+    (let ((valid-instances
+	   (remove-if #'null
+		      (map 'list #'(lambda(x)
+				     (handler-case (progn
+						     (valid-instance-p x)
+						     x)
+				       (condition () nil))) all-topics))))
+      valid-instances)))

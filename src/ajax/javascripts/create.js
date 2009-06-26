@@ -46,7 +46,7 @@ function makeCreate(psi)
 	    }
 	} //onSuccessHandler
 	
-	getPsis(onSuccessHandler, null, true);
+	getPsis(onSuccessHandler, null, {"types" : true});
     }catch(err){
 	alert("From makeCreate(): " + err);
     }

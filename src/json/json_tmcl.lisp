@@ -992,8 +992,7 @@
 	 (remove-duplicates
 	  (if (eql treat-as 'type)
 	      (topictype-p topic-instance)
-	      (loop for topic in (union (get-direct-types-of-topic topic-instance) (get-direct-supertypes-of-topic topic-instance))
-		   append (topictype-p topic))))))
+	      (valid-instance-p topic-instance)))))
     (let ((all-abstract-topictype-constraints nil)
 	  (all-exclusive-instance-constraints nil)
 	  (all-subjectidentifier-constraints nil)
@@ -1104,8 +1103,7 @@
 	 (remove-duplicates
 	  (if (eql treat-as 'type)
 	      (topictype-p topic-instance)
-	      (loop for topic in (union (get-direct-types-of-topic topic-instance) (get-direct-supertypes-of-topic topic-instance))
-		 append (topictype-p topic))))))
+	      (valid-instance-p topic-instance)))))
     (let ((all-available-associationtypes
 	   (remove-duplicates
 	    (loop for possible-player-topic in all-possible-player-topics

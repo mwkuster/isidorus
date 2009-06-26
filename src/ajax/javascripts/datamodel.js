@@ -20,7 +20,7 @@ var FrameC = Class.create({"initialize" : function(content, owner, min, max){
                                this.__remove__ = new Element("span", {"class" : CLASSES.clickable()}).update("-");
                                this.__add__ = new Element("span", {"class" : CLASSES.clickable()}).update("+");
 
-                               checkRemoveAddButtons(owner, min, max);
+                               checkRemoveAddButtons(owner, min, max, null);
 
                                this.__error__ = new Element("div", {"class" : CLASSES.error()});
                                this.__error__.hide();
@@ -32,7 +32,7 @@ var FrameC = Class.create({"initialize" : function(content, owner, min, max){
                                this.__frame__.insert({"bottom" : this.__error__});
                                this.__disabled__ = false;
 
-                               setRemoveAddHandler(this, owner, min, max, function(){
+                               setRemoveAddHandler(this, true, owner, min, max, function(){
 				   return new FrameC("", owner, min, max);
 			       });
                            },                            
@@ -102,9 +102,9 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
 					 }
                                          this.__remove__.insert({"after" : this.__content__});
 
-                                         checkRemoveAddButtons(owner, min, max);
+                                         checkRemoveAddButtons(owner, min, max, null);
                                          var myself = this;
-                                         setRemoveAddHandler(this, owner, min, max, function(){
+                                         setRemoveAddHandler(this, true, owner, min, max, function(){
 					     return new TextrowC("", regexp, owner, min, max, cssTitle, dblClickHandler);
 					 });
     
@@ -138,7 +138,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
 				     },
 				     "enable" : function(){
 					 this.__content__.removeAttribute("readonly");
-					 checkRemoveAddButtons(this.__owner__, this.__min__, this.__max__);
+					 checkRemoveAddButtons(this.__owner__, this.__min__, this.__max__, null);
 					 this.__disabled__ = false;
 				     },
 				     "getRegexp" : function(){
@@ -162,8 +162,8 @@ var SelectrowC = Class.create(FrameC, {"initialize" : function($super, contents,
                                            }
                                            this.__remove__.insert({"after" : this.__content__});
 
-                                           checkRemoveAddButtons(owner, min, max);
-                                           setRemoveAddHandler(this, owner, min, max, function(){
+                                           checkRemoveAddButtons(owner, min, max, null);
+                                           setRemoveAddHandler(this, true, owner, min, max, function(){
                                        	       return new SelectrowC(contents, owner, min, max);
                                            });
                                        },
@@ -1145,8 +1145,8 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 
 						 // --- control row + itemIdentity
 						 makeControlRow(this, 4, itemIdentityContent);
-						 checkRemoveAddButtons(owner, 1, -1);
-						 setRemoveAddHandler(this, owner, 1, -1, function(){
+						 checkRemoveAddButtons(owner, 1, -1, null);
+						 setRemoveAddHandler(this, true, owner, 1, -1, function(){
 						     return new VariantC(null, owner, dblClickHandler, parent);
 						 });
 						 						 
@@ -1336,6 +1336,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
                                           this.__max__ = max;
                                           this.__owner__ = owner;
                                           this.__dblClickHandler__ = dblClickHandler;
+                                          this.__constraint__ = simpleConstraint;
     
                                           try{
 					      var itemIdentityContent = null;
@@ -1353,8 +1354,8 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      
 					      // --- control row + ItemIdentity
 					      makeControlRow(this, 5, itemIdentityContent);
-					      checkRemoveAddButtons(owner, min, max);
-					      setRemoveAddHandler(this, owner, min, max, function(){
+					      checkRemoveAddButtons(owner, min, max, this);
+					      setRemoveAddHandler(this, this.__constraint__, owner, min, max, function(){
 						  return new NameC(null, nametypescopes, simpleConstraint, owner, min, max, dblClickHandler);
 					      });
 
@@ -1469,7 +1470,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  this.getFrame().setStyle({"backgroundColor" : "inherit"});
 					  this.getFrame().setStyle({"border" : "none"});
 					  this.getFrame().removeAttribute("title");
-					  checkRemoveAddButtons(this.__owner__, 1, this.__max__);
+					  checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
 					  this.__disabled__ = false;
 				      }});
 
@@ -1713,8 +1714,8 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    
 						    // --- control row + itemIdentity
 						    makeControlRow(this, 5, itemIdentityContent);
-						    checkRemoveAddButtons(owner, 1, max);
-						    setRemoveAddHandler(this, owner, 1, max, function(){
+						    checkRemoveAddButtons(owner, 1, max, this);
+						    setRemoveAddHandler(this, this.__constraint__, owner, 1, max, function(){
 							return new OccurrenceC(null, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle, dblClickHandler);
 						    });
 
@@ -1848,7 +1849,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						this.getFrame().setStyle({"backgroundColor" : "inherit"});
 						this.getFrame().setStyle({"border" : "none"});
 						this.getFrame().removeAttribute("title");
-						checkRemoveAddButtons(this.__owner__, 1, this.__max__);
+						checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
 						this.__disabled__ = false;
 					    }});
 			       
@@ -2275,12 +2276,13 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
                                           this.__owner__ = owner;
                                           this.__typeMin__ = typeMin;
                                           this.__parentElem__ = parent;
+                                          this.__constraint__ = true; // is needed for checkAddRemoveButtons
     
 				          try{
 					      // --- control row + itemIdentity
 					      makeControlRow(this, 3, itemIdentities); // make control row have to be changed to a separate control row for roles
-					      checkRemoveAddButtons(owner, 1, -1);
-					      setRemoveAddHandler(this, owner, 1, -1, function(){ /*do nothing*/ });
+					      checkRemoveAddButtons(owner, 1, -1, this);
+					      setRemoveAddHandler(this, this.__constraint__, owner, 1, -1, function(){ /*do nothing*/ });
 					      // --- gets the add and remove button
 					      var cTd = this.__table__.select("tr." + CLASSES.itemIdentityFrame())[0].select("td." + CLASSES.controlColumn())[0].select("span." + CLASSES.clickable());
 					      this.__removeButton__ = cTd[1];
@@ -2514,6 +2516,10 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    }
                                                },
 					       "__orderContentsToRoles__" : function(contents, roleContainer, usedContents, alreadyUsedRoles){
+						   if(!roleContainer || roleContainer.length === 0){
+						       return {"usedContents" : usedContents, "contents" : contents, "alreadyUsedRoles" : alreadyUsedRoles};
+						   }
+
 						   for(var i = 0; i !== contents.length; ++i){
 						       var rType = contents[i].type;
 						       var player = contents[i].topicRef;
@@ -2819,7 +2825,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       this.__makeRolesFromARC__(arc, foundRpcs);
 						   }
 						   // --- creates roles from otherrole-constraints
-						   for(var i = 0; i !== this.__arContainer__.__frames__.length; ++i){
+						   for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
 						       this.__makeRolesFromORC__(this.__arContainer__.__frames__[i].getType(), this.__arContainer__.__frames__[i].getPlayer());
 						   }
 					       },
@@ -3465,13 +3471,14 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						     
 						     // --- control row + ItemIdentity
 						     makeControlRow(this, 4, itemIdentityContent);
-						     checkRemoveAddButtons(owner, 1, -1);
-						     setRemoveAddHandler(this, owner, 1, -1, function(){
+						     checkRemoveAddButtons(owner, 1, -1, this);
+						     setRemoveAddHandler(this, this.__constraints__, owner, 1, -1, function(){
 							 return new AssociationC(null, constraints, owner);
 						     });
 
 						     // --- type
-						     var types = makeTypes(this, typeContent, constraints);				     
+						     var types = makeTypes(this, typeContent, constraints);
+						     if(types.flatten().length === 0 || types.flatten()[0].strip().length === 0 || !constraints || constraints.length === 0) this.hideAddButton();
 						     
 						     // --- scopes
 						     var currentConstraint = this.getCurrentConstraint();
@@ -3577,8 +3584,8 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						 this.__roles__.enable();
 						 this.__type__.__frames__[0].enable();
 						 this.__scope__.enable();
-						 if(this.__owner__.__frames__.length > 1) this.showRemoveButton();
-						 this.showAddButton();
+						 if(this.__owner__.__frames__.length > 1 || !this.__constraints__ || this.__constraints__.length !== 0) this.showRemoveButton();
+						 if(this.__constraints__ && this.__constraints__.length !== 0) this.showAddButton();
 						 this.getFrame().setStyle({"backgroundColor" : "inherit"});
 						 this.getFrame().setStyle({"border" : "none"});
 						 this.__disabled__ = false;
@@ -3604,6 +3611,11 @@ var AssociationContainerC = Class.create(ContainerC, {"initialize" : function($s
 								  td.update(association.getFrame());
 								  tr.update(td);
 								  this.__table__.insert({"bottom" : tr});
+							      }
+							      if(!constraints || constraints.length === 0){
+								  for(var i = 0; i !== this.__container__.__frames__.length; ++i){
+								      this.__container__.__frames__[i].hideAddButton();
+								  }
 							      }
 
 							      if(!this.__container__.__frames__ && constraints && constraints.length !== 0){
@@ -3773,7 +3785,7 @@ function newRow(rowClass, description, content)
 // --- Helper function for the constructors of all classes
 // --- of the type FrameC.
 // --- There will be set the remome and add handler.
-function setRemoveAddHandler(myself, owner, min, max, call)
+function setRemoveAddHandler(myself, constraint, owner, min, max, call)
 {
     myself.__remove__.stopObserving();
     myself.__add__.stopObserving();
@@ -3783,12 +3795,12 @@ function setRemoveAddHandler(myself, owner, min, max, call)
 	if(disabled === false){
 	    myself.remove();
 	    owner.__frames__ = owner.__frames__.without(myself);
-	    if(min >= owner.__frames__.length){
+	    if(min >= owner.__frames__.length && constraint){
 		for(var i = 0; i != owner.__frames__.length; ++i){
 		    owner.__frames__[i].hideRemoveButton();
 		}
 	    }
-	    if(max > owner.__frames__.length){
+	    if((max === -1 || max > owner.__frames__.length) && constraint){
 		for(var i = 0; i != owner.__frames__.length; ++i){
 		    owner.__frames__[i].showAddButton();
 		}
@@ -3802,12 +3814,12 @@ function setRemoveAddHandler(myself, owner, min, max, call)
 	if(disabled === false){
 	    var newElem = call();
 	    myself.append(newElem.getFrame());
-	    if(remove === true && min !== -1 && owner.__frames__.length > min){
+	    if((remove === true && min !== -1 && owner.__frames__.length > min) || !constraint){
 		for(var i = 0; i != owner.__frames__.length; ++i){
 		    owner.__frames__[i].showRemoveButton();
 		}
 	    }
-	    if(max > -1 && max <= owner.__frames__.length){
+	    if((max > -1 && max <= owner.__frames__.length) || !constraint){
 		for(var i = 0; i != owner.__frames__.length; ++i){
 		    owner.__frames__[i].hideAddButton();
 		}
@@ -3818,30 +3830,33 @@ function setRemoveAddHandler(myself, owner, min, max, call)
 
 
 // --- Helper function for the constructors of all classes
-// --- of the type FrameC.
+// --- of the type FrameC and some of the type ContainerC.
 // --- There will be checked the visibility of the remove and
 // --- add buttons.
-function checkRemoveAddButtons(owner, min, max)
+function checkRemoveAddButtons(owner, min, max, myself)
 {
-    if(min >= owner.__frames__.length){
+    var constraint = true;
+    if(myself && !myself.__constraint__ && (!myself.__constraints__ || myself.__constraints__.length === 0)) constraint = false;
+
+    if(min >= owner.__frames__.length && constraint === true){
 	for(var i = 0; i != owner.__frames__.length; ++i){
 	    owner.__frames__[i].hideRemoveButton();
 	}
     }
 
-    if(min > -1 && min < owner.__frames__.length){
+    if((min > -1 && min < owner.__frames__.length) || constraint === false){
 	for(var i = 0; i != owner.__frames__.length; ++i){
 	    owner.__frames__[i].showRemoveButton();
 	}
     }
     
-    if(max > -1 && max <= owner.__frames__.length){
+    if((max > -1 && max <= owner.__frames__.length) || constraint === false){
         for(var i = 0; i != owner.__frames__.length; ++i){
 	    owner.__frames__[i].hideAddButton();
 	}
     }
 
-    if(max === -1 || max > owner.__frames__.length){
+    if((max === -1 || max > owner.__frames__.length) && constraint === true){
 	for(var i = 0; i != owner.__frames__.length; ++i){
 	    owner.__frames__[i].showAddButton();
 	}

@@ -55,7 +55,7 @@ function makeEdit(psi)
 		alert("There occurred an error by creating an EditC frame, please reload this page!\n\n" + err);
 	    }
 	}
-	getPsis(onSuccessHandler, null, false);
+	getPsis(onSuccessHandler, null, {"instances" : true});
     }
     catch(err){
 	alert("From makeEdit(): " + err);

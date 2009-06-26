@@ -14,6 +14,7 @@
 (defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
 (defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary of all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
 (defparameter *json-get-all-type-psis* "/json/tmcl/types/?$") ;returns a list of all psis that can be a type
+(defparameter *json-get-all-instance-psis* "/json/tmcl/instances/?$") ;returns a list of all psis that belongs to a valid topic-instance
 (defparameter *json-get-topic-stub-prefix* "/json/topicstubs/(.+)$") ;the json prefix for getting some topic stub information of a topic
 (defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$") ;the json url for getting some tmcl information of a topic treated as a type
 (defparameter *json-get-instance-tmcl-url* "/json/tmcl/instance/?$") ;the json url for getting some tmcl information of a topic treated as an instance
@@ -29,6 +30,7 @@
 			      (json-commit-url *json-commit-url*)
 			      (json-get-summary-url *json-get-summary-url*)
 			      (json-get-all-type-psis *json-get-all-type-psis*)
+			      (json-get-all-instance-psis *json-get-all-instance-psis*)
 			      (json-get-topic-stub-prefix *json-get-topic-stub-prefix*)
 			      (json-get-type-tmcl-url *json-get-type-tmcl-url*)
 			      (json-get-instance-tmcl-url *json-get-instance-tmcl-url*)
@@ -84,6 +86,9 @@
    (create-regex-dispatcher json-get-all-type-psis #'return-all-tmcl-types)
    hunchentoot:*dispatch-table*)
   (push
+   (create-regex-dispatcher json-get-all-instance-psis #'return-all-tmcl-instances)
+   hunchentoot:*dispatch-table*)
+  (push
    (create-regex-dispatcher json-get-type-tmcl-url #'(lambda(&optional param)
 						       (declare (ignorable param))
 						       (return-tmcl-info-of-psis 'json-tmcl::type)))
@@ -104,7 +109,7 @@
 ;; --- some handlers for the json-rest-interface -------------------------------
 ;; =============================================================================
 (defun return-all-tmcl-types(&optional param)
-  "Returns all topics that are valid types -> so they have to be valid to the
+  "Returns all topic-psi that are valid types -> so they have to be valid to the
    topictype-constraint (if it exists) and the can't be abstract."
   (declare (ignorable param))
   (handler-case (let ((topic-types (json-tmcl::return-all-tmcl-types)))
@@ -117,6 +122,23 @@
 		       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 		       (setf (hunchentoot:content-type*) "text")
 		       (format nil "Condition: \"~a\"" err)))))
+
+(defun return-all-tmcl-instances(&optional param)
+  "Returns all topic-psis that are valid instances of any topic type.
+   The validity is only oriented on the typing of topics, e.g.
+   type-instance or supertype-subtype."
+  (declare (ignorable param))
+  (handler-case (let ((topic-instances (json-tmcl::return-all-tmcl-instances)))
+		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+		  (json:encode-json-to-string
+		   (map 'list #'(lambda(y)
+				  (map 'list #'uri y))
+			(map 'list #'psis topic-instances))))
+    (condition (err) (progn
+		       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		       (setf (hunchentoot:content-type*) "text")
+		       (format nil "Condition: \"~a\"" err)))))
+
 
 (defun return-topic-stub-of-psi(&optional psi)
   "Returns a json string of a topic depending on the

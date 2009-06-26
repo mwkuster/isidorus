@@ -30,6 +30,7 @@
 	   :*json-get-all-psis*
 	   :*json-get-summary-prefix*
 	   :*json-get-all-type-psis*
+	   :*json-get-all-instance-psis*
 	   :*json-get-topic-stub-prefix*
 	   :*json-get-type-tmcl-prefix*
 	   :*json-get-instance-tmcl-prefix*
