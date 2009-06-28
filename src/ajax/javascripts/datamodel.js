@@ -95,7 +95,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
                                          this.__regExpString__ = regexp;
                                          this.__frame__.writeAttribute({"class" : CLASSES.textrowWithRemoveButton()});
                                          this.__content__.remove();
-                                         this.__content__ = new Element("input", {"type" : "text", "value" : content, "size" : 40});
+                                         this.__content__ = new Element("input", {"type" : "text", "value" : content, "size" : 48});
                                          this.__dblClickHandler__ = dblClickHandler;
                                          if(cssTitle && cssTitle.length){
 					     this.__content__.writeAttribute({"title" : cssTitle});
@@ -1132,8 +1132,8 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
                                              this.__table__ = new Element("table", {"class" : CLASSES.variantFrame()});
                                              this.__frame__.insert({"top" : this.__table__});
                                              this.__owner__ = owner;
-					     this.__owner__ = owner;
 					     this.__dblClickHandler__ = dblClickHandler;
+                                             this.__isMinimized__ = false;
     
                                              try{
 						 var itemIdentityContent = null;
@@ -1156,7 +1156,7 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 						 this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", new Element("div"))});
 						 
 						 // --- resource value and datatype
-						 makeResource(this, contents, null, null, null, {"rows" : 3, "cols" : 40});
+						 makeResource(this, contents, null, null, null, {"rows" : 3, "cols" : 55});
 						 
 						 this.getFrame().observe("dblclick", function(event){
 						     dblClickHandler(owner, event);
@@ -1236,6 +1236,7 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 					     this.__disabled__ = true;
 					 },
 					 "enable" : function(){
+					     this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
 					     enableItemIdentity(this);
 					     // TODO: scope
 					     this.__table__.select("tr." + CLASSES.scopeContainer())[0].removeAttribute("style");
@@ -1247,10 +1248,21 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 					     this.__disabled__ = false;
 					 },
 					 "minimize" : function(){
-					     var trs = this.__table__.select("tr");
-					     for(var i = 0; i != trs.length; ++i){
-						 if(i === 0) trs[i].show();
-						 else trs[i].hide();
+					     if(this.__isMinimized__ === false) {
+						 this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].show();
+						 this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].hide();
+						 this.getFrame().select("tr." + CLASSES.scopeContainer())[0].hide();
+						 this.getFrame().select("tr." + CLASSES.valueFrame())[0].hide();
+						 this.getFrame().select("tr." + CLASSES.datatypeFrame())[0].hide();
+						 this.__isMinimized__ = true;
+					     }
+					     else {
+						 this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
+						 this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].show();
+						 this.getFrame().select("tr." + CLASSES.scopeContainer())[0].show();
+						 this.getFrame().select("tr." + CLASSES.valueFrame())[0].show();
+						 this.getFrame().select("tr." + CLASSES.datatypeFrame())[0].show();
+						 this.__isMinimized__ = false;
 					     }
 					 }});
 
@@ -1337,6 +1349,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
                                           this.__owner__ = owner;
                                           this.__dblClickHandler__ = dblClickHandler;
                                           this.__constraint__ = simpleConstraint;
+                                          this.__isMinimized__ = false;
     
                                           try{
 					      var itemIdentityContent = null;
@@ -1440,10 +1453,23 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  return this.__scope__.isValid();
 				      },
 				      "minimize" : function(){
-					  var trs = this.__table__.select("tr");
-					  for(var i = 0; i != trs.length; ++i){
-					      if(i === 0) trs[i].show();
-					      else trs[i].hide();
+					  if(this.__isMinimized__ === false){
+					      this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].show();
+					      this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.typeFrame())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.scopeContainer())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.valueFrame())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.variantContainer())[0].hide();
+					      this.__isMinimized__ = true;
+					  }
+					  else {
+					      this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].show();
+					      this.getFrame().select("tr." + CLASSES.typeFrame())[0].show();
+					      this.getFrame().select("tr." + CLASSES.scopeContainer())[0].show();
+					      this.getFrame().select("tr." + CLASSES.valueFrame())[0].show();
+					      this.getFrame().select("tr." + CLASSES.variantContainer())[0].show();
+					      this.__isMinimized__ = false;
 					  }
 				      },
 				      "disable" : function(){
@@ -1697,6 +1723,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
                                                 this.__constraint__ = constraint;
                                                 this.__owner__ = owner;
                                                 this.__dblClickHandler__ = dblClickHandler;
+                                                this.__isMinimized__ = false;
 
                                                 try{
 						    var itemIdentityContent = null;
@@ -1751,7 +1778,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    var cssTitle = "No constraint found for this occurrence";
 						    if(noConstraint === false) cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
 						    this.__cssTitle__ = cssTitle;
-						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle, {"rows" : 5, "cols" : 60});
+						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle, {"rows" : 5, "cols" : 70});
 
 						    this.getFrame().observe("dblclick", function(event){
 							dblClickHandler(owner, event);
@@ -1817,10 +1844,23 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						return this.__scope__.isValid();
 					    },
 					    "minimize" : function(){
-						var trs = this.__table__.select("tr");
-						for(var i = 0; i != trs.length; ++i){
-						    if(i === 0) trs[i].show();
-						    else trs[i].hide();
+						if(this.__isMinimized__ === false){
+						    this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].show();
+						    this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].hide();
+						    this.getFrame().select("tr." + CLASSES.typeFrame())[0].hide();
+						    this.getFrame().select("tr." + CLASSES.scopeContainer())[0].hide();
+						    this.getFrame().select("tr." + CLASSES.valueFrame())[0].hide();
+						    this.getFrame().select("tr." + CLASSES.datatypeFrame())[0].hide();
+						    this.__isMinimized__ = true;
+						}
+						else {
+						    this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
+						    this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].show();
+						    this.getFrame().select("tr." + CLASSES.typeFrame())[0].show();
+						    this.getFrame().select("tr." + CLASSES.scopeContainer())[0].show();
+						    this.getFrame().select("tr." + CLASSES.valueFrame())[0].show();
+						    this.getFrame().select("tr." + CLASSES.datatypeFrame())[0].show();
+						    this.__isMinimized__ = false;
 						}
 					    },
 					    "disable" : function(){try{
@@ -2271,6 +2311,7 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
                                           this.__typeMin__ = typeMin;
                                           this.__parentElem__ = parent;
                                           this.__constraint__ = true; // is needed for checkAddRemoveButtons
+                                          this.__isMinimized__ = false;
     
 				          try{
 					      // --- control row + itemIdentity
@@ -2485,6 +2526,22 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 					  enablePlayer(this);
 					  this.getFrame().removeAttribute("style");
 					  this.__disabled__ = false;
+				      },
+				      "minimize" : function(){
+					  if(this.__isMinimized__ === false) {
+					      this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].show();
+					      this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.typeFrame())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.playerFrame())[0].hide();
+					      this.__isMinimized__ = true;
+					  }
+					  else {
+					      this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
+					      this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].show();
+					      this.getFrame().select("tr." + CLASSES.typeFrame())[0].show();
+					      this.getFrame().select("tr." + CLASSES.playerFrame())[0].show();
+					      this.__isMinimized__ = false;
+					  }
 				      }});
 
 
@@ -3448,6 +3505,7 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
                                                  this.__constraints__ = constraints;
                                                  this.__owner__ = owner;
                                                  this.__dblClickHandler__ = dblClickHandlerF;
+                                                 this.__isMinimized__ = false;
     
 					         try{
 						     var itemIdentityContent = null;
@@ -3579,6 +3637,24 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 						 if(this.__constraints__ && this.__constraints__.length !== 0) this.showAddButton();
 						 this.getFrame().removeAttribute("style");
 						 this.__disabled__ = false;
+					     },
+					     "minimize" : function(){
+						 if(this.__isMinimized__ === false) {
+						     this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].show();
+						     this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].hide();
+						     this.getFrame().select("tr." + CLASSES.typeFrame())[0].hide();
+						     this.getFrame().select("tr." + CLASSES.scopeContainer())[0].hide();
+						     this.getFrame().select("tr." + CLASSES.roleContainer())[0].hide();
+						     this.__isMinimized__ = true;
+						 }
+						 else {
+						     this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
+						     this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0].show();
+						     this.getFrame().select("tr." + CLASSES.typeFrame())[0].show();
+						     this.getFrame().select("tr." + CLASSES.scopeContainer())[0].show();
+						     this.getFrame().select("tr." + CLASSES.roleContainer())[0].show();
+						     this.__isMinimized__ = false;
+						 }
 					     }});
 
 
@@ -3702,7 +3778,7 @@ var TmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
                                               this.__caption__ = new Element("caption", {"class" : CLASSES.clickable()}).update("Topic Map ID");
                                               this.__table__.update(this.__caption__);
                                               var value = contents && contents.length !== 0 ? decodeURI(contents[0]) : "";
-                                              this.__contentrow__ = new Element("input", {"type" : "text", "value" : value, "size" : 40});
+                                              this.__contentrow__ = new Element("input", {"type" : "text", "value" : value, "size" : 48});
                                               this.__tr__ = new Element("tr", {"class" : CLASSES.tmIdFrame()});
                                               var td =new Element("td", {"class" : CLASSES.content()});
                                               this.__tr__.update(td);
@@ -3882,18 +3958,22 @@ function makeControlRow(myself, rowspan, itemIdentities)
     myself.__table__.insert({"top" : trCtrl});
     trCtrl.hide();
     trCtrl.observe("click", function(){
-	var trs = myself.__table__.select("tr");
+	/*var trs = myself.__table__.select("tr");
 	for(var i = 0; i != trs.length; ++i) trs[i].show();
-	trCtrl.hide();
+	trCtrl.hide();*/
+	try{myself.minimize();}catch(err){ alert("err: " + err); }
     });
 
     // --- min click-handler
     min.observe("click", function(event){
+	/*
 	var trs = myself.__table__.select("tr");
 	for(var i = 0; i != trs.length; ++i){
 	    if(i === 0) trs[i].show();
 	    else trs[i].hide();
 	}
+        */
+	try{myself.minimize();}catch(err){ alert("err: " + err); }
     });
 }
 
@@ -3960,7 +4040,7 @@ function onTypeChangeScope(myself, contents, constraints, what)
 // --- sets the resource value and datatype of names and occurrences
 function makeResource(myself, content, constraints, datatypeConstraint, cssTitle, size)
 {
-    if(!size) size = {"rows" : 3, "cols" : 40};
+    if(!size) size = {"rows" : 3, "cols" : 60};
     var value = "";
     var datatype = "";
     if(content && content.resourceRef && content.resourceRef.length !== 0){
