@@ -101,6 +101,17 @@ function makeFragment(context, psis, constraints, contents){
 	tmId.isValid();
     }
 
+    var validateButton = new Element("input", {"type" : "button", "value" : "validate fragment"});
+    validateButton.observe("click", function(event){
+	var ret = true;
+	if(topic.isValid() === false) ret = false;
+	if(associations && associations.isValid() === false) ret = false;
+	if(tmId.isValid() === false) ret = false;
+
+	if(ret === true) alert("Fragment is valid!");
+	else alert("Fragment is not valid!");
+    }); 
+
     var commitButton = new Element("input", {"type" : "button", "value" : "commit fragment"})
     commitButton.observe("click", function(event){
 	// --- validates the given data
@@ -146,7 +157,8 @@ function makeFragment(context, psis, constraints, contents){
     });
 
     var liCB = new Element("li", {"class" : CLASSES.commitButton()});
-    liCB.update(commitButton);
+    liCB.insert({"top" : validateButton});
+    liCB.insert({"top" : commitButton});
     liTm.insert({"after" : liCB});
 }
 

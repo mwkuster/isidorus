@@ -16,6 +16,7 @@ function setAjaxTimeout(time, url)
 {
     return setTimeout(function(){
 	alert("The AJAX request for \"" + url + "\" timed out. Please check your network connection!");
+	hideLoad();
     }, time);
 }
 

@@ -11,15 +11,17 @@
 
 ul.fragmentFrame {
     list-style-type: none;
+    padding-left: 0px;
 }
 
-caption {
+ul.fragmentFrame table > caption {
     font-size: 1.5em;
     font-weight: bold;
 }
 
 td.controlColumn {
     background-color: #eaeaee;
+    width: 13px;
 }
 
 tr.showHiddenRows {
@@ -31,11 +33,337 @@ li.errorMessage {
     font-size: 1.2em;
 }
 
+li.instanceOfFrame > div {
+    margin-left: 10px;
+}
+
+li.instanceOfFrame > div > input[type="button"]{
+    margin-left: 24px;
+}
+
 input[value="generate fragment"] {
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
-input[value="commit fragment"] {
+input[value="validate fragment"] {
     float: right;
+}
+
+input[value="commit fragment"] {
+    margin-left: 5px;
+    float: right;
+}
+
+
+/* === remove/add buttons in any kind of rows =============================== */
+div.textrowWithoutRemoveButton span{
+    display: inline-block;
+    width: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+    text-align: center;
+}
+
+div.textrowWithRemoveButton span{
+    display: inline-block;
+    width: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+    text-align: center;
+}
+
+div.selectrowWithoutRemoveButton span{
+    display: inline-block;
+    width: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+    text-align: center;
+}
+
+div.selectrowWithRemoveButton span{
+    display: inline-block;
+    width: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+    text-align: center;
+}
+
+input[type="text"] {
+    background-color: #white;
+    border: 1px solid darkgray;
+    margin-bottom: 1px;
+    margin-top: 1px;
+}
+
+input[type="text"][readonly="readonly"] {
+    background-color: #eaeaee;
+    border: 1px solid darkgray;
+    margin-bottom: 1px;
+    margin-top: 1px;
+}
+
+
+div.textrowWithRemoveButton > input[type="text"]{
+    margin-left: 0px;
+    font-weight: normal;
+}
+
+div.textrowWithoutRemoveButton > input[type="text"]{
+    margin-left: 24px;
+    font-weight: normal;
+}
+
+div.selectrowWithRemoveButton > select {
+    margin-left: 0px;
+    font-weight: normal;
+}
+
+div.selectrowWithoutRemoveButton > select {
+    margin-left: 24px;
+    font-weight: normal;
+}
+
+textarea {
+    margin-left: 24px;
+    background-color: white;
+    border: 1px solid darkgray;
+    margin-bottom: 1px;
+    margin-top: 1px;
+}
+
+textarea[readonly="readonly"] {
+    margin-left: 24px;
+    background-color: #eaeaee;
+    border: 1px solid darkgray;
+    margin-bottom: 1px;
+    margin-top: 1px;
+}
+
+
+/* === topic frame ========================================================== */
+table.topicFrame {
+    width: 1022px;
+    border-collapse: collapse;
+    border: 1px solid #d1d1d3;
+}
+
+table.topicFrame > tr > td.description {
+    width: 163px;
+}
+
+table.topicFrame > tr > td.content {
+    width: 854px;
+}
+
+table.topicFrame > tr.topicIdFrame {
+    background-color: #f6f7f9;
+}
+
+table.topicFrame > tr.subjectLocatorFrame {
+    background-color: #f6f7f9;
+}
+
+table.topicFrame > tr.nameContainer {
+    background-color: #f6f7f9;
+}
+
+table.topicFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+
+/* === name frame =========================================================== */
+table.topicFrame table.nameFrame {
+    width: 851px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 1px;
+    border-collapse: collapse;
+    border: 1px solid #d1d1d3;
+}
+
+table.topicFrame table.nameFrame td.description {
+    width: 142px;
+}
+
+table.topicFrame table.nameFrame td.content {
+    width: 689px;
+}
+
+table.topicFrame table.nameFrame > tr.typeFrame {
+    background-color: white;
+}
+
+table.topicFrame table.nameFrame > tr.valueFrame {
+    background-color: white;
+}
+
+table.topicFrame table.nameFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+
+/* === variant frame ======================================================== */
+table.nameFrame div.variantFrame {
+    margin-left: 24px;
+}
+
+table.nameFrame table.variantFrame {
+    width: 667px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-collapse: collapse;
+    border: 1px solid #d1d1d3;
+}
+
+table.nameFrame table.variantFrame > tr > td.description {
+    width: 142px;
+}
+
+table.nameFrame table.variantFrame > tr > td.content {
+    width: 505px;
+}
+
+table.nameFrame table.variantFrame tr.scopeContainer {
+    background-color: white;
+}
+
+table.nameFrame table.variantFrame tr.datatypeFrame {
+    background-color: white;
+}
+
+table.nameFrame table.variantFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+
+/* === occurrence frame ===================================================== */
+table.topicFrame table.occurrenceFrame {
+    width: 851px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 1px;
+    border-collapse: collapse;
+    border: 1px solid #d1d1d3;
+}
+
+table.topicFrame table.occurrenceFrame td.description {
+    width: 142px;
+}
+
+table.topicFrame table.occurrenceFrame td.content {
+    width: 689px;
+}
+
+table.topicFrame table.occurrenceFrame > tr.typeFrame {
+    background-color: #f6f7f9;
+}
+
+table.topicFrame table.occurrenceFrame > tr.valueFrame {
+    background-color: #f6f7f9;
+}
+
+table.topicFrame table.occurrenceFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+
+/* === association container / association frame ============================ */
+div.associationContainer {
+    margin-top: 30px;
+}
+
+table.associationContainer {
+    border-collapse: collapse;
+    width: 1022px;
+    border: 1px solid #d1d1d3;
+}
+
+table.associationContainer:hover {
+    border: 1px solid #ff7f00;
+}
+
+table.associationFrame {
+    border-collapse: collapse;
+    margin-left: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    border: 1px solid #d1d1d3;
+    width: 1018px;
+}
+
+table.associationFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+table.associationFrame > tr > td.description {
+    width: 142px;
+}
+
+table.associationFrame > tr > td.content {
+    width: 853px;
+}
+
+table.associationFrame > tr.itemIdentityFrame {
+    background-color: #f6f7f9;
+}
+
+table.associationFrame > tr.scopeContainer {
+    background-color: #f6f7f9;
+}
+
+
+
+
+/* === associationrole frame ================================================ */
+table.associationFrame table.roleFrame {
+    width: 853px;
+    margin-left: 1px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-collapse: collapse;
+    border: 1px solid #d1d1d3;
+}
+
+table.associationFrame table.roleFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+table.associationFrame table.roleFrame > tr > td.description {
+    width: 142px;
+}
+
+table.associationFrame table.roleFrame > tr > td.content {
+    width: 692px;
+}
+
+table.roleFrame > tr.typeFrame {
+    background-color: #f6f7f9;
+}
+
+
+
+/* === tmId frame  ========================================================== */
+div.tmIdFrame {
+    margin-top: 30px;
+}
+
+table.tmIdFrame {
+    width: 1023px;
+    border-collapse: collapse;
+    border: 1px solid #d1d1d3;
+    background-color: #f6f7f9;
+}
+
+table.tmIdFrame:hover {
+    border: 1px solid #ff7f00;
+}
+
+li.tmIdFrame {
+    margin-bottom: 10px;
+}
+
+table.tmIdFrame input[type="text"] {
+    margin-left: 12px;
 }

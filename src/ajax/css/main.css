@@ -27,6 +27,7 @@ body {
 }
 
 h1 {
+    clear: left;
     margin-left: 10px;
     padding-top: 20px;
 }
@@ -61,5 +62,5 @@ div.loadFrame {
 
 img.ajaxLoader {
     display: none;
-    margin-left: 412px; /* the image has a width of 100px */
+    margin-left: 412px; /* the image has a width of 100px --> 1024/2 - 100 = 412*/
 }

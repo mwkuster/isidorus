@@ -95,7 +95,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
                                          this.__regExpString__ = regexp;
                                          this.__frame__.writeAttribute({"class" : CLASSES.textrowWithRemoveButton()});
                                          this.__content__.remove();
-                                         this.__content__ = new Element("input", {"type" : "text", "value" : content});
+                                         this.__content__ = new Element("input", {"type" : "text", "value" : content, "size" : 40});
                                          this.__dblClickHandler__ = dblClickHandler;
                                          if(cssTitle && cssTitle.length){
 					     this.__content__.writeAttribute({"title" : cssTitle});
@@ -1156,7 +1156,7 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 						 this.__table__.insert({"bottom" : newRow(CLASSES.scopeContainer(), "Scope", new Element("div"))});
 						 
 						 // --- resource value and datatype
-						 makeResource(this, contents, null, null, null);
+						 makeResource(this, contents, null, null, null, {"rows" : 3, "cols" : 40});
 						 
 						 this.getFrame().observe("dblclick", function(event){
 						     dblClickHandler(owner, event);
@@ -1225,25 +1225,25 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 					 },
 					 "disable" : function(){
 					     this.hideError();
-					     this.__itemIdentity__.disable();
+					     disableItemIdentity(this);
 					     // TODO: scope
-					     this.__value__.writeAttribute({"readonly" : "readonly"});
-					     this.__datatype__.__frames__[0].disable();
+					     this.__table__.select("tr." + CLASSES.scopeContainer())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+					     disableValue(this);
+					     disableDatatype(this);
 					     this.hideRemoveButton();
 					     this.hideAddButton();
-					     this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
-					     this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+					     this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
 					     this.__disabled__ = true;
 					 },
 					 "enable" : function(){
-					     this.__itemIdentity__.enable();
+					     enableItemIdentity(this);
 					     // TODO: scope
-					     this.__value__.removeAttribute("readonly");
-					     this.__datatype__.__frames__[0].enable();
+					     this.__table__.select("tr." + CLASSES.scopeContainer())[0].removeAttribute("style");
+					     enableValue(this);
+					     enableDatatype(this);
 					     if(this.__owner__.__frames__.length > 1) this.showRemoveButton();
 					     this.showAddButton();
-					     this.getFrame().setStyle({"backgroundColor" : "inherit"});
-					     this.getFrame().setStyle({"border" : "none"});
+					     this.getFrame().removeAttribute("style");
 					     this.__disabled__ = false;
 					 },
 					 "minimize" : function(){
@@ -1392,11 +1392,9 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      // --- name element will be shown
 					      function addSecondShowHandler(myself){
 						  myself.__table__.select("tr")[0].observe("click", function(event){
-						      try{
-							  for(var i = 0; i != myself.__variants__.__container__.__frames__.length; ++i){
-							      myself.__variants__.__container__.__frames__[i].minimize();
-							  }
-						      }catch(tmp){ alert(tmp);}
+						      for(var i = 0; i != myself.__variants__.__container__.__frames__.length; ++i){
+							  myself.__variants__.__container__.__frames__[i].minimize();
+						      }
 						  });
 					      }
 					      
@@ -1450,25 +1448,23 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 				      },
 				      "disable" : function(){
 					  this.hideError();
-					  this.__itemIdentity__.disable();
-					  this.__type__.__frames__[0].disable();
-					  this.__scope__.disable();
-					  this.__value__.__frames__[0].disable();
-					  this.__variants__.disable();
-					  this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
-					  this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+					  disableItemIdentity(this);
+					  disableType(this);
+					  disableScope(this);
+					  disableValue(this);
+					  disableVariants(this);
+					  this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
 					  this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 					  this.hideAddButton();
 					  this.__disabled__ = true;
 				      },
 				      "enable" : function(){
-					  this.__itemIdentity__.enable();
-					  this.__type__.__frames__[0].enable();
-					  this.__scope__.enable();
-					  this.__value__.__frames__[0].enable();
-					  this.__variants__.enable();
-					  this.getFrame().setStyle({"backgroundColor" : "inherit"});
-					  this.getFrame().setStyle({"border" : "none"});
+					  enableItemIdentity(this);
+					  enableType(this);
+					  enableScope(this);
+					  enableValue(this);
+					  enableVariants(this);
+					  this.getFrame().removeAttribute("style");
 					  this.getFrame().removeAttribute("title");
 					  checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
 					  this.__disabled__ = false;
@@ -1755,7 +1751,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    var cssTitle = "No constraint found for this occurrence";
 						    if(noConstraint === false) cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
 						    this.__cssTitle__ = cssTitle;
-						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle);
+						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle, {"rows" : 5, "cols" : 60});
 
 						    this.getFrame().observe("dblclick", function(event){
 							dblClickHandler(owner, event);
@@ -1827,27 +1823,25 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    else trs[i].hide();
 						}
 					    },
-					    "disable" : function(){
+					    "disable" : function(){try{
 						this.hideError();
-						this.__itemIdentity__.disable();
-						this.__type__.__frames__[0].disable();
-						this.__scope__.disable();
-						this.__value__.writeAttribute({"readonly" : "readonly"});
-						this.__datatype__.__frames__[0].disable();
-						this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
-						this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+						disableItemIdentity(this);
+						disableType(this);;
+						disableScope(this);
+						disableValue(this);
+						disableDatatype(this);
+						this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
 						this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 						this.hideAddButton();
-						this.__disabled__ = true;
+						this.__disabled__ = true;}catch(err){ alert("err: " + err); }
 					    },
 					    "enable" : function(){
-						this.__itemIdentity__.enable();
-						this.__type__.__frames__[0].enable();
-						this.__scope__.enable();
-						this.__value__.removeAttribute("readonly");
-						this.__datatype__.__frames__[0].enable();
-						this.getFrame().setStyle({"backgroundColor" : "inherit"});
-						this.getFrame().setStyle({"border" : "none"});
+						enableItemIdentity(this);
+						enableType(this);;
+						enableScope(this);
+						enableValue(this);
+						enableDatatype(this);
+						this.getFrame().removeAttribute("style");
 						this.getFrame().removeAttribute("title");
 						checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
 						this.__disabled__ = false;
@@ -2479,19 +2473,17 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				      },
 				      "disable" : function(){
 					  this.hideError();
-					  this.__itemIdentity__.disable();
-					  this.__type__.__frames__[0].disable();
-					  this.__player__.__frames__[0].disable();
-					  this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
-					  this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+					  disableItemIdentity(this);
+					  disableType(this);
+					  disablePlayer(this);
+					  this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
 					  this.__disabled__ = true;
 				      },
 				      "enable" : function(){
-					  this.__itemIdentity__.enable();
-					  this.__type__.__frames__[0].enable();
-					  this.__player__.__frames__[0].enable();
-					  this.getFrame().setStyle({"backgroundColor" : "inherit"});
-					  this.getFrame().setStyle({"border" : "none"});
+					  enableItemIdentity(this);
+					  enableType(this);
+					  enablePlayer(this);
+					  this.getFrame().removeAttribute("style");
 					  this.__disabled__ = false;
 				      }});
 
@@ -3569,25 +3561,23 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					     },
 					     "disable" : function(){
 						 this.hideError();
-						 this.__itemIdentity__.disable();
-						 this.__roles__.disable();
-						 this.__type__.__frames__[0].disable();
-						 this.__scope__.disable();
+						 disableItemIdentity(this);
+						 disableRole(this);
+						 disableType(this);
+						 disableScope(this);
 						 this.hideRemoveButton();
 						 this.hideAddButton();
-						 this.getFrame().setStyle({"backgroundColor" : "#edeceb"});
-						 this.getFrame().setStyle({"border" : "1px solid darkgrey"});
+						 this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
 						 this.__disabled__ = true;
 					     },
 					     "enable" : function(){
-						 this.__itemIdentity__.enable();
-						 this.__roles__.enable();
-						 this.__type__.__frames__[0].enable();
-						 this.__scope__.enable();
+						 enableItemIdentity(this);
+						 enableRole(this);
+						 enableType(this);
+						 enableScope(this);
 						 if(this.__owner__.__frames__.length > 1 || !this.__constraints__ || this.__constraints__.length !== 0) this.showRemoveButton();
 						 if(this.__constraints__ && this.__constraints__.length !== 0) this.showAddButton();
-						 this.getFrame().setStyle({"backgroundColor" : "inherit"});
-						 this.getFrame().setStyle({"border" : "none"});
+						 this.getFrame().removeAttribute("style");
 						 this.__disabled__ = false;
 					     }});
 
@@ -3712,7 +3702,7 @@ var TmIdC = Class.create(ContainerC, {"initialize" : function($super, contents){
                                               this.__caption__ = new Element("caption", {"class" : CLASSES.clickable()}).update("Topic Map ID");
                                               this.__table__.update(this.__caption__);
                                               var value = contents && contents.length !== 0 ? decodeURI(contents[0]) : "";
-                                              this.__contentrow__ = new Element("input", {"type" : "text", "value" : value});
+                                              this.__contentrow__ = new Element("input", {"type" : "text", "value" : value, "size" : 40});
                                               this.__tr__ = new Element("tr", {"class" : CLASSES.tmIdFrame()});
                                               var td =new Element("td", {"class" : CLASSES.content()});
                                               this.__tr__.update(td);
@@ -3968,8 +3958,9 @@ function onTypeChangeScope(myself, contents, constraints, what)
 
 
 // --- sets the resource value and datatype of names and occurrences
-function makeResource(myself, content, constraints, datatypeConstraint, cssTitle)
+function makeResource(myself, content, constraints, datatypeConstraint, cssTitle, size)
 {
+    if(!size) size = {"rows" : 3, "cols" : 40};
     var value = "";
     var datatype = "";
     if(content && content.resourceRef && content.resourceRef.length !== 0){
@@ -3989,18 +3980,20 @@ function makeResource(myself, content, constraints, datatypeConstraint, cssTitle
 	this.__datatype__.__frames__[0].remove();
 	this.__datatype__ = new Object();
     }catch(err){}
-    myself.__value__ = new Element("textarea", {"rows" : 3}).setValue(value);
+    myself.__value__ = new Element("textarea", size).setValue(value);
     myself.__table__.insert({"bottom" : newRow(CLASSES.valueFrame(), "Resource Value", myself.__value__)});
     if(cssTitle && cssTitle.length !== 0) myself.__value__.writeAttribute({"title" : cssTitle});
 
     // --- datatype
     myself.__datatype__ = new Object();
-    if(datatypeConstraint && datatypeConstraint.length !== 0){
+    if((datatypeConstraint && datatypeConstraint.length !== 0) || datatype === ANY_URI){
 	new TextrowC(datatypeConstraint, datatypeConstraint, myself.__datatype__, 1, 1, null);
 	myself.__datatype__.__frames__[0].getFrame().select("input")[0].writeAttribute({"readonly" : "readonly"});
+	myself.__datatypeIsSet__ = true;
     }
     else {
 	new TextrowC(datatype, ".*", myself.__datatype__, 1, 1, null);
+	myself.__datatypeIsSet__ = false;
     }
     myself.__table__.insert({"bottom" : newRow(CLASSES.datatypeFrame(), "Datatype", myself.__datatype__.__frames__[0].getFrame())});
 }
@@ -4153,4 +4146,88 @@ function makeTypes(myself, typeContent, xtypescopes)
     var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, myself.__type__, 1, 1).getFrame());
     myself.__table__.insert({"bottom" : tr});
     return types;
+}
+
+// --- some helper to enable/disable some table rows
+
+function disableItemIdentity(myself)
+{
+    myself.__itemIdentity__.disable();
+    myself.__table__.select("tr." + CLASSES.itemIdentityFrame())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableItemIdentity(myself)
+{
+    myself.__itemIdentity__.enable();
+    myself.__table__.select("tr." + CLASSES.itemIdentityFrame())[0].removeAttribute("style");
+}
+function disableType(myself)
+{
+    myself.__type__.__frames__[0].disable();
+    myself.__table__.select("tr." + CLASSES.typeFrame())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableType(myself)
+{
+    myself.__type__.__frames__[0].enable();
+    myself.__table__.select("tr." + CLASSES.typeFrame())[0].removeAttribute("style");
+}
+function disableScope(myself){
+    myself.__scope__.disable();
+    myself.__table__.select("tr." + CLASSES.scopeContainer())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableScope(myself)
+{
+    myself.__scope__.enable();
+    myself.__table__.select("tr." + CLASSES.scopeContainer())[0].removeAttribute("style");
+}
+function disableValue(myself)
+{
+    try{ myself.__value__.__frames__[0].disable(); } catch(err){}
+    try{ myself.__value__.writeAttribute({"readonly" : "readonly"}); } catch(err){}
+    myself.__table__.select("tr." + CLASSES.valueFrame())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableValue(myself)
+{
+    try{ myself.__value__.__frames__[0].enable(); } catch(err){}
+    try{ myself.__value__.removeAttribute("readonly"); } catch(err){}
+    myself.__table__.select("tr." + CLASSES.valueFrame())[0].removeAttribute("style");
+}
+function disableDatatype(myself)
+{
+    myself.__datatype__.__frames__[0].disable();
+    myself.__table__.select("tr." + CLASSES.datatypeFrame())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableDatatype(myself)
+{
+    if(myself.__datatypeIsSet__ === false) myself.__datatype__.__frames__[0].enable();
+    myself.__table__.select("tr." + CLASSES.datatypeFrame())[0].removeAttribute("style");
+}
+function disableVariants(myself)
+{
+    myself.__variants__.disable();
+    myself.__table__.select("tr." + CLASSES.variantContainer())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableVariants(myself)
+{
+    myself.__variants__.enable();
+    myself.__table__.select("tr." + CLASSES.variantContainer())[0].removeAttribute("style");
+}
+function disableRole(myself)
+{
+    myself.__roles__.disable();
+    myself.__table__.select("tr." + CLASSES.roleContainer())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enableRole(myself)
+{
+    myself.__roles__.enable();
+    myself.__table__.select("tr." + CLASSES.roleContainer())[0].removeAttribute("style");
+}
+function disablePlayer(myself)
+{
+    myself.__player__.__frames__[0].disable();
+    myself.__table__.select("tr." + CLASSES.playerFrame())[0].setStyle(DISABLED_BACKGROUND_COLOR);
+}
+function enablePlayer(myself)
+{
+    myself.__player__.__frames__[0].enable();
+    myself.__table__.select("tr." + CLASSES.playerFrame())[0].removeAttribute("style");
 }
