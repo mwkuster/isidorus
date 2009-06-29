@@ -8,7 +8,6 @@
 /*  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt and    */
 /*  in trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   */
 /*----------------------------------------------------------------------------*/
-
 ul.fragmentFrame {
     list-style-type: none;
     padding-left: 0px;
@@ -203,9 +202,35 @@ table.topicFrame table.nameFrame:hover {
     border: 1px solid #ff7f00;
 }
 
+/* === disabled name frame === */
+div.disabled table.nameFrame > tr.itemIdentityFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.nameFrame > tr.typeFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.nameFrame > tr.scopeContainer {
+    background-color: #eaeaee;
+}
+
+div.disabled table.nameFrame > tr.valueFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.nameFrame > tr.variantContainer {
+    background-color: #eaeaee;
+}
+
+
 
 /* === variant frame ======================================================== */
 table.nameFrame div.variantFrame {
+    margin-left: 24px;
+}
+
+table.nameFrame div.disabled {
     margin-left: 24px;
 }
 
@@ -237,6 +262,23 @@ table.nameFrame table.variantFrame:hover {
     border: 1px solid #ff7f00;
 }
 
+/* === disabled variant frame === */
+div.disabled table.variantFrame > tr.itemIdentityFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.variantFrame > tr.scopeContainer {
+    background-color: #eaeaee;
+}
+
+div.disabled table.variantFrame > tr.valueFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.variantFrame > tr.datatypeFrame {
+    background-color: #eaeaee;
+}
+
 
 /* === occurrence frame ===================================================== */
 table.topicFrame table.occurrenceFrame {
@@ -266,6 +308,31 @@ table.topicFrame table.occurrenceFrame > tr.valueFrame {
 
 table.topicFrame table.occurrenceFrame:hover {
     border: 1px solid #ff7f00;
+}
+
+/* === disabled occurrence frame === */
+div.disabled {
+    background-color: #eaeaee;
+}
+
+div.disabled table.occurrenceFrame > tr.itemIdentityFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.occurrenceFrame > tr.typeFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.occurrenceFrame > tr.scopeContainer {
+    background-color: #eaeaee;
+}
+
+div.disabled table.occurrenceFrame > tr.valueFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.occurrenceFrame > tr.datatypeFrame {
+    background-color: #eaeaee;
 }
 
 
@@ -313,7 +380,22 @@ table.associationFrame > tr.scopeContainer {
     background-color: #f6f7f9;
 }
 
+/* === disabled association frame === */
+div.disabled table.associationFrame > tr.itemIdentityFrame {
+    background-color: #eaeaee;
+}
 
+div.disabled table.associationFrame > tr.typeFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.associationFrame > tr.scopeContainer {
+    background-color: #eaeaee;
+}
+
+div.disabled table.associationFrame > tr.roleContainer {
+    background-color: #eaeaee;
+}
 
 
 /* === associationrole frame ================================================ */
@@ -342,6 +424,18 @@ table.roleFrame > tr.typeFrame {
     background-color: #f6f7f9;
 }
 
+/* === disabled role frame === */
+div.disabled table.roleFrame > tr.itemIdentityFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.roleFrame > tr.typeFrame {
+    background-color: #eaeaee;
+}
+
+div.disabled table.roleFrame > tr.playerFrame {
+    background-color: #eaeaee;
+}
 
 
 /* === tmId frame  ========================================================== */

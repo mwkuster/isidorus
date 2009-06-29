@@ -1225,26 +1225,25 @@ var VariantC = Class.create(ContainerC, {"initialize" : function($super, content
 					 },
 					 "disable" : function(){
 					     this.hideError();
-					     disableItemIdentity(this);
+					     this.__itemIdentity__.disable();
 					     // TODO: scope
-					     this.__table__.select("tr." + CLASSES.scopeContainer())[0].setStyle(DISABLED_BACKGROUND_COLOR);
-					     disableValue(this);
-					     disableDatatype(this);
+					     this.__value__.writeAttribute({"readonly" : "readonly"});
+					     this.__datatype__.__frames__[0].disable();
 					     this.hideRemoveButton();
 					     this.hideAddButton();
-					     this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
+					     this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 					     this.__disabled__ = true;
 					 },
 					 "enable" : function(){
 					     this.getFrame().select("tr." + CLASSES.showHiddenRows())[0].hide();
-					     enableItemIdentity(this);
+					     this.__itemIdentity__.enable();
 					     // TODO: scope
-					     this.__table__.select("tr." + CLASSES.scopeContainer())[0].removeAttribute("style");
-					     enableValue(this);
-					     enableDatatype(this);
+					     this.__value__.removeAttribute("readonly")
+					     this.__datatype__.__frames__[0].enable();
 					     if(this.__owner__.__frames__.length > 1) this.showRemoveButton();
 					     this.showAddButton();
 					     this.getFrame().removeAttribute("style");
+					     this.getFrame().writeAttribute({"class" : CLASSES.variantFrame()});
 					     this.__disabled__ = false;
 					 },
 					 "minimize" : function(){
@@ -1474,23 +1473,36 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 				      },
 				      "disable" : function(){
 					  this.hideError();
+					  this.__itemIdentity__.disable();
+					  this.__type__.__frames__[0].disable();
+					  this.__scope__.disable();
+					  this.__value__.__frames__[0].disable();
+					  this.__variants__.disable();
+/*
 					  disableItemIdentity(this);
 					  disableType(this);
 					  disableScope(this);
 					  disableValue(this);
 					  disableVariants(this);
-					  this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
+					  this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);*/
+					  this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 					  this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 					  this.hideAddButton();
 					  this.__disabled__ = true;
 				      },
 				      "enable" : function(){
+					  this.__itemIdentity__.enable();
+					  this.__type__.__frames__[0].enable();
+					  this.__scope__.enable();
+					  this.__value__.__frames__[0].enable();
+					  this.__variants__.enable();
+/*
 					  enableItemIdentity(this);
 					  enableType(this);
 					  enableScope(this);
 					  enableValue(this);
-					  enableVariants(this);
-					  this.getFrame().removeAttribute("style");
+					  enableVariants(this);*/
+					  this.getFrame().writeAttribute({"class" : CLASSES.nameFrame()});
 					  this.getFrame().removeAttribute("title");
 					  checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
 					  this.__disabled__ = false;
@@ -1863,24 +1875,25 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    this.__isMinimized__ = false;
 						}
 					    },
-					    "disable" : function(){try{
+					    "disable" : function(){
 						this.hideError();
-						disableItemIdentity(this);
-						disableType(this);;
-						disableScope(this);
-						disableValue(this);
-						disableDatatype(this);
-						this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
+						this.__itemIdentity__.disable();
+						this.__type__.__frames__[0].disable();
+						this.__scope__.disable();
+						this.__value__.writeAttribute({"readonly" : "readonly"});
+						this.__datatype__.__frames__[0].disable();
+						this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 						this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 						this.hideAddButton();
-						this.__disabled__ = true;}catch(err){ alert("err: " + err); }
+						this.__disabled__ = true;
 					    },
 					    "enable" : function(){
-						enableItemIdentity(this);
-						enableType(this);;
-						enableScope(this);
-						enableValue(this);
-						enableDatatype(this);
+						this.__itemIdentity__.enable();
+						this.__type__.__frames__[0].enable();
+						this.__scope__.enable();
+						this.__value__.removeAttribute("readonly");
+						if(this.__datatypeIsSet__ === false) this.__datatype__.__frames__[0].enable();
+						this.getFrame().writeAttribute({"class" : CLASSES.occurrenceFrame()});
 						this.getFrame().removeAttribute("style");
 						this.getFrame().removeAttribute("title");
 						checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
@@ -2514,17 +2527,17 @@ var RoleC = Class.create(ContainerC, {"initialize" : function($super, itemIdenti
 				      },
 				      "disable" : function(){
 					  this.hideError();
-					  disableItemIdentity(this);
-					  disableType(this);
-					  disablePlayer(this);
-					  this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
+					  this.__itemIdentity__.disable()
+					  this.__type__.__frames__[0].disable();
+					  this.__player__.__frames__[0].disable();
+					  this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 					  this.__disabled__ = true;
 				      },
 				      "enable" : function(){
-					  enableItemIdentity(this);
-					  enableType(this);
-					  enablePlayer(this);
-					  this.getFrame().removeAttribute("style");
+					  this.__itemIdentity__.enable()
+					  this.__type__.__frames__[0].enable();
+					  this.__player__.__frames__[0].enable();
+					  this.getFrame().writeAttribute({"class" : CLASSES.roleFrame()});
 					  this.__disabled__ = false;
 				      },
 				      "minimize" : function(){
@@ -3619,23 +3632,23 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 					     },
 					     "disable" : function(){
 						 this.hideError();
-						 disableItemIdentity(this);
-						 disableRole(this);
-						 disableType(this);
-						 disableScope(this);
+						 this.__itemIdentity__.disable();
+						 this.__roles__.disable();
+						 this.__type__.__frames__[0].disable();
+						 this.__scope__.disable();
 						 this.hideRemoveButton();
 						 this.hideAddButton();
-						 this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);
+						 this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 						 this.__disabled__ = true;
 					     },
 					     "enable" : function(){
-						 enableItemIdentity(this);
-						 enableRole(this);
-						 enableType(this);
-						 enableScope(this);
+						 this.__itemIdentity__.enable();
+						 this.__roles__.enable();
+						 this.__type__.__frames__[0].enable();
+						 this.__scope__.enable();
 						 if(this.__owner__.__frames__.length > 1 || !this.__constraints__ || this.__constraints__.length !== 0) this.showRemoveButton();
 						 if(this.__constraints__ && this.__constraints__.length !== 0) this.showAddButton();
-						 this.getFrame().removeAttribute("style");
+						 this.getFrame().writeAttribute({"class" : CLASSES.associationFrame()});
 						 this.__disabled__ = false;
 					     },
 					     "minimize" : function(){

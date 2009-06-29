@@ -16,7 +16,6 @@
       <tm:topicRef href="#written"/>
     </tm:role>
   </tm:association>
-
   <!-- end test -->
 
 
@@ -2876,7 +2875,7 @@ Gibt keine Ewigkeit zurück."</tm:resourceData>
 
   <tm:association>
     <tm:itemIdentity href="written-by-association-shiller-resignation"/>
-    <tm:type><tm:topicRef href="#place"/></tm:type>
+    <tm:type><tm:topicRef href="#written-by"/></tm:type>
     <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:itemIdentity href="writer-role-schiller"/>
