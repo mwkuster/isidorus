@@ -38,8 +38,14 @@ function makeCreate(psi)
 	    }
 	    var instanceOf = null;
 	    try{
-		instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment);
-		liTopicSelect.insert({"bottom" : instanceOf.getFrame()});
+		if(json === null){
+		    var err = new Element("div", {"class" : CLASSES.error()}).update("There exist no valid topic types!<br/>Please update the TMCL-model.");
+		    liTopicSelect.insert({"bottom" : err});   
+		}
+		else {
+		    instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment);
+		    liTopicSelect.insert({"bottom" : instanceOf.getFrame()});
+		}
 	    }
 	    catch(innerErr){
 		alert("There occurred an error by creating an InstanceOfC frame, please reload this page!\n\n" + innerErr);

@@ -48,8 +48,14 @@ function makeEdit(psi)
 	    var edit = null;
 	    
 	    try{
-		edit = new EditC(json.flatten().sort(), innerMakeFragment);
-		liTopicSelect.insert({"bottom" : edit.getFrame()});
+		if(json === null){
+		    var err = new Element("div", {"class" : CLASSES.error()}).update("There exist no valid topic instances!<br/>Please update the TMCL-model or create some new instances.");
+		    liTopicSelect.insert({"bottom" : err});   
+		}
+		else {
+		    edit = new EditC(json.flatten().sort(), innerMakeFragment);
+		    liTopicSelect.insert({"bottom" : edit.getFrame()});
+		}
 	    }
 	    catch(err){
 		alert("There occurred an error by creating an EditC frame, please reload this page!\n\n" + err);

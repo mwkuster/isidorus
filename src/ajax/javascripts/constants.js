@@ -38,10 +38,6 @@ var MAX_INT = "MAX_INT";
 var MMAX_INT = "*";
 
 
-// --- some css-styles
-var DISABLED_BACKGROUND_COLOR = {"backgroundColor" : "#eaeaee"};
-
-
 // --- Contains most css classes used in this project
 // --- There should be called only the function to be sure to don't override
 // --- the original values.
