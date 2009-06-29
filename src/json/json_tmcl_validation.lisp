@@ -36,7 +36,7 @@
 
 
 (defun topictype-of-p (topic-instance type-instance &optional (topictype (get-item-by-psi *topictype-psi*))
-		                                              (topictype-constraint (get-item-by-psi *topictype-constraint-psi*))
+		                                              (topictype-constraint (is-type-constrained))
                                                                checked-topics)
   "Returns a list of all types and supertypes of this topic if this topic is a
    valid instance-topic of the type-topic called type-instance. TMCL 4.4.2.
@@ -75,7 +75,7 @@
 
 
 (defun topictype-p (topic-instance &optional (topictype (get-item-by-psi *topictype-psi*))
-		                             (topictype-constraint (get-item-by-psi *topictype-constraint-psi*))
+		                             (topictype-constraint (is-type-constrained))
 		                             (checked-topics nil))
   "Returns a list of all instanceOf-topics and all Supertypes of this topic
    if this topic is a valid topic (-type). I.e. the passed topic is the
@@ -188,6 +188,26 @@
 	(remove-if #'null topic-types)))))
 
 
+(defun get-direct-instances-of-topic(topic-instance)
+  "Returns the direct instances of the topic as a list.
+   This function only returns the types of the type-instance-relationship -> TMDM 7.2
+   This function was defined for the use in topictype-p and not for a standalone
+   usage."
+  (let ((type-instance (get-item-by-psi *type-instance-psi*))
+	(instance (get-item-by-psi *instance-psi*))
+	(type (get-item-by-psi *type-psi*)))
+    (let ((topic-instances
+	   (loop for role in (player-in-roles topic-instance)
+	      when (eq type (instance-of role))
+	      collect (loop for other-role in (roles (parent role))
+			 when (and (not (eq role other-role))
+				   (eq type-instance (instance-of (parent role)))
+				   (eq instance (instance-of other-role)))
+			 return (player other-role)))))
+      (when topic-instances
+	(remove-if #'null topic-instances)))))
+
+
 (defun get-direct-supertypes-of-topic(topic-instance)
   "Returns the direct supertypes of the topic as a list passed to this function.
    This function only returns the types of the supertype-subtype-relationship -> TMDM 7.3.
@@ -204,11 +224,32 @@
 				   (eq supertype-subtype (instance-of (parent role)))
 				   (eq supertype (instance-of other-role)))
 			 collect (player other-role)))))
-      (remove-if #'null supertypes))))
+      (when supertypes
+	(remove-if #'null supertypes)))))
+
+
+(defun get-direct-subtypes-of-topic(topic-instance)
+  "Returns the direct subtypes of the topic as a list.
+   This function only returns the types of the supertype-subtype-relationship -> TMDM 7.3.
+   This function was defined for the use in topictype-p and not for a standalone
+   usage."
+  (let ((supertype-subtype (get-item-by-psi *supertype-subtype-psi*))
+	(supertype (get-item-by-psi *supertype-psi*))
+	(subtype (get-item-by-psi *subtype-psi*)))
+    (let ((subtypes
+	   (loop for role in (player-in-roles topic-instance)
+	      when (eq supertype (instance-of role))
+	      append (loop for other-role in (roles (parent role))
+			 when (and (not (eq role other-role))
+				   (eq supertype-subtype (instance-of (parent role)))
+				   (eq subtype (instance-of other-role)))
+			 collect (player other-role)))))
+      (when subtypes
+	(remove-if #'null subtypes)))))
 
 
 (defun list-subtypes (topic-instance &optional (topictype (get-item-by-psi *topictype-psi*))
-		                               (topictype-constraint (get-item-by-psi *topictype-constraint-psi*))
+		                               (topictype-constraint (is-type-constrained))
 		                               (checked-topics nil) (valid-subtypes nil))
   "Returns all valid subtypes of a topic, e.g.:
    nametype-constraint ako constraint .
@@ -241,7 +282,7 @@
 
 
 (defun list-instances (topic-instance &optional (topictype (get-item-by-psi *topictype-psi*))
-                                                (topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
+                                                (topictype-constraint (is-type-constrained)))
   "Returns the topic-instance, all subtypes found by the function list-subtypes and all direct
    instances for the found subtypes."
   (let ((all-subtypes-of-this
@@ -282,7 +323,7 @@
 	 (get-direct-supertypes-of-topic topic-instance))
 	(psi-of-this (uri (first (psis topic-instance))))
 	(topictype (d:get-item-by-psi json-tmcl-constants::*topictype-psi*))
-	(topictype-constraint (d:get-item-by-psi json-tmcl-constants::*topictype-constraint-psi*))
+	(topictype-constraint (is-type-constrained))
 	(local-all-checked-topics all-checked-topics)
 	(local-akos-checked))
 
@@ -292,7 +333,7 @@
     (when (and topictype-constraint
 	       (not topictype))
       (error (format nil "From valid-instance-p(): The topic \"~a\" does not exist - please create it or remove the topic \"~a\""
-		     json-tmcl-constants::*topictype-psi* json-tmcl-constants::*topictype-constraint-psi*)))
+		     json-tmcl-constants::*topictype-psi* (d:uri (first (d:psis topictype-constraint))))))
 
     (when (eql topic-instance topictype)
       (return-from valid-instance-p (remove-duplicates (append all-checked-topics (list topic-instance)))))
@@ -336,7 +377,7 @@
   (let ((all-topics
 	 (elephant:get-instances-by-class 'd:TopicC))
 	(topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*))
-	(topictype-constraint (get-item-by-psi json-tmcl-constants::*topictype-constraint-psi*)))
+	(topictype-constraint (is-type-constrained)))
     (let ((all-types
 	   (remove-if #'null
 		      (map 'list #'(lambda(x)
@@ -367,3 +408,16 @@
 						     x)
 				       (condition () nil))) all-topics))))
       valid-instances)))
+
+
+(defun is-type-constrained (&key (what json-tmcl::*topictype-constraint-psi*))
+  "Returns nil if there is no type-constraint otherwise the instance of the type-constraint."
+  (let ((topictype-constraint (d:get-item-by-psi what)))
+    (when topictype-constraint
+      (let ((ttc
+	     (remove-duplicates
+	      (remove-if #'null
+			 (remove-if #'(lambda(x) (when (eql topictype-constraint x)
+						   t))
+				    (get-direct-instances-of-topic topictype-constraint))))))
+	ttc))))

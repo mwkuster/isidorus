@@ -34,6 +34,7 @@
 	   :*json-get-topic-stub-prefix*
 	   :*json-get-type-tmcl-prefix*
 	   :*json-get-instance-tmcl-prefix*
+	   :*json-get-overview*
 	   :*ajax-user-interface-url*
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*

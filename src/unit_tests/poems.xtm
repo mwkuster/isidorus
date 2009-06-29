@@ -148,7 +148,7 @@
   <!-- the constraint roletype -->
   <tm:topic id="constraint-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constraint-role"/>
-    <tm:instanceOf><tm:topicref href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
   </tm:topic>
 
   <!-- ===================================================================== -->
@@ -225,7 +225,7 @@
   <!-- constraints can be bound to a schema -->
   <tm:topic id="schema">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/schema"/>
-    <tm:instanceOf><tm:topicref href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
   </tm:topic>
 
 

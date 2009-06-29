@@ -22,6 +22,7 @@ var TYPE_PSIS_URL = HOST_PREF + "json/tmcl/types/";
 var INSTANCE_PSIS_URL = HOST_PREF + "json/tmcl/instances/";
 var OWN_URL = HOST_PREF + "isidorus";
 var SUMMARY_URL = HOST_PREF + "json/summary"
+var TM_OVERVIEW = "/json/tmcl/overview/";
 var TIMEOUT = 10000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
 
 

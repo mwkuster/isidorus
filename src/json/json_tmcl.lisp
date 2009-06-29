@@ -18,7 +18,7 @@
    topic-psis must contain one item if it is treated as instance other wiese there can be more psis
    then the fragment will be treated as an instanceOf all passed psis."
   (let ((associationtype (get-item-by-psi *associationtype-psi*))
-	(associationtype-constraint (get-item-by-psi *associationtype-constraint-psi*))
+	(associationtype-constraint (is-type-constrained :what *associationtype-constraint-psi*))
 	(topics nil))
     (when (and (not (eql treat-as 'type))
 	       (> (length topic-psis) 1))
@@ -102,9 +102,9 @@
 	(othertopictype-role (get-item-by-psi *othertopictype-role-psi*))
 	(otherroletype-role (get-item-by-psi *otherroletype-role-psi*))
 	(roletype (get-item-by-psi *roletype-psi*))
-	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*))
+	(roletype-constraint (is-type-constrained :what *roletype-constraint-psi*))
 	(topictype (get-item-by-psi *topictype-psi*))
-	(topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
+	(topictype-constraint (is-type-constrained)))
     (let ((otherrole-constraints
 	   (loop for constraint-topic in constraint-topics
 	      append (let ((players nil)
@@ -233,9 +233,9 @@
 	(topictype-role (get-item-by-psI *topictype-role-psi*))
 	(roletype-role (get-item-by-psi *roletype-role-psi*))
 	(roletype (get-item-by-psi *roletype-psi*))
-	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*))
+	(roletype-constraint (is-type-constrained :what *roletype-constraint-psi*))
 	(topictype (get-item-by-psi *topictype-psi*))
-	(topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
+	(topictype-constraint (is-type-constrained)))
     (let ((roleplayer-constraints
 	   (loop for constraint-topic in constraint-topics
 	      append (let ((constraint-list
@@ -327,7 +327,7 @@
 	(roletype-role (get-item-by-psi *roletype-role-psi*))
 	(constraint-role (get-item-by-psi *constraint-role-psi*))
 	(roletype (get-item-by-psi *roletype-psi*))
-	(roletype-constraint (get-item-by-psi *roletype-constraint-psi*)))
+	(roletype-constraint (is-type-constrained :what *roletype-constraint-psi*)))
     (let ((associationrole-constraints
 	   (loop for constraint-topic in constraint-topics
 	      append (let ((constraint-list
@@ -465,7 +465,7 @@
 	(applies-to (get-item-by-psi *applies-to-psi*))
 	(topictype-role (get-item-by-psi *topictype-role-psi*))
 	(topictype (get-item-by-psi *topictype-psi*))
-	(topictype-constraint (get-item-by-psi *topictype-constraint-psi*)))
+	(topictype-constraint (is-type-constrained)))
     (let ((topics
 	   (remove-duplicates
 	    (loop for exclusive-instances-list in exclusive-instances-lists
@@ -536,7 +536,7 @@
 	(applies-to (get-item-by-psi *applies-to-psi*))
 	(nametype-role (get-item-by-psi *nametype-role-psi*))
 	(nametype (get-item-by-psi *nametype-psi*))
-	(nametype-constraint (get-item-by-psi *nametype-constraint-psi*)))
+	(nametype-constraint (is-type-constrained :what *nametype-constraint-psi*)))
     (let ((topicname-constraints
 	   (remove-if #'null
 		      (loop for constraint-topic in constraint-topics
@@ -603,7 +603,7 @@
 	(applies-to (get-item-by-psi *applies-to-psi*))
 	(occurrencetype-role (get-item-by-psi *occurrencetype-role-psi*))
 	(occurrencetype (get-item-by-psi *occurrencetype-psi*))
-	(occurrencetype-constraint (get-item-by-psi *occurrencetype-constraint-psi*)))
+	(occurrencetype-constraint (is-type-constrained :what *occurrencetype-constraint-psi*)))
     (let ((topicoccurrence-constraints
 	   (remove-if #'null
 		      (loop for constraint-topic in constraint-topics
@@ -1069,7 +1069,7 @@
   "Returns all constraint topics defined for associations if
    the passed associationtype-topic."
   (let ((akos-and-isas-of-this
-	 (topictype-p associationtype-topic (get-item-by-psi *associationtype-psi*) (get-item-by-psi *associationtype-constraint-psi*))))
+	 (topictype-p associationtype-topic (get-item-by-psi *associationtype-psi*) (is-type-constrained :what *associationtype-constraint-psi*))))
     (let ((all-associationrole-constraints nil)
 	  (all-roleplayer-constraints nil)
 	  (all-otherrole-constraints nil))
@@ -1133,3 +1133,159 @@
    (map 'list #'(lambda(topic)
 		  (map 'list #'uri (psis topic)))
 	topics)))
+
+
+(defun tree-view-to-json-string (tree-views)
+  "Returns a full tree-view as json-string."
+  (let ((json-string 
+	 (concatenate 'string "["
+		      (if tree-views
+			  (let ((inner-string ""))
+			    (loop for tree-view in tree-views
+			       do (setf inner-string (concatenate 'string inner-string (node-to-json-string tree-view) ",")))
+			    (concatenate 'string (subseq inner-string 0 (- (length inner-string) 1)) "]"))
+			  "null"))))
+    json-string))
+
+(defun make-tree-view ()
+  "Returns a list of the form:
+   ((<topictype> (direct-instances) (direc-subtypes)) (<...>));
+   -> direct-instances: (<any-topic> (direct-instances) (direct-subtypes))
+   -> direct-subtypes: (<any-topic> (direct-instances) (direct-subtypes))"
+  (let ((topictype (d:get-item-by-psi json-tmcl-constants::*topictype-psi*))
+	(topictype-constraint (is-type-constrained)))
+    (if topictype-constraint
+	(progn
+	  (unless topictype
+	    (error "From make-tree-view(): The topictype-constraint \"~a\" exists but the topictype \"~a\" is missing!"
+		   json-tmcl-constants::*topictype-constraint-psi* 
+		   json-tmcl-constants::*topictype-psi*))
+	  (list (make-nodes topictype t t)))
+	(let ((tree-roots
+	       (get-all-tree-roots)))
+	  (let ((tree-list
+		 (loop for root in tree-roots
+		    collect (let ((l-is-type
+				   (handler-case (progn
+						   (topictype-p root topictype topictype-constraint)
+						   t)
+				     (Condition () nil)))
+				  (l-is-instance
+				   (handler-case (progn
+						   (valid-instance-p root)
+						   t)
+				     (Condition () nil))))
+			      (make-nodes root l-is-type l-is-instance)))))
+	    tree-list)))))
+
+
+(defun node-to-json-string(node)
+  "Returns a json-object of the form
+   {topic: [<psis>], isType: <bool>, isInstance: <bool>,
+    instances: [<nodes>], subtypes: [<nodes>]}."
+  (let ((topic-psis
+	 (concatenate 'string "\"topic\":"
+		      (json:encode-json-to-string (map 'list #'d:uri (d:psis (getf node :topic))))))
+	(is-type
+	 (concatenate 'string "\"isType\":"
+		      (if (getf node :is-type)
+			  "true"
+			  "false")))
+	(is-instance
+	 (concatenate 'string "\"isInstance\":"
+		      (if (getf node :is-instance)
+			  "true"
+			  "false")))
+	(instances
+	 (concatenate 'string "\"instances\":"
+		      (if (getf node :instances)
+			  (let ((inner-string "["))
+			    (loop for instance-node in (getf node :instances)
+			       do (setf inner-string (concatenate 'string inner-string (node-to-json-string instance-node) ",")))
+			    (concatenate 'string (subseq inner-string 0 (- (length inner-string) 1)) "]"))
+			  "null")))
+	(subtypes
+	 (concatenate 'string "\"subtypes\":"
+		      (if (getf node :subtypes)
+			  (let ((inner-string "["))
+			    (loop for instance-node in (getf node :subtypes)
+			       do (setf inner-string (concatenate 'string inner-string (node-to-json-string instance-node) ",")))
+			    (concatenate 'string (subseq inner-string 0 (- (length inner-string) 1)) "]"))
+			  "null"))))
+    (concatenate 'string "{" topic-psis "," is-type "," is-instance "," instances "," subtypes"}")))
+
+
+(defun make-nodes (topic-instance is-type is-instance)
+  "Creates a li of nodes.
+   A node looks like
+   (:topic <topic> :is-type <bool> :is-instance <bool> :instances <node> :subtypes <nodes>)."
+  (declare (d:TopicC topic-instance))
+  (let ((topictype (d:get-item-by-psi json-tmcl-constants::*topictype-psi*))
+	(topictype-constraint (is-type-constrained)))
+    (let ((isas-of-this
+	   (map 'list #'(lambda(z)
+			  (let ((l-is-type
+				 (handler-case (progn
+						 (topictype-p z topictype topictype-constraint)
+						 t)
+				   (Condition () nil)))
+				(l-is-instance
+				 (handler-case (progn
+						 (valid-instance-p z)
+						 t)
+				   (Condition () nil))))
+			    (list :topic z :is-type l-is-type :is-instance l-is-instance)))
+		(remove-duplicates
+		 (remove-if #'null
+			    (remove-if #'(lambda(x) (when (eql topic-instance x)
+						      t))
+				       (get-direct-instances-of-topic topic-instance))))))
+	  (akos-of-this
+	   (map 'list #'(lambda(z)
+			  (let ((l-is-type
+				 (handler-case (progn
+						 (topictype-p z topictype topictype-constraint)
+						 t)
+				   (Condition () nil)))
+				(l-is-instance
+				 (handler-case (progn
+						 (valid-instance-p z)
+						 t)
+				   (Condition () nil))))
+			    (list :topic z :is-type l-is-type :is-instance l-is-instance)))
+		(remove-duplicates
+		 (remove-if #'null
+			    (remove-if #'(lambda(x) (when (eql topic-instance x)
+						      t))
+				       (get-direct-subtypes-of-topic topic-instance)))))))
+      (list :topic topic-instance
+	    :is-type is-type
+	    :is-instance is-instance
+	    :instances (map 'list #'(lambda(x)
+				      (make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
+			    isas-of-this)
+	    :subtypes (map 'list #'(lambda(x)
+				      (make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
+			    akos-of-this)))))
+
+
+(defun get-all-tree-roots ()
+  "Returns all topics that are no instanceOf and no subtype 
+   of any other topic."
+  (let ((all-topics
+	 (elephant:get-instances-by-class 'd:TopicC)))
+    (remove-if #'null
+	       (map 'list #'(lambda(x)
+			      (let ((isas-of-x
+				     (remove-if #'(lambda(y)
+						    (when (eql y x)
+						      t))
+						(get-direct-types-of-topic x)))
+				    (akos-of-x
+				     (remove-if #'(lambda(y)
+						    (when (eql y x)
+						      t))
+						(get-direct-supertypes-of-topic x))))
+				(unless (or isas-of-x akos-of-x)
+				  x)))
+		    all-topics))))
