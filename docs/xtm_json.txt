@@ -171,6 +171,27 @@
 
 
 //+-----------------------------------------------------------------------------
+//+ topic map overview - node
+//+    Contains a list of trees, that represents a topic map by representing
+//+    all valid topics and their super-subtypes and type-instance
+//+    relationships.
+//+-----------------------------------------------------------------------------
+{
+  "topic" : ["psi-1", "psi-2"],
+  "isType" : <boolean>,
+  "isInstance" : <boolean>,
+  "instances" : [ <node> ]
+}
+
+
+//+-----------------------------------------------------------------------------
+//+ topic map overview - treeview
+//+    Contains alist of nodes.
+//+-----------------------------------------------------------------------------
+[ <node>, <node>, <...> ]
+
+
+//+-----------------------------------------------------------------------------
 //+ Part 3: TMCL - data model
 //+   This part explains how the tmcl-rules/suggestions of isidorus are
 //+   sent via HTTP as JSON-data.

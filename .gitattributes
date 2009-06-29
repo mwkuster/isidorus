@@ -12,6 +12,7 @@ docs/xtm_json.txt -text
 src/ajax/css/frame.css -text
 src/ajax/css/main.css -text
 src/ajax/css/navi.css -text
+src/ajax/css/tree.css -text
 src/ajax/isidorus.html -text
 src/ajax/javascripts/ajaxLoader_big.gif -text
 src/ajax/javascripts/ajaxLoader_small.gif -text

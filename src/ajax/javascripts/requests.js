@@ -234,3 +234,26 @@ function requestFragment(psi, onSuccessHandler, onFailureHandler)
 	alert("From requestFragment(): " + err);
     }
 }
+
+
+// --- Request a topic map overview object from the server and calls
+// --- onSuccessHandler or OnFailureHandler.
+function requestTreeView(onSuccessHandler, onFailureHandler)
+{
+    if(!onSuccessHandler) throw "From requestTreeView(): onSuccessHandler must be set!";
+
+    try{
+	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
+	var timeFun = setAjaxTimeout(6 * TIMEOUT, COMMIT_URL);
+	onLoad("Requesting a topic map overview from " + TM_OVERVIEW);
+	
+	new Ajax.Request(TM_OVERVIEW, {
+	    "method" : "get",
+	    "requestHeaders" : INIT_DATE,
+	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
+	    "onFailure" : createXHRHandler(onFailure, timeFun)});
+    }
+    catch(err){
+	alert("From requestFragment(): " + err);
+    }
+}
