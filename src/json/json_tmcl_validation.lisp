@@ -287,7 +287,7 @@
 	(local-akos-checked))
 
     (when (not topictype-constraint)
-      (return-from valid-instance-p topic-instance))
+      (return-from valid-instance-p (list topic-instance)))
 
     (when (and topictype-constraint
 	       (not topictype))

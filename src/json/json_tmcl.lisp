@@ -35,7 +35,7 @@
 	     (let ((value
 		    (get-constraints-of-topic topics :treat-as treat-as)))
 	       (concatenate 'string "\"topicConstraints\":" value))))
-	(let ((available-associations ;what's with association which have only a associationrole-constraints?
+	(let ((available-associations
 	       (remove-duplicates
 		(loop for topic in topics
 		   append (get-available-associations-of-topic topic :treat-as treat-as)))))

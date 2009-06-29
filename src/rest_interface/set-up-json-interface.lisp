@@ -169,8 +169,8 @@
 	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
 	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
 	    (handler-case (let ((psis
-				 (json:decode-json-from-string json-data)))
-			    (let ((tmcl 
+				 (json:decode-json-from-string json-data)))			    
+			    (let ((tmcl
 				   (json-tmcl:get-constraints-of-fragment psis :treat-as treat-as)))
 			      (if tmcl
 				  (progn
