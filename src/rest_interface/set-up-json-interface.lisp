@@ -19,7 +19,7 @@
 (defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$") ;the json url for getting some tmcl information of a topic treated as a type
 (defparameter *json-get-instance-tmcl-url* "/json/tmcl/instance/?$") ;the json url for getting some tmcl information of a topic treated as an instance
 (defparameter *json-get-overview* "/json/tmcl/overview/?$") ; returns a json-object representing a tree view
-(defparameter *ajax-user-interface-url* "/isidorus/?$") ;the url to the user interface; if you want to get all topics set start=0&end=nil -> localhost:8000/isidorus
+(defparameter *ajax-user-interface-url* "/isidorus/?$") ;the url to the user interface;
 (defparameter *ajax-user-interface-css-prefix* "/css") ;the url to the css files of the user interface
 (defparameter *ajax-user-interface-css-directory-path* "ajax/css") ;the directory contains the css files
 (defparameter *ajax-user-interface-file-path* "ajax/isidorus.html") ;the file path to the HTML file implements the user interface

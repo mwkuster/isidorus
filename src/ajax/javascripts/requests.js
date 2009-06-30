@@ -89,12 +89,20 @@ function getPsis(onSuccessHandler, onFailureHandler, what)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, TYPE_PSIS_URL);
-	onLoad("Requesting all type PSIs");
-
+	
 	var url = ALL_PSIS_URL;
+	var message = "Requesting all type PSIs";
 	if(what && what.types && what.types === true) url = TYPE_PSIS_URL;
-	else if(what && what.instances && what.instances === true) url = INSTANCE_PSIS_URL;
-	else if(what && what.all && what.all === true) url = ALL_PSIS_URL;
+	else if(what && what.instances && what.instances === true){
+	    url = INSTANCE_PSIS_URL;
+	    message = "Requesting all instance PSIs";
+	}
+	else if(what && what.all && what.all === true){
+	    url = ALL_PSIS_URL;
+	    message = "Requesting all PSIs";
+	}
+
+	onLoad(message);
 
 	new Ajax.Request(url, {
 	    "method" : "get",
