@@ -42,6 +42,7 @@ function makeHome()
 }
 
 
+// --- Represents a list of trees.
 var TreeViewC = Class.create({"initialize" : function(contents){
                                   if(!contents) throw "From NodeC(): content must be set!";
 			          try {
@@ -60,6 +61,7 @@ var TreeViewC = Class.create({"initialize" : function(contents){
 			      }});
 
 
+// --- Represents the root of a tree of nodes and contain all tree's nodes.
 var TreeC = Class.create({"initialize" : function(content){
                               if(!content) throw "From NodeC(): content must be set!";
 			      try {
@@ -75,17 +77,49 @@ var TreeC = Class.create({"initialize" : function(content){
 			  }});
 
 
+// --- Represents a tree node with a topic as a list of psis,
+// --- an edit and a create button. Furter the node can contain
+// --- more nodes as listings of instances and subtypes of the
+// --- current node's topic.
 var NodeC = Class.create({"initialize" : function(content){
 			      if(!content) throw "From NodeC(): content must be set!";
 			      try {
 				  this.__frame__ = new Element("li", {"class" : CLASSES.node()});
+				  this.__isMinimized__ = false;
+
+				  function setClickHandler(myself){
+				      myself.__frame__.observe("click", function(event){
+					  if(myself.__isMinimized__ === false){
+					      if(myself.__instances__) myself.__instances__.hide();
+					      if(myself.__subtypes__) myself.__subtypes__.hide();
+					      myself.__frame__.setStyle({"color" : "#ff7f00"});
+					      myself.__isMinimized__ = true;
+					  }
+					  else {
+					      if(myself.__instances__) myself.__instances__.show();
+					      if(myself.__subtypes__) myself.__subtypes__.show();
+					      myself.__frame__.setStyle({"color" : "inherit"});
+					      myself.__isMinimized__ = false;
+					  }
+					  Event.stop(event);
+				      });
+				  }
+				  setClickHandler(this);
+				  
+				  if((content.instances && content.instances.length !== 0) || (content.subtypes && content.subtypes.length !== 0)) {
+				      this.getFrame().setStyle({"cursor" : "pointer"});
+				  }
+				  else {
+				      this.getFrame().setStyle({"cursor" : "text"});
+				  }
+
 				  this.__topic__ = new Element("ul", {"class" : CLASSES.topicPsis()});
-				  this.__frame__.update(this.__topic__);
+				  this.__frame__.insert({"bottom" : this.__topic__});
 				  for(var i = 0; content.topic && i !== content.topic.length; ++i){
 				      var tLi = new Element("li").update(content.topic[i]);
 				      this.__topic__.insert({"bottom" : tLi});
 				  }
-
+				  
 				  this.__edit__ = new Element("span", {"class" : CLASSES.clickable()}).update("edit");
 				  this.__create__ = new Element("span", {"class" : CLASSES.clickable()}).update("create");
 				  if(content.isType !== true){
@@ -93,9 +127,10 @@ var NodeC = Class.create({"initialize" : function(content){
 				  }
 				  else {
 				      this.__create__.observe("click", function(event){
-					  alert("create");
+					  setNaviClasses($(PAGES.create));
+					  makePage(PAGES.create, content.topic[0]);
+					  Event.stop(event);
 				      });
-				      // TODO: define a handler
 				  }
 
 				  if(content.isInstance !== true){
@@ -103,14 +138,15 @@ var NodeC = Class.create({"initialize" : function(content){
 				  }
 				  else {
 				      this.__edit__.observe("click", function(event){
-					  alert("edit");
+					  setNaviClasses($(PAGES.edit));
+					  makePage(PAGES.edit, content.topic[0]);
+					  Event.stop(event);
 				      });
-				      // TODO: define a handler
 				  }
-				  this.__frame__.update(this.__topic__);
 				  this.__frame__.insert({"bottom" : this.__edit__});
-				  this.__frame__.insert({"bottom" : "|"});
+				  this.__frame__.insert({"bottom" : "<span>|</span>"});
 				  this.__frame__.insert({"bottom" : this.__create__});
+				  for(var i = 1; content.topic && i < content.topic.length; ++i) this.__frame__.insert({"bottom" : "<br/><span>&nbsp;</span>"});
 
 				  this.__instances__ = null;
 				  this.__subtypes__ = null;

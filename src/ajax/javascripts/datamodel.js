@@ -186,6 +186,18 @@ var SelectrowC = Class.create(FrameC, {"initialize" : function($super, contents,
 				       "enable" : function(){
 					   this.__content__.removeAttribute("disabled");
 					   this.__disabled__ = false;
+				       },
+				       "select" : function(value){
+					   var opts = this.__content__.select("option");
+					   for(var i = 0; i !== opts.length; ++i){
+					       try{
+						   if(opts[i].value === value){
+						       opts[i].writeAttribute({"selected" : "selected"});
+						       this.__content__.insert({"top" : opts[i]});
+						   }
+						   else opts[i].removeAttribute("selected");
+					       }catch(err){ alert("err [" + i + "]" + err); }
+					   }
 				       }});
 			      
 
@@ -243,12 +255,13 @@ var ContainerC = Class.create({"initialize" : function(){
 
 
 // --- Representation of a
-var EditC = Class.create(ContainerC, {"initialize" : function($super, contents, successFun){
+var EditC = Class.create(ContainerC, {"initialize" : function($super, contents, successFun, psi){
                                           $super();
                                           this.__frame__.writeAttribute({"class" : CLASSES.editFrame()});
                                           this.__container__ = new Object();
                                           try{
 					      var row = new SelectrowC(contents, this.__container__, 1, 1);
+					      if(psi && psi.length !== 0) row.select(psi);
 					      this.__error__.insert({"before" : row.getFrame()});
 					  }
                                           catch(err){
@@ -274,6 +287,12 @@ var EditC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 						  clearFragment();
                                                   requestConstraints("[" + myself.toJSON() + "]", onSuccessHandler, null)
                                               });
+
+					      if(psi && psi.length !== 0) {
+						  myself.hideError();
+						  clearFragment();
+                                                  requestConstraints("[" + myself.toJSON() + "]", onSuccessHandler, null);
+					      }
                                           }
                                           setHandler(this);
 
@@ -288,12 +307,13 @@ var EditC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 
 
 // --- Represents a container for all instanceOf-Psis of a fragment's topic
-var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, contents, successFun){
+var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, contents, successFun, psi){
                                                 $super();
                                                 this.__frame__.writeAttribute({"class" : CLASSES.instanceOfFrame()});
                                                 this.__container__ = new Object();
                                                 try{
 						    var row = new SelectrowC(contents, this.__container__, 1, -1);
+						    if(psi && psi.length !== 0) row.select(psi);
                                             	    this.__error__.insert({"before" : row.getFrame()});
                                                 }
                                                 catch(err){
@@ -339,6 +359,12 @@ var InstanceOfC = Class.create(ContainerC, {"initialize" : function($super, cont
 							clearFragment();
                                                         requestConstraints(myself.toJSON(true), onSuccessHandler, null, true);
                                                     });
+
+						    if(psi && psi.length !== 0) {
+							myself.hideError();
+							clearFragment();
+                                                        requestConstraints(myself.toJSON(true), onSuccessHandler, null, true);
+						    }
                                                 }
                                                 setHandler(this);
 
@@ -2824,7 +2850,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   }
 					       },
 					       "__createFromContent__" : function(contents){
-						   if(!contents || contents.lenght === 0) return;
+						   if(!contents || contents.length === 0) return;
 						   
 						   var cContents = contents;
 						   var usedContents = new Array();

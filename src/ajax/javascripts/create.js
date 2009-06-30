@@ -43,7 +43,7 @@ function makeCreate(psi)
 		    liTopicSelect.insert({"bottom" : err});   
 		}
 		else {
-		    instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment);
+			instanceOf = new InstanceOfC(json.flatten().sort(), innerMakeFragment, psi);
 		    liTopicSelect.insert({"bottom" : instanceOf.getFrame()});
 		}
 	    }

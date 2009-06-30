@@ -27,18 +27,28 @@ ul.topicPsis {
 }
 
 ul.topicPsis + span {
+    color: #7090d0;
+    font-size: 0.8em;
     margin-left: 20px;
+}
+
+ul.topicPsis + span + span + span {
+    color: #7090d0;
+    font-size: 0.8em;
+}
+
+ul.topicPsis + span + span {
+    color: #7090d0;
+    margin-left: 2px;
     margin-right: 2px;
 }
 
-ul.topicPsis + span + span{
-    margin-left: 2px;
-}
-
 ul.topicPsis + span.disabled {
+    font-size: 0.8em;
     color: #eaeaee;
 }
 
-ul.topicPsis + span + span.disabled {
+ul.topicPsis + span + span + span.disabled {
+    font-size: 0.8em;
     color: #eaeaee;
 }

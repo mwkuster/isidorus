@@ -619,6 +619,7 @@
   <!-- author -->
   <tm:topic id="author">
     <tm:subjectIdentifier href="http://some.where/base-psis/author"/>
+    <tm:subjectIdentifier href="http://some.where/base-psis/author-psi"/>
     <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
   </tm:topic>
 
