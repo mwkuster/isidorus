@@ -217,6 +217,7 @@
 			   'd:PersistentIdC 'd:uri uri)
 		     return (elephant:get-instance-by-value
 			     'd:PersistentIdC 'd:uri uri))))
+	         (format t "psi: ~a~%" psi)
 	     (when psi
 	       (d:identified-construct psi)))))
       (unless top

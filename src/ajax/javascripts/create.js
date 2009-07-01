@@ -133,6 +133,8 @@ function makeFragment(context, psis, constraints, contents){
 	
 	// --- if the validation succeeded the fragment will be sent to the server
 	var tPsis = topic.getContent().subjectIdentifiers;
+	if(!tPsis || tPsis.length === 0) tPsis = "null";
+	else tPsis = tPsis.toJSON()
 	var referencedTopics = topic.getReferencedTopics();
 	if(associations){
 	    referencedTopics = referencedTopics.concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
@@ -149,7 +151,7 @@ function makeFragment(context, psis, constraints, contents){
 	    }
 	    var jTopic = "\"topic\":" + topic.toJSON();
 	    var jTopicStubs = "\"topicStubs\":" + tsStr;
-	    var jAssociations = "\"associations\":" + (associations ? associations.toJSON().gsub(CURRENT_TOPIC_ESCAPED, tPsis) : "null");
+	    var jAssociations = "\"associations\":" + (associations ? associations.toJSON().gsub("\\[\"" + CURRENT_TOPIC_ESCAPED + "\"\\]", tPsis) : "null");
 	    var jTmId = "\"tmIds\":" + tmId.toJSON();
 	    var json = "{" + jTopic + "," + jTopicStubs + "," + jAssociations + "," + jTmId + "}";
 	    commitFragment(json, function(xhr){ alert("The fragment was committed succesfully!"); }, null);
