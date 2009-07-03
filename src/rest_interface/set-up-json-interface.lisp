@@ -216,7 +216,7 @@
 	(let ((identifier (string-replace psi "%23" "#")))
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 	  (let ((fragment
-		 (get-latest-fragment-of-topic identifier)))
+		 (create-latest-fragment-of-topic identifier)))
 	    (if fragment
 		(handler-case (to-json-string fragment)
 		  (condition (err)

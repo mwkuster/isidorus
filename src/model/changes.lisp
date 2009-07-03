@@ -270,29 +270,27 @@ locator and an internally generated id (ideally a uuid)"))
         (find-associations-for-topic top)))
 
 
-(defun get-latest-fragment-of-topic (topic-psi)
+(defun create-latest-fragment-of-topic (topic-psi)
   "returns the latest fragment of the passed topic-psi"
   (declare (string topic-psi))
-  (let ((topic-psi topic-psi))
-    (let ((psi
-           (elephant:get-instance-by-value 'PersistentIdC 'uri topic-psi)))
-      (when psi
-        (let ((topic
-               (identified-construct psi)))
-          (when topic
-            (loop for current-revision in (versions topic)
-               do (get-fragments (start-revision current-revision)))
-            (let ((fragments
-                   (elephant:get-instances-by-value 'FragmentC 'topic topic)))
-              ;; maybe there are more fragments of this topic in different revisions,
-              ;; so we need to search the fragment with a certain revision
-              (let ((found-fragment 
-		     (if fragments
-			 (first (sort fragments #'> :key 'revision))
-			 ;; if there exist a topic but always no fragment, there will be generated a new fragment of the latest version for the searched topic
-			 (make-instance 'FragmentC
-					:revision (first (sort (versions topic) #'> :key 'start-revision))
-					:associations (find-associations-for-topic topic)
-					:referenced-topics (find-referenced-topics topic)
-					:topic topic))))
-		found-fragment))))))))
+  (let ((topic
+	 (get-item-by-psi topic-psi)))
+    (when topic
+      (let ((start-revision
+	     (start-revision
+	      (find-if #'(lambda(x)
+			   (when (= 0 (end-revision x))
+			     t))
+		       (versions topic)))))
+	(let ((existing-fragment
+	       (find-if #'(lambda(x)
+			    (when (eq topic (topic x))
+			      t))
+			(get-fragments start-revision))))
+	  (if existing-fragment
+	      existing-fragment
+	      (make-instance 'FragmentC
+			     :revision start-revision
+			     :associations (find-associations-for-topic topic)
+			     :referenced-topics (find-referenced-topics topic)
+			     :topic topic)))))))

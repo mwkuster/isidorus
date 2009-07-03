@@ -161,7 +161,7 @@ function getTopicStubs(psis, onSuccessHandler, onFailureHandler)
 			else topicStubs.push(xhr.responseText);
 		    },
 		    "onFailure" : function(xhr){
-			alert("From getTopicStubs(): Could not equest topicStub information for \"" + xhr.request.url + "\"!!!");
+			alert("From getTopicStubs(): Could not request topicStub information for \"" + xhr.request.url + "\"!!!");
 			onFailureHandler();
 		    }});
 	    }

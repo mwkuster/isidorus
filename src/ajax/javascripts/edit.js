@@ -53,7 +53,7 @@ function makeEdit(psi)
 		    liTopicSelect.insert({"bottom" : err});   
 		}
 		else {
-		    if(!psi || psi.strip().lenght === 0) psi = null;
+		    if(!psi || psi.strip().length === 0) psi = null;
 		    edit = new EditC(json.flatten().sort(), innerMakeFragment, psi);
 		    liTopicSelect.insert({"bottom" : edit.getFrame()});
 		}

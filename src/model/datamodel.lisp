@@ -99,7 +99,7 @@
 	   :used-as-theme
 	   :variants
 	   :xor
-           :get-latest-fragment-of-topic
+           :create-latest-fragment-of-topic
 
            :*current-xtm* ;; special variables
            :*TM-REVISION*
