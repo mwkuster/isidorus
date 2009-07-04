@@ -137,7 +137,17 @@ function makeFragment(context, psis, constraints, contents){
 	else tPsis = tPsis.toJSON()
 	var referencedTopics = topic.getReferencedTopics();
 	if(associations){
-	    referencedTopics = referencedTopics.concat(associations.getReferencedTopics()).without(CURRENT_TOPIC).uniq();
+	    var ePsis = null;
+	    if(contents && contents.topic && contents.topic.subjectIdentifiers && contents.topic.subjectIdentifiers.length !== 0){
+		ePsis = contents.topic.subjectIdentifiers;
+	    }
+
+	    var aStubs = associations.getReferencedTopics();
+	    if(aStubs && aStubs.length !== 0){
+		aStubs = aStubs.without(CURRENT_TOPIC).uniq();
+		for(var i = 0; i !== ePsis.length; ++i) aStubs = aStubs.without(ePsis[i]);
+	    }
+	    referencedTopics = referencedTopics.concat(aStubs);
 	}
 	function onSuccessHandler(topicStubs){
 	    var tsStr = "null";
