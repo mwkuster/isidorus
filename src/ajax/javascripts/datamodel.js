@@ -158,7 +158,9 @@ var SelectrowC = Class.create(FrameC, {"initialize" : function($super, contents,
                                            this.__content__ = new Element("select");
                                            for(var i = 0; i != contents.length; ++i){
 					       // --- the attribute value must be set for IE
-                                       	       this.__content__.insert({"bottom" : new Element("option", {"value" : contents[i]}).update(contents[i])});
+					       var opt = new Element("option", {"value" : contents[i]}).update(contents[i]);
+                                       	       this.__content__.insert({"bottom" : opt});
+					       if(i === 0) opt.writeAttribute({"selected" : "selected"});
                                            }
                                            this.__remove__.insert({"after" : this.__content__});
 
