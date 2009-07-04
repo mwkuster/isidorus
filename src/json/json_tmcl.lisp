@@ -991,8 +991,24 @@
   (let ((akos-and-isas-of-this
 	 (remove-duplicates
 	  (if (eql treat-as 'type)
-	      (topictype-p topic-instance)
-	      (valid-instance-p topic-instance)))))
+	      (progn
+		(topictype-p topic-instance)
+		(get-all-upper-constrainted-topics topic-instance))
+	      (progn
+		(valid-instance-p topic-instance)
+		(let ((topictypes
+		       (get-direct-types-of-topic topic-instance))
+		      (all-constraints nil))
+		  (dolist (tt topictypes)
+		    (let ((upts
+			   (get-all-upper-constrainted-topics tt)))
+		      (dolist (upt upts)
+			(pushnew upt all-constraints))))
+		  (remove-if #'(lambda(x)
+				 (when (eql x topic-instance)
+				   t))
+			     all-constraints)))))))
+		      
     (let ((all-abstract-topictype-constraints nil)
 	  (all-exclusive-instance-constraints nil)
 	  (all-subjectidentifier-constraints nil)
@@ -1068,8 +1084,9 @@
 (defun get-all-constraint-topics-of-association(associationtype-topic)
   "Returns all constraint topics defined for associations if
    the passed associationtype-topic."
+  (topictype-p associationtype-topic (get-item-by-psi *associationtype-psi*) (is-type-constrained :what *associationtype-constraint-psi*))
   (let ((akos-and-isas-of-this
-	 (topictype-p associationtype-topic (get-item-by-psi *associationtype-psi*) (is-type-constrained :what *associationtype-constraint-psi*))))
+	 (get-all-upper-constrainted-topics associationtype-topic)))
     (let ((all-associationrole-constraints nil)
 	  (all-roleplayer-constraints nil)
 	  (all-otherrole-constraints nil))

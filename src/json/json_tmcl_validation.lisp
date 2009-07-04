@@ -421,3 +421,30 @@
 						   t))
 				    (get-direct-instances-of-topic topictype-constraint))))))
 	ttc))))
+
+
+(defun list-all-supertypes (topic-instance &optional (checked-topics nil))
+  "Returns all supertypes of the given topic recursively."
+  (let ((current-checked-topics (append checked-topics (list topic-instance)))
+	(akos-of-this (get-direct-supertypes-of-topic topic-instance)))
+    (dolist (ako-of-this akos-of-this)
+      (when (not (find ako-of-this current-checked-topics))
+	(let ((new-checked-topics
+	       (list-all-supertypes ako-of-this current-checked-topics)))
+	  (dolist (new-topic new-checked-topics)
+	    (pushnew new-topic current-checked-topics)))))
+    current-checked-topics))
+
+
+(defun get-all-upper-constrainted-topics (topic)
+  "Returns all topics that are supertypes or direct types
+   of the given topic-type. So all direct constraints of the found
+   topics are valid constraints for the given one."
+  ;; find all direct types
+  (let ((direct-isas-of-this
+	 (get-direct-types-of-topic topic)))
+    
+  ;; find all supertypes (recursive -> transitive relationship
+    (let ((all-akos-of-this
+	   (list-all-supertypes topic)))
+      (remove-duplicates (union direct-isas-of-this all-akos-of-this)))))
