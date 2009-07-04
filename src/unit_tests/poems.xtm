@@ -1,76 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
-  <!-- test: subtype for the roletype written -->
-  <tm:topic id="sub-written">
-    <tm:subjectIdentifier href="sub-written-psi"/>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
-      <tm:topicRef href="#sub-written"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
-      <tm:topicRef href="#written"/>
-    </tm:role>
-  </tm:association>
-  <!-- end test -->
-
-
-  <!-- test: defines some scopes constraints for associations of the type "born-in" -->
-  <tm:topic id="scoped-born-in-constraint-1">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/scoped-born-in-constraint-1"/>
-    <tm:instanceOf><tm:topicRef href="#associationtypescope-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">2</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#scoped-born-in-constraint-1"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
-      <tm:topicRef href="#written-by"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#scoped-born-in-constraint-1"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
-      <tm:topicRef href="#en"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#scoped-born-in-constraint-1"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#scopetype-role"/></tm:type>
-      <tm:topicRef href="#de"/>
-    </tm:role>
-  </tm:association>
-  <!-- end test -->
-
-
   <!-- ===================================================================== -->
   <!-- === TMCL meta-model topics ========================================== -->
   <!-- ===================================================================== -->
@@ -1640,45 +1569,6 @@
   </tm:association>
 
 
-  <!-- a subtype of poem-content with another datatype as the original type -->
-  <tm:topic id="sub-poem-content">
-    <tm:subjectIdentifier href="http://some.where/base-psis/sub-poem-content"/>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
-      <tm:topicRef href="#sub-poem-content"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
-      <tm:topicRef href="#poem-content"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:topic id="sub-poem-content-occurrence-datatype-constraint">
-    <tm:subjectIdentifier href="http://some.where/constraint-psis/sub-poem-content-occurrence-datatype-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencedatatype-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#datatype"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#float</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#sub-poem-content-occurrence-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#sub-poem-content"/>
-    </tm:role>
-  </tm:association>
-
-
   <!-- the poem-content-occurrence can only appear once per topictype,
        so all topic with this occurrence type must have different
        occurrence-values -->
@@ -2547,7 +2437,7 @@
     </tm:name>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#poem-content"/></tm:type> <!-- must have an occurrence of the type poem-content with the scope de or en -->
-      <tm:scope><tm:topicRef href="#en"/></tm:scope>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Hat der alte Hexenmeister
 sich doch einmal wegbegeben!
 Und nun sollen seine Geister
@@ -2717,7 +2607,6 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
   <tm:association>
     <tm:itemIdentity href="wirtten-by-zauberlehrling-goethe"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
-    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#goethe"/>
@@ -2731,7 +2620,6 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
   <tm:association>
     <tm:itemIdentity href="wirtten-by-erlkoenig-goethe"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
-    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#goethe"/>
