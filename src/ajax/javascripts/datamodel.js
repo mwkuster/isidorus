@@ -1816,7 +1816,17 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    var cssTitle = "No constraint found for this occurrence";
 						    if(noConstraint === false) cssTitle = "min: " + _min + "   max: " + _max + "   regular expression: " + constraint.regexp;
 						    this.__cssTitle__ = cssTitle;
-						    makeResource(this, contents, constraint, (occurrenceTypes ? occurrenceTypes[0].datatypeConstraint : null), cssTitle, {"rows" : 5, "cols" : 70});
+
+						    var dataType = null;
+						    if(types && types.length !== 0){
+							for(var i = 0; occurrenceTypes && i !== occurrenceTypes.length; ++i){
+							    if(occurrenceTypes[i].occurrenceType.indexOf(types[0]) !== -1){
+								dataType = occurrenceTypes[i].datatypeConstraint;
+								break;
+							    }
+							}
+						    }
+						    makeResource(this, contents, constraint, dataType, cssTitle, {"rows" : 5, "cols" : 70});
 
 						    this.getFrame().observe("dblclick", function(event){
 							dblClickHandler(owner, event);
@@ -4056,7 +4066,8 @@ function onTypeChangeScope(myself, contents, constraints, what)
 		}
 		if(foundIdx !== -1 && constraints[foundIdx].datatypeConstraint){
 		    var dc = constraints[foundIdx].datatypeConstraint;
-		    myself.__datatype__.__frames__[0].getFrame().select("input")[0].writeAttribute({"readonly" : "readonly", "value" : dc});
+		    myself.__datatype__.__frames__[0].getFrame().select("input")[0].writeAttribute({"readonly" : "readonly"});
+		    myself.__datatype__.__frames__[0].getFrame().select("input")[0].setValue(dc);
 		}
 		else {
 		    myself.__datatype__.__frames__[0].getFrame().select("input")[0].writeAttribute({"value" : ""});
