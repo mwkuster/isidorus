@@ -117,7 +117,9 @@
   "Returns all topic-psi that are valid types -> so they have to be valid to the
    topictype-constraint (if it exists) and the can't be abstract."
   (declare (ignorable param))
-  (handler-case (let ((topic-types (json-tmcl::return-all-tmcl-types)))
+  (handler-case (let ((topic-types 
+		         (with-reader-lock
+			   (json-tmcl::return-all-tmcl-types))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  (json:encode-json-to-string
 		   (map 'list #'(lambda(y)
@@ -133,7 +135,9 @@
    The validity is only oriented on the typing of topics, e.g.
    type-instance or supertype-subtype."
   (declare (ignorable param))
-  (handler-case (let ((topic-instances (json-tmcl::return-all-tmcl-instances)))
+  (handler-case (let ((topic-instances 
+		         (with-reader-lock
+			   (json-tmcl::return-all-tmcl-instances))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  (json:encode-json-to-string
 		   (map 'list #'(lambda(y)
@@ -152,7 +156,8 @@
   (let ((topic (d:get-item-by-psi psi)))
     (if topic
 	(let ((topic-json
-	       (handler-case (json-exporter::to-json-topicStub-string topic)
+	       (handler-case (with-reader-lock
+			       (json-exporter::to-json-topicStub-string topic))
 		 (condition (err) (progn
 				    (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 				    (setf (hunchentoot:content-type*) "text")
@@ -176,7 +181,8 @@
 	    (handler-case (let ((psis
 				 (json:decode-json-from-string json-data)))			    
 			    (let ((tmcl
-				   (json-tmcl:get-constraints-of-fragment psis :treat-as treat-as)))
+				   (with-reader-lock
+				     (json-tmcl:get-constraints-of-fragment psis :treat-as treat-as))))
 			      (if tmcl
 				  (progn
 				    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
@@ -200,7 +206,8 @@
     (if (eq http-method :GET)
 	(progn
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	  (handler-case (get-all-topic-psis)
+	  (handler-case (with-reader-lock
+			  (get-all-topic-psis))
 	    (condition (err) (progn
 			       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 			       (setf (hunchentoot:content-type*) "text")
@@ -216,9 +223,11 @@
 	(let ((identifier (string-replace psi "%23" "#")))
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 	  (let ((fragment
-		 (create-latest-fragment-of-topic identifier)))
+		 (with-writer-lock
+		   (create-latest-fragment-of-topic identifier))))
 	    (if fragment
-		(handler-case (to-json-string fragment)
+		(handler-case (with-reader-lock
+				(to-json-string fragment))
 		  (condition (err)
 		    (progn
 		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
@@ -239,7 +248,8 @@
 	    (eq http-method :POST))
 	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
 	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
-	    (handler-case (json-importer:json-to-elem json-data)
+	    (handler-case (with-writer-lock 
+			    (json-importer:json-to-elem json-data))
 	      (condition (err)
 		(progn
 		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
@@ -257,31 +267,33 @@
 	(end-idx
 	 (handler-case (parse-integer (hunchentoot:get-parameter "end"))
 	   (condition () nil))))
-    (handler-case (let ((topics (elephant:get-instances-by-class 'd:TopicC)))
-		    (let ((end
-			   (cond
-			     ((not end-idx)
-			      (length topics))
-			     ((> end-idx (length topics))
-			      (length topics))
-			     ((< end-idx 0)
-			      0)
-			     (t
-			      end-idx))))
-		      (let ((start
+    (handler-case (with-reader-lock
+		    (let ((topics 
+			   (elephant:get-instances-by-class 'd:TopicC)))
+		      (let ((end
 			     (cond
-			       ((> start-idx (length topics))
-				end)
-			       ((< start-idx 0)
+			       ((not end-idx)
+				(length topics))
+			       ((> end-idx (length topics))
+				(length topics))
+			       ((< end-idx 0)
 				0)
 			       (t
-				start-idx))))
-			(let ((topics-in-range
-			       (if (<= start end)
-				   (subseq topics start end)
-				   (reverse (subseq topics end start)))))
-			  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-			  (json-exporter:make-topic-summary topics-in-range)))))
+				end-idx))))
+			(let ((start
+			       (cond
+				 ((> start-idx (length topics))
+				  end)
+				 ((< start-idx 0)
+				  0)
+				 (t
+				  start-idx))))
+			  (let ((topics-in-range
+				 (if (<= start end)
+				     (subseq topics start end)
+				     (reverse (subseq topics end start)))))
+			    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+			    (json-exporter:make-topic-summary topics-in-range))))))
       (condition (err) (progn
 			 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 			 (setf (hunchentoot:content-type*) "text")
@@ -292,7 +304,8 @@
   "Returns a json-object representing a topic map overview as a tree(s)"
   (declare (ignorable param))
   (handler-case (let ((json-string
-		       (json-tmcl::tree-view-to-json-string (json-tmcl::make-tree-view))))
+		       (with-reader-lock
+			 (json-tmcl::tree-view-to-json-string (json-tmcl::make-tree-view)))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  json-string)
     (Condition (err) (progn

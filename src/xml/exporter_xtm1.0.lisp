@@ -8,7 +8,7 @@
 
 
 (defpackage :exporter
-  (:use :cl :cxml :elephant :datamodel)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading)
   (:import-from :constants
                 *XTM2.0-NS*
 		*XTM1.0-NS*

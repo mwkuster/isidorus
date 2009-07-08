@@ -7,66 +7,63 @@
 ;;+-----------------------------------------------------------------------------
 
 
-(defpackage :isidorus-reader-writer
-  (:use :cl :hunchentoot-mp) ;hunchentoot 0.15.7
+(defpackage :isidorus-threading
+  (:use :cl :bordeaux-threads)
   (:export :current-readers
 	   :with-reader-lock
 	   :with-writer-lock))
 
-(in-package :isidorus-reader-writer)
+(in-package :isidorus-threading)
 
-(defvar *readerlist-mutex* (make-lock "isidorus current-readers lock")) ;hunchentoot 0.15.7
-(defvar *writer-mutex* (make-lock "isidorus writer lock")) ;hunchentoot 0.15.7
-;;(defvar *readerlist-mutex* (hunchentoot::make-lock "isidorus current-readers lock")) ;hunchentoot 1.0.0
-;;(defvar *writer-mutex* (hunchentoot::make-lock "isidorus writer lock")) ;hunchentoot 1.0.0
-
+(defvar *readerlist-lock* (make-lock "isidorus-threading: current readers lock"))
+(defvar *writer-lock* (make-lock "isidorus-threading: writer lock"))
 (defvar *current-readers* nil)
 
+
 (defun current-readers ()
-  (let
-      ((result nil))
-    ;;(with-lock (*readerlist-mutex*) ;hunchentoot 0.15.7
-    (hunchentoot::with-lock-held (*readerlist-mutex*) ;hunchentoot 1.0.0
+  "Returns a copy of the list which contains all current reader
+   threads, *current-readers*"
+  (let ((result nil))
+    (with-lock-held (*readerlist-lock*)
       (setf result (copy-list *current-readers*)))
     result))
 
-(defun add-current-to-reader-list ()
-  (with-lock (*writer-mutex*) ;hunchentoot 0.15.7
-    (with-lock (*readerlist-mutex*) ;hunchentoot 0.15.7
-  ;;(hunchentoot::with-lock-held (*writer-mutex*) ;hunchentoot 1.0.0
-    ;;(hunchentoot::with-lock-held (*readerlist-mutex*) ;hunchentoot 1.0.0
-      (push *current-process* *current-readers*))))
 
-(defun remove-current-from-reader-list ()
-  (with-lock (*readerlist-mutex*) ;hunchentoot 0.15.7
-  ;;(hunchentoot::with-lock-held (*readerlist-mutex*) ;hunchentoot 1.0.0
+(defun add-thread-to-reader-list ()
+  "Adds the current thread to the reader list"
+  (with-lock-held (*writer-lock*)
+    (with-lock-held (*readerlist-lock*)
+      (push (current-thread) *current-readers*))))
+
+
+(defun remove-thread-from-reader-list ()
+  "Removes the current threads from the reader list"
+  (with-lock-held (*readerlist-lock*)
     (setf *current-readers*
-	  (delete *current-process* *current-readers*))))
+	  (delete (current-thread) *current-readers*))))
+
 
 (defmacro with-reader-lock (&body body)
+  "Executes the passed 'body' with the reader lock"
   `(progn
-     (add-current-to-reader-list)
-     (handler-case
-	 (progn ,@body)
-       (condition (c)
-	 (progn
-	   (remove-current-from-reader-list)
-	   (error c))))
-     (remove-current-from-reader-list)))
-	 
+     (add-thread-to-reader-list)
+     (let ((result nil))
+       (handler-case
+	   (setf result ,@body)
+	 (condition (c)
+	   (progn
+	     (remove-thread-from-reader-list)
+	     (error c))))
+       (remove-thread-from-reader-list)
+       result)))
+
 
 (defmacro with-writer-lock (&body body)
-  `(with-lock (*writer-mutex*) ;hunchentoot 0.15.7
-  ;;`(hunchentoot::with-lock-held (*writer-mutex*) ;hunchetoot 1.0.0
+  "Executes the passed body when the reader list is empty otherwise
+   the do macor loops in 500 ms time interval for a next chance."
+  `(with-lock-held (*writer-lock*)
      (do
       ((remaining-readers (current-readers) (current-readers)))
-      ((nullp remaining-raeders) nil)
-       ;; TODO: replace hunchentoot's internal function by
-       ;; something we are officially allowed to use.
-       ;; make sure the current thread sleeps for, say, 500ms.
-       (hunchentoot::process-allow-scheduling()))
+      ((null remaining-readers))
+       (sleep 0.5))
      ,@body))
-
-
-     
-    

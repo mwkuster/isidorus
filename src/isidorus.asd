@@ -51,7 +51,8 @@
 							 "exporter_xtm2.0")))
 			:depends-on ("constants"
                                      "xml-constants"
-				     "model"))
+				     "model"
+				     "threading"))
 	       (:module "atom"
 			:components ((:file "atom")
 ;;                                      (:file "configuration"
@@ -66,7 +67,9 @@
 					    :depends-on ("fragments" "snapshots"))
                                      (:file "confreader"
 					    :depends-on ("collection" "fragments" "snapshots")))
-		       	:depends-on ("model" "xml"))
+		       	:depends-on ("model"
+				     "xml"
+				     "threading"))
 	       (:module "rest_interface"
 			:components ((:file "rest-interface")
                                      (:file "publish_feeds"
@@ -78,7 +81,8 @@
 		       	:depends-on ("model" 
 				     "atom" 
 				     "xml"
-				     "json"))
+				     "json"
+				     "threading"))
 	       (:module "unit_tests"
 			:components ((:static-file "dangling_topicref.xtm")
 				     (:static-file "inconsistent.xtm")               
@@ -119,12 +123,14 @@
                                      (:file "atom_test"
 					    :depends-on ("fixtures"))
 				     (:file "json_test"
-					    :depends-on ("fixtures")))
+					    :depends-on ("fixtures"))
+				     (:file "threading_test"))
 			:depends-on ("atom"
                                      "constants"
 				     "model"
 				     "xml"
-				     "json"))
+				     "json"
+				     "threading"))
 	       (:module "json"
 	                :components ((:file "json_exporter")
 				     (:file "json_importer")
@@ -133,7 +139,8 @@
 				     (:file "json_tmcl_constants")
 				     (:file "json_tmcl"
 					    :depends-on ("json_tmcl_validation")))
-	                :depends-on ("model" "xml"))
+	                :depends-on ("model"
+				     "xml"))
 	       (:module "ajax"
 			:components ((:static-file "isidorus.html")
 				     (:module "javascripts"
@@ -158,9 +165,8 @@
 					      :components ((:static-file "home.css")
 							   (:static-file "navi.css")
 							   (:static-file "main.css")))))
-	       )
-	       ;;(:module "threading"
-	       ;;	:components ((:file "reader-writer"))))
+	       (:module "threading"
+			:components ((:file "reader-writer"))))
   :depends-on (:cxml
                :drakma
 	       :elephant

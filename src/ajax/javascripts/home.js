@@ -13,7 +13,7 @@
 function makeHome()
 {
     var content = new Element("div", {"class" : CLASSES.content()});
-    var header = new Element("h1").update("Topic Map Overview");
+    var header = new Element("h1").update("Topic Maps Overview");
     content.insert({"bottom" : header});
     $(CLASSES.subPage()).insert({"bottom" : content});
 

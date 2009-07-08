@@ -25,18 +25,6 @@
     (cxml:attribute "href" (uri psi))))
 
 
-;; (defmethod to-elem ((scope ScopeC))
-;;   (cxml:with-element "t:scope"
-;;     (append 
-;;      (map 'list #'ref-to-elem (themes scope)))))
-
-
-;; (defun scopes-to-elem (scopes)
-;;   (when scopes
-;;     (cxml:with-element "t:scope" 
-;;       (map 'list #'ref-to-elem scopes))))
-  
-
 (defmethod to-elem ((name NameC))
   "name = element name { reifiable, 
                          type?, scope?, value, variant* }"

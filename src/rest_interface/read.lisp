@@ -62,14 +62,14 @@ successful. Throws an error otherwise"
        (revision (d:get-revision)))
     (loop for entry in (slot-value feed 'atom:entries) do
          (let
-             ((top  (d:get-item-by-psi (psi entry) :revision revision)) 
+             ((top (d:get-item-by-psi (psi entry) :revision revision))
               (xtm-id (atom:id entry))
               (source-locator  (source-locator-prefix feed)))
            ;check if xtm-id has already been imported or if the entry is older
            ;than the snapshot feed. If so, don't do it again
            (unless (or (xtm-id-p xtm-id) (string> (atom:updated entry) (atom:updated imported-snapshot-entry)))
              (when top
-               (mark-as-deleted top :source-locator source-locator :revision revision))
+	       (mark-as-deleted top :source-locator source-locator :revision revision))
 	     ;(format t "Fragment feed: ~a~&" (link entry))
              (importer-xtm1.0 
               (dom:document-element
@@ -79,9 +79,9 @@ successful. Throws an error otherwise"
              ;locator + a suitable internal id as an identifier to all
              ;characteristics and associations that don't already have
              ;one and then reuse it next time
-             (add-source-locator 
-              (d:get-item-by-psi (psi entry) :revision revision) ;works even if the topic is only created during import
-              :source-locator source-locator :revision revision))))))
+	     (add-source-locator 
+	      (d:get-item-by-psi (psi entry) :revision revision) ;works even if the topic is only created during import
+	      :source-locator source-locator :revision revision))))))
 
 (defun string-max (string-list &optional (max nil))
   (cond
@@ -172,9 +172,10 @@ imports the first snapshot if necessary and then applies all fragments to it"
 	   (get-attribute snapshot-feed-link-elem "href")
            :tm-id feed-url)))
       (assert imported-snapshot-entry)
-      (import-fragments-feed 
-       (get-attribute fragment-feed-link-elem "href")
-       imported-snapshot-entry :tm-id feed-url))))
+      (with-writer-lock
+	(import-fragments-feed 
+	 (get-attribute fragment-feed-link-elem "href")
+	 imported-snapshot-entry :tm-id feed-url)))))
     
 
     

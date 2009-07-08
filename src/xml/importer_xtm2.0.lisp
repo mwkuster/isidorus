@@ -409,20 +409,21 @@ association = element association { reifiable, type, scope?, role+ }"
   (declare (dom:element xtm-dom))
   (declare (integer revision))        ;all topics that are imported in one go share the same revision
   (assert elephant:*store-controller*)
-  (with-tm (revision xtm-id tm-id)
-    (let
-        ((topic-vector (get-topic-elems xtm-dom))
-         (assoc-vector (get-association-elems xtm-dom)))
-      (loop for top-elem across topic-vector do
-           (from-topic-elem-to-stub top-elem revision 
-                                    :xtm-id xtm-id))
-      (loop for top-elem across topic-vector do
-           (format t "t")
-           (merge-topic-elem top-elem revision 
-                             :tm tm
-                             :xtm-id xtm-id))
-      (loop for assoc-elem across assoc-vector do
-           (format t "a")
-           (from-association-elem assoc-elem revision 
-                                  :tm tm
-                                  :xtm-id xtm-id)))))
+  (with-writer-lock
+    (with-tm (revision xtm-id tm-id)
+      (let
+	  ((topic-vector (get-topic-elems xtm-dom))
+	   (assoc-vector (get-association-elems xtm-dom)))
+	(loop for top-elem across topic-vector do
+	     (from-topic-elem-to-stub top-elem revision 
+				      :xtm-id xtm-id))
+	(loop for top-elem across topic-vector do
+	     (format t "t")
+	     (merge-topic-elem top-elem revision 
+			       :tm tm
+			       :xtm-id xtm-id))
+	(loop for assoc-elem across assoc-vector do
+	     (format t "a")
+	     (from-association-elem assoc-elem revision 
+				    :tm tm
+				    :xtm-id xtm-id))))))

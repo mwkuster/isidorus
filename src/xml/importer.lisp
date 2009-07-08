@@ -16,7 +16,7 @@
 ;;
 
 (defpackage :xml-importer
-  (:use :cl :cxml :elephant :datamodel)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading)
   (:import-from :constants
 		*type-instance-psi*
 		*type-psi*
@@ -124,18 +124,19 @@
   "Initiatlize the database with the stubs of the core topics + PSIs
 defined in the XTM 1.0 spec. This includes a topic that represents the
 core TM"
-  (with-tm (revision "core.xtm" "http://www.topicmaps.org/xtm/1.0/core.xtm")
-    (let
-        ((core-dom 
-          (cxml:parse-file *core_psis.xtm* (cxml-dom:make-dom-builder))))
-      (loop for top-elem across 
-           (xpath-child-elems-by-qname (dom:document-element core-dom)
-                                       *xtm2.0-ns* "topic")
-         do
-           (let
-               ((top
-                 (from-topic-elem-to-stub top-elem revision :xtm-id "core.xtm")))
-             (add-to-topicmap tm top))))))
+  (with-writer-lock
+    (with-tm (revision "core.xtm" "http://www.topicmaps.org/xtm/1.0/core.xtm")
+      (let
+	  ((core-dom 
+	    (cxml:parse-file *core_psis.xtm* (cxml-dom:make-dom-builder))))
+	(loop for top-elem across 
+	     (xpath-child-elems-by-qname (dom:document-element core-dom)
+					 *xtm2.0-ns* "topic")
+	   do
+	     (let
+		 ((top
+		   (from-topic-elem-to-stub top-elem revision :xtm-id "core.xtm")))
+	       (add-to-topicmap tm top)))))))
 
 ;TODO: replace the two importers with this macro
 (defmacro importer-mac

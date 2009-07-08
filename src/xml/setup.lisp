@@ -19,25 +19,26 @@
                    (xtm-format '2.0)
                    (xtm-id (get-uuid)))
   "Imports an XTM file into an existing repository using the correct
-importer for the XTM version. Does *not* close the store afterwards"
+   importer for the XTM version. Does *not* close the store afterwards"
   (declare ((or pathname string) xtm-path))
   (declare ((or pathname string) repository-path))
   (let
       ((xtm-dom (dom:document-element (cxml:parse-file
-		     (truename xtm-path) (cxml-dom:make-dom-builder)))))
+				       (truename xtm-path) (cxml-dom:make-dom-builder)))))
     (unless elephant:*store-controller*
       (elephant:open-store  
        (get-store-spec repository-path)))
-    ;create the topic stubs so that we can refer to them later on
+	 ;create the topic stubs so that we can refer to them later on
     (setf d:*current-xtm* xtm-id)
     (if (eq xtm-format '2.0)
-        (importer xtm-dom :tm-id tm-id :xtm-id xtm-id)
-        (importer-xtm1.0 xtm-dom :tm-id tm-id :xtm-id xtm-id))
-    (format t "#Objects in the store: Topics: ~a, Associations: ~a~%"
-	    (length (elephant:get-instances-by-class 'TopicC))
-	    (length (elephant:get-instances-by-class 'AssociationC)))))
-    ;(format t "#Topics in the store: ~a~%" (length (elephant:get-instances-by-class 'TopicC)))))
+	(importer xtm-dom :tm-id tm-id :xtm-id xtm-id)
+	(importer-xtm1.0 xtm-dom :tm-id tm-id :xtm-id xtm-id))
+    (with-reader-lock
+      (format t "#Objects in the store: Topics: ~a, Associations: ~a~%"
+	      (length (elephant:get-instances-by-class 'TopicC))
+	      (length (elephant:get-instances-by-class 'AssociationC))))))
 
+  
 (defun setup-repository (xtm-path repository-path 
                          &key
                          tm-id
@@ -46,11 +47,10 @@ importer for the XTM version. Does *not* close the store afterwards"
   "Initializes a repository and imports a XTM file into it"
   (declare ((or pathname string) xtm-path))
   (declare ((or pathname string) repository-path))
- 
   (unless elephant:*store-controller*
     (elephant:open-store  
      (get-store-spec repository-path)))
   (init-isidorus)
   (import-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id :xtm-format xtm-format)
   (when elephant:*store-controller*
-      (elephant:close-store)))
+    (elephant:close-store)))

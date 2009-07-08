@@ -17,7 +17,8 @@
         :xml-tools
         :xml-importer
 	:json-exporter
-	:json-importer)
+	:json-importer
+        :isidorus-threading)
   (:export :import-fragments-feed
            :import-snapshots-feed
            :import-tm-feed
@@ -56,67 +57,9 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
           (lambda ()
             (apply page-function (coerce matched-registers 'list))))))))
 
-;; (defun feeds ()
-;;   "interface funtion to the corresponding Atom method"
-;;   (setf (content-type) "application/atom+xml; charset=UTF-8")
-;;   (cxml:with-xml-output (cxml:make-string-sink :canonical t)
-;;     (atom:feed-to-elem atom::*tm-feed*)))
-
-;; (defun snapshot-feed ()
-;;   "Interface function to the corresponding Atom method"
-;;   (setf (content-type) "application/atom+xml; charset=UTF-8")
-;;   (cxml:with-xml-output (cxml:make-string-sink :canonical t)
-;;     ;(atom:build-snapshot-feed)))
-;; ))
-
-;; (defun snapshots (&optional revision)
-;;   "Export a snapshot by revision"
-;;   (assert revision)
-;;   (format t "in snapshots~&")
-;;   (setf (content-type) "application/xtm+xml; charset=utf-8")
-;;   (exporter:export-xtm-to-string :revision (parse-integer revision) 
-;;                                  :xtm-format '1.0))
-
-
-;; (defun fragments (&optional unique-id)
-;;   "Export a fragment by its unique id"
-;;   (assert unique-id)
-;;   (setf (content-type) "application/xtm+xml; charset=utf-8")
-;;   (let 
-;;       ((fragment 
-;; 	(d:get-fragment (parse-integer unique-id))))
-;;     (if fragment
-;; 	(exporter:export-xtm-fragment fragment :xtm-format '1.0)
-;; 	(format nil "<t:topicMap xmlns:t=\"http://www.topicmaps.org/xtm/1.0/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"/>"))))
-
-
-;; (push 
-;;  (create-regex-dispatcher "/feeds/?$" #'feeds) 
-;;  hunchentoot:*dispatch-table*)
-
-;; (push 
-;;  (create-regex-dispatcher "/feeds/testtm/?$" #'tm-feed)
-;;  hunchentoot:*dispatch-table*)
-
-;; (push 
-;;  (create-regex-dispatcher "/testtm/snapshots/$" #'snapshot-feed) 
-;;  hunchentoot:*dispatch-table*)
-
-;; (push 
-;;  (create-regex-dispatcher "/testtm/snapshots/([0-9]+)$" #'snapshots) 
-;;  hunchentoot:*dispatch-table*)
-
-;; (push 
-;;  (create-regex-dispatcher "/testtm/fragments/?$" #'fragments-feed) 
-;;  hunchentoot:*dispatch-table*)
-
-;; (push 
-;;  (create-regex-dispatcher "/testtm/fragments/([0-9]+)$" #'fragments) 
-;;  hunchentoot:*dispatch-table*)
-
-
 
 (defvar *server-acceptor* nil)
+
 
 (defun start-tm-engine (repository-path &key (conffile "atom/conf.lisp") (host-name "localhost") (port 8000))
   "Start the Topic Map Engine on a given port, assuming a given
@@ -124,7 +67,6 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (when *server-acceptor*
     (error "Ther server is already running"))
   (setf hunchentoot:*show-lisp-errors-p* t) ;for now
-  ;(setf hunchentoot:*show-lisp-backtraces-p* t) ;hunchentoot 0.15.7
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (setf atom:*base-url* (format nil "http://~a:~a" host-name port))

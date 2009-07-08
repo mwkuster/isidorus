@@ -68,44 +68,47 @@
                    tm-id
                    (revision (get-revision)) 
                    (xtm-format '2.0))
-  (let
-      ((tm 
-        (when tm-id
-          (get-item-by-item-identifier tm-id :revision revision))))
-    (setf *export-tm* tm)
-    (with-revision revision
-      (with-open-file (stream xtm-path :direction :output)
-        (cxml:with-xml-output (cxml:make-character-stream-sink stream :canonical nil)
-          (if (eq xtm-format '2.0)
-              (with-xtm2.0
+  (with-reader-lock
+    (let
+	((tm 
+	  (when tm-id
+	    (get-item-by-item-identifier tm-id :revision revision))))
+      (setf *export-tm* tm)
+      (with-revision revision
+	(with-open-file (stream xtm-path :direction :output)
+	  (cxml:with-xml-output (cxml:make-character-stream-sink stream :canonical nil)
+	    (if (eq xtm-format '2.0)
+		(with-xtm2.0
                   (export-to-elem tm #'to-elem))
-              (with-xtm1.0
-                  (export-to-elem tm #'to-elem-xtm1.0))))))))
+		(with-xtm1.0
+                  (export-to-elem tm #'to-elem-xtm1.0)))))))))
 
 
 (defun export-xtm-to-string (&key 
                              tm-id
                              (revision (get-revision)) (xtm-format '2.0))
- (let
-     ((tm 
-       (when tm-id
-         (get-item-by-item-identifier tm-id :revision revision))))
-   (with-revision revision
-     (cxml:with-xml-output (cxml:make-string-sink :canonical nil)
-       (if (eq xtm-format '2.0)
-           (with-xtm2.0
-               (export-to-elem tm #'to-elem))
-           (with-xtm1.0
-               (export-to-elem tm #'to-elem-xtm1.0)))))))
+  (with-reader-lock
+    (let
+	((tm 
+	  (when tm-id
+	    (get-item-by-item-identifier tm-id :revision revision))))
+      (with-revision revision
+	(cxml:with-xml-output (cxml:make-string-sink :canonical nil)
+	  (if (eq xtm-format '2.0)
+	      (with-xtm2.0
+		(export-to-elem tm #'to-elem))
+	      (with-xtm1.0
+		(export-to-elem tm #'to-elem-xtm1.0))))))))
 
 
 (defun export-xtm-fragment (fragment &key (xtm-format '2.0))
   (declare (FragmentC fragment))
-  (with-revision (revision fragment)
-    (cxml:with-xml-output  (cxml:make-string-sink :canonical nil)
-      (if (eq xtm-format '2.0)
-	  (with-xtm2.0
+  (with-reader-lock
+    (with-revision (revision fragment)
+      (cxml:with-xml-output  (cxml:make-string-sink :canonical nil)
+	(if (eq xtm-format '2.0)
+	    (with-xtm2.0
               (to-elem fragment))
-          (with-xtm1.0
-              (to-elem-xtm1.0 fragment))))))
+	    (with-xtm1.0
+              (to-elem-xtm1.0 fragment)))))))
 	  

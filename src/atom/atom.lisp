@@ -8,7 +8,7 @@
 
 
 (defpackage :atom
-  (:use :cl :cxml :constants :xml-tools :datamodel :drakma)
+  (:use :cl :cxml :constants :xml-tools :datamodel :drakma :isidorus-threading)
   (:export :collection-feed
            :defsite
            :dependency

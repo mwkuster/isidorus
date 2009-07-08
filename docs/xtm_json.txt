@@ -390,7 +390,7 @@
 
 
 //+-----------------------------------------------------------------------------
-//+ associationConstraint
+//+ associationConstraints
 //+    The associationConstraint describes how an association of a given type
 //+    has to be defined.
 //+    associationRoleTypeConstraint constains all available roletypes for this
@@ -441,5 +441,5 @@
 //+-----------------------------------------------------------------------------
 {
   "topicConstraints" : <topicConstraint>,
-  "associationsConstraints" : [ <associationConstraint>, <...> ]
+  "associationsConstraints" : [ <associationConstraints>, <...> ]
 }

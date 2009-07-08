@@ -145,10 +145,11 @@ function makeFragment(context, psis, constraints, contents){
 	    var aStubs = associations.getReferencedTopics();
 	    if(aStubs && aStubs.length !== 0){
 		aStubs = aStubs.without(CURRENT_TOPIC).uniq();
-		for(var i = 0; i !== ePsis.length; ++i) aStubs = aStubs.without(ePsis[i]);
+		for(var i = 0; ePsis && i !== ePsis.length; ++i) aStubs = aStubs.without(ePsis[i]);
 	    }
 	    referencedTopics = referencedTopics.concat(aStubs);
 	}
+
 	function onSuccessHandler(topicStubs){
 	    var tsStr = "null";
 	    if(topicStubs && topicStubs.length !== 0){

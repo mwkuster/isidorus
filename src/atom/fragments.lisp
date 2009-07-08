@@ -35,23 +35,24 @@
   "Unlike for the other feed types, entries can be calculated"
   (remove 
    nil
-   (loop for fragment in 
-        (mapcan #'d:get-fragments (rest (d:get-all-revisions)))
-      collect 
-        (let
-            ((tm (d:get-item-by-item-identifier (tm-id feed) :revision 0))
-             (xtm-link (format nil "~a/~a" 
-                               (link feed) (d:unique-id fragment)))
-             (psi (d:uri (first (d:psis (d:topic fragment))))))
-          (when (d:in-topicmap tm (d:topic fragment))
-            (make-instance 'fragment-entry
-                           :id xtm-link
-                           :title psi
-                           :psi psi
-                           :path (format nil "~a/~a" (path feed) (d:unique-id fragment))
-                           :updated (datetime-in-iso-format (d:revision fragment))
-                           :link xtm-link
-                           :summary (format nil "Fragment for topic ~a" psi)))))))
+   (with-writer-lock
+     (loop for fragment in 
+	  (mapcan #'d:get-fragments (rest (d:get-all-revisions)))
+	collect 
+	  (let
+	      ((tm (d:get-item-by-item-identifier (tm-id feed) :revision 0))
+	       (xtm-link (format nil "~a/~a" 
+				 (link feed) (d:unique-id fragment)))
+	       (psi (d:uri (first (d:psis (d:topic fragment))))))
+	    (when (d:in-topicmap tm (d:topic fragment))
+	      (make-instance 'fragment-entry
+			     :id xtm-link
+			     :title psi
+			     :psi psi
+			     :path (format nil "~a/~a" (path feed) (d:unique-id fragment))
+			     :updated (datetime-in-iso-format (d:revision fragment))
+			     :link xtm-link
+			     :summary (format nil "Fragment for topic ~a" psi))))))))
 
 
 ;; (defun build-fragments-feed (tm-id)

@@ -56,7 +56,8 @@
       (setf (hunchentoot:content-type*) "application/x-tm+xml;version=1.0; charset=utf-8")
       (let 
           ((fragment 
-            (d:get-fragment (parse-integer unique-id))))
+            (with-reader-lock
+	      (d:get-fragment (parse-integer unique-id)))))
         (if fragment
             (exporter:export-xtm-fragment fragment :xtm-format '1.0)
             (format nil "<t:topicMap xmlns:t=\"http://www.topicmaps.org/xtm/1.0/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"/>")))))

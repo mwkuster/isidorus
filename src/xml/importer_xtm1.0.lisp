@@ -443,22 +443,23 @@
   (declare (dom:element xtm-dom))
   (declare (integer revision))
   (assert elephant:*store-controller*)
-  (with-tm (revision xtm-id tm-id)
-    (let 
-        ((topic-vector (xpath-child-elems-by-qname xtm-dom *xtm1.0-ns* "topic"))
-         (assoc-vector (xpath-child-elems-by-qname  xtm-dom *xtm1.0-ns* "association")))    
-    (loop for topic across topic-vector
-       do (from-topic-elem-to-stub-xtm1.0 topic revision 
-                                          :xtm-id xtm-id))
-    (loop for top-elem across topic-vector
-       do
-         (format t "t")
-         (merge-topic-elem-xtm1.0 top-elem revision
-                                  :tm tm
-                                  :xtm-id xtm-id))
-    (loop for assoc-elem across assoc-vector 
-       do
-         (format t "a")
-         (from-association-elem-xtm1.0 assoc-elem revision
-                                       :tm tm
-                                       :xtm-id xtm-id)))))
+  (with-writer-lock
+    (with-tm (revision xtm-id tm-id)
+      (let 
+	  ((topic-vector (xpath-child-elems-by-qname xtm-dom *xtm1.0-ns* "topic"))
+	   (assoc-vector (xpath-child-elems-by-qname  xtm-dom *xtm1.0-ns* "association")))    
+	(loop for topic across topic-vector
+	   do (from-topic-elem-to-stub-xtm1.0 topic revision 
+					      :xtm-id xtm-id))
+	(loop for top-elem across topic-vector
+	   do
+	     (format t "t")
+	     (merge-topic-elem-xtm1.0 top-elem revision
+				      :tm tm
+				      :xtm-id xtm-id))
+	(loop for assoc-elem across assoc-vector 
+	   do
+	     (format t "a")
+	     (from-association-elem-xtm1.0 assoc-elem revision
+					   :tm tm
+					   :xtm-id xtm-id))))))
