@@ -19,7 +19,7 @@
 (defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$") ;the json url for getting some tmcl information of a topic treated as a type
 (defparameter *json-get-instance-tmcl-url* "/json/tmcl/instance/?$") ;the json url for getting some tmcl information of a topic treated as an instance
 (defparameter *json-get-overview* "/json/tmcl/overview/?$") ; returns a json-object representing a tree view
-(defparameter *ajax-user-interface-url* "/isidorus/?$") ;the url to the user interface;
+(defparameter *ajax-user-interface-url* "/isidorus") ;the url to the user interface;
 (defparameter *ajax-user-interface-css-prefix* "/css") ;the url to the css files of the user interface
 (defparameter *ajax-user-interface-css-directory-path* "ajax/css") ;the directory contains the css files
 (defparameter *ajax-user-interface-file-path* "ajax/isidorus.html") ;the file path to the HTML file implements the user interface
@@ -52,27 +52,25 @@
   (push hunchentoot:+http-internal-server-error+ hunchentoot:*approved-return-codes*)
   ;; === html and css files ====================================================
   (push
-   (create-regex-dispatcher ajax-user-interface-url
-			    #'(lambda()
-				(hunchentoot:handle-static-file ajax-user-interface-file-path "text/html")))
+   (create-static-file-dispatcher-and-handler ajax-user-interface-url ajax-user-interface-file-path "text/html")
    hunchentoot:*dispatch-table*)
 
   (dolist (script-path-and-url (make-file-path-and-url ajax-user-interface-css-directory-path ajax-user-interface-css-prefix))
     (let ((script-path (getf script-path-and-url :path))
 	  (script-url (getf script-path-and-url :url)))
-      (push (create-regex-dispatcher script-url
-				     #'(lambda()
-					 (hunchentoot:handle-static-file script-path))); "text/javascript")))
-	    hunchentoot:*dispatch-table*)))
+      (push 
+       (create-static-file-dispatcher-and-handler script-url script-path)
+       hunchentoot:*dispatch-table*)))
+
 
   ;; === ajax frameworks and javascript files ==================================
   (dolist (script-path-and-url (make-file-path-and-url ajax-javascripts-directory-path ajax-javascripts-url-prefix))
     (let ((script-path (getf script-path-and-url :path))
 	  (script-url (getf script-path-and-url :url)))
-      (push (create-regex-dispatcher script-url
-				     #'(lambda()
-					 (hunchentoot:handle-static-file script-path))); "text/javascript")))
-	    hunchentoot:*dispatch-table*)))
+      (push 
+       (create-static-file-dispatcher-and-handler script-url script-path)
+       hunchentoot:*dispatch-table*)))
+  
 
   ;; === rest interface ========================================================
   (push

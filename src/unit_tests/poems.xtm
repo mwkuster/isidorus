@@ -2765,7 +2765,6 @@ Gibt keine Ewigkeit zurück."</tm:resourceData>
   <tm:association>
     <tm:itemIdentity href="written-by-association-shiller-resignation"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
-    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:itemIdentity href="writer-role-schiller"/>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
@@ -2807,7 +2806,6 @@ Als flöge sie nach Haus.</tm:resourceData>
 
   <tm:association>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
-    <tm:scope><tm:topicRef href="#de"/></tm:scope>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#eichendorff"/>
