@@ -1506,13 +1506,6 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  this.__scope__.disable();
 					  this.__value__.__frames__[0].disable();
 					  this.__variants__.disable();
-/*
-					  disableItemIdentity(this);
-					  disableType(this);
-					  disableScope(this);
-					  disableValue(this);
-					  disableVariants(this);
-					  this.getFrame().setStyle(DISABLED_BACKGROUND_COLOR);*/
 					  this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 					  this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 					  this.hideAddButton();
@@ -1524,12 +1517,6 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  this.__scope__.enable();
 					  this.__value__.__frames__[0].enable();
 					  this.__variants__.enable();
-/*
-					  enableItemIdentity(this);
-					  enableType(this);
-					  enableScope(this);
-					  enableValue(this);
-					  enableVariants(this);*/
 					  this.getFrame().writeAttribute({"class" : CLASSES.nameFrame()});
 					  this.getFrame().removeAttribute("title");
 					  checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);

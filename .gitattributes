@@ -59,4 +59,6 @@ src/unit_tests/sample_objects.xtm -text
 src/unit_tests/sample_objects_2_0.xtm -text
 src/unit_tests/t100.xtm -text
 src/unit_tests/threading_test.lisp -text
-src/xml/core_psis.xtm -text
+src/xml/rdf/exporter.lisp -text
+src/xml/rdf/importer.lisp -text
+src/xml/xtm/core_psis.xtm -text

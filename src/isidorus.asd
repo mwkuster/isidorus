@@ -19,9 +19,9 @@
   :licence "LGPL"
   :components (
 	       (:file "constants")
-               (:static-file "xml/core_psis.xtm")
+               (:static-file "xml/xtm/core_psis.xtm")
 	       (:file "xml-constants" 
-                      :depends-on ("xml/core_psis.xtm"
+                      :depends-on ("xml/xtm/core_psis.xtm"
                                    "constants"))
 	       (:module "model"
 			:components ((:file "exceptions")
@@ -33,22 +33,26 @@
                                             :depends-on ("exceptions")))
 			:depends-on ("constants"))
 	       (:module "xml"
-			:components ((:file "tools")
-				     (:file "importer"
-					    :depends-on ("tools"))
-                                     (:file "importer_xtm2.0"
-                                            :depends-on ("importer"))
-                                     (:file "importer_xtm1.0"
-                                            :depends-on ("importer"))
-                                     (:file "setup"
-                                            :depends-on ("importer_xtm2.0"
-                                                         "importer_xtm1.0"))
-				     (:file "exporter_xtm1.0")
-				     (:file "exporter_xtm2.0"
-                                            :depends-on ("exporter_xtm1.0"))
-				     (:file "exporter"
-					    :depends-on ("exporter_xtm1.0"
-							 "exporter_xtm2.0")))
+			:components ((:module "xtm"
+					      :components ((:file "tools")
+							   (:file "importer"
+								  :depends-on ("tools"))
+							   (:file "importer_xtm2.0"
+								  :depends-on ("importer"))
+							   (:file "importer_xtm1.0"
+								  :depends-on ("importer"))
+							   (:file "setup"
+								  :depends-on ("importer_xtm2.0"
+									       "importer_xtm1.0"))
+							   (:file "exporter_xtm1.0")
+							   (:file "exporter_xtm2.0"
+								  :depends-on ("exporter_xtm1.0"))
+							   (:file "exporter"
+								  :depends-on ("exporter_xtm1.0"
+									       "exporter_xtm2.0"))))
+				     (:module "rdf"
+					      :components ((:file "importer")
+							   (:file "exporter"))))
 			:depends-on ("constants"
                                      "xml-constants"
 				     "model"

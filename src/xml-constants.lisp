@@ -22,5 +22,5 @@
 
 (defparameter *core_psis.xtm*
   (asdf:component-pathname
-   (asdf:find-component *isidorus-system* "xml/core_psis.xtm")))
+   (asdf:find-component *isidorus-system* "xml/xtm/core_psis.xtm")))
 
