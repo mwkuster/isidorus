@@ -1,11 +1,11 @@
 * text=auto !eol
-docs/JSON_model.pdf -text svneol=unset#application/pdf
 docs/LGPL-LICENSE.txt -text
 docs/TODOs.txt svneol=native#text/plain
 docs/collection_feed.png -text svneol=unset#image/png
 docs/fragments_feed.png -text svneol=unset#image/png
 docs/install_isidorus.txt svneol=native#text/plain
 docs/isidorus_classes.pdf -text svneol=unset#application/pdf
+docs/json.ebnf -text
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
 docs/xtm_json.txt -text

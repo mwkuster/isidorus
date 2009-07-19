@@ -1,0 +1,130 @@
+//+-----------------------------------------------------------------------------
+//+ Overview:
+//+  *Part 1: Basic elements
+//+  *Part 2: XTM - data model
+//+  *Part 3: Object summaries
+//+  *Part 4: TMCL - data model
+//+  *Part 5: Server-side RESTful interface
+//+-----------------------------------------------------------------------------
+
+//+-----------------------------------------------------------------------------
+//+ Part 1: Basic elements
+//+-----------------------------------------------------------------------------
+
+Char = "a" | "b" | ... | "A" | "B" | "0" | "1" | ...
+String = "\"" char* "\""
+Null = "\"null\""
+List = "[" string ("," string)* "]"
+DblList = ("[" List ("," List)* "]")
+TrpList = ("[" DblList ("," DblList)* "]")
+Bool = "\"true\"" | "\"false\""
+Cipher = "1" | "2" | ...
+Number = "\"0\"" | "\"" (Cipher (Cipher | "0")*) "\""
+ENumber = Number | "\"MAX_INT\""
+
+
+//+-----------------------------------------------------------------------------
+//+ Part 2: XTM - data model
+//+-----------------------------------------------------------------------------
+Datatype = "\"datatype\":" String
+Value = "\"value\":" String
+Data = "\"resourceData\":{" Datatype "," Value "}"
+RData = "\"resourceRef\":" ((string ",\"resourceData\":null") | (Null "," Data))
+
+ItemIdentity = "\"itemIdentities\":" (List | Null)
+SubjectLocator = "\"subjectLocators\":" (List | Null)
+SubjectIdentifier = "\"subjectItentifers\":" (List | Null)
+Scope = "\"scopes\":" (DblList | Null)
+InstanceOf = "\"instanceOfs\":" (DblList | Null)
+Type = "\"type\":" List
+ID = "\id\":" string
+TopicRef = "\"topicRef\":" List
+
+Variant = "{" ItemIdentity "," Scope "," RData "}"
+Variants = "\"variants\":" (("[" Variant+ "]") | Null)
+
+Name = "{" ItemIdentity "," Type "," Scope "," Value "," Variants "}"
+Names = "\"names\":" ("[" Name+ "]") | Null
+
+Occurrence = "{" ItemIdentity "," Type "," Scope "," RData "}"
+Occurrences = "\"occurrences\":" (("[" Occurrence+ "]") | Null)
+
+Topic = "\"topic\":{" ID "," ItemIdentity "," SubjectLocator ","
+        SubjectIdentifier "," InstanceOf "," Names "," Occurences "}"
+
+Role = "{" ItemIdentity "," Type "," TopicRef "}"
+Roles = "\"roles\":" (("[" Role+ "]") | Null)
+
+Association = "{" ItemIdentity "," Type "," Scope "," Roles "}"
+Associations "\"associations\":" (("[" Association "]") | Null)
+
+TopicStub = "{" ID "," ItemIdentity "," SubjectLocator "," SubjectIdentifier "}"
+TopicStubs = "\"topicStubs\":" (("[" TopicStub+ "]") | Null)
+
+TmIDs = "\"tmIds\":" List
+
+Fragment = "{" Topic "," TopicStubs "," Associations "," TmIDs "}"
+
+
+//+-----------------------------------------------------------------------------
+//+ Part 3: Object summaries
+//+-----------------------------------------------------------------------------
+PsiSummary = DblList | Null
+
+NameSummary = "\"names\":" (List | Null)
+OccurrenceSummary = "\"occurrences\":" (List | Null)
+
+TopicSummary = "{" ID "," ItemIdentity "," SubjectLocator ","
+               SubjectIdentifier "," InstanceOf "," NameSummary ","
+               OccurrenceSummary "}"
+TopicSummaries = ("[" TopicSummary+ "]") | Null
+
+TopicList = "\"topic\":" List
+IsType = "\isType\":" Bool
+IsInstance = "\"isInstance\":" Bool
+Instances = "\"instances\":" (("[" TreeNode "]") | Null)
+
+TreeNode = "{" TopicList "," isType "," isInstance "," Instances "}"
+
+
+//+-----------------------------------------------------------------------------
+//+ Part 4: TMCL - data model
+//+-----------------------------------------------------------------------------
+CardMin = "\"cardMin\":" Number
+CardMax = "\"cardMax\":" ENumber
+RegExp = "\"regexp\":" String
+
+ExclusiveInstance = "{\"owner\":" List ",\"exclisives\":" (DblList | Null) "}"
+SimpleConstraint = "{" RegExp "," CardMin "," CardMax "}"
+Constraints = "\"constraints\":[" SimpleConstraint+ "]"
+
+
+ScopeType = "\"scopeTypes\":" TrpList
+ScopeConstraint = "{" ScopeType "," CardMin "," CardMax "}"
+ScopeConstraints = "\"scopeConstraints\":" (("[" scopeConstraint "]") | Null)
+
+NameTypeScope = "{\"nameType\":" List "," scopeConstraints "}"
+NameTypeScopes = "\"nametypescopes\":[" NameTypeScope+ "]"
+TopicNameConstraint = "{" NameTypeScopes "," Constraints "}"
+
+UniqueConstraints = "\"uniqeConstraints\":[" SimpleConstraint+ "]"
+DatatypeConstraint = "\"datatypeConstraint\":" String
+OccurrenceTypeScope = "{\"occurrenceType\":" List "," scopeConstraints ","
+                      DatatypeConstraint "}"
+OccurrenceTypeScopes = "\"occurrenceTypes\":[" OccurrenceTypeScope+ "]"
+TopicOccurrenceConstraint = "{" OccurrenceTyoeScopes "," Constraints ","
+                            UniqueConstraints "}"
+
+//+-----------------------------------------------------------------------------
+//+ Part 5: Server-side RESTful interface
+//+-----------------------------------------------------------------------------
+"/json/get/(.+)$" returns a Fragment after a HTTP-GET
+"/json/commit/?$" processes a Fragment as HTTP-POST or HTTP-PUT
+"/json/psis/?$" returns a PsiSummary after a HTTP-GET
+"/json/summary/?$" returns a TopicSummaries after A HTTP-GET
+"/json/tmcl/types/?$"
+"/json/tmcl/instances/?$"
+"/json/topicstubs/(.+)$"
+"/json/tmcl/type/?$"
+"/json/tmcl/instance/?$"
+"/json/tmcl/overview/?$"
