@@ -11,7 +11,7 @@
 //+ Part 1: Basic elements
 //+-----------------------------------------------------------------------------
 
-Char = "a" | "b" | ... | "A" | "B" | "0" | "1" | ...
+Char = "a" | "b" | ... | "A" | "B" | ... | "0" | "1" | ... | "-" | "_" | ...
 String = "\"" char* "\""
 Null = "\"null\""
 List = "[" string ("," string)* "]"
@@ -25,6 +25,10 @@ ENumber = Number | "\"MAX_INT\""
 
 //+-----------------------------------------------------------------------------
 //+ Part 2: XTM - data model
+//+ A fragment contains a valid but incomplete topic map with one main topic
+//+ all referenced associations and all referenced topic stubs.
+//+ The schema is close to XTM 2.0 with the difference that referencing topics
+//+ is done via their PSIs, so a reference is always a list of PSIs.
 //+-----------------------------------------------------------------------------
 Datatype = "\"datatype\":" String
 Value = "\"value\":" String
@@ -68,6 +72,10 @@ Fragment = "{" Topic "," TopicStubs "," Associations "," TmIDs "}"
 
 //+-----------------------------------------------------------------------------
 //+ Part 3: Object summaries
+//+ These Summaries are necessary to offer information of existing topics in the
+//+ store. A PsiSummary contains a list of PSI lists, so the client is able to
+//+ find out all existing topics. The TreeView contains a hierarchical
+//+ map of the stored Topics.
 //+-----------------------------------------------------------------------------
 PsiSummary = DblList | Null
 
@@ -85,7 +93,7 @@ IsInstance = "\"isInstance\":" Bool
 Instances = "\"instances\":" (("[" TreeNode "]") | Null)
 
 TreeNode = "{" TopicList "," isType "," isInstance "," Instances "}"
-
+TreeView = ("[" TreeNode+ "]") | Null
 
 //+-----------------------------------------------------------------------------
 //+ Part 4: TMCL - data model
@@ -94,27 +102,77 @@ CardMin = "\"cardMin\":" Number
 CardMax = "\"cardMax\":" ENumber
 RegExp = "\"regexp\":" String
 
-ExclusiveInstance = "{\"owner\":" List ",\"exclisives\":" (DblList | Null) "}"
 SimpleConstraint = "{" RegExp "," CardMin "," CardMax "}"
 Constraints = "\"constraints\":[" SimpleConstraint+ "]"
 
+// Contains the owner instances and all topic types that are defined
+// es exclusives for the owner type
+ExclusiveInstances = "\"exclusiveInstances\":{\"owner\":" List
+                     ",\"exclisives\":" (DblList | Null) "}"
 
+// Contains a list of constraints that offer information about
+// the regular expressions and cardinalities for subjectIdentifiers
+// or subjectLocators
+SubjectIdentifierConstraints = "\"subjectIdentifierConstraints\":" (Constraints | Null)
+SubjectLocatorConstraints = "\"subjectLocatorConstraints\":" (Constraints | Null)
+
+// Offers scope information. The ScopeType contains a representation of all
+// available scopes and their subtys. Further constructs describe the
+// cardinalities
 ScopeType = "\"scopeTypes\":" TrpList
 ScopeConstraint = "{" ScopeType "," CardMin "," CardMax "}"
 ScopeConstraints = "\"scopeConstraints\":" (("[" scopeConstraint "]") | Null)
 
+// Describes a name constraint for a nametype and its subtypes.
 NameTypeScope = "{\"nameType\":" List "," scopeConstraints "}"
 NameTypeScopes = "\"nametypescopes\":[" NameTypeScope+ "]"
 TopicNameConstraint = "{" NameTypeScopes "," Constraints "}"
+TopicNameConstraints "\"topicNameConstraints\":" (("[" TopicNameConstraint+ "]") | Null)
 
+// Describes an occurrence constraint for an occurencetype and its subtypes.
 UniqueConstraints = "\"uniqeConstraints\":[" SimpleConstraint+ "]"
 DatatypeConstraint = "\"datatypeConstraint\":" String
 OccurrenceTypeScope = "{\"occurrenceType\":" List "," scopeConstraints ","
                       DatatypeConstraint "}"
 OccurrenceTypeScopes = "\"occurrenceTypes\":[" OccurrenceTypeScope+ "]"
-TopicOccurrenceConstraint = "{" OccurrenceTyoeScopes "," Constraints ","
+TopicOccurrenceConstraint = "{" OccurrenceTypeScopes "," Constraints ","
                             UniqueConstraints "}"
+TopicOccurrenceConstraints = "\"topicOccurrenceConstraints\":"
+                             (("[" TopicOccurrenceConstraints+ "]") | Null)
 
+// Contains all constraints that depends on a topic
+TopicConstraint = "{" ExclusiveInstances "," SubjectIdentifierConstraints ","
+                  SubjectLocatorConstraints "," TopicNameConstraints ","
+                  TopicOccurrenceConstraints "," AbstractConstraint "}"
+
+// Describes an associationrole-constraint
+RoleType = "\"roleType\":" DblList
+ARC = "{" RoleType "," cardMin "," cardMax "}"
+ARCs = "\"AssociationRoleConstraints\":" (("[" ARC+ "]") | Null)
+
+// Describes a roleplayer-constraint and also contains all possible
+// players.
+PlayerType = "\"playerType\":" DblList
+Players = "\"players\":" DblList
+RPC = "{" playerType "," Players "," RoleType "," cardMin "," cardMax "}"
+RPCs = "\"rolePlayerConstraints\":" (("[" RPC+ "]") | Null)
+
+// Describes an otherrole-constraint and also contains all possible
+// players and otherplayers.
+OtherRoleType = "\"otherRoleType\":" DblList
+OtherPlayerType = "\"otherPlayewrType\":" DblList
+OtherPlayers = "\"otherPlayers\":" DblList
+ORC = "{" PlayerType "," Players "," RoleType "," OtherPlayerType ","
+      OtherPlayers "," OtherRoleType "," cardMin "," cardMax "}"
+ORCs "\"otehrRoleConstraints\":" (("[" ORC+ "]") | Null)
+
+// Describes all constraints of all associations depending to the topic
+AssocType = "\"associationType\":" List
+AConstraints = "{" AssocType "," ARCs "," RPCs "," ORCs "," ScopeConstraints "}"
+AssociationsConstraints "\"associationsConstraints\":" (("[" AConstraints+ "]") | Null)
+
+// Contains the entire TMCL information
+FragmentConstraint ="{" TopicConstraints "," AssociationsConstraints "}"
 //+-----------------------------------------------------------------------------
 //+ Part 5: Server-side RESTful interface
 //+-----------------------------------------------------------------------------
@@ -122,9 +180,9 @@ TopicOccurrenceConstraint = "{" OccurrenceTyoeScopes "," Constraints ","
 "/json/commit/?$" processes a Fragment as HTTP-POST or HTTP-PUT
 "/json/psis/?$" returns a PsiSummary after a HTTP-GET
 "/json/summary/?$" returns a TopicSummaries after A HTTP-GET
-"/json/tmcl/types/?$"
-"/json/tmcl/instances/?$"
-"/json/topicstubs/(.+)$"
-"/json/tmcl/type/?$"
-"/json/tmcl/instance/?$"
-"/json/tmcl/overview/?$"
+"/json/tmcl/types/?$" returns a PsiSummary after A HTTP-GET with all types
+"/json/tmcl/instances/?$" returns a PsiSummary after a HTTP-GET with all instances
+"/json/topicstubs/(.+)$" returns a topicStub after a HTTP-GET
+"/json/tmcl/type/?$" returns a FragmentConstraint after a HTTP-POST/HTTP-PUT
+"/json/tmcl/instance/?$" returns a FragmentConstraint after a HTTP-POST/HTTP-PUT
+"/json/tmcl/overview/?$" returns a TreeView after a HTTP-GET
