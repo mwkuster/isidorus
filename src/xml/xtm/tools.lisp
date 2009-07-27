@@ -9,6 +9,10 @@
 
 (defpackage :xml-tools
   (:use :cl :cxml)
+  (:import-from :constants
+		*xml-ns*
+		*xmlns-ns*
+		*rdf-ns*)
   (:export :get-attribute
            :xpath-fn-string
 	   :xpath-child-elems-by-qname
@@ -100,7 +104,7 @@
    its value as a string."
   (declare (dom:element elem))
   (let ((new-lang
-	 (get-ns-attribute elem *xml-ns* "lang")))
+	 (get-ns-attribute elem "lang" :ns-uri *xml-ns*)))
     (if (dom:has-attribute-ns elem *xml-ns* "lang")
 	new-lang
 	old-lang)))
@@ -112,10 +116,10 @@
   (declare (dom:element elem))
   (let ((new-base
 	 (let ((inner-base
-		(if (find #\# (get-ns-attribute elem *xml-ns* "base"))
+		(if (find #\# (get-ns-attribute elem "base" :ns-uri *xml-ns*))
 		    (error "From get-xml-base(): the base-uri ~a is not valid"
 			   (get-ns-attribute elem *xml-ns* "base"))
-		    (get-ns-attribute elem *xml-ns* "base"))))
+		    (get-ns-attribute elem "base" :ns-uri *xml-ns*))))
 	   (if (and (> (length inner-base) 0)
 		    (eql (elt inner-base 0) #\/))
 	       (subseq inner-base 1 (length inner-base))
@@ -300,7 +304,7 @@ returns nil"
 ;;(defvar top (elt *topic-list* 501))
 ;;(defvar scopes (xpath-select-location-path top '((*xtm-ns* "baseName") (*xtm-ns* "scope"))))
 
-(defun get-ns-attribute (elem ns-uri name)
+(defun get-ns-attribute (elem name &key (ns-uri *rdf-ns*))
   "Returns athe attributes value. If the value is
    a string of the length 0, the return value is nil"
   (declare (dom:element elem))

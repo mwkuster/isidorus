@@ -25,7 +25,8 @@
 	   :*rdfs-ns*
 	   :*xml-ns*
 	   :*xmlns-ns*
-	   :*xml-string*))
+	   :*xml-string*
+	   :*rdf2tm-ns*))
 
 (in-package :constants)
 (defparameter *xtm2.0-ns* "http://www.topicmaps.org/xtm/")
@@ -61,3 +62,5 @@
 (defparameter *xmlns-ns* "http://www.w3.org/2000/xmlns/")
 
 (defparameter *xml-string* "http://www.w3.org/2001/XMLSchema#string")
+
+(defparameter *rdf2tm-ns* "http://isidorus/rdf2tm_mapping/")

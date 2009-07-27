@@ -133,7 +133,8 @@
 					    :depends-on ("fixtures"))
 				     (:file "json_test"
 					    :depends-on ("fixtures"))
-				     (:file "threading_test"))
+				     (:file "threading_test")
+				     (:file "rdf_importer_test"))
 			:depends-on ("atom"
                                      "constants"
 				     "model"
