@@ -20,7 +20,12 @@
 	   :*subtype-psi*
 	   :*xtm2.0-ns*
 	   :*xtm1.0-ns*
-	   :*xtm1.0-xlink*))
+	   :*xtm1.0-xlink*
+	   :*rdf-ns*
+	   :*rdfs-ns*
+	   :*xml-ns*
+	   :*xmlns-ns*
+	   :*xml-string*))
 
 (in-package :constants)
 (defparameter *xtm2.0-ns* "http://www.topicmaps.org/xtm/")
@@ -46,3 +51,13 @@
 (defparameter *subtype-psi* "http://psi.topicmaps.org/iso13250/model/subtype")
 
 (defparameter *isidorus-system* (asdf:find-system "isidorus"))
+
+(defparameter *rdf-ns* "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+
+(defparameter *rdfs-ns* "http://www.w3.org/2000/01/rdf-schema#")
+
+(defparameter *xml-ns* "http://www.w3.org/XML/1998/namespace")
+
+(defparameter *xmlns-ns* "http://www.w3.org/2000/xmlns/")
+
+(defparameter *xml-string* "http://www.w3.org/2001/XMLSchema#string")

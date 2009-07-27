@@ -38,7 +38,6 @@
 	      (length (elephant:get-instances-by-class 'TopicC))
 	      (length (elephant:get-instances-by-class 'AssociationC))))))
 
-  
 (defun setup-repository (xtm-path repository-path 
                          &key
                          tm-id

@@ -54,6 +54,7 @@ src/unit_tests/multiple_tms_worms.xtm -text
 src/unit_tests/notification_merge1.xtm -text
 src/unit_tests/notification_merge2.xtm -text
 src/unit_tests/notificationbase.xtm -text
+src/unit_tests/poems.rdf -text
 src/unit_tests/poems.xtm -text
 src/unit_tests/sample_objects.xtm -text
 src/unit_tests/sample_objects_2_0.xtm -text
@@ -61,4 +62,5 @@ src/unit_tests/t100.xtm -text
 src/unit_tests/threading_test.lisp -text
 src/xml/rdf/exporter.lisp -text
 src/xml/rdf/importer.lisp -text
+src/xml/rdf/rdf_tools.lisp -text
 src/xml/xtm/core_psis.xtm -text

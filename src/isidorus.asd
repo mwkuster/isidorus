@@ -51,8 +51,11 @@
 								  :depends-on ("exporter_xtm1.0"
 									       "exporter_xtm2.0"))))
 				     (:module "rdf"
-					      :components ((:file "importer")
-							   (:file "exporter"))))
+					      :components ((:file "rdf_tools")
+							   (:file "importer"
+								  :depends-on ("rdf_tools"))
+							   (:file "exporter"))
+					      :depends-on ("xtm")))
 			:depends-on ("constants"
                                      "xml-constants"
 				     "model"
@@ -100,6 +103,8 @@
 				     (:static-file "sample_objects.xtm")             
 				     (:static-file "t100.xtm")
 				     (:static-file "atom_test.xtm")
+				     (:static-file "poems.xtm")
+				     (:static-file "poems.rdf")
 				     (:file "atom-conf")
 				     (:file "unittests-constants"
 					    :depends-on ("dangling_topicref.xtm"
