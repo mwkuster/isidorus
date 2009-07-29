@@ -33,8 +33,10 @@
 		get-xml-lang
 		get-xml-base
 		absolutize-value
+		absolutize-id
 		concatenate-uri
-		push-string)
+		push-string
+		node-to-string)
   (:import-from :xml-importer
 		get-uuid
 		get-store-spec)
@@ -44,6 +46,18 @@
 
 (in-package :rdf-importer)
 
+(defvar *rdf-types* (list "Description" "List" "Alt" "Bag" "Seq"
+			  "Statement" "Property" "XMLLiteral"))
+
+(defvar *rdf-properties* (list "type" "first" "rest" "subject" "predicate"
+			       "object"))
+
+(defvar *rdfs-types* (list "Resource" "Literal" "Class" "Datatype"
+			   "Container" "ContainerMembershipProperty"))
+
+(defvar *rdfs-properties* (list "subClassOf" "subPropertyOf" "domain"
+				"range" "range" "label" "comment"
+				"member" "seeAlso" "isDefinedBy"))
 
 (defun _n-p (node-name)
   "Returns t if the given value is of the form _[0-9]+"
@@ -62,51 +76,28 @@
 (defun parse-node-name (node)
   "Parses the given node's name to the known rdf/rdfs nodes and arcs.
    If the given name es equal to a property an error is thrown otherwise
-   there is displayed a warning."
+   there is displayed a warning when the rdf ord rdfs namespace is used."
   (declare (dom:element node))
   (let ((node-name (get-node-name node))
-	(node-ns (dom:namespace-uri node)))
+	(node-ns (dom:namespace-uri node))
+	(err-pref "From parse-node-name(): "))
     (when (string= node-ns *rdf-ns*)
-      (when (or (string= node-name "type")
-		(string= node-name "first")
-		(string= node-name "rest")
-		(string= node-name "subject")
-		(string= node-name "predicate")
-		(string= node-name "object"))
-	(error "From parse-node-name(): rdf:~a is a property and not allowed here!"
-	       node-name))
+      (when (find node-name *rdf-properties* :test #'string=)
+	(error "~ardf:~a is a property and not allowed here!"
+	       err-pref node-name))
       (when (string= node-name "RDF")
-	(error "From parse-node-name(): rdf:RDF not allowed here!"))
-      (unless (or (string= node-name "Description")
-		  (string= node-name "List")
-		  (string= node-name "Alt")
-		  (string= node-name "Bag")
-		  (string= node-name "Seq")
-		  (string= node-name "Statement")
-		  (string= node-name "Property")
-		  (string= node-name "XMLLiteral"))
-	(format t "From parse-node-name(): Warning: ~a is not a known rdf:type!~%"
-		node-name)))
+	(error "~ardf:RDF not allowed here!"
+	       err-pref))
+      (unless (find node-name *rdf-types* :test #'string=)
+	(format t "~aWarning: ~a is not a known RDF type!~%"
+		err-pref node-name)))
     (when (string= node-ns *rdfs-ns*)
-      (when (or (string= node-name "subClassOf")
-		(string= node-name "subPropertyOf")
-		(string= node-name "domain")
-		(string= node-name "range")
-		(string= node-name "label")
-		(string= node-name "comment")
-		(string= node-name "member")
-		(string= node-name "seeAlso")
-		(string= node-name "isDefinedBy"))
-	(error "From parse-node-name(): rdfs:~a is a property and not allowed here!"
-	       node-name))
-      (unless (and (string= node-name "Resource")
-		   (string= node-name "Literal")
-		   (string= node-name "Class")
-		   (string= node-name "Datatype")
-		   (string= node-name "Cotnainer")
-		   (string= node-name "ContainerMembershipProperty"))
-	(format t "From parse-node-name(): Warning: rdfs:~a is not a known rdfs:type!~%"
-		node-name))))
+      (when (find node-name *rdfs-properties* :test #'string=)
+	(error "~ardfs:~a is a property and not allowed here!"
+	       err-pref node-name))
+      (unless (find node-name *rdfs-types* :test #'string=)
+	(format t "~aWarning: rdfs:~a is not a known rdfs:type!~%"
+		err-pref node-name))))
   t)
 
 
@@ -117,7 +108,12 @@
   (let ((ID  (get-ns-attribute node "ID"))
 	(nodeID (get-ns-attribute node "nodeID"))
 	(about (get-ns-attribute node "about"))
-	(err-pref "From parse-node(): "))
+	(err-pref "From parse-node(): ")
+	(resource (get-ns-attribute node "resource"))
+	(datatype (get-ns-attribute node "datatype"))
+	(parseType (get-ns-attribute node "parseType"))
+	(class (get-ns-attribute node "Class" :ns-uri *rdfs-ns*))
+	(subClassOf (get-ns-attribute node "subClassOf" :ns-uri *rdfs-ns*)))
     (when (and about nodeID)
       (error "~ardf:about and rdf:nodeID are not allowed in parallel use: (~a) (~a)!"
 	     err-pref about nodeID))
@@ -130,43 +126,161 @@
     (handler-case (let ((content (child-nodes-or-text node :trim t)))
 		    (when (stringp content)
 		      (error "text-content not allowed here!")))
-      (condition (err) (error "~a~a" err-pref err))))
+      (condition (err) (error "~a~a" err-pref err)))
+    (when (or resource datatype parseType class subClassOf)
+      (error "~a~a is not allowed here!"
+	     err-pref (cond
+			(resource (concatenate 'string "resource("
+					       resource ")"))
+			(datatype (concatenate 'string "datatype("
+					       datatype ")"))
+			(parseType (concatenate 'string "parseType("
+						parseType ")"))
+			(class (concatenate 'string "Class(" class ")"))
+			(subClassOf (concatenate 'string "subClassOf("
+						 subClassOf ")")))))
+    (dolist (item *rdf-types*)
+      (when (get-ns-attribute node item)
+	(error "~ardf:~a is a type and not allowed here!"
+	       err-pref item)))
+    (dolist (item *rdfs-types*)
+      (when (get-ns-attribute node item :ns-uri *rdfs-ns*)
+	(error "~ardfs:~a is a type and not allowed here!"
+	       err-pref item))))
   t)
 
 
+(defun get-node-refs (nodes tm-id xml-base)
+  "Returns a list of node references that can be used as topic IDs."
+  (when (and nodes
+	     (> (length nodes) 0))
+    (loop for node across nodes
+       collect (let ((fn-xml-base (get-xml-base node :old-base xml-base)))
+		 (parse-node node)
+		 (let ((ID (when (get-ns-attribute node "ID")
+			     (absolutize-id (get-ns-attribute node "ID")
+					    fn-xml-base tm-id)))
+		       (nodeID (get-ns-attribute node "nodeID"))
+		       (about (when (get-ns-attribute node "about")
+				(absolutize-value
+				 (get-ns-attribute node "about")
+				 fn-xml-base tm-id)))
+		       (UUID (get-ns-attribute node "UUID" :ns-uri *rdf2tm-ns*)))
+		   (or ID nodeID about UUID))))))
 
-(defun get-literals-of-node (node)
-  "Returns alist of attributes that are treated as literal nodes."
-  (let ((attributes nil))
-    (dom:map-node-map
-     #'(lambda(attr)
-	 (let ((attr-ns (dom:namespace-uri attr))
-	       (attr-name (get-node-name attr)))
-	   (cond
-	     ((string= attr-ns *rdf-ns*)
-	      (unless (or (string= attr-name "ID")
-			  (string= attr-name "about")
-			  (string= attr-name "nodeID")
-			  (string= attr-name "type"))
-		(push (list :type (concatenate-uri attr-ns attr-name)
-			    :value (get-ns-attribute node attr-name))
-		      attributes)))
-	     ((or (string= attr-ns *xml-ns*)
-		  (string= attr-ns *xmlns-ns*))
-	      nil);;do nothing, all xml-attributes are no literals
-	     ((string= attr-ns *rdfs-ns*)
-	      (if (or (string= attr-name "subClassOf")
-		      (string= attr-name "Class"))
-		  (error "From get-literals-of-node(): rdfs:~a is not allowed here"
-			 attr-name)
-		  (push (list :type (concatenate-uri attr-ns attr-name)
-			      :value (get-ns-attribute node attr-name
-						       :ns-uri attr-ns))
-			attributes)))
-	     (t
-	      (push (list :type (concatenate-uri attr-ns attr-name)
-			  :value (get-ns-attribute node attr-name
-						   :ns-uri attr-ns))
-		    attributes)))))
-     (dom:attributes node))
-    attributes))
+
+(defun parse-property-name (property)
+  "Parses the given property's name to the known rdf/rdfs nodes and arcs.
+   If the given name es equal to an node an error is thrown otherwise
+   there is displayed a warning when the rdf ord rdfs namespace is used."
+  (declare (dom:element property))
+  (let ((property-name (get-node-name property))
+	(property-ns (dom:namespace-uri property))
+	(err-pref "From parse-property-name(): "))
+    (when (string= property-ns *rdf-ns*)
+      (when (find property-name *rdf-types* :test #'string=)
+	(error "~ardf:~a is a node and not allowed here!"
+	       err-pref property-name))
+      (when (string= property-name "RDF")
+	(error "~ardf:RDF not allowed here!"
+	       err-pref))
+      (unless (find property-name *rdf-properties* :test #'string=)
+	(format t "~aWarning: ~a is not a known RDF property!~%"
+		err-pref property-name)))
+    (when (string= property-ns *rdfs-ns*)
+      (when (find property-name *rdfs-types* :test #'string=)
+	(error "~ardfs:~a is a type and not allowed here!"
+	       err-pref property-name))
+      (unless (find property-name *rdfs-properties* :test #'string=)
+	(format t "~aWarning: rdfs:~a is not a known rdfs:type!~%"
+		err-pref property-name))))
+  t)
+
+
+(defun parse-property (property)
+  "Parses a property that represents a rdf-arc."
+  (declare (dom:element property))
+  (let ((err-pref "From parse-property(): ")
+	(node-name (get-node-name property))
+	(node-ns (dom:namespace-uri property))
+	(nodeID (get-ns-attribute property "nodeID"))
+	(resource (get-ns-attribute property "resource"))
+	(datatype (get-ns-attribute property "datatype"))
+	(type (get-ns-attribute property "type"))
+	(parseType (get-ns-attribute property "parseType"))
+	(about (get-ns-attribute property "about"))
+	(subClassOf (get-ns-attribute property "subClassOf" :ns-uri *rdfs-ns*))
+	(literals (get-literals-of-property property nil))
+	(content (child-nodes-or-text property :trim t)))
+    (when (and parseType
+	       (or nodeID resource datatype type literals))
+      (error "~awhen rdf:parseType is set the attributes: ~a => ~a are not allowed!"
+	     err-pref
+	     (append (list (cond (nodeID "rdf:nodeID")
+				 (resource "rdf:resource")
+				 (datatype "rdf:datatype")
+				 (type "rdf:type")))
+		     (map 'list #'(lambda(x)(getf x :type)) literals))
+	     (append (list (or nodeID resource datatype type))
+		     (map 'list #'(lambda(x)(getf x :value)) literals))))
+    (when (and parseType
+	       (not (or (string= parseType "Resource")
+			(string= parseType "Literal")
+			(string= parseType "Collection"))))
+      (error "~aunknown rdf:parseType: ~a"
+	     err-pref parseType))
+    (when (and parseType
+	       (or (string= parseType "Resource")
+		   (string= parseType "Collection")))
+      (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
+    (when (and parseType (string= parseType "Resource") (stringp content))
+      (error "~ardf:parseType is set to 'Resource' expecting xml content: ~a!"
+	     err-pref content))
+    (when (and parseType
+	       (string= parseType "Collection")
+	       (stringp content))
+      (error "~ardf:parseType is set to 'Collection' expecting resource content: ~a"
+	     err-pref content))
+    (when (and nodeID resource)
+      (error "~aondly one of rdf:nodeID and rdf:resource is allowed: (~a) (~a)!"
+	     err-pref nodeID resource))
+    (when (and (or nodeID resource type)
+	       datatype)
+      (error "~aonly one of ~a and rdf:datatype (~a) is allowed!"
+	     err-pref
+	     (cond
+	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
+	       (resource (concatenate 'string "rdf:resource (" resource ")"))
+	       (type (concatenate 'string "rdf:type (" type ")")))
+	     datatype))
+    (when (and (or type nodeID resource)
+	       (> (length content) 0))
+      (error "~awhen ~a is set no content is allowed: ~a!"
+	     err-pref
+	     (cond
+	       (type (concatenate 'string "rdf:type (" type ")"))
+	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
+	       (resource (concatenate 'string "rdf:resource (" resource ")")))
+	     content))
+    (when (and (or type
+		   (and (string= node-name "type")
+			(string= node-ns *rdf-ns*)))
+	       (not (or nodeID resource))
+	       (not content))		    
+      (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
+    (when (or about subClassOf)
+      (error "~a~a not allowed here!"
+	     err-pref
+	     (if about
+		 (concatenate 'string "rdf:about (" about ")")
+		 (concatenate 'string "rdfs:subClassOf (" subClassOf ")"))))
+    (dolist (item *rdf-types*)
+      (when (get-ns-attribute property item)
+	(error "~ardf:~a is a type and not allowed here!"
+	       err-pref item)))
+    (dolist (item *rdfs-types*)
+      (when (get-ns-attribute property item :ns-uri *rdfs-ns*)
+	(error "~ardfs:~a is a type and not allowed here!"
+	       err-pref item))))
+  t)
+

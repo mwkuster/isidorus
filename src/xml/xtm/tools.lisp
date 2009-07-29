@@ -28,7 +28,8 @@
 	   :get-xml-base
 	   :absolutize-value
 	   :concatenate-uri
-	   :push-string))
+	   :push-string
+	   :node-to-string))
 
 (in-package :xml-tools)
 
@@ -65,13 +66,24 @@
       (concatenate 'string prep-ns separator value))))
 
 
-(defun absolutize-value(value base tm-id)
-  "Returns the passed value as an absolute uri computed
+(defun absolutize-id (id xml-base tm-id)
+  "Returns the passed id as an absolute uri computed
    with the given base and tm-id."
+  (declare (string id tm-id))
+  (let ((prep-id (if (and (> (length id) 0)
+			  (eql (elt id 0) #\#))
+		     id
+		     (concatenate 'string "#" (string-left-trim "/" id)))))
+    (absolutize-value prep-id xml-base tm-id)))
+				  
+
+(defun absolutize-value(value xml-base tm-id)
+  "Returns the passed value as an absolute uri computed
+   with the given xml-base and tm-id."
   (declare (string value tm-id))
     (unless (absolute-uri-p tm-id)
       (error "From absolutize-value(): you must provide a stable identifier (PSI-style) for this TM: ~a" tm-id))
-  (when (> (count #\# value) 2)
+  (when (> (count #\# value) 1)
     (error "From absolutize-value(): value is allowed to have only one \"#\": ~a" value))
   (if (absolute-uri-p value)
       value
@@ -80,8 +92,8 @@
 		 (string-left-trim "/" value)
 		 ""))
 	    (prep-base
-	     (if (> (length base) 0)
-		 (string-right-trim "/" base)
+	     (if (> (length xml-base) 0)
+		 (string-right-trim "/" xml-base)
 		 "")))
 	(let ((fragment
 	       (if (and (> (length prep-value) 0)
@@ -324,3 +336,26 @@ returns nil"
      unless (or (dom:text-node-p child-node)
 		(dom:comment-p child-node))
        collect child-node))
+
+
+(defun node-to-string (elem)
+  "Transforms the passed node element recursively to a string."
+  (if (dom:text-node-p elem)
+      (dom:node-value elem)
+      (let ((node-name (dom:node-name elem))
+	    (attributes (dom:attributes elem))
+	    (child-nodes (dom:child-nodes elem))
+	    (elem-string ""))
+	(push-string (concatenate 'string "<" node-name) elem-string)
+	(dom:map-node-map
+	 #'(lambda(attr)
+	     (let ((attr-name (dom:node-name attr))
+		   (attr-value (dom:node-value attr)))
+	       (push-string (concatenate 'string " " attr-name "=\""
+					 attr-value "\"")
+			    elem-string)))
+	 attributes)
+	(push-string ">" elem-string)
+	(loop for child-node across child-nodes
+	   do (push-string (node-to-string child-node) elem-string))
+	(push-string (concatenate 'string "</" node-name ">") elem-string))))

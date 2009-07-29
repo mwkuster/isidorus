@@ -41,14 +41,14 @@ SubjectIdentifier = "\"subjectItentifers\":" (List | Null)
 Scope = "\"scopes\":" (DblList | Null)
 InstanceOf = "\"instanceOfs\":" (DblList | Null)
 Type = "\"type\":" List
-ID = "\id\":" string
+ID = "\id\":" String
 TopicRef = "\"topicRef\":" List
 
 Variant = "{" ItemIdentity "," Scope "," RData "}"
 Variants = "\"variants\":" (("[" Variant+ "]") | Null)
 
 Name = "{" ItemIdentity "," Type "," Scope "," Value "," Variants "}"
-Names = "\"names\":" ("[" Name+ "]") | Null
+Names = "\"names\":" (("[" Name+ "]") | Null)
 
 Occurrence = "{" ItemIdentity "," Type "," Scope "," RData "}"
 Occurrences = "\"occurrences\":" (("[" Occurrence+ "]") | Null)
@@ -60,7 +60,7 @@ Role = "{" ItemIdentity "," Type "," TopicRef "}"
 Roles = "\"roles\":" (("[" Role+ "]") | Null)
 
 Association = "{" ItemIdentity "," Type "," Scope "," Roles "}"
-Associations "\"associations\":" (("[" Association "]") | Null)
+Associations = "\"associations\":" (("[" Association "]") | Null)
 
 TopicStub = "{" ID "," ItemIdentity "," SubjectLocator "," SubjectIdentifier "}"
 TopicStubs = "\"topicStubs\":" (("[" TopicStub+ "]") | Null)
