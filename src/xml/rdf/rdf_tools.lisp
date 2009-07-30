@@ -37,6 +37,8 @@
 		concatenate-uri
 		push-string
 		node-to-string)
+  (:import-from :datamodel
+		get-revision)
   (:import-from :xml-importer
 		get-uuid
 		get-store-spec)
@@ -59,18 +61,71 @@
 				"range" "range" "label" "comment"
 				"member" "seeAlso" "isDefinedBy"))
 
-(defun _n-p (node-name)
+(defvar *_n-map* nil)
+
+
+(defun _n-p (node)
   "Returns t if the given value is of the form _[0-9]+"
-  (when (and node-name
-	     (> (length node-name) 0)
-	     (eql (elt node-name 0) #\_))
-    (let ((rest
-	   (subseq node-name 1 (length node-name))))
-      (declare (string node-name))
-      (handler-case (let ((int
-			   (parse-integer rest)))
-		      int)
-	(condition () nil)))))
+  (let ((node-name (get-node-name node)))
+    (when (and node-name
+	       (> (length node-name) 0)
+	       (eql (elt node-name 0) #\_))
+      (let ((rest
+	     (subseq node-name 1 (length node-name))))
+	(declare (string node-name))
+	(handler-case (let ((int
+			     (parse-integer rest)))
+			int)
+	  (condition () nil))))))
+
+
+(defun set-_n-name (property _n-counter)
+  "Returns a name of the form <rdf>_[1-9][0-9]* and adds a tupple
+   of the form :elem <dom-elem> :type<<rdf>_[1-9][0-9]*> to the
+   list *_n-map*.
+   If the dom-elem is already contained in the list only the
+   <rdf>_[1-9][0-9]* name is returned."
+  (let ((map-item (find-if #'(lambda(x)
+			       (eql (getf x :elem) property))
+			   *_n-map*)))
+    (if map-item
+	(getf map-item :type)
+	(let ((new-type-name
+	       (concatenate 'string *rdf-ns* "_" (write-to-string _n-counter))))
+	  (push (list :elem property
+		      :type new-type-name)
+		*_n-map*)
+	  new-type-name))))
+
+
+(defun unset-_n-name (property)
+  (setf *_n-map* (remove-if
+		  #'(lambda(x)
+		      (eql (getf x :elem) property))
+		  *_n-map*)))
+
+
+(defun remove-node-properties-from-*_n-map* (node)
+  "Removes all node's properties from the list *_n-map*."
+  (declare (dom:element node))
+  (let ((properties (child-nodes-or-text node)))
+    (when properties
+      (loop for property across properties
+	 do (unset-_n-name property)))))
+
+
+(defun get-type-of-node-name (node)
+  "Returns the type of the node name (namespace + tagname).
+   When the node is contained in *_n-map* the corresponding
+   value of this map will be returned."
+  (let ((map-item (find-if #'(lambda(x)
+			       (eql (getf x :elem) node))
+			   *_n-map*)))
+    (if map-item
+	(getf map-item :type)
+	(let ((node-name (get-node-name node))
+	      (node-ns (dom:namespace-uri node)))
+	  (concatenate-uri node-ns node-name)))))
 
 
 (defun parse-node-name (node)
@@ -169,7 +224,7 @@
 		   (or ID nodeID about UUID))))))
 
 
-(defun parse-property-name (property)
+(defun parse-property-name (property _n-counter)
   "Parses the given property's name to the known rdf/rdfs nodes and arcs.
    If the given name es equal to an node an error is thrown otherwise
    there is displayed a warning when the rdf ord rdfs namespace is used."
@@ -193,11 +248,14 @@
 	       err-pref property-name))
       (unless (find property-name *rdfs-properties* :test #'string=)
 	(format t "~aWarning: rdfs:~a is not a known rdfs:type!~%"
-		err-pref property-name))))
+		err-pref property-name)))
+    (when (and (string= property-ns *rdf-ns*)
+	       (string= property-name "li"))
+      (set-_n-name property _n-counter)))
   t)
 
 
-(defun parse-property (property)
+(defun parse-property (property _n-counter)
   "Parses a property that represents a rdf-arc."
   (declare (dom:element property))
   (let ((err-pref "From parse-property(): ")
@@ -212,7 +270,7 @@
 	(subClassOf (get-ns-attribute property "subClassOf" :ns-uri *rdfs-ns*))
 	(literals (get-literals-of-property property nil))
 	(content (child-nodes-or-text property :trim t)))
-    (parse-property-name property)
+    (parse-property-name property _n-counter)
     (when (and parseType
 	       (or nodeID resource datatype type literals))
       (error "~awhen rdf:parseType is set the attributes: ~a => ~a are not allowed!"
@@ -299,6 +357,20 @@
       (when (get-ns-attribute property item :ns-uri *rdfs-ns*)
 	(error "~ardfs:~a is a type and not allowed here!"
 	       err-pref item))))
+  t)
+
+
+(defun parse-properties-of-node (node)
+  (let ((child-nodes (child-nodes-or-text node))
+	(_n-counter 0))
+    (when child-nodes
+      (loop for property across child-nodes
+	 do (let ((prop-name (get-node-name property))
+		  (prop-ns (dom:namespace-uri node)))
+	      (when (and (string= prop-name "li")
+			 (string= prop-ns *rdf-ns*))
+		(incf _n-counter))
+	      (parse-property property _n-counter)))))
   t)
 
 

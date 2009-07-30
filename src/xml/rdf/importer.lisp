@@ -21,7 +21,8 @@
 (defun rdf-importer (rdf-xml-path repository-path 
 		     &key 
 		     (tm-id nil)
-		     (document-id (get-uuid)))
+		     (document-id (get-uuid))
+		     (revision (get-revision)))
   (setf *document-id* document-id)
   (tm-id-p tm-id "rdf-importer")
   (let ((rdf-dom
@@ -31,11 +32,11 @@
     (unless elephant:*store-controller*
       (elephant:open-store
        (get-store-spec repository-path)))
-    (import-dom rdf-dom :tm-id tm-id :document-id document-id)))
+    (import-dom rdf-dom revision :tm-id tm-id :document-id document-id))
+  (setf *_n-map* nil))
 
 
-
-(defun import-dom (rdf-dom &key (tm-id nil) (document-id *document-id*))
+(defun import-dom (rdf-dom revision &key (tm-id nil) (document-id *document-id*))
   (tm-id-p tm-id "import-dom")
   (let ((xml-base (get-xml-base rdf-dom))
 	(xml-lang (get-xml-lang rdf-dom))
@@ -47,21 +48,18 @@
 	(let ((children (child-nodes-or-text rdf-dom)))
 	  (when children
 	    (loop for child across children
-	       do (import-node child tm-id :document-id document-id
+	       do (import-node child tm-id revision :document-id document-id
 			       :xml-base xml-base :xml-lang xml-lang))))
-	  (import-node rdf-dom tm-id :document-id document-id
+	  (import-node rdf-dom tm-id revision :document-id document-id
 		       :xml-base xml-base :xml-lang xml-lang))))
 
 
-(defun import-node (elem tm-id &key (document-id *document-id*)
+(defun import-node (elem tm-id revision &key (document-id *document-id*)
 		    (xml-base nil) (xml-lang nil))
-  (declare (ignorable document-id)) ;TODO: remove
   (tm-id-p tm-id "import-node")
   (parse-node elem)
   (let ((fn-xml-base (get-xml-base elem :old-base xml-base)))
-    (when (child-nodes-or-text elem)
-      (loop for property across (child-nodes-or-text elem)
-	 do (parse-property property)))
+    (parse-properties-of-node elem)
     (let ((about (get-absolute-attribute elem tm-id xml-base "about"))	   
 	  (nodeID (get-ns-attribute elem "nodeID"))
 	  (ID (get-absolute-attribute elem tm-id xml-base "ID"))
@@ -74,10 +72,27 @@
 			  (list :value (get-type-of-node-name elem) :ID nil))
 			 (get-types-of-node-content elem tm-id fn-xml-base)))
 	  (super-classes (get-super-classes-of-node-content elem tm-id xml-base)))
-      ;TODO: create elephant-objects
-      ;TODO: recursion on all nodes/arcs
-    (declare (ignorable about nodeID ID UUID literals associations ;TODO: remove
-			types super-classes)))))
+
+      ;TODO:
+      ;get-topic by topic id
+      ;make psis
+      ;if no ones exist create one with topic id
+      ;add psis
+      ;make nametype topic with topic id
+      ;make instance-of associations
+      ;make topictype topics with topic id
+      ;make super-sub-class assoications
+      ;make and add names
+      ;make occurrencetype topics with topic id
+      ;make and add occurrences
+      ;make referenced topic with topic id
+      ;make and add associations
+
+
+      ;TODO: start recursion ...
+      (remove-node-properties-from-*_n-map* elem)
+      (or tm-id document-id revision about nodeID ID UUID literals ;TODO: remove
+	  associations types super-classes))))
 
 
 (defun get-literals-of-node-content (node tm-id xml-base xml-lang)
@@ -126,13 +141,6 @@
 				  :lang child-xml-lang
 				  :datatype datatype)))))))
       literals)))
-
-
-(defun get-type-of-node-name (node)
-  "Returns the type of the node name (namespace + tagname)."
-  (let ((node-name (get-node-name node))
-	(node-ns (dom:namespace-uri node)))
-    (concatenate-uri node-ns node-name)))
 
 
 (defun get-types-of-node-content (node tm-id xml-base)

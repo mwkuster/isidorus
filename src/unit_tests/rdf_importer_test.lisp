@@ -35,7 +35,8 @@
 	   :test-get-types
 	   :test-get-literals-of-content
 	   :test-get-super-classes-of-node-content
-	   :test-get-associations-of-node-content))
+	   :test-get-associations-of-node-content
+	   :test-parse-properties-of-node))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -258,7 +259,7 @@
 	      (text-node (dom:create-text-node dom-1 "new text node")))
 	(is (= (length children) 19))
 	(loop for property across children
-	   do (is-true (rdf-importer::parse-property property)))
+	   do (is-true (rdf-importer::parse-property property 0)))
 	(dotimes (i (length children))
 	  (if (or (= i 0) (= i 1) (= i 3) (= i 4) (= i 9) (= i 17))
 	      (is-true (get-ns-attribute (elt children i) "UUID"
@@ -267,70 +268,70 @@
 					 :ns-uri *rdf2tm-ns*))))
 	(let ((prop (elt children 0)))
 	  (dom:set-attribute-ns prop *rdf-ns* "parseType" "Unknown")
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "parseType" "Resource")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "ID" "newID")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "bad" "bad")
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "bad")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
-	  (is-true (rdf-importer::parse-property prop)))
+	  (is-true (rdf-importer::parse-property prop 0)))
 	(let ((prop (elt children 1)))
 	  (dom:set-attribute-ns prop *rdf-ns* "nodeID" "bad")
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "nodeID")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "ID" "newID")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
-	  (is-true (rdf-importer::parse-property prop)))
+	  (is-true (rdf-importer::parse-property prop 0)))
 	(let ((prop (elt children 3)))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
-	  (is-true (rdf-importer::parse-property prop)))
+	  (is-true (rdf-importer::parse-property prop 0)))
 	(let ((prop (elt children 4)))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
-	  (is-true (rdf-importer::parse-property prop)))
+	  (is-true (rdf-importer::parse-property prop 0)))
 	(let ((prop (elt children 5)))
 	  (dom:set-attribute-ns prop *rdf-ns* "type" "newType")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "unknown" "unknown")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "unknown")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
-	  (is-true (rdf-importer::parse-property prop)))
+	  (is-true (rdf-importer::parse-property prop 0)))
 	(let ((prop (elt children 10)))
 	  (dom:set-attribute-ns prop *rdf-ns* "type" "newType")
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "type")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "nodeID" "newNodeID")
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "nodeID")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "resource" "newResource")
-	  (signals error (rdf-importer::parse-property prop))
+	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "resource")
-	  (is-true (rdf-importer::parse-property prop))
+	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:set-attribute-ns prop *rdf-ns* "ID" "newID")
-	  (is-true (rdf-importer::parse-property prop))))))))
+	  (is-true (rdf-importer::parse-property prop 0))))))))
 
 
 (test test-get-types
@@ -382,7 +383,7 @@
       (is-false (absolute-uri-p nil))
       (let ((node (elt (dom:child-nodes dom-1) 0)))
 	(loop for property across (rdf-importer::child-nodes-or-text node)
-	   do (rdf-importer::parse-property property))
+	   do (rdf-importer::parse-property property 0))
 	(let ((types
 	       (append
 		(list (list
@@ -477,7 +478,7 @@
       (let ((node (elt (dom:child-nodes dom-1) 0)))
 	(dotimes (iter (length (dom:child-nodes node)))
 	  (is-true (rdf-importer::parse-property
-		    (elt (dom:child-nodes node) iter))))
+		    (elt (dom:child-nodes node) iter) 0)))
 	(let ((literals (rdf-importer::get-literals-of-node-content
 			 node tm-id nil nil)))
 	  (is (= (length literals) 7))
@@ -598,7 +599,7 @@
 	(is-true node)
 	(is-true (rdf-importer::parse-node node))
 	(loop for property across (rdf-importer::child-nodes-or-text node)
-	   do (is-true (rdf-importer::parse-property property)))
+	   do (is-true (rdf-importer::parse-property property 0)))
 	(let ((super-classes (rdf-importer::get-super-classes-of-node-content
 			      node tm-id xml-base)))
 	  (is (= (length super-classes) 8))
@@ -637,7 +638,7 @@
 	  (dom:append-child (elt (rdf-importer::child-nodes-or-text node) 1)
 			    (dom:create-text-node dom-1 "new text"))
 	  (signals error (rdf-importer::parse-property
-			  (elt (rdf-importer::child-nodes-or-text node) 1))))))))
+			  (elt (rdf-importer::child-nodes-or-text node) 1) 0)))))))
 
 
 (test test-get-associations-of-node-content
@@ -685,7 +686,7 @@
       (is (= (length (dom:child-nodes dom-1)) 1))
       (let ((node (elt (dom:child-nodes dom-1) 0)))
 	(loop for property across (rdf-importer::child-nodes-or-text node)
-	   do (is-true (rdf-importer::parse-property property)))
+	   do (is-true (rdf-importer::parse-property property 0)))
 	(let ((associations
 	       (rdf-importer::get-associations-of-node-content node tm-id nil)))
 	  (is (= (length associations) 12))
@@ -774,6 +775,44 @@
 		    associations)))))))
 
 
+(test test-parse-properties-of-node
+  (let ((doc-1
+	 (concatenate 'string "<rdf:Description xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+                      "xml:base=\"http://xml-base/first\" "
+		      "rdf:about=\"resource\" rdf:type=\"attr-type\">"
+		      "<rdf:li rdf:resource=\"anyType\" />"
+		      "<rdf:li>   </rdf:li>"
+		      "<rdf:li rdf:nodeID=\"anyClass\" />"
+		      "<rdf:li>   </rdf:li>"
+		      "<rdf:li rdf:resource=\"assoc-1\"/>"
+		      "<rdf:li rdf:type=\"assoc-2-type\">"
+		      "   </rdf:li>"
+		      "<rdf:li rdf:parseType=\"Literal\" />"
+		      "<rdf:_123 arcs:arc5=\"text-arc5\" />"
+		      "<rdf:arc6 rdf:ID=\"rdfID-3\"/>"
+		      "<rdf:arcs rdf:ID=\"rdfID-4\"/>"
+		      "</rdf:Description>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (is-true dom-1)
+      (is (= (length (dom:child-nodes dom-1))))
+      (let ((node (elt (dom:child-nodes dom-1) 0)))
+	(is-true (rdf-importer::parse-properties-of-node node))
+	(is (= (length rdf-importer::*_n-map*) 7))
+	(format t "~a~%" rdf-importer::*_n-map*)
+	(dotimes (iter (length rdf-importer::*_n-map*))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(string= (getf x :type)
+				 (concatenate
+				  'string *rdf-ns* "_"
+				  (write-to-string (+ 1 iter)))))
+		    rdf-importer::*_n-map*)))
+	(rdf-importer::remove-node-properties-from-*_n-map* node)
+	(is (= (length rdf-importer::*_n-map*) 0))))))
+  
+
+
 (defun run-rdf-importer-tests()
   (it.bese.fiveam:run! 'test-get-literals-of-node)
   (it.bese.fiveam:run! 'test-parse-node)
@@ -782,4 +821,5 @@
   (it.bese.fiveam:run! 'test-get-types)
   (it.bese.fiveam:run! 'test-get-literals-of-content)
   (it.bese.fiveam:run! 'test-get-super-classes-of-node-content)
-  (it.bese.fiveam:run! 'test-get-associations-of-node-content))
+  (it.bese.fiveam:run! 'test-get-associations-of-node-content)
+  (it.bese.fiveam:run! 'test-parse-properties-of-node))
