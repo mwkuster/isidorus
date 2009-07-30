@@ -27,6 +27,7 @@
 	   :get-xml-lang
 	   :get-xml-base
 	   :absolutize-value
+	   :absolutize-id
 	   :concatenate-uri
 	   :push-string
 	   :node-to-string))

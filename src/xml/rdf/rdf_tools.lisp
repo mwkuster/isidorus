@@ -185,7 +185,7 @@
 	(error "~ardf:RDF not allowed here!"
 	       err-pref))
       (unless (find property-name *rdf-properties* :test #'string=)
-	(format t "~aWarning: ~a is not a known RDF property!~%"
+	(format t "~aWarning: rdf:~a is not a known RDF property!~%"
 		err-pref property-name)))
     (when (string= property-ns *rdfs-ns*)
       (when (find property-name *rdfs-types* :test #'string=)
@@ -212,6 +212,7 @@
 	(subClassOf (get-ns-attribute property "subClassOf" :ns-uri *rdfs-ns*))
 	(literals (get-literals-of-property property nil))
 	(content (child-nodes-or-text property :trim t)))
+    (parse-property-name property)
     (when (and parseType
 	       (or nodeID resource datatype type literals))
       (error "~awhen rdf:parseType is set the attributes: ~a => ~a are not allowed!"
@@ -264,7 +265,8 @@
 	     content))
     (when (and (or type
 		   (and (string= node-name "type")
-			(string= node-ns *rdf-ns*)))
+			(string= node-ns *rdf-ns*))
+		   (> (length literals) 0))
 	       (not (or nodeID resource))
 	       (not content))		    
       (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
@@ -274,6 +276,21 @@
 	     (if about
 		 (concatenate 'string "rdf:about (" about ")")
 		 (concatenate 'string "rdfs:subClassOf (" subClassOf ")"))))
+    (when (and (string= node-name "subClassOf")
+	       (string= node-ns *rdfs-ns*)
+	       (not (or nodeID resource content)))
+      (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
+    (when (and (or (and (string= node-name "type")
+			(string= node-ns *rdf-ns*))
+		   (and (string= node-name "subClassOf")
+			(string= node-ns *rdfs-ns*)))
+	       (and (> (length content) 0)
+		    (stringp content)))
+      (error "~awhen ~a not allowed to own literal content: ~a!"
+	     err-pref (if (string= node-name "type")
+			  "rdf:type"
+			  "rdfs:subClassOf")
+	     content))
     (dolist (item *rdf-types*)
       (when (get-ns-attribute property item)
 	(error "~ardf:~a is a type and not allowed here!"
@@ -284,3 +301,28 @@
 	       err-pref item))))
   t)
 
+
+(defun get-absolute-attribute (elem tm-id xml-base attr-name
+			       &key (ns-uri *rdf-ns*))
+  "Returns an absolute 'attribute' or nil."
+  (declare (dom:element elem))
+  (declare (string attr-name))
+  (tm-id-p tm-id "get-ID")
+  (let ((attr (get-ns-attribute elem attr-name :ns-uri ns-uri))
+	(fn-xml-base (get-xml-base elem :old-base xml-base)))
+    (when attr
+      (if (and (string= ns-uri *rdf-ns*)
+	       (string= attr-name "ID"))
+	  (absolutize-id attr fn-xml-base tm-id)
+	  (absolutize-value attr fn-xml-base tm-id)))))
+
+
+(defun get-datatype (elem tm-id xml-base)
+  "Returns a datatype value. The default is xml:string."
+  (let ((fn-xml-base (get-xml-base elem :old-base xml-base)))
+    (let ((datatype
+	   (get-absolute-attribute elem tm-id fn-xml-base "datatype")))
+      (if datatype
+	  datatype
+	  *xml-string*))))
+				 

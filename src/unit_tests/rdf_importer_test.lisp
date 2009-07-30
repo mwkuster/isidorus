@@ -26,19 +26,26 @@
                 xpath-select-location-path
 		get-ns-attribute
 		absolute-uri-p)
-  (:export :test-get-literals-of-node
+  (:export :rdf-importer-test
+	   :test-get-literals-of-node
 	   :test-parse-node
-	   :run-rdf-importer-tests))
+	   :run-rdf-importer-tests
+	   :test-get-literals-of-property
+	   :test-parse-property
+	   :test-get-types
+	   :test-get-literals-of-content
+	   :test-get-super-classes-of-node-content
+	   :test-get-associations-of-node-content))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
 (in-package :rdf-importer-test)
 
 
-(def-suite importer-test
+(def-suite rdf-importer-test
      :description "tests  various key functions of the importer")
 
-(in-suite importer-test)
+(in-suite rdf-importer-test)
 
 
 (test test-get-literals-of-node
@@ -351,7 +358,6 @@
 		      "<rdf:type rdf:ID=\"rdfID2\">"
 		      "<rdf:Description rdf:about=\"c-about-type-2\"/>"
 		      "</rdf:type>"
-
 		      "<rdf:type>"
 		      "<rdf:Description rdf:nodeID=\"c-nodeID-type-2\"/>"
 		      "</rdf:type>"
@@ -361,7 +367,6 @@
 		      "<rdf:type rdf:ID=\"rdfID3\">"
 		      "<rdf:Description/>"
 		      "</rdf:type>"
-
 		      "<arcs:arc rdf:resource=\"anyArc\"/>"
 		      "<rdf:arc>"
 		      "<rdf:Description rdf:about=\"anyResource\"/>"
@@ -390,57 +395,54 @@
 			       0)
 			  "UUID" :ns-uri *rdf2tm-ns*)))
 	  (is (= (length types) 10))
-	  (is-true (find-if #'(lambda(x)
-				(and
-				 (string= (getf x :value) 
-					  (concatenate
-					   'string *rdf-ns* "anyType"))
-				 (not (getf x :ID))))
-			    types))
-	  (is-true (find-if #'(lambda(x)
-				(and
-				 (string= (getf x :value) 
-					  (concatenate
-					   'string tm-id
-					   "/xml-base/first/attr-type"))
-				 (not (getf x :ID))))
-			    types))
-	  (is-true (find-if #'(lambda(x)
-				(and (string=
-				      (getf x :value) 
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :value) 
+				      (concatenate
+				       'string *rdf-ns* "anyType"))
+			     (not (getf x :ID))))
+		    types))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :value) 
 				      (concatenate
 				       'string tm-id
-				       "/xml-base/first/content-type-1"))
-				     (string= (getf x :ID)
-					      "rdfID")))
-			    types))
-	  (is-true (find-if #'(lambda(x)
-				(and (string=
-				      (getf x :value) 
+				       "/xml-base/first/attr-type"))
+			     (not (getf x :ID))))
+		    types))
+	  (is-true (find-if 
+		    #'(lambda(x)
+			(and (string= (getf x :value) 
+				      "http://test-tm/xml-base/first/content-type-1")
+			     (string= (getf x :ID)
+				      "http://test-tm/xml-base/first#rdfID")))
+		    types))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :value) 
 				      (concatenate
 				       'string tm-id
 				       "/xml-base/first/c-about-type-2"))
-				     (string= (getf x :ID)
-					      "rdfID2")))
-			    types))
-	  (is-true (find-if #'(lambda(x)
-				(and
-				 (string= (getf x :value) 
-					  "c-nodeID-type-2")
-				 (not (getf x :ID))))
-			    types))
-	  (is-true (find-if #'(lambda(x)
-				(and
-				 (string= (getf x :value) 
-					  "http://new-base#c-ID-type-2")
-				 (not (getf x :ID))))
-			    types))
-	  (is-true (find-if #'(lambda(x)
-				(and
-				 (string= (getf x :value) node-uuid)
-				 (string= (getf x :ID)
-					  "rdfID3")))
-			    types))
+			     (string= (getf x :ID)
+				      "http://test-tm/xml-base/first#rdfID2")))
+		    types))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :value) "c-nodeID-type-2")
+			     (not (getf x :ID))))
+		    types))
+	  (is-true (find-if 
+		    #'(lambda(x)
+			(and (string= (getf x :value) 
+				      "http://new-base#c-ID-type-2")
+			     (not (getf x :ID))))
+		    types))
+	  (is-true (find-if 
+		    #'(lambda(x)
+			(and (string= (getf x :value) node-uuid)
+			     (string= (getf x :ID)
+				      "http://test-tm/xml-base/first#rdfID3")))
+		    types))
 	  (is-true (= 10 (count-if #'(lambda(x)
 				      (> (length (getf x :value)) 0))
 				  types))))))))
@@ -534,7 +536,8 @@
 				      "<root><child>childText5</child>   </root>")
 			     (string= (getf x :type)
 				      "http://isidorus/props/lit5")
-			     (string= (getf x :ID) "rdfID")
+			     (string= (getf x :ID)
+				      "http://test-tm/base/first#rdfID")
 			     (string= (getf x :lang) "de")
 			     (string= (getf x :datatype) *xml-string*)))
 		    literals))
@@ -549,10 +552,234 @@
 		    literals)))))))
 
 
+(test test-get-super-classes-of-node-content
+  (let ((doc-1
+	 (concatenate 'string "<rdf:Description xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:isi=\"" *rdf2tm-ns* "\" "
+		      "xmlns:rdfs=\"" *rdfs-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+                      "xml:base=\"xml-base/first\" "
+		      "rdf:about=\"resource\" rdf:type=\"attr-type\">"
+		      "<rdfs:subClassOf rdf:ID=\"rdfID\" "
+		      "rdf:resource=\"content-type-1\"/>"
+		      "<rdfs:subClassOf /><!-- blank_node -->"
+		      "<rdfs:subClassOf arcs:arc=\"literalArc\"/>"
+		      "<rdfs:subClassOf rdf:parseType=\"Collection\" "
+		      "          xml:base=\"http://xml-base/absolute/\">"
+		      "<!-- blank_node that is a list -->"
+		      "<rdf:Description rdf:about=\"c-about-type\"/>"
+		      "<rdf:Description rdf:ID=\"c-id-type\"/>"
+		      "<rdf:Description rdf:nodeID=\"c-nodeID-type\"/>"
+		      "<rdf:Description/><!-- blank_node -->"
+		      "</rdfs:subClassOf>"
+		      "<rdfs:subClassOf rdf:ID=\"rdfID2\">"
+		      "<rdf:Description rdf:about=\"c-about-type-2\"/>"
+		      "</rdfs:subClassOf>"
+		      "<rdfs:subClassOf>"
+		      "<rdf:Description rdf:nodeID=\"c-nodeID-type-2\"/>"
+		      "</rdfs:subClassOf>"
+		      "<rdfs:subClassOf xml:base=\"http://new-base/\">"
+		      "<rdf:Description rdf:ID=\"c-ID-type-2\"/>"
+		      "</rdfs:subClassOf>"
+		      "<rdfs:subClassOf rdf:ID=\"rdfID3\">"
+		      "<rdf:Description/>"
+		      "</rdfs:subClassOf>"
+		      "<arcs:arc rdf:resource=\"anyArc\"/>"
+		      "<rdfs:arc>"
+		      "<rdf:Description rdf:about=\"anyResource\"/>"
+		      "</rdfs:arc>"
+		      "</rdf:Description>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (is-true dom-1)
+      (is (= (length (dom:child-nodes dom-1))))
+      (let ((node (elt (dom:child-nodes dom-1) 0))
+	    (tm-id "http://test-tm")
+	    (xml-base "/base/initial"))
+	(is-true node)
+	(is-true (rdf-importer::parse-node node))
+	(loop for property across (rdf-importer::child-nodes-or-text node)
+	   do (is-true (rdf-importer::parse-property property)))
+	(let ((super-classes (rdf-importer::get-super-classes-of-node-content
+			      node tm-id xml-base)))
+	  (is (= (length super-classes) 8))
+	  (is-true (find-if 
+		    #'(lambda(x)
+			(string= (getf x :ID)
+				 "http://test-tm/base/initial/xml-base/first#rdfID"))
+		    super-classes))
+	  (is-true (map 'list
+			#'(lambda(x)
+			    (and
+			     (> (length (getf x :value)) 0)
+			     (string=
+			      (getf x :ID)
+			      (concatenate 'string tm-id xml-base 
+					   "/xml-base/first/c-about-type-2"))))
+			super-classes))
+	  (is-true (map 'list
+			#'(lambda(x)
+			    (and (string= (getf x :value) "c-nodeID-type-2")
+				 (not (getf x :ID))))
+			super-classes))
+	  (is-true (map 'list
+			#'(lambda(x)
+			    (and (string= (getf x :value)
+					  "http://new/base#c-ID-type-2")
+				 (not (getf x :ID))))
+			super-classes))
+	  (is (= (count-if  #'(lambda(x) (> (length (getf x :value)) 0))
+			    super-classes)
+		 8))
+	  (is-true (find-if #'(lambda(x)
+				(string= (getf x :ID)
+					 "http://test-tm/base/initial/xml-base/first#rdfID3"))
+			    super-classes))
+	  (dom:append-child (elt (rdf-importer::child-nodes-or-text node) 1)
+			    (dom:create-text-node dom-1 "new text"))
+	  (signals error (rdf-importer::parse-property
+			  (elt (rdf-importer::child-nodes-or-text node) 1))))))))
+
+
+(test test-get-associations-of-node-content
+  (let ((doc-1
+	 (concatenate 'string "<rdf:Description xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:isi=\"" *rdf2tm-ns* "\" "
+		      "xmlns:rdfs=\"" *rdfs-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+                      "xml:base=\"http://xml-base/first\" "
+		      "rdf:about=\"resource\" rdf:type=\"attr-type\">"
+		      "<rdf:type rdf:resource=\"anyType\" />"
+		      "<rdf:type>   </rdf:type>"
+		      "<rdfs:subClassOf rdf:nodeID=\"anyClass\" />"
+		      "<rdfs:subClassOf>   </rdfs:subClassOf>"
+		      "<rdf:unknown rdf:resource=\"assoc-1\"/>"
+		      "<rdfs:unknown rdf:type=\"assoc-2-type\">"
+		      "   </rdfs:unknown>"
+		      "<arcs:arc1 rdf:ID=\"rdfID-1\" "
+		      "rdf:nodeID=\"arc1-nodeID\"/>"
+		      "<arcs:arc2 rdf:parseType=\"Collection\">"
+		      "<rdf:Description rdf:about=\"col\" />"
+		      "</arcs:arc2>"
+		      "<arcs:arc3 rdf:parseType=\"Resource\" "
+		      "rdf:ID=\"rdfID-2\" />"
+		      "<arcs:lit rdf:parseType=\"Literal\" />"
+		      "<arcs:arc4 arcs:arc5=\"text-arc5\" />"
+		      "<arcs:arc6 rdf:ID=\"rdfID-3\">"
+		      "<rdf:Description rdf:about=\"con-1\" />"
+		      "</arcs:arc6>"
+		      "<arcs:arc7>"
+		      "<rdf:Description rdf:nodeID=\"con-2\" />"
+		      "</arcs:arc7>"
+		      "<arcs:arc8>"
+		      "<rdf:Description rdf:ID=\"rdfID-4\" />"
+		      "</arcs:arc8>"
+		      "<arcs:arc9 rdf:ID=\"rdfID-5\" xml:base=\"add\">"
+		      "<rdf:Description />"
+		      "</arcs:arc9>"
+		      "<rdfs:type rdf:resource=\"assoc-11\">   </rdfs:type>"
+		      "<rdf:subClassOf rdf:nodeID=\"assoc-12\" />"
+		      "</rdf:Description>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder)))
+	  (tm-id "http://test-tm"))
+      (is-true dom-1)
+      (is (= (length (dom:child-nodes dom-1)) 1))
+      (let ((node (elt (dom:child-nodes dom-1) 0)))
+	(loop for property across (rdf-importer::child-nodes-or-text node)
+	   do (is-true (rdf-importer::parse-property property)))
+	(let ((associations
+	       (rdf-importer::get-associations-of-node-content node tm-id nil)))
+	  (is (= (length associations) 12))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type)
+				      (concatenate 'string *rdf-ns* "unknown"))
+			     (string= (getf x :value)
+				      "http://xml-base/first/assoc-1")
+			     (not (getf x :ID))))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc1")
+			     (string= (getf x :ID) "http://xml-base/first#rdfID-1")
+			     (string= (getf x :value) "arc1-nodeID")))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc2")
+			     (> (length (getf x :value)) 0)
+			     (not (getf x :ID))))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc3")
+			     (string= (getf x :ID)
+				      "http://xml-base/first#rdfID-2")
+			     (> (length (getf x :value)) 0)))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc4")
+			     (not (getf x :ID))
+			     (> (length (getf x :value)) 0)))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc4")
+			     (not (getf x :ID))
+			     (> (length (getf x :value)) 0)))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc6")
+			     (string= (getf x :ID)
+				      "http://xml-base/first#rdfID-3")
+			     (string= (getf x :value)
+				      "http://xml-base/first/con-1")))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc7")
+			     (not (getf x :ID))
+			     (string= (getf x :value) "con-2")))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc8")
+			     (not (getf x :ID))
+			     (string= (getf x :value)
+				      "http://xml-base/first#rdfID-4")))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type) "http://test/arcs/arc9")
+			     (string= (getf x :ID)
+				      "http://xml-base/first/add#rdfID-5")
+			     (> (length (getf x :value)))))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type)
+				      (concatenate 'string *rdfs-ns* "type"))
+			     (not (getf x :ID))
+			     (string= (getf x :value)
+				      "http://xml-base/first/assoc-11")))
+		    associations))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (string= (getf x :type)
+				      (concatenate 'string *rdf-ns*
+						   "subClassOf"))
+			     (not (getf x :ID))
+			     (string= (getf x :value) "assoc-12")))
+		    associations)))))))
+
+
 (defun run-rdf-importer-tests()
   (it.bese.fiveam:run! 'test-get-literals-of-node)
   (it.bese.fiveam:run! 'test-parse-node)
   (it.bese.fiveam:run! 'test-get-literals-of-property)
   (it.bese.fiveam:run! 'test-parse-property)
   (it.bese.fiveam:run! 'test-get-types)
-  (it.bese.fiveam:run! 'test-get-literals-of-content))
+  (it.bese.fiveam:run! 'test-get-literals-of-content)
+  (it.bese.fiveam:run! 'test-get-super-classes-of-node-content)
+  (it.bese.fiveam:run! 'test-get-associations-of-node-content))
