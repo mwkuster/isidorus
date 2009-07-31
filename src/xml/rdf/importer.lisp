@@ -124,7 +124,6 @@
 			 (make-occurrence topic-stub literal start-revision
 					  tm-id :document-id document-id))
 	       literals)
-	  (format t "~a~%" literals)
 	  (map 'list #'(lambda(assoc)
 			 (make-association topic-stub assoc xml-importer::tm
 					   start-revision
@@ -367,11 +366,18 @@
 						   :ns-uri *rdf2tm-ns*))
 			   (type (get-ns-attribute property "type"))
 			   (prop-literals (get-literals-of-property
-					   property nil)))
-		       (and (or (or datatype
-				    (string= parseType "Literal"))
-				(not (or nodeID resource UUID parseType)))
-			    (not (or type prop-literals))))
+					   property nil))
+			   (prop-content (child-nodes-or-text property)))
+		       (and (or datatype
+				(string= parseType "Literal")
+				(and (not (or nodeID resource UUID parseType))
+				     (or (not prop-content)
+					 (stringp prop-content))))
+			    (not (or prop-literals type))
+			    (string/= parseType "Collection")
+			    (string/= parseType "Resource")))
+
+
 		collect (let ((content (child-nodes-or-text property))
 			      (ID (get-absolute-attribute property tm-id
 							  fn-xml-base "ID"))
