@@ -14,7 +14,19 @@
 		*xml-ns*
 		*xmlns-ns*
 		*xml-string*
-		*rdf2tm-ns*)
+		*rdf2tm-ns*
+		*xtm2.0-ns*
+		*type-instance-psi*
+		*type-psi*
+		*instance-psi*
+		*rdf-statement*
+		*rdf-object*
+		*rdf-subject*
+		*rdf-predicate*
+		*rdf2tm-object*
+		*rdf2tm-subject*)
+  (:import-from :xml-constants
+		*rdf_core_psis.xtm*)
   (:import-from :xml-constants
 		*core_psis.xtm*)
   (:import-from :xml-tools
@@ -39,7 +51,12 @@
 		node-to-string)
   (:import-from :xml-importer
 		get-uuid
-		get-store-spec)
+		get-store-spec
+		with-tm
+		from-topic-elem-to-stub)
+  (:import-from :isidorus-threading
+		with-reader-lock
+		with-writer-lock)
   (:import-from :exceptions
                 missing-reference-error
                 duplicate-identifier-error))
@@ -58,6 +75,8 @@
 (defvar *rdfs-properties* (list "subClassOf" "subPropertyOf" "domain"
 				"range" "range" "label" "comment"
 				"member" "seeAlso" "isDefinedBy"))
+
+(defvar *rdf-core-xtm* "rdf_core.xtm")
 
 (defvar *_n-map* nil)
 

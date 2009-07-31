@@ -13,7 +13,8 @@
   (:import-from :constants
 		*isidorus-system*)
   (:export :*xml-component*
-	   :*core_psis.xtm*))
+	   :*core_psis.xtm*
+	   :*rdf_core_psis.xtm*))
 
 (in-package :xml-constants)
 
@@ -24,3 +25,6 @@
   (asdf:component-pathname
    (asdf:find-component *isidorus-system* "xml/xtm/core_psis.xtm")))
 
+(defparameter *rdf_core_psis.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *isidorus-system* "xml/rdf/rdf_core_psis.xtm")))

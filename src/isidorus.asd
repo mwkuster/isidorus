@@ -20,6 +20,7 @@
   :components (
 	       (:file "constants")
                (:static-file "xml/xtm/core_psis.xtm")
+	       (:static-file "xml/rdf/rdf_core_psis.xtm")
 	       (:file "xml-constants" 
                       :depends-on ("xml/xtm/core_psis.xtm"
                                    "constants"))

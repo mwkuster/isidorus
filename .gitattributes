@@ -63,5 +63,6 @@ src/unit_tests/t100.xtm -text
 src/unit_tests/threading_test.lisp -text
 src/xml/rdf/exporter.lisp -text
 src/xml/rdf/importer.lisp -text
+src/xml/rdf/rdf_core_psis.xtm -text
 src/xml/rdf/rdf_tools.lisp -text
 src/xml/xtm/core_psis.xtm -text
