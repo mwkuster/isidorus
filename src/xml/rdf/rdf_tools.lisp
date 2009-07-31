@@ -7,7 +7,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :rdf-importer
-  (:use :cl :cxml :elephant :datamodel :isidorus-threading)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading :datamodel)
   (:import-from :constants
 		*rdf-ns*
 		*rdfs-ns*
@@ -37,8 +37,6 @@
 		concatenate-uri
 		push-string
 		node-to-string)
-  (:import-from :datamodel
-		get-revision)
   (:import-from :xml-importer
 		get-uuid
 		get-store-spec)
@@ -52,7 +50,7 @@
 			  "Statement" "Property" "XMLLiteral"))
 
 (defvar *rdf-properties* (list "type" "first" "rest" "subject" "predicate"
-			       "object"))
+			       "object" "li"))
 
 (defvar *rdfs-types* (list "Resource" "Literal" "Class" "Datatype"
 			   "Container" "ContainerMembershipProperty"))
@@ -99,10 +97,10 @@
 
 
 (defun unset-_n-name (property)
-  (setf *_n-map* (remove-if
-		  #'(lambda(x)
-		      (eql (getf x :elem) property))
-		  *_n-map*)))
+  "Deletes the passed property tupple of the *_n-map* list."
+  (setf *_n-map* (remove-if #'(lambda(x)
+				(eql (getf x :elem) property))
+			    *_n-map*)))
 
 
 (defun remove-node-properties-from-*_n-map* (node)
@@ -111,7 +109,10 @@
   (let ((properties (child-nodes-or-text node)))
     (when properties
       (loop for property across properties
-	 do (unset-_n-name property)))))
+	 do (unset-_n-name property))))
+  (dom:map-node-map
+   #'(lambda(attr) (unset-_n-name attr))
+   (dom:attributes node)))
 
 
 (defun get-type-of-node-name (node)
@@ -221,7 +222,8 @@
 				 (get-ns-attribute node "about")
 				 fn-xml-base tm-id)))
 		       (UUID (get-ns-attribute node "UUID" :ns-uri *rdf2tm-ns*)))
-		   (or ID nodeID about UUID))))))
+		   (list :topicid (or ID about nodeID UUID)
+			 :psi (or ID about)))))))
 
 
 (defun parse-property-name (property _n-counter)
@@ -239,7 +241,8 @@
       (when (string= property-name "RDF")
 	(error "~ardf:RDF not allowed here!"
 	       err-pref))
-      (unless (find property-name *rdf-properties* :test #'string=)
+      (unless (or (find property-name *rdf-properties* :test #'string=)
+		  (_n-p property))
 	(format t "~aWarning: rdf:~a is not a known RDF property!~%"
 		err-pref property-name)))
     (when (string= property-ns *rdfs-ns*)
@@ -326,7 +329,7 @@
 			(string= node-ns *rdf-ns*))
 		   (> (length literals) 0))
 	       (not (or nodeID resource))
-	       (not content))		    
+	       (not content))
       (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
     (when (or about subClassOf)
       (error "~a~a not allowed here!"
@@ -361,8 +364,19 @@
 
 
 (defun parse-properties-of-node (node)
+  "Parses all node's properties by calling the parse-propery
+   function and sets all rdf:li properties as a tupple to the
+   *_n-map* list."
   (let ((child-nodes (child-nodes-or-text node))
 	(_n-counter 0))
+    (when (get-ns-attribute node "li")
+      (dom:map-node-map
+       #'(lambda(attr)
+	   (when (and (string= (get-node-name attr) "li")
+		      (string= (dom:namespace-uri attr) *rdf-ns*))
+	     (incf _n-counter)
+	     (set-_n-name attr _n-counter)))
+	     (dom:attributes node)))
     (when child-nodes
       (loop for property across child-nodes
 	 do (let ((prop-name (get-node-name property))

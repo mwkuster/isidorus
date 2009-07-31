@@ -117,10 +117,17 @@
    its value as a string."
   (declare (dom:element elem))
   (let ((new-lang
-	 (get-ns-attribute elem "lang" :ns-uri *xml-ns*)))
+	 (let ((val
+		(get-ns-attribute elem "lang" :ns-uri *xml-ns*)))
+	   (when val
+	     (string-trim '(#\Space #\Tab #\Newline) val)))))
     (if (dom:has-attribute-ns elem *xml-ns* "lang")
-	new-lang
-	old-lang)))
+	(if (= (length new-lang) 0)
+	    nil
+	    new-lang)
+	(if (= (length old-lang) 0)
+	    nil
+	    old-lang))))
 
 
 (defun get-xml-base(elem &key (old-base nil))
@@ -132,7 +139,9 @@
 		(if (find #\# (get-ns-attribute elem "base" :ns-uri *xml-ns*))
 		    (error "From get-xml-base(): the base-uri ~a is not valid"
 			   (get-ns-attribute elem *xml-ns* "base"))
-		    (get-ns-attribute elem "base" :ns-uri *xml-ns*))))
+		    (when (get-ns-attribute elem "base" :ns-uri *xml-ns*)
+		      (string-trim '(#\Space #\Tab #\Newline)
+				   (get-ns-attribute elem "base" :ns-uri *xml-ns*))))))
 	   (if (and (> (length inner-base) 0)
 		    (eql (elt inner-base 0) #\/))
 	       (subseq inner-base 1 (length inner-base))
