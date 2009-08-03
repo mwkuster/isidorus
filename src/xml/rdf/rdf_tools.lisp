@@ -24,7 +24,10 @@
 		*rdf-subject*
 		*rdf-predicate*
 		*rdf2tm-object*
-		*rdf2tm-subject*)
+		*rdf2tm-subject*
+		*supertype-psi*
+		*subtype-psi*
+		*supertype-subtype-psi*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*)
   (:import-from :xml-constants
@@ -59,7 +62,11 @@
 		with-writer-lock)
   (:import-from :exceptions
                 missing-reference-error
-                duplicate-identifier-error))
+                duplicate-identifier-error)
+  (:export :setup-rdf-module 
+	   :rdf-importer
+	   :init-rdf-module
+	   :*rdf-core-xtm*))
 
 (in-package :rdf-importer)
 

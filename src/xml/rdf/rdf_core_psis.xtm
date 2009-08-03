@@ -17,10 +17,31 @@
     </name>
   </topic>
 
-    <topic id="object">
+  <topic id="object">
     <subjectIdentifier href="http://isidorus/rdf2tm_mapping#object"/>
     <name>
       <value>object</value>
+    </name>
+  </topic>
+
+  <topic id="supertype-subtype">
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype-subtype"/>
+    <name>
+      <value>supertype-subtype</value>
+    </name>
+  </topic>
+
+  <topic id="superclass">
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype"/>
+    <name>
+      <value>supertype</value>
+    </name>
+  </topic>
+
+  <topic id="subtype">
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/subtype"/>
+    <name>
+      <value>subtype</value>
     </name>
   </topic>
 

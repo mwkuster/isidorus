@@ -19,7 +19,19 @@
 		*rdfs-ns*
 		*rdf2tm-ns*
 		*xml-ns*
-		*xml-string*)
+		*xml-string*
+		*instance-psi*
+		*type-psi*
+		*type-instance-psi*
+		*subtype-psi*
+		*supertype-psi*
+		*supertype-subtype-psi*
+		*xml-string*
+		*rdf2tm-object*
+		*rdf2tm-subject*
+		*rdf-subject*
+		*rdf-object*
+		*rdf-predicate*)
   (:import-from :xml-tools
                 xpath-child-elems-by-qname
 		xpath-single-child-elem-by-qname
@@ -36,7 +48,9 @@
 	   :test-get-literals-of-content
 	   :test-get-super-classes-of-node-content
 	   :test-get-associations-of-node-content
-	   :test-parse-properties-of-node))
+	   :test-parse-properties-of-node
+	   :test-import-node-1
+	   :test-import-node-reification))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -47,6 +61,16 @@
      :description "tests  various key functions of the importer")
 
 (in-suite rdf-importer-test)
+
+
+(defun rdf-init-db (&key (db-dir "data_base") (start-revision (get-revision)))
+  "Empties the data base files and initializes isidorus for rdf."
+  (when elephant:*store-controller*
+    (elephant:close-store))
+  (clean-out-db db-dir)
+  (elephant:open-store (xml-importer:get-store-spec db-dir))
+  (xml-importer:init-isidorus start-revision)
+  (rdf-importer:init-rdf-module start-revision))
 
 
 (test test-get-literals-of-node
@@ -967,7 +991,221 @@
 	(rdf-importer::remove-node-properties-from-*_n-map* node)
 	(is (= (length rdf-importer::*_n-map*) 0))))))
 
+
+(test test-import-node-1
+  "Tests the function import-node non-recursively."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(revision-2 200)
+	(revision-3 300)
+	(document-id "doc-id")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+		      "xmlns:rdfs=\"" *rdfs-ns* "\">"
+		      "<rdf:Description rdf:about=\"first-node\">"
+		      "<rdf:type rdf:resource=\"first-type\" />"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:type=\"second-type\" "
+		      "rdf:nodeID=\"second-node\">"
+		      "<rdfs:subClassOf>"
+		      "<rdf:Description rdf:ID=\"third-node\" />"
+		      "</rdfs:subClassOf>"
+		      "</rdf:Description>"
+		      "<rdf:Description arcs:arc1=\"arc-1\">"
+		      "<arcs:arc2 rdf:datatype=\"dt\">arc-2</arcs:arc2>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:about=\"fourth-node\">"
+		      "<arcs:arc3 rdf:parseType=\"Literal\"><root>"
+		      "<content type=\"anyContent\">content</content>"
+		      "</root></arcs:arc3>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:ID=\"fifth-node\">"
+		      "<arcs:arc4 rdf:parseType=\"Resource\">"
+		      "<arcs:arc5 rdf:resource=\"arc-5\" />"
+		      "</arcs:arc4>"
+		      "</rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (is-true dom-1)
+      (is (= (length (dom:child-nodes dom-1)) 1))
+      (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
+	(is (= (length (dom:child-nodes rdf-node)) 5))
+	(let ((node (elt (dom:child-nodes rdf-node) 0)))
+	  (rdf-init-db :db-dir db-dir :start-revision revision-1)
+	  (rdf-importer::import-node node tm-id revision-2
+				     :document-id document-id)
+	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 20))
+	  (let ((first-node (get-item-by-id "http://test-tm/first-node"
+					    :xtm-id document-id))
+		(first-type (get-item-by-id "http://test-tm/first-type"
+					    :xtm-id document-id)))
+	    (is-true first-node)
+	    (is (= (length (d::versions first-node)) 1))
+	    (is (= (d::start-revision (first (d::versions first-node)))
+		   revision-2))
+	    (is (= (d::end-revision (first (d::versions first-node))) 0))
+	    (is-true first-type)
+	    (is (= (length (d:player-in-roles first-node)) 1))
+	    (is (= (length (d:player-in-roles first-type)) 1))
+	    (let ((instance-role
+		   (first (d:player-in-roles first-node)))
+		  (type-role
+		   (first (d:player-in-roles first-type)))
+		  (type-assoc
+		   (d:parent (first (d:player-in-roles first-node)))))
+	      (is (= (length (d::versions type-assoc)) 1))
+	      (is (= (d::start-revision (first (d::versions type-assoc)))
+		     revision-2))
+	      (is (eql (d:instance-of instance-role)
+		       (d:get-item-by-psi *instance-psi*)))
+	      (is (eql (d:instance-of type-role)
+		       (d:get-item-by-psi *type-psi*)))
+	      (is (eql (d:instance-of type-assoc)
+		       (d:get-item-by-psi *type-instance-psi*)))
+	      (is (= (length (d:roles type-assoc)) 2))
+	      (is (= (length (d:psis first-node)) 1))
+	      (is (= (length (d:psis first-type)) 1))
+	      (is (string= (d:uri (first (d:psis first-node)))
+			   "http://test-tm/first-node"))
+	      (is (string= (d:uri (first (d:psis first-type)))
+			   "http://test-tm/first-type"))
+	      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC))))
+	      (is (= (length (elephant:get-instances-by-class 'd:NameC))))
+	      (is (= (length (elephant:get-instances-by-class 'd:VariantC)))))
+	    (dotimes (iter (length (dom:child-nodes rdf-node)))
+	      (rdf-importer::import-node (elt (dom:child-nodes rdf-node) iter)
+					 tm-id revision-3
+					 :document-id document-id))
+	    (let ((first-node (get-item-by-id "http://test-tm/first-node"
+					      :xtm-id document-id))
+		  (first-type (get-item-by-id "http://test-tm/first-type"
+					      :xtm-id document-id))
+		  (second-node (get-item-by-id "second-node"
+					       :xtm-id document-id))
+		  (second-type (get-item-by-id "http://test-tm/second-type"
+					       :xtm-id document-id))
+		  (third-node (get-item-by-id "http://test-tm#third-node"
+					      :xtm-id document-id)))
+	      (is-true second-node)
+	      (is-false (d:psis second-node))
+	      (is-false (d:occurrences second-node))
+	      (is-false (d:names second-node))
+	      (is-true first-node)
+	      (is (= (length (d::versions first-node)) 2))
+	      (is-true (find-if #'(lambda(x)
+				    (and (= (d::start-revision x) revision-2)
+					 (= (d::end-revision x) revision-3)))
+				(d::versions first-node)))
+	      (is-true (find-if #'(lambda(x)
+				    (and (= (d::start-revision x) revision-3)
+					 (= (d::end-revision x) 0)))
+				(d::versions first-node)))
+	      (let ((instance-role
+		     (first (d:player-in-roles first-node)))
+		    (type-role
+		     (first (d:player-in-roles first-type)))
+		    (type-assoc
+		     (d:parent (first (d:player-in-roles first-node))))
+		    (type-topic (get-item-by-psi *type-psi*))
+		    (instance-topic (get-item-by-psi *instance-psi*))
+		    (type-instance-topic (get-item-by-psi *type-instance-psi*))
+		    (supertype-topic (get-item-by-psi *supertype-psi*))
+		    (subtype-topic (get-item-by-psi *subtype-psi*))
+		    (supertype-subtype-topic
+		     (get-item-by-psi *supertype-subtype-psi*))
+		    (arc2-occurrence (elephant:get-instance-by-value
+				      'd:OccurrenceC 'd:charvalue "arc-2"))
+		    (arc3-occurrence
+		     (elephant:get-instance-by-value
+		      'd:OccurrenceC 'd:charvalue
+		      "<root><content type=\"anyContent\">content</content></root>"))
+		    (fifth-node (d:get-item-by-id "http://test-tm#fifth-node"
+						  :xtm-id document-id)))
+		(is (eql (d:instance-of instance-role)
+			 (d:get-item-by-psi *instance-psi*)))
+		(is (eql (d:instance-of type-role)
+			 (d:get-item-by-psi *type-psi*)))
+		(is (eql (d:instance-of type-assoc)
+			 (d:get-item-by-psi *type-instance-psi*)))
+		(is (= (length (d:roles type-assoc)) 2))
+		(is (= (length (d:psis first-node)) 1))
+		(is (= (length (d:psis first-type)) 1))
+		(is (= (length (d::versions type-assoc)) 1))
+		(is (= (length (d:player-in-roles second-node)) 2))
+		(is-true (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) instance-topic)
+				   (eql (d:instance-of (d:parent x) )
+					type-instance-topic)))
+			  (d:player-in-roles second-node)))
+		(is-true (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) subtype-topic)
+				   (eql (d:instance-of (d:parent x) )
+					supertype-subtype-topic)))
+			  (d:player-in-roles second-node)))
+		(is-true (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) type-topic)
+				   (eql (d:instance-of (d:parent x) )
+					type-instance-topic)))
+			  (d:player-in-roles second-type)))
+		(is-true (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) supertype-topic)
+				   (eql (d:instance-of (d:parent x) )
+					supertype-subtype-topic)))
+			  (d:player-in-roles third-node)))
+		(is-true arc2-occurrence)
+		(is (string= (d:datatype arc2-occurrence) "http://test-tm/dt"))
+		(is-false (d:psis (d:topic arc2-occurrence)))
+		(is (= (length (d::versions (d:topic arc2-occurrence))) 1))
+		(is (= (d::start-revision
+			(first (d::versions (d:topic arc2-occurrence))))
+		       revision-3))
+		(is (= (d::end-revision
+			(first (d::versions (d:topic arc2-occurrence)))) 0))
+		(is-true arc3-occurrence)
+		(is (= (length (d:psis (d:topic arc3-occurrence)))))
+		(is (string= (d:uri (first (d:psis (d:topic arc3-occurrence))))
+			     "http://test-tm/fourth-node"))
+		(is (string= (d:datatype arc3-occurrence)
+			     *xml-string*))
+		(is-true fifth-node)
+		(is (= (length (d:psis fifth-node)) 1))
+		(is (string= (d:uri (first (d:psis fifth-node)))
+			     "http://test-tm#fifth-node"))
+		(is-false (d:occurrences fifth-node))
+		(is-false (d:names fifth-node))
+		(is (= (length (d:player-in-roles fifth-node))))
+		(let ((assoc (d:parent (first (d:player-in-roles
+					       fifth-node)))))
+		  (is-true assoc)
+		  (let ((object-role
+			 (find-if
+			  #'(lambda(role)
+			      (eql (d:instance-of role)
+				   (d:get-item-by-psi *rdf2tm-object*)))
+			  (d:roles assoc)))
+			(subject-role
+			 (find-if
+			  #'(lambda(role)
+			      (eql (d:instance-of role)
+				   (d:get-item-by-psi *rdf2tm-subject*)))
+			  (d:roles assoc))))
+		    (is-true object-role)
+		    (is-true subject-role)
+		    (is (eql (d:player subject-role) fifth-node))
+		    (is-false (d:psis (d:player object-role))))))))))))
+  (elephant:close-store))
+
   
+(test test-import-node-reification
+
+  )
+
 
 
 (defun run-rdf-importer-tests()
@@ -979,4 +1217,6 @@
   (it.bese.fiveam:run! 'test-get-literals-of-content)
   (it.bese.fiveam:run! 'test-get-super-classes-of-node-content)
   (it.bese.fiveam:run! 'test-get-associations-of-node-content)
-  (it.bese.fiveam:run! 'test-parse-properties-of-node))
+  (it.bese.fiveam:run! 'test-parse-properties-of-node)
+  (it.bese.fiveam:run! 'test-import-node-1)
+  (it.bese.fiveam:run! 'test-import-node-reification))

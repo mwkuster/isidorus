@@ -71,6 +71,8 @@
   "Returns the passed id as an absolute uri computed
    with the given base and tm-id."
   (declare (string id tm-id))
+  (when (= (length id) 0)
+    (error "From absolutize-id(): id must be set to a string with length > 0!"))
   (let ((prep-id (if (and (> (length id) 0)
 			  (eql (elt id 0) #\#))
 		     id
@@ -109,7 +111,11 @@
 		    (prep-tm-id
 		     (when (> (length tm-id) 0)
 		       (string-right-trim "/" tm-id))))
-		(concatenate 'string prep-tm-id "/" prep-fragment)))))))
+		(let ((separator
+		       (if (eql (elt prep-fragment 0) #\#)
+			   ""
+			   "/")))
+		  (concatenate 'string prep-tm-id separator prep-fragment))))))))
 
 
 (defun get-xml-lang(elem &key (old-lang nil))
