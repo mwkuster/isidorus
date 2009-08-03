@@ -315,7 +315,7 @@
 			   (list :instance-of role-type-2
 				 :player top))))
 	  (when ID
-	    (make-reification ID top type-top player-1 start-revision
+	    (make-reification ID top player-1 type-top start-revision
 			      tm :document-id document-id))
 	  (add-to-topicmap tm (make-construct 'AssociationC
 					      :start-revision start-revision
@@ -348,6 +348,7 @@
   (declare ((or OccurrenceC TopicC) object))
   (declare (TopicC subject predicate))
   (declare (TopicMapC tm))
+
   (let ((reifier (make-topic-stub reifier-id nil nil nil start-revision tm
 				  :document-id document-id))
 	(predicate-arc (make-topic-stub *rdf-predicate* nil nil nil start-revision
@@ -365,10 +366,10 @@
 				   start-revision)
       (make-association-with-nodes reifier predicate predicate-arc
 				   tm start-revision)
-      (if (typep object 'TopicC)
+      (if (typep object 'd:TopicC)
 	  (make-association-with-nodes reifier object object-arc
 				       tm start-revision)
-	  (make-construct 'OccurrenceC
+	  (make-construct 'd:OccurrenceC
 			  :start-revision start-revision
 			  :topic reifier
 			  :themes (themes object)
@@ -406,7 +407,7 @@
 				 :charvalue value
 				 :datatype datatype)))
 	    (when ID
-	      (make-reification ID top type-top occurrence start-revision
+	      (make-reification ID top occurrence type-top start-revision
 				xml-importer::tm :document-id document-id))
 	    occurrence))))))
 	    

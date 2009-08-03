@@ -1203,8 +1203,45 @@
 
   
 (test test-import-node-reification
-
-  )
+  "Tests the function import-node non-recursively. Especially the reification
+   of association- and occurrence-arcs."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+		      "xmlns:rdfs=\"" *rdfs-ns* "\">"
+		      "<rdf:Description rdf:about=\"first-node\">"
+		      "<arcs:arc1 rdf:ID=\"reification-1\">"
+		      "<rdf:Description rdf:about=\"second-node\" />"
+		      "</arcs:arc1>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:ID=\"#reification-1\">"
+		      "<arcs:arc2 rdf:resource=\"third-node\"/>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:nodeID=\"fourth-node\">"
+		      "<arcs:arc3 rdf:ID=\"reification-2\" rdf:datatype=\"dt\">"
+		      "occurrence data"
+		      "</arcs:arc3>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:ID=\"#reification-2\">"
+		      "<arcs:arc4 rdf:resource=\"fifth-node\" />"
+		      "</rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (is-true dom-1)
+      (is (= (length (dom:child-nodes dom-1)) 1))
+      (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
+	(is (= (length (dom:child-nodes rdf-node)) 4))
+	(rdf-init-db :db-dir db-dir :start-revision revision-1)
+	(dotimes (iter (length (dom:child-nodes rdf-node)))
+	  (rdf-importer::import-node (elt (dom:child-nodes rdf-node) iter)
+				     tm-id revision-1
+				     :document-id document-id))
+     
+  ))))
 
 
 
