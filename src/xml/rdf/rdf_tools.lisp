@@ -27,7 +27,11 @@
 		*rdf2tm-subject*
 		*supertype-psi*
 		*subtype-psi*
-		*supertype-subtype-psi*)
+		*supertype-subtype-psi*
+		*rdf-nil*
+		*rdf-first*
+		*rdf-rest*
+		*rdf2tm-collection*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*)
   (:import-from :xml-constants
@@ -132,7 +136,7 @@
 (defun remove-node-properties-from-*_n-map* (node)
   "Removes all node's properties from the list *_n-map*."
   (declare (dom:element node))
-  (let ((properties (child-nodes-or-text node)))
+  (let ((properties (child-nodes-or-text node :trim t)))
     (when properties
       (loop for property across properties
 	 do (unset-_n-name property))))
@@ -203,7 +207,7 @@
 	       (or about nodeID))
       (error "~awhen rdf:ID is set the attributes rdf:~a is not allowed: ~a!"
 	     err-pref (if about "about" "nodeID") (or about nodeID)))
-    (unless (or ID nodeID about)
+    (unless (or ID nodeID about (dom:has-attribute-ns node *rdf2tm-ns* "UUID"))
       (dom:set-attribute-ns node *rdf2tm-ns* "UUID" (get-uuid)))
     (handler-case (let ((content (child-nodes-or-text node :trim t)))
 		    (when (stringp content)
@@ -320,7 +324,8 @@
     (when (and parseType
 	       (or (string= parseType "Resource")
 		   (string= parseType "Collection")))
-      (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
+      (unless (dom:has-attribute-ns property *rdf2tm-ns* "UUID")
+	(dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid))))
     (when (and parseType (string= parseType "Resource") (stringp content))
       (error "~ardf:parseType is set to 'Resource' expecting xml content: ~a!"
 	     err-pref content))
@@ -356,7 +361,8 @@
 		   (> (length literals) 0))
 	       (not (or nodeID resource))
 	       (not content))
-      (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
+      (unless (dom:has-attribute-ns property *rdf2tm-ns* "UUID")
+	(dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid))))
     (when (or about subClassOf)
       (error "~a~a not allowed here!"
 	     err-pref
@@ -366,7 +372,8 @@
     (when (and (string= node-name "subClassOf")
 	       (string= node-ns *rdfs-ns*)
 	       (not (or nodeID resource content)))
-      (dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid)))
+      (unless (dom:has-attribute-ns property *rdf2tm-ns* "UUID")
+	(dom:set-attribute-ns property *rdf2tm-ns* "UUID" (get-uuid))))
     (when (and (or (and (string= node-name "type")
 			(string= node-ns *rdf-ns*))
 		   (and (string= node-name "subClassOf")
@@ -393,7 +400,7 @@
   "Parses all node's properties by calling the parse-propery
    function and sets all rdf:li properties as a tupple to the
    *_n-map* list."
-  (let ((child-nodes (child-nodes-or-text node))
+  (let ((child-nodes (child-nodes-or-text node :trim t))
 	(_n-counter 0))
     (when (get-ns-attribute node "li")
       (dom:map-node-map
@@ -437,4 +444,3 @@
       (if datatype
 	  datatype
 	  *xml-string*))))
-				 

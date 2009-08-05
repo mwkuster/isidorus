@@ -78,6 +78,7 @@
 (defun import-dom (rdf-dom start-revision
 		   &key (tm-id nil) (document-id *document-id*))
   "Imports the entire dom of a rdf-xml-file."
+  (setf *_n-map* nil) ;in case of an failed last call
   (tm-id-p tm-id "import-dom")
   (let ((xml-base (get-xml-base rdf-dom))
 	(xml-lang (get-xml-lang rdf-dom))
@@ -85,29 +86,33 @@
 	(elem-ns (dom:namespace-uri rdf-dom)))
     (if (and (string= elem-ns *rdf-ns*)
 	     (string= elem-name "RDF"))
-	(let ((children (child-nodes-or-text rdf-dom)))
+	(let ((children (child-nodes-or-text rdf-dom :trim t)))
 	  (when children
 	    (loop for child across children
 	       do (import-node child tm-id start-revision :document-id document-id
 			       :xml-base xml-base :xml-lang xml-lang))))
 	(import-node rdf-dom tm-id start-revision :document-id document-id
-		     :xml-base xml-base :xml-lang xml-lang))))
+		     :xml-base xml-base :xml-lang xml-lang)))
+  (setf *_n-map* nil))
 
 
 (defun import-node (elem tm-id start-revision &key (document-id *document-id*)
 		    (xml-base nil) (xml-lang nil))
-  (remove-node-properties-from-*_n-map* elem) ;in case of an failed last call
+  (format t ">> import-node: ~a <<~%" (dom:node-name elem))
   (tm-id-p tm-id "import-node")
   (parse-node elem)
-  (let ((fn-xml-base (get-xml-base elem :old-base xml-base)))
+  ;TODO: handle Collections that are made manually without
+  ;      parseType="Collection" -> see also import-arc
+  (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
+	(fn-xml-lang (get-xml-lang elem :old-lang xml-lang)))
     (parse-properties-of-node elem)
     (let ((about (get-absolute-attribute elem tm-id xml-base "about"))	   
 	  (nodeID (get-ns-attribute elem "nodeID"))
 	  (ID (get-absolute-attribute elem tm-id xml-base "ID"))
 	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*))
-	  (literals (append (get-literals-of-node elem xml-lang)
-			    (get-literals-of-node-content elem tm-id
-							  xml-base xml-lang)))
+	  (literals (append (get-literals-of-node elem fn-xml-lang)
+			    (get-literals-of-node-content
+			     elem tm-id xml-base fn-xml-lang)))
 	  (associations (get-associations-of-node-content elem tm-id xml-base))
 	  (types (remove-if
 		  #'null
@@ -123,51 +128,164 @@
 	   (get-super-classes-of-node-content elem tm-id xml-base)))
       (with-tm (start-revision document-id tm-id)
 	(elephant:ensure-transaction (:txn-nosync t)
-	  (let ((topic-stub
+	  (let ((this
 		 (make-topic-stub
 		  about ID nodeID UUID start-revision xml-importer::tm
 		  :document-id document-id)))
-	    (map 'list #'(lambda(literal)
-			   (make-occurrence topic-stub literal start-revision
-					    tm-id :document-id document-id))
-		 literals)
-	    (map 'list #'(lambda(assoc)
-			   (make-association topic-stub assoc xml-importer::tm
-					     start-revision
-					     :document-id document-id))
-		 associations)
-	    (map 'list
-		 #'(lambda(type)
-		     (let ((type-topic
-			    (make-topic-stub (getf type :psi)
-					     nil
-					     (getf type :topicid)
-					     nil start-revision
-					     xml-importer::tm
-					     :document-id document-id))
-			   (ID (getf type :ID)))
-		       (make-instance-of-association topic-stub type-topic
-						     ID start-revision
-						     xml-importer::tm
-						     :document-id document-id)))
-		 types)
-	    (map 'list
-		 #'(lambda(class)
-		     (let ((class-topic
-			    (make-topic-stub (getf class :psi)
-					     nil
-					     (getf class :topicid)
-					     nil start-revision
-					     xml-importer::tm
-					     :document-id document-id))
-			   (ID (getf class :ID)))
-		       (make-supertype-subtype-association
-			topic-stub class-topic ID start-revision
-			xml-importer::tm :document-id document-id)))
-		 super-classes)
-	    
-	    ;TODO: start recursion ...
-	    (remove-node-properties-from-*_n-map* elem)))))))
+	    (make-literals this literals tm-id start-revision
+			   :document-id document-id)
+	    (make-associations this associations xml-importer::tm
+			       start-revision :document-id document-id)
+	    (make-types this types xml-importer::tm start-revision
+			:document-id document-id)
+	    (make-super-classes this super-classes xml-importer::tm
+				start-revision :document-id document-id)
+	    (make-recursion-from-node elem tm-id start-revision
+				      :document-id document-id
+				      :xml-base xml-base
+				      :xml-lang xml-lang)
+	    (remove-node-properties-from-*_n-map* elem)
+	    this))))))
+
+
+(defun import-arc (elem tm-id start-revision
+		   &key (document-id *document-id*)
+		   (xml-base nil) (xml-lang nil))
+  "Imports a property that is an blank_node and continues the recursion
+   on this element."
+  (declare (dom:element elem))
+  (format t ">> import-arc: ~a <<~%" (dom:node-name elem))
+  (let ((fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
+	(fn-xml-base (get-xml-base elem :old-base xml-base))
+	(UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*))
+	(parseType (get-ns-attribute elem "parseType")))
+    (when (or (not parseType)
+	      (and parseType
+		   (string/= parseType "Collection")))
+      (when UUID
+	(parse-properties-of-node elem)
+	(with-tm (start-revision document-id tm-id)
+	  (let ((this (get-item-by-id UUID :xtm-id document-id
+				      :revision start-revision)))
+	    (let ((literals (append (get-literals-of-node elem fn-xml-lang)
+				    (get-literals-of-node-content
+				     elem tm-id xml-base fn-xml-lang)))
+		  (associations
+		   (get-associations-of-node-content elem tm-id xml-base))
+		  (types (get-types-of-node-content elem tm-id fn-xml-base))
+		  (super-classes
+		   (get-super-classes-of-node-content elem tm-id xml-base)))
+	      (make-literals this literals tm-id start-revision
+			     :document-id document-id)
+	      (make-associations this associations xml-importer::tm
+				 start-revision :document-id document-id)
+	      (make-types this types xml-importer::tm start-revision
+			  :document-id document-id)
+	      (make-super-classes this super-classes xml-importer::tm
+				  start-revision :document-id document-id))))))
+    (make-recursion-from-arc elem tm-id start-revision
+			     :document-id document-id
+			     :xml-base xml-base :xml-lang xml-lang)))
+
+
+(defun make-collection (elem owner-top tm-id start-revision
+			&key (document-id *document-id*)
+			(xml-base nil) (xml-lang nil))
+  "Creates a TM association with a subject role containing the collection
+   entry point and as many roles of the type 'object' as items exists."
+  (declare (d:TopicC owner-top))
+  (with-tm (start-revision document-id tm-id)
+    (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
+	  (fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
+	  (subject (make-topic-stub *rdf2tm-subject* nil nil nil start-revision
+				    xml-importer::tm :document-id document-id))
+	  (object (make-topic-stub *rdf2tm-object* nil nil nil start-revision
+				   xml-importer::tm :document-id document-id)))
+      (let ((association-type (make-topic-stub *rdf2tm-collection* nil nil nil
+					       start-revision xml-importer::tm
+					       :document-id document-id))
+	    (roles
+	     (append
+	      (loop for item across (child-nodes-or-text elem :trim t)
+		 collect (let ((item-top (import-node item tm-id start-revision
+						      :document-id document-id
+						      :xml-base fn-xml-base
+						      :xml-lang fn-xml-lang)))
+			   (list :player item-top
+				 :instance-of object)))
+	      (list (list :player owner-top
+			  :instance-of subject)))))
+	(add-to-topicmap
+	 xml-importer::tm
+	 (make-construct 'd:AssociationC
+			 :start-revision start-revision
+			 :instance-of association-type
+			 :roles roles))))))
+
+
+(defun make-literals (owner-top literals tm-id start-revision
+		      &key (document-id *document-id*))
+  "Creates Topic Maps constructs (occurrences) of the passed 
+   named list literals related to the topic owner-top."
+  (declare (d:TopicC owner-top))
+  (map 'list #'(lambda(literal)
+		 (make-occurrence owner-top literal start-revision
+				  tm-id :document-id document-id))
+       literals))
+
+
+(defun make-associations (owner-top associations tm start-revision
+			  &key (document-id *document-id*))
+  "Creates Topic Maps constructs (assocaitions) of the passed 
+   named list literals related to the topic owner-top."
+  (declare (d:TopicC owner-top))
+  (map 'list #'(lambda(assoc)
+		 (make-association owner-top assoc tm
+				   start-revision
+				   :document-id document-id))
+       associations))
+
+
+(defun make-types (owner-top types tm start-revision
+		   &key (document-id *document-id*))
+  "Creates instance-of associations corresponding to the passed
+   topic owner-top and the passed types."
+  (declare (d:TopicC owner-top))
+  (map 'list
+       #'(lambda(type)
+	   (let ((type-topic
+		  (make-topic-stub (getf type :psi)
+				   nil
+				   (getf type :topicid)
+				   nil start-revision tm
+				   :document-id document-id))
+		 (ID (getf type :ID)))
+	     (make-instance-of-association owner-top type-topic
+					   ID start-revision tm
+					   :document-id document-id)))
+       types))
+
+
+(defun make-super-classes (owner-top super-classes tm start-revision
+			   &key (document-id *document-id*))
+  "Creates supertype-subtype associations corresponding to the passed
+   topic owner-top and the passed super classes."
+  (declare (d:TopicC owner-top))
+  (map 'list
+       #'(lambda(class)
+	   (let ((class-topic
+		  (make-topic-stub (getf class :psi)
+				   nil
+				   (getf class :topicid)
+				   nil start-revision tm
+				   :document-id document-id))
+		 (ID (getf class :ID)))
+	     (make-supertype-subtype-association
+	      owner-top class-topic ID start-revision tm
+	      :document-id document-id)))
+       super-classes))
+
+
 
 
 (defun make-supertype-subtype-association (sub-top super-top reifier-id
@@ -176,9 +294,15 @@
   "Creates an supertype-subtype association."
   (declare (TopicC sub-top super-top))
   (declare (TopicMapC tm))
-  (let ((assoc-type (get-item-by-psi *supertype-subtype-psi*))
-	(role-type-1 (get-item-by-psi *supertype-psi*))
-	(role-type-2 (get-item-by-psi *subtype-psi*))
+  (let ((assoc-type
+	 (make-topic-stub *supertype-subtype-psi* nil nil nil
+			  start-revision tm :document-id document-id))
+	(role-type-1
+	 (make-topic-stub *supertype-psi* nil nil nil
+			  start-revision tm :document-id document-id))
+	(role-type-2
+	 (make-topic-stub *subtype-psi* nil nil nil
+			  start-revision tm :document-id document-id))
 	(err-pref "From make-supertype-subtype-association(): "))
     (unless assoc-type
       (error "~athe association type ~a is missing!"
@@ -210,11 +334,14 @@
   (declare (TopicC type-top instance-top))
   (declare (TopicMapC tm))
   (let ((assoc-type
-	 (get-item-by-psi *type-instance-psi*))
+	 (make-topic-stub *type-instance-psi* nil nil nil
+			  start-revision tm :document-id document-id))
 	(roletype-1
-	 (get-item-by-psi *type-psi*))
+	 (make-topic-stub *type-psi* nil nil nil
+			  start-revision tm :document-id document-id))
 	(roletype-2
-	 (get-item-by-psi *instance-psi*))
+	 (make-topic-stub *instance-psi* nil nil nil
+			  start-revision tm :document-id document-id))
 	(err-pref "From make-instance-of-association(): "))
     (unless assoc-type
       (error "~athe association type ~a is missing!"
@@ -266,13 +393,15 @@
 			 (make-instance 'PersistentIdC
 					:uri psi-uri
 					:start-revision start-revision))))
-	      (add-to-topicmap
-	       tm
-	       (make-construct 'TopicC
-			       :topicid topic-id
-			       :psis (when psi (list psi))
-			       :xtm-id document-id
-			       :start-revision start-revision))))))))
+	      (handler-case (add-to-topicmap
+			     tm
+			     (make-construct 'TopicC
+					     :topicid topic-id
+					     :psis (when psi (list psi))
+					     :xtm-id document-id
+					     :start-revision start-revision))
+		(Condition (err)(error "Creating topic ~a failed: ~a"
+				       topic-id err)))))))))
 
 
 (defun make-lang-topic (lang tm-id start-revision tm
@@ -306,8 +435,12 @@
       (let ((player-1 (make-topic-stub player-psi nil player-id nil
 				       start-revision
 				       tm :document-id document-id))
-	    (role-type-1 (get-item-by-psi *rdf2tm-object*))
-	    (role-type-2 (get-item-by-psi *rdf2tm-subject*))
+	    (role-type-1
+	     (make-topic-stub *rdf2tm-object* nil nil nil
+			      start-revision tm :document-id document-id))
+	    (role-type-2
+	     (make-topic-stub *rdf2tm-subject* nil nil nil
+			      start-revision tm :document-id document-id))
 	    (type-top (make-topic-stub type nil nil nil start-revision
 				       tm :document-id document-id)))
 	(let ((roles (list (list :instance-of role-type-1
@@ -324,12 +457,17 @@
   
 
 (defun make-association-with-nodes (subject-topic object-topic
-				    associationtype-topic tm start-revision)
+				    associationtype-topic tm start-revision
+				    &key (document-id *document-id*))
   "Creates an association with two roles that contains the given players."
   (declare (TopicC subject-topic object-topic associationtype-topic))
   (declare (TopicMapC tm))
-  (let ((role-type-1 (get-item-by-psi *rdf2tm-subject*))
-	(role-type-2 (get-item-by-psi *rdf2tm-object*)))
+  (let ((role-type-1
+	 (make-topic-stub *rdf2tm-subject* nil nil nil start-revision
+			  tm :document-id document-id))
+	(role-type-2
+	 (make-topic-stub *rdf2tm-object* nil nil nil start-revision
+			  tm :document-id document-id)))
     (let ((roles (list (list :instance-of role-type-1
 			     :player subject-topic)
 		       (list :instance-of role-type-2
@@ -363,12 +501,13 @@
       (make-instance-of-association reifier statement nil start-revision tm
 				    :document-id document-id)
       (make-association-with-nodes reifier subject subject-arc tm
-				   start-revision)
+				   start-revision :document-id document-id)
       (make-association-with-nodes reifier predicate predicate-arc
-				   tm start-revision)
+				   tm start-revision :document-id document-id)
       (if (typep object 'd:TopicC)
 	  (make-association-with-nodes reifier object object-arc
-				       tm start-revision)
+				       tm start-revision
+				       :document-id document-id)
 	  (make-construct 'd:OccurrenceC
 			  :start-revision start-revision
 			  :topic reifier
@@ -416,7 +555,7 @@
   "Returns a list of literals that is produced of a node's content."
   (declare (dom:element node))
   (tm-id-p tm-id "get-literals-of-content")
-  (let ((properties (child-nodes-or-text node))
+  (let ((properties (child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base))
 	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
     (let ((literals
@@ -486,8 +625,8 @@
 		      :ID nil))
 	       nil))
 	  (content-types
-	   (when (child-nodes-or-text node)
-	     (loop for child across (child-nodes-or-text node)
+	   (when (child-nodes-or-text node :trim t)
+	     (loop for child across (child-nodes-or-text node :trim t)
 		when (and (string= (dom:namespace-uri child) *rdf-ns*)
 			  (string= (get-node-name child) "type"))
 		collect (let ((nodeID (get-ns-attribute child "nodeID"))
@@ -505,7 +644,7 @@
 				     (get-xml-base child :old-base fn-xml-base)))
 				(let ((refs
 				       (get-node-refs
-					(child-nodes-or-text child)
+					(child-nodes-or-text child :trim t)
 					tm-id child-xml-base)))
 				  (list :topicid (getf (first refs) :topicid)
 					:psi (getf (first refs) :psi)
@@ -601,7 +740,7 @@
   "Returns a list of super-classes and IDs."
   (declare (dom:element node))
   (tm-id-p tm-id "get-super-classes-of-node-content")
-  (let ((content (child-nodes-or-text node))
+  (let ((content (child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base)))
     (when content
       (loop for property across content
@@ -624,7 +763,7 @@
 			       :psi resource
 			       :ID ID)
 			 (let ((refs (get-node-refs
-				      (child-nodes-or-text property)
+				      (child-nodes-or-text property :trim t)
 				      tm-id prop-xml-base)))
 			   (list :topicid (getf (first refs) :topicid)
 				 :psi (getf (first refs) :psi)
@@ -634,7 +773,7 @@
 (defun get-associations-of-node-content (node tm-id xml-base)
   "Returns a list of associations with a type, value and ID member."
   (declare (dom:element node))
-  (let ((properties (child-nodes-or-text node))
+  (let ((properties (child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base)))
     (loop for property across properties
        when (let ((prop-name (get-node-name property))
@@ -675,9 +814,68 @@
 			     :psi resource
 			     :ID ID)
 		       (let ((refs (get-node-refs
-				    (child-nodes-or-text property)
+				    (child-nodes-or-text property :trim t)
 				    tm-id prop-xml-base)))
 			 (list :type full-name
 			       :topicid (getf (first refs) :topicid)
 			       :psi (getf (first refs) :psi)
 			       :ID ID))))))))
+
+
+(defun make-recursion-from-node (node tm-id start-revision
+				 &key (document-id *document-id*)
+				 (xml-base nil) (xml-lang nil))
+  "Calls the next function that handles all DOM child elements
+   of the passed element as arcs."
+  (declare (dom:element node))
+  (let ((content (child-nodes-or-text node :trim t))
+	(err-pref "From make-recursion-from-node(): ")
+	(fn-xml-base (get-xml-base node :old-base xml-base))
+	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
+    (when (stringp content)
+      (error "~aliteral content not allowed here: ~a"
+	     err-pref content))
+    (loop for arc across content
+       do (import-arc arc tm-id start-revision :document-id document-id
+		      :xml-base fn-xml-base :xml-lang fn-xml-lang))))
+
+
+(defun make-recursion-from-arc (arc tm-id start-revision
+				&key (document-id *document-id*)
+				(xml-base nil) (xml-lang nil))
+  "Calls the next function that handles the arcs content nodes/arcs."
+  (declare (dom:element arc))
+  (let ((fn-xml-base (get-xml-base arc :old-base xml-base))
+	(fn-xml-lang (get-xml-lang arc :old-lang xml-lang))
+	(content (child-nodes-or-text arc))
+	(parseType (get-ns-attribute arc "parseType")))
+    (let ((datatype (get-absolute-attribute arc tm-id xml-base "datatype"))
+	  (type (get-absolute-attribute arc tm-id xml-base "type"))
+	  (resource (get-absolute-attribute arc tm-id xml-base "resource"))
+	  (nodeID (get-ns-attribute arc "nodeID"))
+	  (literals (get-literals-of-property arc xml-lang)))
+      (if (and parseType
+	       (string= parseType "Collection"))
+	  (loop for item across content
+	     do (import-node item tm-id start-revision :document-id document-id
+			     :xml-base fn-xml-base :xml-lang fn-xml-lang))
+	  (if (or datatype resource nodeID
+		  (and parseType
+		       (string= parseType "Literal"))
+		  (and content
+		       (stringp content)))
+	      t;; do nothing current elem is a literal node that has been
+	       ;; already imported as an occurrence
+	      (if (or type literals
+		      (and parseType
+			   (string= parseType "Resource")))
+		  (loop for item across content
+		     do (import-arc item tm-id start-revision
+				    :document-id document-id
+				    :xml-base fn-xml-base
+				    :xml-lang fn-xml-lang))
+		  (loop for item across content
+		     do (import-node item tm-id start-revision
+				     :document-id document-id
+				     :xml-base xml-base
+				     :xml-lang xml-lang))))))))

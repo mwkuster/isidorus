@@ -51,7 +51,8 @@
 	   :test-get-associations-of-node-content
 	   :test-parse-properties-of-node
 	   :test-import-node-1
-	   :test-import-node-reification))
+	   :test-import-node-reification
+	   :test-import-dom))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -1433,6 +1434,46 @@
 	  (elephant:close-store))))))
 
 
+(test test-import-dom
+  "Tests the function import-node when used recursively."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+		      "xmlns:rdfs=\"" *rdfs-ns* "\">"
+		      "<rdf:Description1 rdf:about=\"first-node\">"
+		      "<rdf:type rdf:nodeID=\"second-node\"/>"
+		      "<arcs:arc1 rdf:resource=\"third-node\"/>"
+		      "<arcs:arc2 rdf:datatype=\"long\">123</arcs:arc2>"
+		      "<arcs:arc3>"
+		      "<rdf:Description3>"
+		      "<arcs:arc4 rdf:parseType=\"Collection\">"
+		      "<rdf:Description4 rdf:about=\"item-1\"/>"
+		      "<rdf:Description5 rdf:about=\"item-2\">"
+		      "<arcs:arc5 rdf:parseType=\"Resource\">"
+		      "<arcs:arc7 rdf:resource=\"fourth-node\"/>"
+		      "<arcs:arc8 rdf:parseType=\"Collection\" />"
+		      "</arcs:arc5>"
+		      "</rdf:Description5>"
+		      "</arcs:arc4>"
+		      "</rdf:Description3>"
+		      "</arcs:arc3>"
+		      "</rdf:Description1>"
+		      "<rdf:Description2 rdf:nodeID=\"second-node\" />"
+		      "</rdf:RDF>")))
+	(let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+	  (is-true dom-1)
+	  (is (= (length (dom:child-nodes dom-1)) 1))
+	  (rdf-init-db :db-dir db-dir :start-revision revision-1)
+	  (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
+	    (is (= (length (dom:child-nodes rdf-node)) 2))
+	    (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
+				      :document-id document-id)))))
+
+
 
 (defun run-rdf-importer-tests()
   (it.bese.fiveam:run! 'test-get-literals-of-node)
@@ -1445,4 +1486,5 @@
   (it.bese.fiveam:run! 'test-get-associations-of-node-content)
   (it.bese.fiveam:run! 'test-parse-properties-of-node)
   (it.bese.fiveam:run! 'test-import-node-1)
-  (it.bese.fiveam:run! 'test-import-node-reification))
+  (it.bese.fiveam:run! 'test-import-node-reification)
+  (it.bese.fiveam:run! 'test-import-dom))

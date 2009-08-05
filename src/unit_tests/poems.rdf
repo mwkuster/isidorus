@@ -3165,10 +3165,10 @@ Als flöge sie nach Haus.]]>
 	  <types:Ballad>
 	    <arcs:title rdf:parseType="Literal">Die zwei Gesellen</arcs:title>
 	    <arcs:title rdf:parseType="Literal">Frühlingsfahrt</arcs:title>
-	    <arcs:daterange rdf:parseType="Resource">
+	    <arcs:dateRange rdf:parseType="Resource">
 	      <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1818</arcs:start>
 	      <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1818</arcs:end>
-	    </arcs:daterange>
+	    </arcs:dateRange>
 	    <arcs:content rdf:parseType="Literal" xml:lang="de">
 	      <![CDATA[Es zogen zwei rüst’ge Gesellen
 Zum erstenmal von Haus,

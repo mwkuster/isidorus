@@ -32,8 +32,12 @@
 	   :*rdf-object*
 	   :*rdf-subject*
 	   :*rdf-predicate*
+	   :*rdf-nil*
+	   :*rdf-first*
+	   :*rdf-rest*
 	   :*rdf2tm-object*
-	   :*rdf2tm-subject*))
+	   :*rdf2tm-subject*
+	   :*rdf2tm-collection*))
 
 (in-package :constants)
 (defparameter *xtm2.0-ns* "http://www.topicmaps.org/xtm/")
@@ -80,6 +84,14 @@
 
 (defparameter *rdf-predicate* "http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate")
 
+(defparameter *rdf-nil* "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
+
+(defparameter *rdf-first* "http://www.w3.org/1999/02/22-rdf-syntax-ns#first")
+
+(defparameter *rdf-rest* "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest")
+
 (defparameter *rdf2tm-object* "http://isidorus/rdf2tm_mapping#object")
 
 (defparameter *rdf2tm-subject* "http://isidorus/rdf2tm_mapping#subject")
+
+(defparameter *rdf2tm-collection* "http://isidorus/rdf2tm_mapping#collection")
