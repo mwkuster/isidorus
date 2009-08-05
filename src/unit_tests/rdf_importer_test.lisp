@@ -1038,7 +1038,7 @@
 	  (rdf-init-db :db-dir db-dir :start-revision revision-1)
 	  (rdf-importer::import-node node tm-id revision-2
 				     :document-id document-id)
-	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 20))
+	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 21))
 	  (let ((first-node (get-item-by-id "http://test-tm/first-node"
 					    :xtm-id document-id))
 		(first-type (get-item-by-id "http://test-tm/first-type"
@@ -1442,27 +1442,29 @@
 	(document-id "doc-id")
 	(doc-1
 	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
-		      "xmlns:arcs=\"http://test/arcs/\" "
-		      "xmlns:rdfs=\"" *rdfs-ns* "\">"
-		      "<rdf:Description1 rdf:about=\"first-node\">"
+		      "xmlns:arcs=\"http://test/arcs/\">"
+		      "<rdf:Description rdf:about=\"first-node\">"
 		      "<rdf:type rdf:nodeID=\"second-node\"/>"
 		      "<arcs:arc1 rdf:resource=\"third-node\"/>"
 		      "<arcs:arc2 rdf:datatype=\"long\">123</arcs:arc2>"
 		      "<arcs:arc3>"
-		      "<rdf:Description3>"
+		      "<rdf:Description>"
 		      "<arcs:arc4 rdf:parseType=\"Collection\">"
-		      "<rdf:Description4 rdf:about=\"item-1\"/>"
-		      "<rdf:Description5 rdf:about=\"item-2\">"
+		      "<rdf:Description rdf:about=\"item-1\"/>"
+		      "<rdf:Description rdf:about=\"item-2\">"
 		      "<arcs:arc5 rdf:parseType=\"Resource\">"
-		      "<arcs:arc7 rdf:resource=\"fourth-node\"/>"
+		      "<arcs:arc6 rdf:resource=\"fourth-node\"/>"
+		      "<arcs:arc7>"
+		      "<rdf:Description rdf:about=\"fifth-node\"/>"
+		      "</arcs:arc7>"
 		      "<arcs:arc8 rdf:parseType=\"Collection\" />"
 		      "</arcs:arc5>"
-		      "</rdf:Description5>"
+		      "</rdf:Description>"
 		      "</arcs:arc4>"
-		      "</rdf:Description3>"
+		      "</rdf:Description>"
 		      "</arcs:arc3>"
-		      "</rdf:Description1>"
-		      "<rdf:Description2 rdf:nodeID=\"second-node\" />"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:nodeID=\"second-node\" />"
 		      "</rdf:RDF>")))
 	(let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
 	  (is-true dom-1)

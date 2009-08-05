@@ -214,7 +214,7 @@
 		      (error "text-content not allowed here!")))
       (condition (err) (error "~a~a" err-pref err)))
     (when (or resource datatype parseType class subClassOf)
-      (error "~a~a is not allowed here!"
+      (error "~a~a is not allowed here (~a)!"
 	     err-pref (cond
 			(resource (concatenate 'string "resource("
 					       resource ")"))
@@ -224,7 +224,8 @@
 						parseType ")"))
 			(class (concatenate 'string "Class(" class ")"))
 			(subClassOf (concatenate 'string "subClassOf("
-						 subClassOf ")")))))
+						 subClassOf ")")))
+	     (dom:node-name node)))
     (dolist (item *rdf-types*)
       (when (get-ns-attribute node item)
 	(error "~ardf:~a is a type and not allowed here!"

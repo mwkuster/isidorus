@@ -23,6 +23,13 @@
       <value>object</value>
     </name>
   </topic>
+  
+  <topic id="collection">
+    <subjectIdentifier href="http://isidorus/rdf2tm_mapping#collection"/>
+    <name>
+      <value>object</value>
+    </name>
+  </topic>
 
   <topic id="supertype-subtype">
     <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype-subtype"/>

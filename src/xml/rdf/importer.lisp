@@ -98,7 +98,7 @@
 
 (defun import-node (elem tm-id start-revision &key (document-id *document-id*)
 		    (xml-base nil) (xml-lang nil))
-  (format t ">> import-node: ~a <<~%" (dom:node-name elem))
+  (format t ">> import-node: ~a <<~%" (dom:node-name elem)) ;TODO: remove
   (tm-id-p tm-id "import-node")
   (parse-node elem)
   ;TODO: handle Collections that are made manually without
@@ -154,7 +154,7 @@
   "Imports a property that is an blank_node and continues the recursion
    on this element."
   (declare (dom:element elem))
-  (format t ">> import-arc: ~a <<~%" (dom:node-name elem))
+  (format t ">> import-arc: ~a <<~%" (dom:node-name elem)) ;TODO: remove
   (let ((fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
 	(fn-xml-base (get-xml-base elem :old-base xml-base))
 	(UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*))
@@ -848,7 +848,8 @@
   (let ((fn-xml-base (get-xml-base arc :old-base xml-base))
 	(fn-xml-lang (get-xml-lang arc :old-lang xml-lang))
 	(content (child-nodes-or-text arc))
-	(parseType (get-ns-attribute arc "parseType")))
+	(parseType (get-ns-attribute arc "parseType"))
+	(UUID (get-ns-attribute arc "UUID" :ns-uri *rdf2tm-ns*)))
     (let ((datatype (get-absolute-attribute arc tm-id xml-base "datatype"))
 	  (type (get-absolute-attribute arc tm-id xml-base "type"))
 	  (resource (get-absolute-attribute arc tm-id xml-base "resource"))
@@ -856,9 +857,15 @@
 	  (literals (get-literals-of-property arc xml-lang)))
       (if (and parseType
 	       (string= parseType "Collection"))
-	  (loop for item across content
-	     do (import-node item tm-id start-revision :document-id document-id
-			     :xml-base fn-xml-base :xml-lang fn-xml-lang))
+	  (let ((this
+		 (with-tm (start-revision document-id tm-id)
+		   (make-topic-stub nil nil nil UUID start-revision
+				    xml-importer::tm
+				    :document-id document-id))))
+	    (make-collection arc this tm-id start-revision
+			     :document-id document-id
+			     :xml-base xml-base
+			     :xml-lang xml-lang))
 	  (if (or datatype resource nodeID
 		  (and parseType
 		       (string= parseType "Literal"))
