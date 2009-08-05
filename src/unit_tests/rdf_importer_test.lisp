@@ -1443,37 +1443,288 @@
 	(doc-1
 	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
 		      "xmlns:arcs=\"http://test/arcs/\">"
-		      "<rdf:Description rdf:about=\"first-node\">"
-		      "<rdf:type rdf:nodeID=\"second-node\"/>"
-		      "<arcs:arc1 rdf:resource=\"third-node\"/>"
-		      "<arcs:arc2 rdf:datatype=\"long\">123</arcs:arc2>"
-		      "<arcs:arc3>"
-		      "<rdf:Description>"
-		      "<arcs:arc4 rdf:parseType=\"Collection\">"
-		      "<rdf:Description rdf:about=\"item-1\"/>"
-		      "<rdf:Description rdf:about=\"item-2\">"
-		      "<arcs:arc5 rdf:parseType=\"Resource\">"
-		      "<arcs:arc6 rdf:resource=\"fourth-node\"/>"
-		      "<arcs:arc7>"
-		      "<rdf:Description rdf:about=\"fifth-node\"/>"
-		      "</arcs:arc7>"
-		      "<arcs:arc8 rdf:parseType=\"Collection\" />"
-		      "</arcs:arc5>"
-		      "</rdf:Description>"
-		      "</arcs:arc4>"
-		      "</rdf:Description>"
-		      "</arcs:arc3>"
-		      "</rdf:Description>"
-		      "<rdf:Description rdf:nodeID=\"second-node\" />"
+		      " <rdf:Description rdf:about=\"first-node\">"
+		      "  <rdf:type rdf:nodeID=\"second-node\"/>"
+		      "  <arcs:arc1 rdf:resource=\"third-node\"/>"
+		      "  <arcs:arc2 rdf:datatype=\"long\">123</arcs:arc2>"
+		      "  <arcs:arc3>"
+		      "   <rdf:Description>"
+		      "    <arcs:arc4 rdf:parseType=\"Collection\">"
+		      "     <rdf:Description rdf:about=\"item-1\"/>"
+		      "     <rdf:Description rdf:about=\"item-2\">"
+		      "      <arcs:arc5 rdf:parseType=\"Resource\">"
+		      "       <arcs:arc6 rdf:resource=\"fourth-node\"/>"
+		      "       <arcs:arc7>"
+		      "        <rdf:Description rdf:about=\"fifth-node\"/>"
+		      "       </arcs:arc7>"
+		      "       <arcs:arc8 rdf:parseType=\"Collection\" />"
+		      "      </arcs:arc5>"
+		      "     </rdf:Description>"
+		      "    </arcs:arc4>"
+		      "   </rdf:Description>"
+		      "  </arcs:arc3>"
+		      " </rdf:Description>"
+		      " <rdf:Description rdf:nodeID=\"second-node\" />"
 		      "</rdf:RDF>")))
 	(let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
 	  (is-true dom-1)
 	  (is (= (length (dom:child-nodes dom-1)) 1))
 	  (rdf-init-db :db-dir db-dir :start-revision revision-1)
 	  (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
-	    (is (= (length (dom:child-nodes rdf-node)) 2))
+	    (is (= (length (rdf-importer::child-nodes-or-text  rdf-node
+							       :trim t))
+		   2))
 	    (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
-				      :document-id document-id)))))
+				      :document-id document-id)
+	    (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 38))
+	    (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 10))
+	    (setf rdf-importer::*current-xtm* document-id)
+	    (is (= (length
+		    (intersection
+		     (map 'list #'d:instance-of
+			  (elephant:get-instances-by-class 'd:AssociationC))
+		     (list
+		      (d:get-item-by-id (concatenate
+					 'string
+					 constants::*rdf2tm-collection*)
+					:xtm-id rdf-importer::*rdf-core-xtm*)
+		      (d:get-item-by-psi constants::*type-instance-psi*)
+		      (dotimes (iter 9)
+			(let ((pos (+ iter 1))
+			      (topics nil))
+			  (when (/= pos 2)
+			    (push (get-item-by-id
+				   (concatenate
+				    'string "http://test/arcs/arc"
+				    (write-to-string pos))) topics))
+			  topics)))))))
+	    (let ((first-node (get-item-by-id "http://test-tm/first-node"))
+		  (second-node (get-item-by-id "second-node"))
+		  (third-node (get-item-by-id "http://test-tm/third-node"))
+		  (fourth-node (get-item-by-id "http://test-tm/fourth-node"))
+		  (fifth-node (get-item-by-id "http://test-tm/fifth-node"))
+		  (item-1 (get-item-by-id "http://test-tm/item-1"))
+		  (item-2 (get-item-by-id "http://test-tm/item-2"))
+		  (arc1 (get-item-by-id "http://test/arcs/arc1"))
+		  (arc2 (get-item-by-id "http://test/arcs/arc2"))
+		  (arc3 (get-item-by-id "http://test/arcs/arc3"))
+		  (arc4 (get-item-by-id "http://test/arcs/arc4"))
+		  (arc5 (get-item-by-id "http://test/arcs/arc5"))
+		  (arc6 (get-item-by-id "http://test/arcs/arc6"))
+		  (arc7 (get-item-by-id "http://test/arcs/arc7"))
+		  (arc8 (get-item-by-id "http://test/arcs/arc8"))
+		  (instance (d:get-item-by-psi constants::*instance-psi*))
+		  (type (d:get-item-by-psi constants::*type-psi*))
+		  (type-instance (d:get-item-by-psi
+				  constants:*type-instance-psi*))
+		  (subject (d:get-item-by-psi constants::*rdf2tm-subject*))
+		  (object (d:get-item-by-psi constants::*rdf2tm-object*))
+		  (collection (d:get-item-by-id
+			       constants::*rdf2tm-collection*)))
+	      (is (= (length (d:psis first-node)) 1))
+	      (is (string= (d:uri (first (d:psis first-node)))
+			   "http://test-tm/first-node"))
+	      (is (= (length (d:psis second-node)) 0))
+	      (is (= (length (d:psis third-node)) 1))
+	      (is (string= (d:uri (first (d:psis third-node)))
+			   "http://test-tm/third-node"))
+	      (is (= (length (d:psis fourth-node)) 1))
+	      (is (string= (d:uri (first (d:psis fourth-node)))
+			   "http://test-tm/fourth-node"))
+	      (is (= (length (d:psis fifth-node)) 1))
+	      (is (string= (d:uri (first (d:psis fifth-node)))
+			   "http://test-tm/fifth-node"))
+	      (is (= (length (d:psis item-1)) 1))
+	      (is (string= (d:uri (first (d:psis item-1)))
+			   "http://test-tm/item-1"))
+	      (is (= (length (d:psis item-2)) 1))
+	      (is (string= (d:uri (first (d:psis item-2)))
+			   "http://test-tm/item-2"))
+	      (is (= (length (d:psis arc1)) 1))
+	      (is (string= (d:uri (first (d:psis arc1)))
+			   "http://test/arcs/arc1"))
+	      (is (= (length (d:psis arc2)) 1))
+	      (is (string= (d:uri (first (d:psis arc2)))
+			   "http://test/arcs/arc2"))
+	      (is (= (length (d:psis arc3)) 1))
+	      (is (string= (d:uri (first (d:psis arc3)))
+			   "http://test/arcs/arc3"))
+	      (is (= (length (d:psis arc4)) 1))
+	      (is (string= (d:uri (first (d:psis arc4)))
+			   "http://test/arcs/arc4"))
+	      (is (= (length (d:psis arc5)) 1))
+	      (is (string= (d:uri (first (d:psis arc5)))
+			   "http://test/arcs/arc5"))
+	      (is (= (length (d:psis arc6)) 1))
+	      (is (string= (d:uri (first (d:psis arc6)))
+			   "http://test/arcs/arc6"))
+	      (is (= (length (d:psis arc7)) 1))
+	      (is (string= (d:uri (first (d:psis arc7)))
+			   "http://test/arcs/arc7"))
+	      (is (= (length (d:psis arc8)) 1))
+	      (is (string= (d:uri (first (d:psis arc8)))
+			   "http://test/arcs/arc8"))
+	      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC))
+		     1))
+	      (is (string= (d:charvalue (first (elephant:get-instances-by-class
+						'd:OccurrenceC)))
+			   "123"))
+	      (is (string= (d:datatype (first (elephant:get-instances-by-class
+					       'd:OccurrenceC)))
+			   "http://test-tm/long"))
+	      (is (= (length (d:occurrences first-node)) 1))
+	      (is (= (length (d:player-in-roles first-node)) 3))
+	      (is (= (count-if
+		      #'(lambda(x)
+			  (or (and (eql (d:instance-of x) instance)
+				   (eql (d:instance-of (d:parent x))
+					type-instance))
+			      (and (eql (d:instance-of x) subject)
+				   (eql (d:instance-of (d:parent x)) arc1))
+			      (and (eql (d:instance-of x) subject)
+				   (eql (d:instance-of (d:parent x)) arc3))))
+		      (d:player-in-roles first-node))
+		     3))
+	      (is (= (length (d:player-in-roles second-node)) 1))
+	      (is-true (find-if
+			#'(lambda(x)
+			    (and (eql (d:instance-of x) type)
+				 (eql (d:instance-of (d:parent x))
+				      type-instance)))
+			(d:player-in-roles second-node)))
+	      (is (= (length (d:player-in-roles third-node)) 1))
+	      (is-true (find-if
+			#'(lambda(x)
+			    (and (eql (d:instance-of x) object)
+				 (eql (d:instance-of (d:parent x))
+				      arc1)))
+			(d:player-in-roles third-node)))
+	      (let ((uuid-1
+		     (d:player
+		      (find-if
+		       #'(lambda(y)
+			   (and (eql (d:instance-of y) object)
+				(= 0 (length (d:psis (d:player y))))))
+		       (d:roles
+			(d:parent
+			 (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) subject)
+				   (eql (d:instance-of (d:parent x)) arc3)))
+			  (d:player-in-roles first-node))))))))
+		(is-true uuid-1)
+		(is (= (length (d:player-in-roles uuid-1)) 2))
+		(is-true (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) subject)
+				   (eql (d:instance-of (d:parent x)) arc4)))
+			  (d:player-in-roles uuid-1)))
+		(let ((col-1
+		       (d:player
+			(find-if
+			 #'(lambda(y)
+			     (and (eql (d:instance-of y) object)
+				  (= 0 (length (d:psis (d:player y))))))
+			 (d:roles
+			  (d:parent
+			   (find-if
+			    #'(lambda(x)
+				(and (eql (d:instance-of x) subject)
+				     (eql (d:instance-of (d:parent x)) arc4)))
+			    (d:player-in-roles uuid-1))))))))
+		  (is-true col-1)
+		  (is (= (length (d:player-in-roles col-1)) 2))
+		  (is-true (find-if
+			    #'(lambda(x)
+				(and (eql (d:instance-of x) subject)
+				     (eql (d:instance-of (d:parent x)) 
+					  collection)))
+			    (d:player-in-roles col-1)))
+		  (let ((col-assoc
+			 (d:parent
+			  (find-if
+			    #'(lambda(x)
+				(and (eql (d:instance-of x) subject)
+				     (eql (d:instance-of (d:parent x)) 
+					  collection)))
+			    (d:player-in-roles col-1)))))
+		    (is-true col-assoc)
+		    (is (= (length (d:roles col-assoc)) 3))
+		    (is (= (count-if
+			    #'(lambda(x)
+				(and (eql (d:instance-of x) object)
+				     (or (eql (d:player x) item-1)
+					 (eql (d:player x) item-2))))
+			    (d:roles col-assoc))
+			   2))))
+		(is (= (length (d:player-in-roles item-1)) 1))
+		(is (= (length (d:player-in-roles item-2)) 2))
+		(is-true (find-if
+			  #'(lambda(x)
+			      (and (eql (d:instance-of x) subject)
+				   (eql (d:instance-of (d:parent x)) arc5)))
+			  (d:player-in-roles item-2)))
+		(let ((uuid-2
+		       (d:player
+			(find-if
+			 #'(lambda(y)
+			     (and (eql (d:instance-of y) object)
+				  (= 0 (length (d:psis (d:player y))))))
+			 (d:roles
+			  (d:parent
+			   (find-if
+			    #'(lambda(x)
+				(and (eql (d:instance-of x) subject)
+				     (eql (d:instance-of (d:parent x)) arc5)))
+			    (d:player-in-roles item-2))))))))
+		  (is-true uuid-2)
+		  (is (= (length (d:player-in-roles uuid-2)) 4))
+		  (is (= (count-if
+			  #'(lambda(x)
+			      (or (and (eql (d:instance-of x) object)
+				       (eql (d:instance-of (d:parent x)) arc5))
+				  (and (eql (d:instance-of x) subject)
+				       (or
+					(eql (d:instance-of (d:parent x)) arc6)
+					(eql (d:instance-of (d:parent x)) arc7)
+					(eql (d:instance-of
+					      (d:parent x)) arc8)))))
+			  (d:player-in-roles uuid-2))
+			 4))
+		  (is (= (length (d:player-in-roles fourth-node)) 1))
+		  (is (= (length (d:player-in-roles fifth-node)) 1))
+		  (let ((col-2
+			 (d:player
+			  (find-if
+			   #'(lambda(y)
+			       (and (eql (d:instance-of y) object)
+				    (= 0 (length (d:psis (d:player y))))))
+			   (d:roles
+			    (d:parent
+			     (find-if
+			      #'(lambda(x)
+				  (and (eql (d:instance-of x) subject)
+				       (eql (d:instance-of (d:parent x)) arc8)))
+			      (d:player-in-roles uuid-2))))))))
+		    (is-true col-2)
+		    (is (= (length (d:player-in-roles col-2)) 2))
+		    (is-true (find-if
+			      #'(lambda(x)
+				  (and (eql (d:instance-of x) subject)
+				       (eql (d:instance-of (d:parent x)) 
+					    collection)))
+			      (d:player-in-roles col-2)))
+		    (let ((col-assoc
+			   (d:parent
+			    (find-if
+			     #'(lambda(x)
+				 (and (eql (d:instance-of x) subject)
+				      (eql (d:instance-of (d:parent x)) 
+					   collection)))
+			     (d:player-in-roles col-2)))))
+		      (is-true col-assoc)
+		      (is (= (length (d:roles col-assoc)) 1))))))))))
+  (elephant:close-store))
 
 
 

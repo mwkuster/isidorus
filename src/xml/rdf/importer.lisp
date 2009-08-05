@@ -167,12 +167,19 @@
 	(with-tm (start-revision document-id tm-id)
 	  (let ((this (get-item-by-id UUID :xtm-id document-id
 				      :revision start-revision)))
-	    (let ((literals (append (get-literals-of-node elem fn-xml-lang)
+	    (let ((literals (append (get-literals-of-property elem fn-xml-lang)
 				    (get-literals-of-node-content
 				     elem tm-id xml-base fn-xml-lang)))
 		  (associations
 		   (get-associations-of-node-content elem tm-id xml-base))
-		  (types (get-types-of-node-content elem tm-id fn-xml-base))
+		  (types (remove-if
+			  #'null
+			  (append
+			   (get-types-of-node-content elem tm-id fn-xml-base)
+			   (when (get-ns-attribute elem "type")
+			     (list :ID nil
+				   :topicid (get-ns-attribute elem "type")
+				   :psi (get-ns-attribute elem "type"))))))
 		  (super-classes
 		   (get-super-classes-of-node-content elem tm-id xml-base)))
 	      (make-literals this literals tm-id start-revision
@@ -284,8 +291,6 @@
 	      owner-top class-topic ID start-revision tm
 	      :document-id document-id)))
        super-classes))
-
-
 
 
 (defun make-supertype-subtype-association (sub-top super-top reifier-id
