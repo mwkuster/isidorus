@@ -186,6 +186,7 @@
 	(tm-id "http://test-tm/")
 	(document-id "doc-id"))
     (clean-out-db db-dir)
+    (setf d:*current-xtm* document-id)
     (rdf-importer:setup-rdf-module *poems_light.rdf* db-dir :tm-id tm-id
 				   :document-id document-id)
     (elephant:open-store (xml-importer:get-store-spec db-dir))

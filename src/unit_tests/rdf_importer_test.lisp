@@ -32,7 +32,8 @@
 		*rdf-subject*
 		*rdf-object*
 		*rdf-predicate*
-		*rdf-statement*)
+		*rdf-statement*
+		*xml-string*)
   (:import-from :xml-tools
                 xpath-child-elems-by-qname
 		xpath-single-child-elem-by-qname
@@ -53,7 +54,8 @@
 	   :test-import-node-1
 	   :test-import-node-reification
 	   :test-import-dom
-	   :test-poems-rdf-1))
+	   :test-poems-rdf-occurrences
+	   :test-poems-rdf-associations))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -1718,26 +1720,113 @@
   (elephant:close-store))
 
 
-(test test-poems-rdf-1
+(test test-poems-rdf-occurrences
   "Tests general functionality of the rdf-importer module with the file
    poems_light.rdf."
-  (elephant:close-store) ;TODO: remove
   (with-fixture rdf-test-db ()
     (let ((topics (elephant:get-instances-by-class 'd:TopicC))
 	  (occs (elephant:get-instances-by-class 'd:OccurrenceC))
-	  (assocs (elephant:get-instances-by-class 'd:AssociationC)))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 65))
-      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 23))
-      (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 30))
-      
+	  (assocs (elephant:get-instances-by-class 'd:AssociationC))
+	  (arcs "http://some.where/relationship/")
+	  (date "http://www.w3.org/2001/XMLSchema#date")
+	  (long "http://www.w3.org/2001/XMLSchema#unsignedLong"))
+      (is (= (length topics) 65))
+      (is (= (length occs) 23))
+      (is (= (length assocs) 30))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "firstName"))
+		       (string= *xml-string* (d:datatype x))))
+	      occs)
+	     1))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "lastName"))
+		       (string= *xml-string* (d:datatype x))))
+	      occs)
+	     1))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "fullName"))
+		       (string= *xml-string* (d:datatype x))))
+	      occs)
+	     2))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "nativeName"))
+		       (string= *xml-string* (d:datatype x))))
+	      occs)
+	     1))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "title"))
+		       (string= *xml-string* (d:datatype x))))
+	      occs)
+	     3))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "content"))
+		       (string= *xml-string* (d:datatype x))))
+	      occs)
+	     3))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "population"))
+		       (string= long (d:datatype x))))
+	      occs)
+	     3))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "date"))
+		       (string= date (d:datatype x))))
+	      occs)
+	     2))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "start"))
+		       (string= date (d:datatype x))))
+	      occs)
+	     3))
+      (is (= (count-if
+	      #'(lambda(x)
+		  (and (= (length (d:psis (d:instance-of x))) 1)
+		       (string= (d:uri (first (d:psis (d:instance-of x))))
+				(concatenate 'string arcs "end"))
+		       (string= date (d:datatype x))))
+	      occs)
+	     3)))))
 
-      ))
-  (elephant:open-store (xml-importer:get-store-spec "data_base"))) ;TODO: remove
 
+(test test-poems-rdf-associations
+  "Tests general functionality of the rdf-importer module with the file
+   poems_light.rdf."
+  (with-fixture rdf-test-db ()
+
+    ))
 
 
 
 (defun run-rdf-importer-tests()
+  (when elephant:*store-controller*
+    (elephant:close-store))
   (it.bese.fiveam:run! 'test-get-literals-of-node)
   (it.bese.fiveam:run! 'test-parse-node)
   (it.bese.fiveam:run! 'test-get-literals-of-property)
@@ -1750,4 +1839,5 @@
   (it.bese.fiveam:run! 'test-import-node-1)
   (it.bese.fiveam:run! 'test-import-node-reification)
   (it.bese.fiveam:run! 'test-import-dom)
-  (it.bese.fiveam:run! 'test-poems-rdf-1))
+  (it.bese.fiveam:run! 'test-poems-rdf-occurrences)
+  (it.bese.fiveam:run! 'test-poems-rdf-associations))
