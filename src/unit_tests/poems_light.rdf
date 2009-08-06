@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	 xmlns:poems="http://some.where/"
+	 xmlns:arcs="http://some.where/relationship/"
+	 xmlns:types="http://some.where/types/"
+	 xml:base="http://some.where/">
+  <!-- === Goethe ========================================================== -->
+  <rdf:Description rdf:about="author/Goethe">
+    <rdf:type rdf:resource="types/Author"/>
+    <arcs:firstName>Johann Wolfgang</arcs:firstName>
+    <arcs:lastName rdf:parseType="Literal">von Goethe</arcs:lastName>
+
+    <!-- === born event ==================================================== -->
+    <arcs:born>
+      <types:Event>
+	<arcs:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">28.08.1749</arcs:date>
+	<arcs:place>
+	  <rdf:Description rdf:about="/region/FrankfurtMain">
+	    <rdf:type>
+	      <rdf:Description rdf:about="/types/Metropolis">
+		<rdfs:subClassOf rdf:resource="/types/Region"/>
+	      </rdf:Description>
+	    </rdf:type>
+	    <arcs:fullName>Frankfurt am Main</arcs:fullName>
+	    <arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">659000</arcs:population>
+	    <arcs:locatedIn>
+	      <rdf:Description rdf:about="http://some.where/country/Germany">
+		<rdf:type>
+		  <rdf:Description rdf:about="http://some.where/types/Country"></rdf:Description>
+		</rdf:type>
+		<arcs:nativeName xml:lang="de">Deutschland</arcs:nativeName>
+		<arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">82099232</arcs:population>
+		<arcs:officialese rdf:resource="language/German"/>
+		<arcs:capital>
+		  <rdf:Description rdf:about="http://some.where/region/Berlin">
+		    <rdf:type>
+		      <rdf:Description rdf:about="http://some.where/types/Metropolis"/>
+		    </rdf:type>
+		    <arcs:locatedIn rdf:resource="/country/Germany"/>
+		    <arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">3431473</arcs:population>
+		  </rdf:Description>
+		</arcs:capital>
+	      </rdf:Description>
+	    </arcs:locatedIn>
+	  </rdf:Description>
+	</arcs:place>
+      </types:Event>
+    </arcs:born>
+
+    <!-- === died event ==================================================== -->
+    <arcs:died>
+      <rdf:Description xml:base="http://some.where/types/">
+	<rdf:type rdf:resource="Event"/>
+	<arcs:date rdf:datatype="#date" xml:base="http://www.w3.org/2001/XMLSchema">22.03.1832</arcs:date>
+	<arcs:place xml:base="">
+	  <types:City rdf:about="Weimar" arcs:fullName="Weimar">
+	    <rdfs:subClassOf rdf:resource="http://some.where/types/Region"/>
+	    <arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsigneLong">64720</arcs:population>
+	    <arcs:locatedIn rdf:resource="http://some.where/country/Germany"/>
+	  </types:City>
+	</arcs:place>
+      </rdf:Description>
+    </arcs:died>
+
+    <!-- === wrote bag ===================================================== -->
+    <arcs:wrote>
+      <rdf:Bag rdf:nodeID="goethe_literature">
+	<rdf:li>
+	  <types:Poem rdf:about="http://some.where/poem/Der_Zauberlehrling">
+	    <arcs:title rdf:parseType="Literal" xml:lang="de">Der Zauberlehrling</arcs:title>
+	    <arcs:dateRange rdf:parseType="Resource" xml:base="http://www.w3.org/2001/XMLSchema"> <!-- rdf:parseType="resource" == bland_node --> 
+	      <arcs:start rdf:datatype="#date">01.01.1797</arcs:start>
+	      <arcs:end rdf:datatype="#date">31.12.1797</arcs:end>
+	    </arcs:dateRange>
+	    <arcs:content xml:lang="de">
+	      <![CDATA[Hat der alte Hexenmeister
+sich doch einmal wegbegeben!
+Und nun sollen seine Geister
+auch nach meinem Willen leben.
+Seine Wort und Werke
+merkt ich und den Brauch,
+und mit Geistesstärke
+tu ich Wunder auch.
+
+Walle! walle
+Manche Strecke,
+daß, zum Zwecke,
+Wasser fließe
+und mit reichem, vollem Schwalle
+zu dem Bade sich ergieße.
+
+Und nun komm, du alter Besen!
+Nimm die schlechten Lumpenhüllen;
+bist schon lange Knecht gewesen:
+nun erfülle meinen Willen!
+Auf zwei Beinen stehe,
+oben sei ein Kopf,
+eile nun und gehe
+mit dem Wassertopf!
+
+Walle! walle
+manche Strecke,
+daß, zum Zwecke,
+Wasser fließe
+und mit reichem, vollem Schwalle
+zu dem Bade sich ergieße.
+
+Seht, er läuft zum Ufer nieder,
+Wahrlich! ist schon an dem Flusse,
+und mit Blitzesschnelle wieder
+ist er hier mit raschem Gusse.
+Schon zum zweiten Male!
+Wie das Becken schwillt!
+Wie sich jede Schale
+voll mit Wasser füllt!
+
+Stehe! stehe!
+denn wir haben
+deiner Gaben
+vollgemessen! -
+Ach, ich merk es! Wehe! wehe!
+Hab ich doch das Wort vergessen!
+
+Ach, das Wort, worauf am Ende
+er das wird, was er gewesen.
+Ach, er läuft und bringt behende!
+Wärst du doch der alte Besen!
+Immer neue Güsse
+bringt er schnell herein,
+Ach! und hundert Flüsse
+stürzen auf mich ein.
+
+Nein, nicht länger
+kann ichs lassen;
+will ihn fassen.
+Das ist Tücke!
+Ach! nun wird mir immer bänger!
+Welche Mine! welche Blicke!
+
+O du Ausgeburt der Hölle!
+Soll das ganze Haus ersaufen?
+Seh ich über jede Schwelle
+doch schon Wasserströme laufen.
+Ein verruchter Besen,
+der nicht hören will!
+Stock, der du gewesen,
+steh doch wieder still!
+
+Willst am Ende
+gar nicht lassen?
+Will dich fassen,
+will dich halten
+und das alte Holz behende
+mit dem scharfen Beile spalten.
+
+Seht da kommt er schleppend wieder!
+Wie ich mich nur auf dich werfe,
+gleich, o Kobold, liegst du nieder;
+krachend trifft die glatte Schärfe.
+Wahrlich, brav getroffen!
+Seht, er ist entzwei!
+Und nun kann ich hoffen,
+und ich atme frei!
+
+Wehe! wehe!
+Beide Teile
+stehn in Eile
+schon als Knechte
+völlig fertig in die Höhe!
+Helft mir, ach! ihr hohen Mächte!
+
+Und sie laufen! Naß und nässer
+wirds im Saal und auf den Stufen.
+Welch entsetzliches Gewässer!
+Herr und Meister! hör mich rufen! -
+Ach, da kommt der Meister!
+Herr, die Not ist groß!
+Die ich rief, die Geister
+werd ich nun nicht los.
+
+"In die Ecke,
+Besen, Besen!
+Seids gewesen.
+Denn als Geister
+ruft euch nur zu diesem Zwecke,
+erst hervor der alte Meister."]]>
+	    </arcs:content>
+	  </types:Poem>
+	</rdf:li>
+      </rdf:Bag>
+    </arcs:wrote>
+  </rdf:Description>
+
+  <!-- referenced ressources by goethe -->
+  <rdf:Description rdf:nodeID="goethe_literature">
+    <rdf:li>
+      <types:Ballad rdf:about="http://some.where/ballad/Der_Erlkoenig" arcs:title="Der Erlkönig" xml:lang="de">
+	<arcs:dateRange rdf:parseType="Resource" xml:base="http://www.w3.org/2001/XMLSchema">
+	  <arcs:start rdf:datatype="#date">01.01.1782</arcs:start>
+	  <arcs:end  rdf:datatype="#date">31.12.1782</arcs:end>
+	</arcs:dateRange>
+	<arcs:content rdf:datatype="http://www.w3.org/2001/XMLSchema#string" xml:lang="de">
+	  <![CDATA[Wer reitet so spät durch Nacht und Wind?
+Es ist der Vater mit seinem Kind;
+Er hat den Knaben wohl in dem Arm,
+Er faßt ihn sicher, er hält ihn warm.
+
+Mein Sohn, was birgst du so bang dein Gesicht? -
+Siehst Vater, du den Erlkönig nicht?
+Den Erlenkönig mit Kron und Schweif? -
+Mein Sohn, es ist ein Nebelstreif. -
+
+"Du liebes Kind, komm, geh mit mir!
+Gar schöne Spiele spiel ich mit dir;
+Manch bunte Blumen sind an dem Strand,
+Meine Mutter hat manch gülden Gewand."
+
+Mein Vater, mein Vater, und hörest du nicht,
+Was Erlenkönig mir leise verspricht? -
+Sei ruhig, bleibe ruhig, mein Kind;
+In dürren Blättern säuselt der Wind. -
+
+"Willst, feiner Knabe, du mit mir gehn?
+Meine Töchter sollen dich warten schön;
+Meine Töchter führen den nächtlichen Reihn
+Und wiegen und tanzen und singen dich ein."
+
+Mein Vater, mein Vater, und siehst du nicht dort
+Erlkönigs Töchter am düstern Ort? -
+Mein Sohn, mein Sohn, ich seh es genau:
+Es scheinen die alten Weiden so grau. -
+
+"Ich liebe dich, mich reizt deine schöne Gestalt;
+Und bist du nicht willig, so brauch ich Gewalt."
+Mein Vater, mein Vater, jetzt faßt er mich an!
+Erlkönig hat mir ein Leids getan! -
+
+Dem Vater grauset's, er reitet geschwind,
+Er hält in den Armen das ächzende Kind,
+Erreicht den Hof mit Mühe und Not;
+In seinen Armen das Kind war tot.]]>
+	</arcs:content>
+      </types:Ballad>
+    </rdf:li>
+    <rdf:li>
+      <rdf:Description rdf:about="http://some.where/poem/Prometheus" arcs:title="Prometheus">
+	<rdf:type rdf:resource="/types/Poem"/>
+	<arcs:dateRange>
+	  <rdf:Description xml:base="http://does.not.exist">
+	    <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1772</arcs:start>
+	    <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1774</arcs:end>
+	  </rdf:Description>
+	</arcs:dateRange>
+	<arcs:content rdf:parseType="Literal" xml:lang="de">
+	  <![CDATA[Bedecke deinen Himmel, Zeus,
+Mit Wolkendunst!
+Und übe, Knaben gleich,
+Der Disteln köpft,
+An Eichen dich und Bergeshöh'n!
+Mußt mir meine Erde
+Doch lassen steh'n,
+Und meine Hütte,
+Die du nicht gebaut,
+Und meinen Herd,
+Um dessen Glut
+Du mich beneidest.
+
+Ich kenne nichts Ärmeres
+Unter der Sonn' als euch Götter!
+Ihr nähret kümmerlich
+Von Opfersteuern
+Und Gebetshauch
+Eure Majestät
+Und darbtet, wären
+Nicht Kinder und Bettler
+Hoffnungsvolle Toren.
+
+Da ich ein Kind war,
+Nicht wußte, wo aus, wo ein,
+Kehrt' ich mein verirrtes Auge
+Zur Sonne, als wenn drüber wär
+Ein Ohr zu hören meine Klage,
+Ein Herz wie meins,
+Sich des Bedrängten zu erbarmen.
+
+Wer half mir
+Wider der Titanen Übermut?
+Wer rettete vom Tode mich,
+Von Sklaverei?
+Hast du's nicht alles selbst vollendet,
+Heilig glühend Herz?
+Und glühtest, jung und gut,
+Betrogen, Rettungsdank
+Dem Schlafenden dadroben?
+
+Ich dich ehren? Wofür?
+Hast du die Schmerzen gelindert
+Je des Beladenen?
+Hast du die Tränen gestillet
+Je des Geängsteten?
+Hat nicht mich zum Manne geschmiedet
+Die allmächtige Zeit
+Und das ewige Schicksal,
+Meine Herren und deine?
+
+Wähntest du etwa,
+Ich sollte das Leben hassen,
+In Wüsten fliehn,
+Weil nicht alle Knabenmorgen-
+Blütenträume reiften?
+
+Hier sitz' ich, forme Menschen
+Nach meinem Bilde,
+Ein Geschlecht, das mir gleich sei,
+Zu leiden, weinen,
+Genießen und zu freuen sich,
+Und dein nicht zu achten,
+Wie ich!]]>
+	</arcs:content>
+      </rdf:Description>
+    </rdf:li>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://some.where/language/German">
+    <rdf:type rdf:resource="types/Language"/>
+  </rdf:Description>
+</rdf:RDF>

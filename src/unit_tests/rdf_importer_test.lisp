@@ -52,7 +52,8 @@
 	   :test-parse-properties-of-node
 	   :test-import-node-1
 	   :test-import-node-reification
-	   :test-import-dom))
+	   :test-import-dom
+	   :test-poems-rdf-1))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -63,16 +64,6 @@
      :description "tests  various key functions of the importer")
 
 (in-suite rdf-importer-test)
-
-
-(defun rdf-init-db (&key (db-dir "data_base") (start-revision (get-revision)))
-  "Empties the data base files and initializes isidorus for rdf."
-  (when elephant:*store-controller*
-    (elephant:close-store))
-  (clean-out-db db-dir)
-  (elephant:open-store (xml-importer:get-store-spec db-dir))
-  (xml-importer:init-isidorus start-revision)
-  (rdf-importer:init-rdf-module start-revision))
 
 
 (test test-get-literals-of-node
@@ -1727,6 +1718,24 @@
   (elephant:close-store))
 
 
+(test test-poems-rdf-1
+  "Tests general functionality of the rdf-importer module with the file
+   poems_light.rdf."
+  (elephant:close-store) ;TODO: remove
+  (with-fixture rdf-test-db ()
+    (let ((topics (elephant:get-instances-by-class 'd:TopicC))
+	  (occs (elephant:get-instances-by-class 'd:OccurrenceC))
+	  (assocs (elephant:get-instances-by-class 'd:AssociationC)))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 65))
+      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 23))
+      (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 30))
+      
+
+      ))
+  (elephant:open-store (xml-importer:get-store-spec "data_base"))) ;TODO: remove
+
+
+
 
 (defun run-rdf-importer-tests()
   (it.bese.fiveam:run! 'test-get-literals-of-node)
@@ -1740,4 +1749,5 @@
   (it.bese.fiveam:run! 'test-parse-properties-of-node)
   (it.bese.fiveam:run! 'test-import-node-1)
   (it.bese.fiveam:run! 'test-import-node-reification)
-  (it.bese.fiveam:run! 'test-import-dom))
+  (it.bese.fiveam:run! 'test-import-dom)
+  (it.bese.fiveam:run! 'test-poems-rdf-1))

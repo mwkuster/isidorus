@@ -56,6 +56,7 @@ src/unit_tests/notification_merge2.xtm -text
 src/unit_tests/notificationbase.xtm -text
 src/unit_tests/poems.rdf -text
 src/unit_tests/poems.xtm -text
+src/unit_tests/poems_light.rdf -text
 src/unit_tests/rdf_importer_test.lisp -text
 src/unit_tests/sample_objects.xtm -text
 src/unit_tests/sample_objects_2_0.xtm -text

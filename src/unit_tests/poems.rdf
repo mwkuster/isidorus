@@ -55,6 +55,7 @@
 	<arcs:date rdf:datatype="#date" xml:base="http://www.w3.org/2001/XMLSchema">22.03.1832</arcs:date>
 	<arcs:place xml:base="">
 	  <types:City rdf:about="Weimar" arcs:fullName="Weimar">
+	    <rdfs:subClassOf rdf:resource="http://some.where/types/Region"/>
 	    <arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsigneLong">64720</arcs:population>
 	    <arcs:locatedIn rdf:resource="http://some.where/country/Germany"/>
 	  </types:City>
@@ -66,7 +67,7 @@
     <arcs:wrote>
       <rdf:Bag rdf:nodeID="goethe_literature">
 	<rdf:li>
-	  <types:Poem>
+	  <types:Poem rdf:about="http://some.where/poem/Der_Zauberlehrling">
 	    <arcs:title rdf:parseType="Literal" xml:lang="de">Der Zauberlehrling</arcs:title>
 	    <arcs:dateRange rdf:parseType="Resource" xml:base="http://www.w3.org/2001/XMLSchema"> <!-- rdf:parseType="resource" == bland_node --> 
 	      <arcs:start rdf:datatype="#date">01.01.1797</arcs:start>
@@ -194,10 +195,10 @@ erst hervor der alte Meister."]]>
   <!-- referenced ressources by goethe -->
   <rdf:Description rdf:nodeID="goethe_literature">
     <rdf:li>
-      <types:Ballad arcs:title="Der Erlkönig" xml:lang="de">
+      <types:Ballad rdf:about="http://some.where/ballad/Der_Erlkoenig" arcs:title="Der Erlkönig" xml:lang="de">
 	<arcs:dateRange rdf:parseType="Resource" xml:base="http://www.w3.org/2001/XMLSchema">
 	  <arcs:start rdf:datatype="#date">01.01.1782</arcs:start>
-	  <arcs:end  rdf:datatype="#date">01.01.1782</arcs:end>
+	  <arcs:end  rdf:datatype="#date">31.12.1782</arcs:end>
 	</arcs:dateRange>
 	<arcs:content rdf:datatype="http://www.w3.org/2001/XMLSchema#string" xml:lang="de">
 	  <![CDATA[Wer reitet so spät durch Nacht und Wind?
@@ -243,7 +244,7 @@ In seinen Armen das Kind war tot.]]>
       </types:Ballad>
     </rdf:li>
     <rdf:li>
-      <rdf:Description arcs:title="Prometheus">
+      <rdf:Description rdf:about="http://some.where/poem/Prometheus" arcs:title="Prometheus">
 	<rdf:type rdf:resource="/types/Poem"/>
 	<arcs:dateRange>
 	  <rdf:Description xml:base="http://does.not.exist">
@@ -354,7 +355,7 @@ Wie ich!]]>
       <rdf:Description>
 	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag"/>
 	<rdf:_1>
-	  <types:Poem arcs:title="Resigantion" xml:lang="de">
+	  <types:Poem rdf:about="http://some.where/poem/Resignation" arcs:title="Resigantion" xml:lang="de">
 	    <arcs:dateRange rdf:parseType="Resource">
 	      <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1786</arcs:start>
 	      <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1786</arcs:end>
@@ -471,7 +472,7 @@ Was man von der Minute ausgeschlagen,
 	  </types:Poem>
 	</rdf:_1>
 	<rdf:_2>
-	  <types:Drama arcs:title="Die Räuber" xml:lang="de">
+	  <types:Drama rdf:about="http://some.where/drama/Die_Raeuber" arcs:title="Die Räuber" xml:lang="de">
 	    <arcs:dateRange>
 	      <rdf:Description>
 		<arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1781</arcs:start>
@@ -3138,7 +3139,7 @@ R. Moor. Man könnte mich darum bewundern. (Nach einigem Nachsinnen.) Ich erinne
     <arcs:wrote>
       <rdf:Bag>
 	<rdf:li>
-	  <types:Poem arcs:title="Mondnacht">
+	  <types:Poem rdf:about="http://some.where/poem/Mondnacht" arcs:title="Mondnacht">
 	    <arcs:dateRange rdf:parseType="Resource">
 	      <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1837</arcs:start>
 	      <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1837</arcs:end>
@@ -3162,7 +3163,7 @@ Als flöge sie nach Haus.]]>
 	  </types:Poem>
 	</rdf:li>
 	<rdf:li>
-	  <types:Ballad>
+	  <types:Ballad rdf:about="http://some.where/ballad/Die_zwei_Gesellen">
 	    <arcs:title rdf:parseType="Literal">Die zwei Gesellen</arcs:title>
 	    <arcs:title rdf:parseType="Literal">Frühlingsfahrt</arcs:title>
 	    <arcs:dateRange rdf:parseType="Resource">
@@ -3256,7 +3257,7 @@ Ach Gott, führ uns liebreich zu dir!]]>
     <arcs:wrote>
       <rdf:Bag>
 	<rdf:_1>
-	  <types:Poem arcs:title="Venus And Adonis">
+	  <types:Poem rdf:about="http://some.where/poem/Venus_And_Adonis" arcs:title="Venus And Adonis">
 	    <arcs:dateRange rdf:parseType="Resource">
 	      <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1592</arcs:start>
 	      <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1593</arcs:end>
@@ -4677,7 +4678,7 @@ Means to immure herself and not be seen.
 	  </types:Poem>
 	</rdf:_1>
 	<rdf:_2>
-	  <types:Drama arcs:title="Venus And Adonis">
+	  <types:Drama rdf:about="http://some.where/drama/Romeo_And_Juliet" arcs:title="Romeo and Juliet">
 	    <arcs:dateRange rdf:parseType="Resource">
 	      <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1597</arcs:start>
 	      <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1597</arcs:end>

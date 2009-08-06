@@ -35,7 +35,9 @@
 	   :*NOTIFICATIONBASE-TM*
 	   :*XTM-TM*
            :*XTM-MERGE1-TM*
-           :*XTM-MERGE2-TM*))
+           :*XTM-MERGE2-TM*
+	   :rdf-init-db
+	   :rdf-test-db))
 
 (in-package :fixtures)
 
@@ -166,4 +168,26 @@
     (importer *XTM-ATOM-TM* :xtm-id "atom-tm1" :tm-id "http://psi.egovpt.org/tm/egov-ontology"
               :revision revision1)
     (&body) 
+    (tear-down-test-db)))
+
+
+(defun rdf-init-db (&key (db-dir "data_base") (start-revision (get-revision)))
+  "Deletes the data base files and initializes isidorus for rdf."
+  (when elephant:*store-controller*
+    (elephant:close-store))
+  (clean-out-db db-dir)
+  (elephant:open-store (xml-importer:get-store-spec db-dir))
+  (xml-importer:init-isidorus start-revision)
+  (rdf-importer:init-rdf-module start-revision))
+
+
+(def-fixture rdf-test-db ()
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(document-id "doc-id"))
+    (clean-out-db db-dir)
+    (rdf-importer:setup-rdf-module *poems_light.rdf* db-dir :tm-id tm-id
+				   :document-id document-id)
+    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (&body)
     (tear-down-test-db)))

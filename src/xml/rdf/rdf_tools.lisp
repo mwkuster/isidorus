@@ -75,10 +75,10 @@
 (in-package :rdf-importer)
 
 (defvar *rdf-types* (list "Description" "List" "Alt" "Bag" "Seq"
-			  "Statement" "Property" "XMLLiteral"))
+			  "Statement" "Property" "XMLLiteral" "nil"))
 
 (defvar *rdf-properties* (list "type" "first" "rest" "subject" "predicate"
-			       "object" "li"))
+			       "object" "li" "first" "rest"))
 
 (defvar *rdfs-types* (list "Resource" "Literal" "Class" "Datatype"
 			   "Container" "ContainerMembershipProperty"))
