@@ -31,7 +31,8 @@
 		*rdf-nil*
 		*rdf-first*
 		*rdf-rest*
-		*rdf2tm-collection*)
+		*rdf2tm-collection*
+		*rdf2tm-scope-prefix*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*)
   (:import-from :xml-constants

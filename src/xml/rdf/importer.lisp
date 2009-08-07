@@ -23,8 +23,8 @@
      (get-store-spec repository-path)))
   (xml-importer:init-isidorus)
   (init-rdf-module)
-  (rdf-importer rdf-xml-path repository-path :tm-id tm-id)
-		:document-id document-id
+  (rdf-importer rdf-xml-path repository-path :tm-id tm-id
+		:document-id document-id)
   (when elephant:*store-controller*
     (elephant:close-store)))
 
@@ -409,15 +409,13 @@
 				       topic-id err)))))))))
 
 
-(defun make-lang-topic (lang tm-id start-revision tm
+(defun make-lang-topic (lang start-revision tm
 			&key (document-id *document-id*))
   "Returns a topic with the topicid tm-id/lang. If no such topic exist
    there will be created one."
-  (declare (TopicMapC tm))
-  (when (and lang tm-id)
-    (tm-id-p tm-id "make-lang-topic")
+  (when lang
     (let ((psi-and-topic-id
-	   (absolutize-value lang nil tm-id)))
+	   (concatenate-uri *rdf2tm-scope-prefix* lang)))
       (let ((top (get-item-by-id psi-and-topic-id :xtm-id document-id
 				 :revision start-revision)))
 	(if top
@@ -538,7 +536,7 @@
 	(let ((type-top (make-topic-stub type nil nil nil start-revision
 					 xml-importer::tm
 					 :document-id document-id))
-	      (lang-top (make-lang-topic lang tm-id start-revision
+	      (lang-top (make-lang-topic lang start-revision
 					 xml-importer::tm
 					 :document-id document-id)))
 	  (let ((occurrence

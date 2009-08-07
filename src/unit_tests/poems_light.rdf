@@ -16,7 +16,7 @@
       <types:Event>
 	<arcs:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">28.08.1749</arcs:date>
 	<arcs:place>
-	  <rdf:Description rdf:about="/region/FrankfurtMain">
+	  <rdf:Description rdf:about="/metropolis/FrankfurtMain">
 	    <rdf:type>
 	      <rdf:Description rdf:about="/types/Metropolis">
 		<rdfs:subClassOf rdf:resource="/types/Region"/>
@@ -33,7 +33,7 @@
 		<arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">82099232</arcs:population>
 		<arcs:officialese rdf:resource="language/German"/>
 		<arcs:capital>
-		  <rdf:Description rdf:about="http://some.where/region/Berlin">
+		  <rdf:Description rdf:about="http://some.where/metropolis/Berlin">
 		    <rdf:type>
 		      <rdf:Description rdf:about="http://some.where/types/Metropolis"/>
 		    </rdf:type>
@@ -54,9 +54,9 @@
 	<rdf:type rdf:resource="Event"/>
 	<arcs:date rdf:datatype="#date" xml:base="http://www.w3.org/2001/XMLSchema">22.03.1832</arcs:date>
 	<arcs:place xml:base="">
-	  <types:City rdf:about="Weimar" arcs:fullName="Weimar">
+	  <types:City rdf:about="http://some.where/city/Weimar" arcs:fullName="Weimar">
 	    <rdfs:subClassOf rdf:resource="http://some.where/types/Region"/>
-	    <arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsigneLong">64720</arcs:population>
+	    <arcs:population rdf:datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">64720</arcs:population>
 	    <arcs:locatedIn rdf:resource="http://some.where/country/Germany"/>
 	  </types:City>
 	</arcs:place>
