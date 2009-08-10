@@ -880,16 +880,18 @@
       (is (= (length (dom:child-nodes dom-1))))
       (let ((node (elt (dom:child-nodes dom-1) 0)))
 	(is-true (rdf-importer::parse-node node))
-	(is-true (rdf-importer::parse-properties-of-node node))
-	(is (= (length rdf-importer::*_n-map*) 8))
+	(is-true (rdf-importer::parse-properties-of-node
+		  node "http://xml-base/first/resource"))
+	(is (= (length rdf-importer::*_n-map*) 1))
+	(is (= (length (getf (first rdf-importer::*_n-map*) :props)) 8))
 	(dotimes (iter (length rdf-importer::*_n-map*))
 	  (is-true (find-if
 		    #'(lambda(x)
-			(string= (getf x :type)
+			(string= (getf x :name)
 				 (concatenate
 				  'string *rdf-ns* "_"
 				  (write-to-string (+ 1 iter)))))
-		    rdf-importer::*_n-map*)))
+		    (getf (first rdf-importer::*_n-map*) :props))))
 	(let ((assocs
 	       (rdf-importer::get-associations-of-node-content node tm-id nil))
 	      (content-literals
@@ -985,8 +987,7 @@
 				      (getf x :ID)
 				      "http://xml-base/first#rdfID-4")))
 			    content-literals)))
-	(rdf-importer::remove-node-properties-from-*_n-map* node)
-	(is (= (length rdf-importer::*_n-map*) 0))))))
+	(setf rdf-importer::*_n-map* nil)))))
 
 
 (test test-import-node-1
@@ -1741,7 +1742,7 @@
 	  (date "http://www.w3.org/2001/XMLSchema#date")
 	  (de (d:get-item-by-id "http://isidorus/rdf2tm_mapping/scope#de"))
 	  (long "http://www.w3.org/2001/XMLSchema#unsignedLong"))
-      (is (= (length topics) 65))
+      (is (= (length topics) 66))
       (is (= (length occs) 23))
       (is (= (length assocs) 30))
       (is-true de)
@@ -2285,7 +2286,7 @@
 	      #'(lambda(x)
 		  (and (= (length (d:psis (d:instance-of x))) 1)
 		       (string= (d:uri (first (d:psis (d:instance-of x))))
-				(concatenate 'string constants:*rdf-ns* "_1"))
+				(concatenate 'string constants:*rdf-ns* "_2"))
 		       (find-if
 			#'(lambda(y)
 			    (and (eql (d:instance-of y) isi-subject)
@@ -2304,7 +2305,7 @@
 	      #'(lambda(x)
 		  (and (= (length (d:psis (d:instance-of x))) 1)
 		       (string= (d:uri (first (d:psis (d:instance-of x))))
-				(concatenate 'string constants:*rdf-ns* "_2"))
+				(concatenate 'string constants:*rdf-ns* "_3"))
 		       (find-if
 			#'(lambda(y)
 			    (and (eql (d:instance-of y) isi-subject)
@@ -2641,6 +2642,7 @@
 	    (bag (get-item-by-id (concatenate 'string *rdf-ns* "Bag")))
 	    (_1 (get-item-by-id (concatenate 'string *rdf-ns* "_1")))
 	    (_2 (get-item-by-id (concatenate 'string *rdf-ns* "_2")))
+	    (_3 (get-item-by-id (concatenate 'string *rdf-ns* "_3")))
 	    (zauberlehrling
 	     (get-item-by-id "http://some.where/poem/Der_Zauberlehrling"))
 	    (poem (get-item-by-id (concatenate 'string types "Poem")))
@@ -2685,6 +2687,7 @@
 	(check-topic bag (concatenate 'string *rdf-ns* "Bag"))
 	(check-topic _1 (concatenate 'string *rdf-ns* "_1"))
 	(check-topic _2 (concatenate 'string *rdf-ns* "_2"))
+	(check-topic _3 (concatenate 'string *rdf-ns* "_3"))
 	(check-topic zauberlehrling "http://some.where/poem/Der_Zauberlehrling")
 	(check-topic poem (concatenate 'string types "Poem"))
 	(check-topic dateRange (concatenate 'string arcs "dateRange"))

@@ -108,53 +108,73 @@
 	  (condition () nil))))))
 
 
-(defun set-_n-name (property _n-counter)
-  "Returns a name of the form <rdf>_[1-9][0-9]* and adds a tupple
-   of the form :elem <dom-elem> :type<<rdf>_[1-9][0-9]*> to the
-   list *_n-map*.
-   If the dom-elem is already contained in the list only the
-   <rdf>_[1-9][0-9]* name is returned."
-  (let ((map-item (find-if #'(lambda(x)
-			       (eql (getf x :elem) property))
-			   *_n-map*)))
-    (if map-item
-	(getf map-item :type)
-	(let ((new-type-name
-	       (concatenate 'string *rdf-ns* "_" (write-to-string _n-counter))))
-	  (push (list :elem property
-		      :type new-type-name)
-		*_n-map*)
-	  new-type-name))))
+
+(defun find-_n-name-of-property (property)
+  "Returns the properties name of the form rdf:_n or nil."
+  (let ((owner
+	 (find-if
+	  #'(lambda(x)
+	      (find-if
+	       #'(lambda(y)
+		   (eql (getf y :elem) property))
+	       (getf x :props)))
+	  *_n-map*)))
+    (let ((elem (find-if #'(lambda(x)
+			     (eql (getf x :elem) property))
+			 (getf owner :props))))
+      (when elem
+	(getf elem :name)))))
 
 
-(defun unset-_n-name (property)
-  "Deletes the passed property tupple of the *_n-map* list."
-  (setf *_n-map* (remove-if #'(lambda(x)
-				(eql (getf x :elem) property))
-			    *_n-map*)))
+
+(defun find-_n-name (owner-identifier property)
+  "Returns a name of the form rdf:_n of the property element
+   when it owns the tagname rdf:li and exists in the *_n-map* list.
+   Otherwise the return value is nil."
+  (let ((owner (find-if #'(lambda(x)
+			    (string= (getf x :owner) owner-identifier))
+			*_n-map*)))
+   (when owner
+     (let ((prop (find-if #'(lambda(x)
+			      (eql (getf x :elem) property))
+			  (getf owner :props))))
+       (getf prop :name)))))
 
 
-(defun remove-node-properties-from-*_n-map* (node)
-  "Removes all node's properties from the list *_n-map*."
-  (declare (dom:element node))
-  (let ((properties (child-nodes-or-text node :trim t)))
-    (when properties
-      (loop for property across properties
-	 do (unset-_n-name property))))
-  (dom:map-node-map
-   #'(lambda(attr) (unset-_n-name attr))
-   (dom:attributes node)))
+(defun set-_n-name (owner-identifier property)
+  "Sets a new name of the form _n for the passed property element and
+   adds it to the list *_n-map*. If the property already exists in the
+   *_n-map* list, there won't be created a new entry but returned the
+   stored value name."
+  (let ((name (find-_n-name owner-identifier property)))
+    (if name
+	name
+	(let ((owner (find-if #'(lambda(x)
+				  (string= (getf x :owner) owner-identifier))
+			      *_n-map*)))
+	  (if owner
+	      (let ((new-name
+		     (concatenate
+		      'string *rdf-ns* "_"
+		      (write-to-string (+ (length (getf owner :props)) 1)))))
+		(push (list :elem property
+			    :name new-name)
+		      (getf owner :props))
+		new-name)
+	      (progn
+		(push 
+		 (list :owner owner-identifier
+		       :props (list
+			       (list :elem property
+				     :name (concatenate 'string *rdf-ns* "_1"))))
+		 *_n-map*)
+		"_1"))))))
 
 
 (defun get-type-of-node-name (node)
-  "Returns the type of the node name (namespace + tagname).
-   When the node is contained in *_n-map* the corresponding
-   value of this map will be returned."
-  (let ((map-item (find-if #'(lambda(x)
-			       (eql (getf x :elem) node))
-			   *_n-map*)))
+  (let ((map-item (find-_n-name-of-property node)))
     (if map-item
-	(getf map-item :type)
+	map-item
 	(let ((node-name (get-node-name node))
 	      (node-ns (dom:namespace-uri node)))
 	  (concatenate-uri node-ns node-name)))))
@@ -258,7 +278,7 @@
 			 :psi (or ID about)))))))
 
 
-(defun parse-property-name (property _n-counter)
+(defun parse-property-name (property owner-identifier)
   "Parses the given property's name to the known rdf/rdfs nodes and arcs.
    If the given name es equal to an node an error is thrown otherwise
    there is displayed a warning when the rdf ord rdfs namespace is used."
@@ -286,11 +306,12 @@
 		err-pref property-name)))
     (when (and (string= property-ns *rdf-ns*)
 	       (string= property-name "li"))
-      (set-_n-name property _n-counter)))
+      (set-_n-name owner-identifier property)))
+      ;(set-_n-name property _n-counter)))
   t)
 
 
-(defun parse-property (property _n-counter)
+(defun parse-property (property owner-identifier)
   "Parses a property that represents a rdf-arc."
   (declare (dom:element property))
   (let ((err-pref "From parse-property(): ")
@@ -305,7 +326,7 @@
 	(subClassOf (get-ns-attribute property "subClassOf" :ns-uri *rdfs-ns*))
 	(literals (get-literals-of-property property nil))
 	(content (child-nodes-or-text property :trim t)))
-    (parse-property-name property _n-counter)
+    (parse-property-name property owner-identifier)
     (when (and parseType
 	       (or nodeID resource datatype type literals))
       (error "~awhen rdf:parseType is set the attributes: ~a => ~a are not allowed!"
@@ -382,7 +403,7 @@
 			(string= node-ns *rdfs-ns*)))
 	       (and (> (length content) 0)
 		    (stringp content)))
-      (error "~awhen ~a not allowed to own literal content: ~a!"
+      (error "~awhen property is ~a literal content is not allowed: ~a!"
 	     err-pref (if (string= node-name "type")
 			  "rdf:type"
 			  "rdfs:subClassOf")
@@ -398,28 +419,22 @@
   t)
 
 
-(defun parse-properties-of-node (node)
+(defun parse-properties-of-node (node owner-identifier)
   "Parses all node's properties by calling the parse-propery
    function and sets all rdf:li properties as a tupple to the
    *_n-map* list."
-  (let ((child-nodes (child-nodes-or-text node :trim t))
-	(_n-counter 0))
+  (let ((child-nodes (child-nodes-or-text node :trim t)))
+	;(_n-counter 0))
     (when (get-ns-attribute node "li")
       (dom:map-node-map
        #'(lambda(attr)
 	   (when (and (string= (get-node-name attr) "li")
 		      (string= (dom:namespace-uri attr) *rdf-ns*))
-	     (incf _n-counter)
-	     (set-_n-name attr _n-counter)))
+	     (set-_n-name owner-identifier attr)))
 	     (dom:attributes node)))
     (when child-nodes
       (loop for property across child-nodes
-	 do (let ((prop-name (get-node-name property))
-		  (prop-ns (dom:namespace-uri node)))
-	      (when (and (string= prop-name "li")
-			 (string= prop-ns *rdf-ns*))
-		(incf _n-counter))
-	      (parse-property property _n-counter)))))
+	 do (parse-property property owner-identifier))))
   t)
 
 

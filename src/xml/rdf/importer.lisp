@@ -105,12 +105,13 @@
   ;      parseType="Collection" -> see also import-arc
   (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
 	(fn-xml-lang (get-xml-lang elem :old-lang xml-lang)))
-    (parse-properties-of-node elem)
     (let ((about (get-absolute-attribute elem tm-id xml-base "about"))	   
 	  (nodeID (get-ns-attribute elem "nodeID"))
 	  (ID (get-absolute-attribute elem tm-id xml-base "ID"))
-	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*))
-	  (literals (append (get-literals-of-node elem fn-xml-lang)
+	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
+      (parse-properties-of-node elem (or about nodeID ID UUID))
+
+    (let ((literals (append (get-literals-of-node elem fn-xml-lang)
 			    (get-literals-of-node-content
 			     elem tm-id xml-base fn-xml-lang)))
 	  (associations (get-associations-of-node-content elem tm-id xml-base))
@@ -144,8 +145,7 @@
 				      :document-id document-id
 				      :xml-base xml-base
 				      :xml-lang xml-lang)
-	    (remove-node-properties-from-*_n-map* elem)
-	    this))))))
+	    this)))))))
 
 
 (defun import-arc (elem tm-id start-revision
@@ -163,7 +163,7 @@
 	      (and parseType
 		   (string/= parseType "Collection")))
       (when UUID
-	(parse-properties-of-node elem)
+	(parse-properties-of-node elem UUID)
 	(with-tm (start-revision document-id tm-id)
 	  (let ((this (get-item-by-id UUID :xtm-id document-id
 				      :revision start-revision)))
