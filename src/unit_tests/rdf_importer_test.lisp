@@ -59,7 +59,8 @@
 	   :test-poems-rdf-typing
 	   :test-poems-rdf-topics
 	   :test-empty-collection
-	   :test-collection))
+	   :test-collection
+	   :test-xml-base))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -1755,7 +1756,6 @@
 			 4))
 		  (is (= (length (d:player-in-roles fourth-node)) 1))
 		  (is (= (length (d:player-in-roles fifth-node)) 1))
-		  (format t "--->")
 		  (let ((col-2
 			 (d:player
 			  (find-if
@@ -2981,6 +2981,73 @@
 		    (d:player-in-roles node))))))))
 
 
+(test test-xml-base
+  "Tests the function get-xml-base."
+  (let ((doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\">"
+		      " <rdf:Description xml:base=\"http://base-1\"/>"
+		      " <rdf:Description xml:base=\"http://base-2#\"/>"
+		      " <rdf:Description xml:base=\"http://base-3/\"/>"
+		      "</rdf:RDF>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
+	(let ((n-1 (elt (rdf-importer::child-nodes-or-text rdf-node
+							   :trim t) 0))
+	      (n-2 (elt (rdf-importer::child-nodes-or-text rdf-node
+							   :trim t) 1))
+	      (n-3 (elt (rdf-importer::child-nodes-or-text rdf-node
+							   :trim t) 2)))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-1)
+			"test")
+		       "http://base-1/test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-1)
+			"/test")
+		       "http://base-1/test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-1)
+			"#test")
+		       "http://base-1#test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-2)
+			"test")
+		       "http://base-2#test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-2)
+			"#test")
+		       "http://base-2#test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-2)
+			"/test")
+		       "http://base-2/test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-2)
+			"/t/est")
+		       "http://base-2/t/est"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-2)
+			"t/est")
+		       "http://base-2/t/est"))
+	  (signals error (xml-tools::concatenate-uri
+			  (xml-tools:get-xml-base n-2) ""))
+	  (signals error (xml-tools::concatenate-uri
+			  "" "test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-3)
+			"test")
+		       "http://base-3/test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-3)
+			"#test")
+		       "http://base-3/#test"))
+	  (is (string= (xml-tools::concatenate-uri
+			(xml-tools:get-xml-base n-3)
+			"/test")
+		       "http://base-3/test")))))))
+
+
 (defun run-rdf-importer-tests()
   (when elephant:*store-controller*
     (elephant:close-store))
@@ -3001,4 +3068,5 @@
   (it.bese.fiveam:run! 'test-poems-rdf-typing)
   (it.bese.fiveam:run! 'test-poems-rdf-topics)
   (it.bese.fiveam:run! 'test-empty-collection)
-  (it.bese.fiveam:run! 'test-collection))
+  (it.bese.fiveam:run! 'test-collection)
+  (it.bese.fiveam:run! 'test-xml-base))

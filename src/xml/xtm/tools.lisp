@@ -44,27 +44,38 @@
   "Returns a string conctenated of the absolut namespace an the given value
    separated by either '#' or '/'."
   (declare (string absolute-ns value))
-  (unless (or (> (length absolute-ns) 0)
-	      (> (length value) 0))
+  (unless (and (> (length absolute-ns) 0)
+	       (> (length value) 0))
     (error "From concatenate-uri(): absolute-ns and value must be of length > 0"))
   (unless (absolute-uri-p absolute-ns)
     (error "From concatenate-uri(): absolute-ns has to be an absolute URI: ~a" absolute-ns))
   (let ((last-char
-	 (elt absolute-ns (- (length absolute-ns) 1))))
+	 (elt absolute-ns (- (length absolute-ns) 1)))
+	(first-char
+	 (elt value 0)))
     (let ((separator
 	   (cond
-	     ((eql last-char #\#)
-	      "#")
-	     ((eql last-char #\/)
-	      "/")
+	     ((or (eql first-char #\#)
+		  (eql first-char #\/))
+	      "")
+	     ((or (eql last-char #\#)
+		  (eql last-char #\/))
+	      "")
 	     (t
-	      "#")))
-	  (prep-ns
-	   (if (or (eql last-char #\#)
-		   (eql last-char #\/))
-	       (subseq absolute-ns 0 (- (length absolute-ns) 1))
-	       absolute-ns)))
-      (concatenate 'string prep-ns separator value))))
+	      "/"))))
+      (let ((prep-ns
+	     (if (and (eql last-char first-char)
+		      (or (eql last-char #\#)
+			  (eql last-char #\/)))
+		 (subseq absolute-ns 0 (- (length absolute-ns) 1))
+		 (if (and (eql last-char #\#)
+			  (find #\/ value))
+		     (progn
+		       (when (not (eql first-char #\/))
+			 (setf separator "/"))
+		       (subseq absolute-ns 0 (- (length absolute-ns) 1)))
+		     absolute-ns))))
+	(concatenate 'string prep-ns separator value)))))
 
 
 (defun absolutize-id (id xml-base tm-id)
@@ -142,9 +153,11 @@
   (declare (dom:element elem))
   (let ((new-base
 	 (let ((inner-base
-		(if (find #\# (get-ns-attribute elem "base" :ns-uri *xml-ns*))
+		(if (> (count #\# (get-ns-attribute elem "base"
+						    :ns-uri *xml-ns*))
+		       1)
 		    (error "From get-xml-base(): the base-uri ~a is not valid"
-			   (get-ns-attribute elem *xml-ns* "base"))
+			   (get-ns-attribute elem "base" :ns-uri *xml-ns*))
 		    (when (get-ns-attribute elem "base" :ns-uri *xml-ns*)
 		      (string-trim '(#\Space #\Tab #\Newline)
 				   (get-ns-attribute elem "base" :ns-uri *xml-ns*))))))
@@ -152,7 +165,6 @@
 		    (eql (elt inner-base 0) #\/))
 	       (subseq inner-base 1 (length inner-base))
 	       inner-base))))
-
     (if (or (absolute-uri-p new-base)
 	    (not old-base))
 	new-base
