@@ -37,7 +37,6 @@
 	   :*rdf-rest*
 	   :*rdf2tm-object*
 	   :*rdf2tm-subject*
-	   :*rdf2tm-collection*
 	   :*rdf2tm-scope-prefix*))
 
 (in-package :constants)
@@ -94,7 +93,5 @@
 (defparameter *rdf2tm-object* "http://isidorus/rdf2tm_mapping#object")
 
 (defparameter *rdf2tm-subject* "http://isidorus/rdf2tm_mapping#subject")
-
-(defparameter *rdf2tm-collection* "http://isidorus/rdf2tm_mapping#collection")
 
 (defparameter *rdf2tm-scope-prefix* "http://isidorus/rdf2tm_mapping/scope#")

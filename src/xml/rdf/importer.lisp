@@ -101,8 +101,6 @@
   (format t ">> import-node: ~a <<~%" (dom:node-name elem)) ;TODO: remove
   (tm-id-p tm-id "import-node")
   (parse-node elem)
-  ;TODO: handle Collections that are made manually without
-  ;      parseType="Collection" -> see also import-arc
   (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
 	(fn-xml-lang (get-xml-lang elem :old-lang xml-lang)))
     (let ((about (get-absolute-attribute elem tm-id xml-base "about"))	   
@@ -158,76 +156,123 @@
   (let ((fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
 	(fn-xml-base (get-xml-base elem :old-base xml-base))
 	(UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*))
-	(parseType (get-ns-attribute elem "parseType")))
-    (when (or (not parseType)
-	      (and parseType
-		   (string/= parseType "Collection")))
-      (when UUID
-	(parse-properties-of-node elem UUID)
-	(with-tm (start-revision document-id tm-id)
-	  (let ((this (get-item-by-id UUID :xtm-id document-id
-				      :revision start-revision)))
-	    (let ((literals (append (get-literals-of-property elem fn-xml-lang)
-				    (get-literals-of-node-content
-				     elem tm-id xml-base fn-xml-lang)))
-		  (associations
-		   (get-associations-of-node-content elem tm-id xml-base))
-		  (types (remove-if
-			  #'null
-			  (append
-			   (get-types-of-node-content elem tm-id fn-xml-base)
-			   (when (get-ns-attribute elem "type")
-			     (list :ID nil
-				   :topicid (get-ns-attribute elem "type")
-				   :psi (get-ns-attribute elem "type"))))))
-		  (super-classes
-		   (get-super-classes-of-node-content elem tm-id xml-base)))
-	      (make-literals this literals tm-id start-revision
-			     :document-id document-id)
-	      (make-associations this associations xml-importer::tm
-				 start-revision :document-id document-id)
-	      (make-types this types xml-importer::tm start-revision
-			  :document-id document-id)
-	      (make-super-classes this super-classes xml-importer::tm
-				  start-revision :document-id document-id))))))
-    (make-recursion-from-arc elem tm-id start-revision
-			     :document-id document-id
-			     :xml-base xml-base :xml-lang xml-lang)))
+	(parseType (get-ns-attribute elem "parseType"))
+	(content (child-nodes-or-text elem :trim t)))
+    (with-tm (start-revision document-id tm-id)
+      (if (and (string= parseType "Collection")
+	       (= (length content) 0))
+	    (make-topic-stub *rdf-nil* nil nil nil start-revision
+			     xml-importer::tm :document-id document-id)
+	  (let ((this-topic
+		 (when (or (not parseType)
+			   (and parseType
+				(string/= parseType "Collection")))
+		   (when UUID
+		     (parse-properties-of-node elem UUID)
+		     (let ((this
+			    (get-item-by-id UUID :xtm-id document-id
+					    :revision start-revision)))
+		       (let ((literals
+			      (append (get-literals-of-property
+				       elem fn-xml-lang)
+				      (get-literals-of-node-content
+				       elem tm-id xml-base fn-xml-lang)))
+			     (associations
+			      (get-associations-of-node-content
+			       elem tm-id xml-base))
+			     (types
+			      (remove-if
+			       #'null
+			       (append
+				(get-types-of-node-content elem tm-id fn-xml-base)
+				(when (get-ns-attribute elem "type")
+				  (list :ID nil
+					:topicid (get-ns-attribute elem "type")
+					:psi (get-ns-attribute elem "type"))))))
+			     (super-classes
+			      (get-super-classes-of-node-content
+			       elem tm-id xml-base)))
+			 (make-literals this literals tm-id start-revision
+					:document-id document-id)
+			 (make-associations this associations xml-importer::tm
+					    start-revision :document-id document-id)
+			 (make-types this types xml-importer::tm start-revision
+				     :document-id document-id)
+			 (make-super-classes
+			  this super-classes xml-importer::tm
+			  start-revision :document-id document-id))
+		       this)))))
+	    (make-recursion-from-arc elem tm-id start-revision
+				     :document-id document-id
+				     :xml-base xml-base :xml-lang xml-lang)
+	    this-topic)))))
 
 
-(defun make-collection (elem owner-top tm-id start-revision
+(defun make-collection (elem tm-id start-revision
 			&key (document-id *document-id*)
 			(xml-base nil) (xml-lang nil))
-  "Creates a TM association with a subject role containing the collection
-   entry point and as many roles of the type 'object' as items exists."
-  (declare (d:TopicC owner-top))
+  "Creates a collection structure of a node that contains
+   parseType='Collection."
+  (declare (dom:element elem))
   (with-tm (start-revision document-id tm-id)
     (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
 	  (fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
-	  (subject (make-topic-stub *rdf2tm-subject* nil nil nil start-revision
-				    xml-importer::tm :document-id document-id))
-	  (object (make-topic-stub *rdf2tm-object* nil nil nil start-revision
-				   xml-importer::tm :document-id document-id)))
-      (let ((association-type (make-topic-stub *rdf2tm-collection* nil nil nil
-					       start-revision xml-importer::tm
-					       :document-id document-id))
-	    (roles
-	     (append
-	      (loop for item across (child-nodes-or-text elem :trim t)
-		 collect (let ((item-top (import-node item tm-id start-revision
-						      :document-id document-id
-						      :xml-base fn-xml-base
-						      :xml-lang fn-xml-lang)))
-			   (list :player item-top
-				 :instance-of object)))
-	      (list (list :player owner-top
-			  :instance-of subject)))))
-	(add-to-topicmap
-	 xml-importer::tm
-	 (make-construct 'd:AssociationC
-			 :start-revision start-revision
-			 :instance-of association-type
-			 :roles roles))))))
+	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
+      (let ((this (make-topic-stub nil nil nil UUID start-revision
+				   xml-importer::tm
+				   :document-id document-id))
+	    (items (loop for item across (child-nodes-or-text elem :trim t)
+		      collect (import-node item tm-id start-revision
+					   :document-id document-id
+					   :xml-base fn-xml-base
+					   :xml-lang fn-xml-lang))))
+	(let ((last-blank-node this))
+	  (dotimes (index (length items))
+	    (let ((is-end
+		   (if (= index (- (length items) 1))
+		       t
+		       nil)))
+	      (let ((new-blank-node
+		     (make-collection-association
+		      last-blank-node (elt items index) tm-id  start-revision
+		      :is-end is-end :document-id document-id)))
+		(setf last-blank-node new-blank-node)))))))))
+
+
+(defun make-collection-association (current-blank-node first-object tm-id
+				    start-revision &key (is-end nil)
+				    (document-id *document-id*))
+  "Creates a 'first'-association between the current-blank-node and the
+   first-object. If is-end is set to true another association between
+   current-blank-node and the topic rdf:nil is created. Otherwise this
+   associaiton is made from the current-blank-node to a new created blank
+   node."
+  (declare (d:TopicC current-blank-node first-object))
+  (with-tm (start-revision document-id tm-id)
+    (let ((first-arc
+	   (make-topic-stub *rdf-first* nil nil nil start-revision 
+			    xml-importer::tm :document-id document-id))
+	  (rest-arc
+	   (make-topic-stub *rdf-rest* nil nil nil start-revision
+			    xml-importer::tm :document-id document-id)))
+      (make-association-with-nodes current-blank-node first-object first-arc
+				   xml-importer::tm start-revision
+				   :document-id document-id)
+      (if is-end
+	  (let ((rdf-nil (make-topic-stub *rdf-nil* nil nil nil
+					  start-revision xml-importer::tm
+					  :document-id document-id)))
+	    (make-association-with-nodes
+	     current-blank-node rdf-nil rest-arc xml-importer::tm
+	     start-revision :document-id document-id)
+	    nil)
+	  (let ((new-blank-node (make-topic-stub
+				 nil nil nil (get-uuid) start-revision
+				 xml-importer::tm :document-id document-id)))
+	    (make-association-with-nodes
+	     current-blank-node new-blank-node rest-arc xml-importer::tm
+	     start-revision :document-id document-id)
+	    new-blank-node)))))
 
 
 (defun make-literals (owner-top literals tm-id start-revision
@@ -801,10 +846,15 @@
 		   (not (and (string= prop-name "subClassOf")
 			     (string= prop-ns *rdfs-ns*)))))
        collect (let ((prop-xml-base (get-xml-base property
-						  :old-base fn-xml-base)))
+						  :old-base fn-xml-base))
+		     (content (child-nodes-or-text property :trim t))
+		     (parseType (get-ns-attribute property "parseType")))
 		 (let ((resource
-			(get-absolute-attribute property tm-id
-						fn-xml-base "resource"))
+			(if (and (string= parseType "Collection")
+				 (= (length content) 0))
+			    *rdf-nil*
+			    (get-absolute-attribute property tm-id
+						    fn-xml-base "resource")))
 		       (nodeID (get-ns-attribute property "nodeID"))
 		       (UUID (get-ns-attribute property "UUID"
 					       :ns-uri *rdf2tm-ns*))
@@ -813,7 +863,7 @@
 		       (full-name (get-type-of-node-name property)))
 		   (if (or nodeID resource UUID)
 		       (list :type full-name
-			     :topicid (or nodeID resource UUID)
+			     :topicid (or resource nodeID UUID)
 			     :psi resource
 			     :ID ID)
 		       (let ((refs (get-node-refs
@@ -851,8 +901,7 @@
   (let ((fn-xml-base (get-xml-base arc :old-base xml-base))
 	(fn-xml-lang (get-xml-lang arc :old-lang xml-lang))
 	(content (child-nodes-or-text arc))
-	(parseType (get-ns-attribute arc "parseType"))
-	(UUID (get-ns-attribute arc "UUID" :ns-uri *rdf2tm-ns*)))
+	(parseType (get-ns-attribute arc "parseType")))
     (let ((datatype (get-absolute-attribute arc tm-id xml-base "datatype"))
 	  (type (get-absolute-attribute arc tm-id xml-base "type"))
 	  (resource (get-absolute-attribute arc tm-id xml-base "resource"))
@@ -860,32 +909,27 @@
 	  (literals (get-literals-of-property arc xml-lang)))
       (if (and parseType
 	       (string= parseType "Collection"))
-	  (let ((this
-		 (with-tm (start-revision document-id tm-id)
-		   (make-topic-stub nil nil nil UUID start-revision
-				    xml-importer::tm
-				    :document-id document-id))))
-	    (make-collection arc this tm-id start-revision
-			     :document-id document-id
-			     :xml-base xml-base
-			     :xml-lang xml-lang))
+	  (make-collection arc tm-id start-revision
+			   :document-id document-id
+			   :xml-base xml-base
+			   :xml-lang xml-lang)
 	  (if (or datatype resource nodeID
 		  (and parseType
 		       (string= parseType "Literal"))
 		  (and content
 		       (stringp content)))
-	      t;; do nothing current elem is a literal node that has been
-	       ;; already imported as an occurrence
+	      nil;; do nothing current elem is a literal node that has been
+	         ;; already imported as an occurrence
 	      (if (or type literals
 		      (and parseType
 			   (string= parseType "Resource")))
 		  (loop for item across content
-		     do (import-arc item tm-id start-revision
-				    :document-id document-id
-				    :xml-base fn-xml-base
-				    :xml-lang fn-xml-lang))
+		     collect (import-arc item tm-id start-revision
+					 :document-id document-id
+					 :xml-base fn-xml-base
+					 :xml-lang fn-xml-lang))
 		  (loop for item across content
-		     do (import-node item tm-id start-revision
-				     :document-id document-id
-				     :xml-base xml-base
-				     :xml-lang xml-lang))))))))
+		     collect (import-node item tm-id start-revision
+					  :document-id document-id
+					  :xml-base xml-base
+					  :xml-lang xml-lang))))))))

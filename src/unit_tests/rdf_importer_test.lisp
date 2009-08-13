@@ -57,7 +57,9 @@
 	   :test-poems-rdf-occurrences
 	   :test-poems-rdf-associations
 	   :test-poems-rdf-typing
-	   :test-poems-rdf-topics))
+	   :test-poems-rdf-topics
+	   :test-empty-collection
+	   :test-collection))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -1034,7 +1036,7 @@
 	  (rdf-init-db :db-dir db-dir :start-revision revision-1)
 	  (rdf-importer::import-node node tm-id revision-2
 				     :document-id document-id)
-	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 21))
+	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 20))
 	  (let ((first-node (get-item-by-id "http://test-tm/first-node"
 					    :xtm-id document-id))
 		(first-type (get-item-by-id "http://test-tm/first-type"
@@ -1472,8 +1474,8 @@
 		   2))
 	    (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
 				      :document-id document-id)
-	    (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 38))
-	    (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 10))
+	    (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 40))
+	    (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 12))
 	    (setf rdf-importer::*current-xtm* document-id)
 	    (is (= (length
 		    (intersection
@@ -1482,7 +1484,7 @@
 		     (list
 		      (d:get-item-by-id (concatenate
 					 'string
-					 constants::*rdf2tm-collection*)
+					 constants::*rdf-nil*)
 					:xtm-id rdf-importer::*rdf-core-xtm*)
 		      (d:get-item-by-psi constants::*type-instance-psi*)
 		      (dotimes (iter 9)
@@ -1515,8 +1517,9 @@
 				  constants:*type-instance-psi*))
 		  (subject (d:get-item-by-psi constants::*rdf2tm-subject*))
 		  (object (d:get-item-by-psi constants::*rdf2tm-object*))
-		  (collection (d:get-item-by-id
-			       constants::*rdf2tm-collection*)))
+		  (rdf-first (d:get-item-by-psi constants:*rdf-first*))
+		  (rdf-rest (d:get-item-by-psi constants:*rdf-rest*))
+		  (rdf-nil (d:get-item-by-psi constants:*rdf-nil*)))
 	      (is (= (length (d:psis first-node)) 1))
 	      (is (string= (d:uri (first (d:psis first-node)))
 			   "http://test-tm/first-node"))
@@ -1560,6 +1563,15 @@
 	      (is (= (length (d:psis arc8)) 1))
 	      (is (string= (d:uri (first (d:psis arc8)))
 			   "http://test/arcs/arc8"))
+	      (is (= (length (d:psis rdf-first)) 1))
+	      (is (string= (d:uri (first (d:psis rdf-first)))
+			   constants:*rdf-first*))
+	      (is (= (length (d:psis rdf-rest)) 1))
+	      (is (string= (d:uri (first (d:psis rdf-rest)))
+			   constants:*rdf-rest*))
+	      (is (= (length (d:psis rdf-nil)) 1))
+	      (is (string= (d:uri (first (d:psis rdf-nil)))
+			   constants:*rdf-nil*))
 	      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC))
 		     1))
 	      (is (string= (d:charvalue (first (elephant:get-instances-by-class
@@ -1629,30 +1641,84 @@
 				     (eql (d:instance-of (d:parent x)) arc4)))
 			    (d:player-in-roles uuid-1))))))))
 		  (is-true col-1)
-		  (is (= (length (d:player-in-roles col-1)) 2))
+		  (is (= (length (d:player-in-roles col-1)) 3))
 		  (is-true (find-if
 			    #'(lambda(x)
 				(and (eql (d:instance-of x) subject)
 				     (eql (d:instance-of (d:parent x)) 
-					  collection)))
+					  rdf-first)))
 			    (d:player-in-roles col-1)))
-		  (let ((col-assoc
-			 (d:parent
-			  (find-if
+		  (is-true (find-if
 			    #'(lambda(x)
 				(and (eql (d:instance-of x) subject)
 				     (eql (d:instance-of (d:parent x)) 
-					  collection)))
-			    (d:player-in-roles col-1)))))
-		    (is-true col-assoc)
-		    (is (= (length (d:roles col-assoc)) 3))
-		    (is (= (count-if
+					  rdf-rest)))
+			    (d:player-in-roles col-1)))
+		  (is-true (find-if
 			    #'(lambda(x)
 				(and (eql (d:instance-of x) object)
-				     (or (eql (d:player x) item-1)
-					 (eql (d:player x) item-2))))
-			    (d:roles col-assoc))
-			   2))))
+				     (eql (d:instance-of (d:parent x)) 
+					  arc4)))
+			    (d:player-in-roles col-1)))
+		  (is (= (length (d:player-in-roles item-1)) 1))
+		  (is-true (find-if
+			    #'(lambda(x)
+				(and (eql (d:instance-of x) object)
+				     (eql (d:instance-of (d:parent x)) 
+					  rdf-first)))
+			    (d:player-in-roles item-1)))
+		  (let ((col-2
+			 (let ((role
+				(find-if
+				 #'(lambda(x)
+				     (and (eql (d:instance-of x) subject)
+					  (eql (d:instance-of (d:parent x)) 
+					       rdf-rest)))
+				 (d:player-in-roles col-1))))
+			   (is (= (length (d:roles (d:parent role))) 2))
+			   (let ((other-role
+				  (find-if #'(lambda(x)
+					       (and (not (eql x role))
+						    (eql (d:instance-of x)
+							 object)))
+					   (d:roles (d:parent role)))))
+			     (d:player other-role)))))
+		    (is-true col-2)
+		    (is (= (length (d:psis col-2)) 0))
+		    (is (= (length (d:player-in-roles col-2)) 3))
+		    (is-true (find-if
+			      #'(lambda(x)
+				  (and (eql (d:instance-of x) subject)
+				       (eql (d:instance-of (d:parent x))
+					    rdf-first)))
+			      (d:player-in-roles col-2)))
+		    (is-true (find-if
+			      #'(lambda(x)
+				  (and (eql (d:instance-of x) subject)
+				       (eql (d:instance-of (d:parent x))
+					    rdf-rest)))
+			      (d:player-in-roles col-2)))
+		    (let ((col-3
+			   (let ((role
+				  (find-if
+				   #'(lambda(x)
+				       (and (eql (d:instance-of x) subject)
+					    (eql (d:instance-of (d:parent x))
+						 rdf-rest)))
+				   (d:player-in-roles col-2))))
+
+			     (is (= (length (d:roles (d:parent role))) 2))
+			     (let ((other-role
+				    (find-if
+				     #'(lambda(x)
+					 (not (eql x role)))
+				     (d:roles (d:parent role)))))
+			       (d:player other-role)))))
+		      (is-true col-3)
+		      (is (= (length (d:psis col-3)) 1))
+		      (is (string= (d:uri (first (d:psis col-3)))
+				   constants:*rdf-nil*))
+		      (is (= (length (d:player-in-roles col-3)) 2)))))
 		(is (= (length (d:player-in-roles item-1)) 1))
 		(is (= (length (d:player-in-roles item-2)) 2))
 		(is-true (find-if
@@ -1689,12 +1755,13 @@
 			 4))
 		  (is (= (length (d:player-in-roles fourth-node)) 1))
 		  (is (= (length (d:player-in-roles fifth-node)) 1))
+		  (format t "--->")
 		  (let ((col-2
 			 (d:player
 			  (find-if
 			   #'(lambda(y)
 			       (and (eql (d:instance-of y) object)
-				    (= 0 (length (d:psis (d:player y))))))
+				    (= 1 (length (d:psis (d:player y))))))
 			   (d:roles
 			    (d:parent
 			     (find-if
@@ -1702,24 +1769,11 @@
 				  (and (eql (d:instance-of x) subject)
 				       (eql (d:instance-of (d:parent x)) arc8)))
 			      (d:player-in-roles uuid-2))))))))
+		    (is (= (length (d:psis col-2)) 1))
+		    (is (string= constants:*rdf-nil*
+				 (d:uri (first (d:psis col-2)))))
 		    (is-true col-2)
-		    (is (= (length (d:player-in-roles col-2)) 2))
-		    (is-true (find-if
-			      #'(lambda(x)
-				  (and (eql (d:instance-of x) subject)
-				       (eql (d:instance-of (d:parent x)) 
-					    collection)))
-			      (d:player-in-roles col-2)))
-		    (let ((col-assoc
-			   (d:parent
-			    (find-if
-			     #'(lambda(x)
-				 (and (eql (d:instance-of x) subject)
-				      (eql (d:instance-of (d:parent x)) 
-					   collection)))
-			     (d:player-in-roles col-2)))))
-		      (is-true col-assoc)
-		      (is (= (length (d:roles col-assoc)) 1))))))))))
+		    (is (= (length (d:player-in-roles col-2)) 2)))))))))
   (elephant:close-store))
 
 
@@ -1742,7 +1796,7 @@
 	  (date "http://www.w3.org/2001/XMLSchema#date")
 	  (de (d:get-item-by-id "http://isidorus/rdf2tm_mapping/scope#de"))
 	  (long "http://www.w3.org/2001/XMLSchema#unsignedLong"))
-      (is (= (length topics) 66))
+      (is (= (length topics) 65))
       (is (= (length occs) 23))
       (is (= (length assocs) 30))
       (is-true de)
@@ -2350,9 +2404,7 @@
 	  (zauberlehrling "http://some.where/poem/Der_Zauberlehrling")
 	  (prometheus "http://some.where/poem/Prometheus")
 	  (erlkoenig "http://some.where/ballad/Der_Erlkoenig")
-	  (country "http://some.where/types/Country")
-	  
-	  )
+	  (country "http://some.where/types/Country"))
       (is (= (count-if
 	      #'(lambda(x)
 		  (and (eql (d:instance-of x) supertype-subtype)
@@ -2708,6 +2760,227 @@
 	       6))))))
 
 
+(test test-empty-collection
+  "Tests importing of empty collections."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\">"
+		      " <rdf:Description rdf:about=\"first-node\">"
+		      "  <arcs:arc rdf:parseType=\"Collection\" />"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((rdf-node (elt (dom:child-nodes 
+			  (cxml:parse doc-1 (cxml-dom:make-dom-builder)))
+			 0)))
+      (is-true rdf-node)
+      (rdf-init-db :db-dir db-dir :start-revision revision-1)
+      (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
+				:document-id document-id)
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 21))
+      (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
+      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 0))
+      (is (= (length (elephant:get-instances-by-class 'd:NameC)) 0))
+      (let ((first-node (d:get-item-by-id "http://test-tm/first-node"
+					  :xtm-id document-id))
+	    (arc (d:get-item-by-id "http://test/arcs/arc"
+				   :xtm-id document-id))
+	    (rdf-nil (d:get-item-by-id constants:*rdf-nil*
+				       :xtm-id document-id))
+	    (subject (d:get-item-by-id constants:*rdf2tm-subject*))
+	    (object (d:get-item-by-id constants:*rdf2tm-object*)))
+	(is-true subject)
+	(is-true object)
+	(is-true first-node)
+	(is (= (length (d:psis first-node)) 1))
+	(is (string= (d:uri (first (d:psis first-node)))
+		     "http://test-tm/first-node"))
+	(is-true arc)
+	(is (= (length (d:psis arc)) 1))
+	(is (string= (d:uri (first (d:psis arc)))
+		     "http://test/arcs/arc"))
+	(is-true rdf-nil)
+	(is (= (length (d:psis rdf-nil)) 1))
+	(is (string= (d:uri (first (d:psis rdf-nil))) constants:*rdf-nil*))
+	(is (= (length (d:player-in-roles first-node)) 1))
+	(is (= (length (d:player-in-roles arc)) 0))
+	(is (= (length (d:player-in-roles rdf-nil)) 1))
+	(is-true (find-if
+		  #'(lambda(x)
+		      (and (eql (d:instance-of x) subject)
+			   (eql (d:instance-of (d:parent x)) arc)))
+		  (d:player-in-roles first-node)))
+	(is-true (find-if
+		  #'(lambda(x)
+		      (and (eql (d:instance-of x) object)
+			   (eql (d:instance-of (d:parent x)) arc)))
+		  (d:player-in-roles rdf-nil)))))))
+
+
+(test test-collection
+  "Tests importing of non-empty collections."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\">"
+		      " <rdf:Description rdf:about=\"first-node\">"
+		      "  <arcs:arc rdf:parseType=\"Collection\">"
+		      "   <rdf:Description rdf:about=\"item-1\"/>"
+		      "   <arcs:Node rdf:about=\"item-2\"/>"
+		      "  </arcs:arc>"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((rdf-node (elt (dom:child-nodes 
+			  (cxml:parse doc-1 (cxml-dom:make-dom-builder)))
+			 0)))
+      (is-true rdf-node)
+      (rdf-init-db :db-dir db-dir :start-revision revision-1)
+      (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
+				:document-id document-id)
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 28))
+      (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 6))
+      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 0))
+      (is (= (length (elephant:get-instances-by-class 'd:NameC)) 0))
+      (let ((first-node (d:get-item-by-id "http://test-tm/first-node"
+					  :xtm-id document-id))
+	    (arc (d:get-item-by-id "http://test/arcs/arc"
+				   :xtm-id document-id))
+	    (item-1 (d:get-item-by-id "http://test-tm/item-1"
+				      :xtm-id document-id))
+	    (item-2 (d:get-item-by-id "http://test-tm/item-2"
+				      :xtm-id document-id))
+	    (node (d:get-item-by-id "http://test/arcs/Node"
+				    :xtm-id document-id))
+	    (rdf-first (d:get-item-by-id constants:*rdf-first*
+					 :xtm-id document-id))
+	    (rdf-rest (d:get-item-by-id constants:*rdf-rest*
+					:xtm-id document-id))
+	    (rdf-nil (d:get-item-by-id constants:*rdf-nil*
+				       :xtm-id document-id))
+	    (subject (d:get-item-by-id constants:*rdf2tm-subject*
+				       :xtm-id document-id))
+	    (object (d:get-item-by-id constants:*rdf2tm-object*
+				      :xtm-id document-id))
+	    (instance (d:get-item-by-psi constants:*instance-psi*))
+	    (type (d:get-item-by-psi constants:*type-psi*))
+	    (type-instance (d:get-item-by-psi constants:*type-instance-psi*)))
+	(is-true first-node)
+	(is (= (length (d:psis first-node)) 1))
+	(is (string= (d:uri (first (d:psis first-node)))
+		     "http://test-tm/first-node"))
+	(is (= (length (d:player-in-roles first-node)) 1))
+	(is-true arc)
+	(is (= (length (d:psis arc)) 1))
+	(is (string= (d:uri (first (d:psis arc)))
+		     "http://test/arcs/arc"))
+	(is (= (length (d:player-in-roles arc)) 0))
+	(is-true item-1)
+	(is (= (length (d:psis item-1)) 1))
+	(is (string= (d:uri (first (d:psis item-1)))
+		     "http://test-tm/item-1"))
+	(is (= (length (d:player-in-roles item-1)) 1))
+	(is-true item-2)
+	(is (= (length (d:psis item-2)) 1))
+	(is (string= (d:uri (first (d:psis item-2)))
+		     "http://test-tm/item-2"))
+	(is (= (length (d:player-in-roles item-2)) 2))
+	(is-true node)
+	(is (= (length (d:psis node)) 1))
+	(is (string= (d:uri (first (d:psis node)))
+		     "http://test/arcs/Node"))
+	(is (= (length (d:player-in-roles node)) 1))
+	(is-true rdf-first)
+	(is-true rdf-rest)
+	(is-true rdf-nil)
+	(is (= (length (d:player-in-roles rdf-nil)) 1))
+	(is-true subject)
+	(is-true object)
+	(let ((uuid-1
+	       (d:player
+		(find-if 
+		 #'(lambda(x)
+		     (not (eql x (first (d:player-in-roles first-node)))))
+		 (d:roles (d:parent (first (d:player-in-roles first-node)))))))
+	      (uuid-2
+	       (d:player
+		(find-if 
+		 #'(lambda(x)
+		     (not (eql x (first (d:player-in-roles rdf-nil)))))
+		 (d:roles (d:parent (first (d:player-in-roles rdf-nil))))))))
+	  (is-true uuid-1)
+	  (is (= (length (d:psis uuid-1)) 0))
+	  (is (= (length (d:player-in-roles uuid-1)) 3))
+	  (is-true uuid-2)
+	  (is (= (length (d:psis uuid-2)) 0))
+	  (is (= (length (d:player-in-roles uuid-2)) 3))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) subject)
+			     (eql (d:instance-of (d:parent x)) arc)))
+		    (d:player-in-roles first-node)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) object)
+			     (eql (d:instance-of (d:parent x)) arc)))
+		    (d:player-in-roles uuid-1)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) subject)
+			     (eql (d:instance-of (d:parent x)) rdf-first)))
+		    (d:player-in-roles uuid-1)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) subject)
+			     (eql (d:instance-of (d:parent x)) rdf-rest)))
+		    (d:player-in-roles uuid-1)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) object)
+			     (eql (d:instance-of (d:parent x)) rdf-first)))
+		    (d:player-in-roles item-1)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) object)
+			     (eql (d:instance-of (d:parent x)) rdf-rest)))
+		    (d:player-in-roles uuid-2)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) subject)
+			     (eql (d:instance-of (d:parent x)) rdf-first)))
+		    (d:player-in-roles uuid-2)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) subject)
+			     (eql (d:instance-of (d:parent x)) rdf-rest)))
+		    (d:player-in-roles uuid-2)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) object)
+			     (eql (d:instance-of (d:parent x)) rdf-rest)))
+		    (d:player-in-roles rdf-nil)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) object)
+			     (eql (d:instance-of (d:parent x)) rdf-first)))
+		    (d:player-in-roles item-2)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) instance)
+			     (eql (d:instance-of (d:parent x)) type-instance)))
+		    (d:player-in-roles item-2)))
+	  (is-true (find-if
+		    #'(lambda(x)
+			(and (eql (d:instance-of x) type)
+			     (eql (d:instance-of (d:parent x)) type-instance)))
+		    (d:player-in-roles node))))))))
+
+
 (defun run-rdf-importer-tests()
   (when elephant:*store-controller*
     (elephant:close-store))
@@ -2726,4 +2999,6 @@
   (it.bese.fiveam:run! 'test-poems-rdf-occurrences)
   (it.bese.fiveam:run! 'test-poems-rdf-associations)
   (it.bese.fiveam:run! 'test-poems-rdf-typing)
-  (it.bese.fiveam:run! 'test-poems-rdf-topics))
+  (it.bese.fiveam:run! 'test-poems-rdf-topics)
+  (it.bese.fiveam:run! 'test-empty-collection)
+  (it.bese.fiveam:run! 'test-collection))
