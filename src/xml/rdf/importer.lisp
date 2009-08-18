@@ -41,12 +41,13 @@
     (unless elephant:*store-controller*
       (elephant:open-store
        (get-store-spec repository-path)))
-    (let ((rdf-dom
-	   (dom:document-element (cxml:parse-file
-				  (truename rdf-xml-path)
-				  (cxml-dom:make-dom-builder)))))
-      (import-dom rdf-dom start-revision :tm-id tm-id :document-id document-id))
-    (setf *_n-map* nil)))
+    (elephant:ensure-transaction (:txn-nosync t)
+      (let ((rdf-dom
+	     (dom:document-element (cxml:parse-file
+				    (truename rdf-xml-path)
+				    (cxml-dom:make-dom-builder)))))
+	(import-dom rdf-dom start-revision :tm-id tm-id :document-id document-id))
+      (setf *_n-map* nil))))
 
 
 (defun init-rdf-module (&optional (revision (get-revision)))
@@ -57,22 +58,16 @@
       (let
 	  ((core-dom 
 	    (cxml:parse-file *rdf_core_psis.xtm* (cxml-dom:make-dom-builder))))
-	(loop for top-elem across 
-	     (xpath-child-elems-by-qname (dom:document-element core-dom)
-					 *xtm2.0-ns* "topic")
-	   do
-	     (let
-		 ((top
-		   (from-topic-elem-to-stub top-elem revision
-					    :xtm-id *rdf-core-xtm*)))
-	       (add-to-topicmap xml-importer::tm top)))))))
-
-
-(defun tm-id-p (tm-id fun-name)
-  "Checks the validity of the passed tm-id."
-  (unless (absolute-uri-p tm-id)
-    (error "From ~a(): you must provide a stable identifier (PSI-style) for this TM: ~a!"
-	   fun-name tm-id)))
+	(elephant:ensure-transaction (:txn-nosync t)
+	  (loop for top-elem across 
+	       (xpath-child-elems-by-qname (dom:document-element core-dom)
+					   *xtm2.0-ns* "topic")
+	     do
+	       (let
+		   ((top
+		     (from-topic-elem-to-stub top-elem revision
+					      :xtm-id *rdf-core-xtm*)))
+		 (add-to-topicmap xml-importer::tm top))))))))
 
 
 (defun import-dom (rdf-dom start-revision
@@ -126,24 +121,23 @@
 	  (super-classes
 	   (get-super-classes-of-node-content elem tm-id xml-base)))
       (with-tm (start-revision document-id tm-id)
-	(elephant:ensure-transaction (:txn-nosync t)
-	  (let ((this
-		 (make-topic-stub
-		  about ID nodeID UUID start-revision xml-importer::tm
-		  :document-id document-id)))
-	    (make-literals this literals tm-id start-revision
-			   :document-id document-id)
-	    (make-associations this associations xml-importer::tm
-			       start-revision :document-id document-id)
-	    (make-types this types xml-importer::tm start-revision
-			:document-id document-id)
-	    (make-super-classes this super-classes xml-importer::tm
-				start-revision :document-id document-id)
-	    (make-recursion-from-node elem tm-id start-revision
-				      :document-id document-id
-				      :xml-base xml-base
-				      :xml-lang xml-lang)
-	    this)))))))
+	(let ((this
+	       (make-topic-stub
+		about ID nodeID UUID start-revision xml-importer::tm
+		:document-id document-id)))
+	  (make-literals this literals tm-id start-revision
+			 :document-id document-id)
+	  (make-associations this associations xml-importer::tm
+			     start-revision :document-id document-id)
+	  (make-types this types xml-importer::tm start-revision
+		      :document-id document-id)
+	  (make-super-classes this super-classes xml-importer::tm
+			      start-revision :document-id document-id)
+	  (make-recursion-from-node elem tm-id start-revision
+				    :document-id document-id
+				    :xml-base xml-base
+				    :xml-lang xml-lang)
+	  this))))))
 
 
 (defun import-arc (elem tm-id start-revision
@@ -360,21 +354,20 @@
     (unless (or role-type-1 role-type-2)
       (error "~aone of the role types ~a ~a is missing!"
 	     err-pref *supertype-psi* *subtype-psi*))
-    (elephant:ensure-transaction (:txn-nosync t)
-      (let ((a-roles (list (list :instance-of role-type-1
-				 :player super-top)
-			   (list :instance-of role-type-2
-				 :player sub-top))))
-	(when reifier-id
-	  (make-reification reifier-id sub-top super-top
-			    assoc-type start-revision tm
-			    :document-id document-id))
-	(add-to-topicmap
-	 tm
-	 (make-construct 'AssociationC
-			 :start-revision start-revision
-			 :instance-of assoc-type
-			 :roles a-roles))))))
+    (let ((a-roles (list (list :instance-of role-type-1
+			       :player super-top)
+			 (list :instance-of role-type-2
+			       :player sub-top))))
+      (when reifier-id
+	(make-reification reifier-id sub-top super-top
+			  assoc-type start-revision tm
+			  :document-id document-id))
+      (add-to-topicmap
+       tm
+       (make-construct 'AssociationC
+		       :start-revision start-revision
+		       :instance-of assoc-type
+		       :roles a-roles)))))
 
 
 (defun make-instance-of-association (instance-top type-top reifier-id
@@ -399,21 +392,20 @@
     (unless (or roletype-1 roletype-2)
       (error "~aone of the role types ~a ~a is missing!"
 	     err-pref *type-psi* *instance-psi*))
-    (elephant:ensure-transaction (:txn-nosync t)
-      (let ((a-roles (list (list :instance-of roletype-1
-				 :player type-top)
-			   (list :instance-of roletype-2
-				 :player instance-top))))
-	(when reifier-id
-	  (make-reification reifier-id instance-top type-top
-			    assoc-type start-revision tm
-			    :document-id document-id))
-	(add-to-topicmap
-	 tm
-	 (make-construct 'AssociationC
-			 :start-revision start-revision
-			 :instance-of assoc-type
-			 :roles a-roles))))))
+    (let ((a-roles (list (list :instance-of roletype-1
+			       :player type-top)
+			 (list :instance-of roletype-2
+			       :player instance-top))))
+      (when reifier-id
+	(make-reification reifier-id instance-top type-top
+			  assoc-type start-revision tm
+			  :document-id document-id))
+      (add-to-topicmap
+       tm
+       (make-construct 'AssociationC
+		       :start-revision start-revision
+		       :instance-of assoc-type
+		       :roles a-roles)))))
 
 
 (defun make-topic-stub (about ID nodeId UUID start-revision
@@ -438,20 +430,19 @@
 	       inner-top))))
       (if top
 	  top
-	  (elephant:ensure-transaction (:txn-nosync t)
-	    (let ((psi (when psi-uri
-			 (make-instance 'PersistentIdC
-					:uri psi-uri
-					:start-revision start-revision))))
-	      (handler-case (add-to-topicmap
-			     tm
-			     (make-construct 'TopicC
-					     :topicid topic-id
-					     :psis (when psi (list psi))
-					     :xtm-id document-id
-					     :start-revision start-revision))
-		(Condition (err)(error "Creating topic ~a failed: ~a"
-				       topic-id err)))))))))
+	  (let ((psi (when psi-uri
+		       (make-instance 'PersistentIdC
+				      :uri psi-uri
+				      :start-revision start-revision))))
+	    (handler-case (add-to-topicmap
+			   tm
+			   (make-construct 'TopicC
+					   :topicid topic-id
+					   :psis (when psi (list psi))
+					   :xtm-id document-id
+					   :start-revision start-revision))
+	      (Condition (err)(error "Creating topic ~a failed: ~a"
+				     topic-id err))))))))
 
 
 (defun make-lang-topic (lang start-revision tm
@@ -479,30 +470,29 @@
 	(player-id (getf association :topicid))
 	(player-psi (getf association :psi))
 	(ID (getf association :ID)))
-    (elephant:ensure-transaction (:txn-nosync t)
-      (let ((player-1 (make-topic-stub player-psi nil player-id nil
-				       start-revision
-				       tm :document-id document-id))
-	    (role-type-1
-	     (make-topic-stub *rdf2tm-object* nil nil nil
-			      start-revision tm :document-id document-id))
-	    (role-type-2
-	     (make-topic-stub *rdf2tm-subject* nil nil nil
-			      start-revision tm :document-id document-id))
-	    (type-top (make-topic-stub type nil nil nil start-revision
-				       tm :document-id document-id)))
-	(let ((roles (list (list :instance-of role-type-1
-				 :player player-1)
-			   (list :instance-of role-type-2
-				 :player top))))
-	  (when ID
-	    (make-reification ID top player-1 type-top start-revision
-			      tm :document-id document-id))
-	  (add-to-topicmap tm (make-construct 'AssociationC
-					      :start-revision start-revision
-					      :instance-of type-top
-					      :roles roles)))))))
-  
+    (let ((player-1 (make-topic-stub player-psi nil player-id nil
+				     start-revision
+				     tm :document-id document-id))
+	  (role-type-1
+	   (make-topic-stub *rdf2tm-object* nil nil nil
+			    start-revision tm :document-id document-id))
+	  (role-type-2
+	   (make-topic-stub *rdf2tm-subject* nil nil nil
+			    start-revision tm :document-id document-id))
+	  (type-top (make-topic-stub type nil nil nil start-revision
+				     tm :document-id document-id)))
+      (let ((roles (list (list :instance-of role-type-1
+			       :player player-1)
+			 (list :instance-of role-type-2
+			       :player top))))
+	(when ID
+	  (make-reification ID top player-1 type-top start-revision
+			    tm :document-id document-id))
+	(add-to-topicmap tm (make-construct 'AssociationC
+					    :start-revision start-revision
+					    :instance-of type-top
+					    :roles roles))))))
+
 
 (defun make-association-with-nodes (subject-topic object-topic
 				    associationtype-topic tm start-revision
@@ -520,11 +510,10 @@
 			     :player subject-topic)
 		       (list :instance-of role-type-2
 			     :player object-topic))))
-      (elephant:ensure-transaction (:txn-nosync t)
-	(add-to-topicmap tm (make-construct 'AssociationC
-					    :start-revision start-revision
-					    :instance-of associationtype-topic
-					    :roles roles))))))
+      (add-to-topicmap tm (make-construct 'AssociationC
+					  :start-revision start-revision
+					  :instance-of associationtype-topic
+					  :roles roles)))))
 
 
 (defun make-reification (reifier-id subject object predicate start-revision tm
@@ -545,24 +534,23 @@
 				      tm :document-id document-id))
 	(statement (make-topic-stub *rdf-statement* nil nil nil start-revision
 				    tm :document-id document-id)))
-    (elephant:ensure-transaction (:txn-nosync t)
-      (make-instance-of-association reifier statement nil start-revision tm
-				    :document-id document-id)
-      (make-association-with-nodes reifier subject subject-arc tm
-				   start-revision :document-id document-id)
-      (make-association-with-nodes reifier predicate predicate-arc
-				   tm start-revision :document-id document-id)
-      (if (typep object 'd:TopicC)
-	  (make-association-with-nodes reifier object object-arc
-				       tm start-revision
-				       :document-id document-id)
-	  (make-construct 'd:OccurrenceC
-			  :start-revision start-revision
-			  :topic reifier
-			  :themes (themes object)
-			  :instance-of (instance-of object)
-			  :charvalue (charvalue object)
-			  :datatype (datatype object))))))
+    (make-instance-of-association reifier statement nil start-revision tm
+				  :document-id document-id)
+    (make-association-with-nodes reifier subject subject-arc tm
+				 start-revision :document-id document-id)
+    (make-association-with-nodes reifier predicate predicate-arc
+				 tm start-revision :document-id document-id)
+    (if (typep object 'd:TopicC)
+	(make-association-with-nodes reifier object object-arc
+				     tm start-revision
+				     :document-id document-id)
+	(make-construct 'd:OccurrenceC
+			:start-revision start-revision
+			:topic reifier
+			:themes (themes object)
+			:instance-of (instance-of object)
+			:charvalue (charvalue object)
+			:datatype (datatype object)))))
 
 
 (defun make-occurrence (top literal start-revision tm-id 
@@ -577,26 +565,25 @@
 	  (lang (getf literal :lang))
 	  (datatype (getf literal :datatype))
 	  (ID (getf literal :ID)))
-      (elephant:ensure-transaction (:txn-nosync t)
-	(let ((type-top (make-topic-stub type nil nil nil start-revision
-					 xml-importer::tm
-					 :document-id document-id))
-	      (lang-top (make-lang-topic lang start-revision
-					 xml-importer::tm
-					 :document-id document-id)))
-	  (let ((occurrence
-		 (make-construct 'OccurrenceC 
-				 :start-revision start-revision
-				 :topic top
-				 :themes (when lang-top
-					   (list lang-top))
-				 :instance-of type-top
-				 :charvalue value
-				 :datatype datatype)))
-	    (when ID
-	      (make-reification ID top occurrence type-top start-revision
-				xml-importer::tm :document-id document-id))
-	    occurrence))))))
+      (let ((type-top (make-topic-stub type nil nil nil start-revision
+				       xml-importer::tm
+				       :document-id document-id))
+	    (lang-top (make-lang-topic lang start-revision
+				       xml-importer::tm
+				       :document-id document-id)))
+	(let ((occurrence
+	       (make-construct 'OccurrenceC 
+			       :start-revision start-revision
+			       :topic top
+			       :themes (when lang-top
+					 (list lang-top))
+			       :instance-of type-top
+			       :charvalue value
+			       :datatype datatype)))
+	  (when ID
+	    (make-reification ID top occurrence type-top start-revision
+			      xml-importer::tm :document-id document-id))
+	  occurrence)))))
 	    
 
 (defun get-literals-of-node-content (node tm-id xml-base xml-lang)

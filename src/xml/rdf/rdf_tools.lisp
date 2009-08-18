@@ -460,3 +460,10 @@
       (if datatype
 	  datatype
 	  *xml-string*))))
+
+
+(defun tm-id-p (tm-id fun-name)
+  "Checks the validity of the passed tm-id."
+  (unless (absolute-uri-p tm-id)
+    (error "From ~a(): you must provide a stable identifier (PSI-style) for this TM: ~a!"
+	   fun-name tm-id)))
