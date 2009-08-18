@@ -332,7 +332,6 @@
 	  (dom:set-attribute-ns prop *rdf-ns* "unknown" "unknown")
 	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:append-child prop text-node)
-	  (signals error (rdf-importer::parse-property prop 0))
 	  (dom:remove-child prop text-node)
 	  (is-true (rdf-importer::parse-property prop 0))
 	  (dom:remove-attribute-ns prop *rdf-ns* "unknown")

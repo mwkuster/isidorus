@@ -359,24 +359,29 @@
     (when (and nodeID resource)
       (error "~aondly one of rdf:nodeID and rdf:resource is allowed: (~a) (~a)!"
 	     err-pref nodeID resource))
-    (when (and (or nodeID resource type)
+    (when (and (or nodeID resource type literals)
 	       datatype)
       (error "~aonly one of ~a and rdf:datatype (~a) is allowed!"
 	     err-pref
 	     (cond
 	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
 	       (resource (concatenate 'string "rdf:resource (" resource ")"))
-	       (type (concatenate 'string "rdf:type (" type ")")))
+	       (type (concatenate 'string "rdf:type (" type ")"))
+	       (literals literals))
 	     datatype))
-    (when (and (or type nodeID resource)
+    (when (and (or nodeID resource)
 	       (> (length content) 0))
       (error "~awhen ~a is set no content is allowed: ~a!"
 	     err-pref
 	     (cond
-	       (type (concatenate 'string "rdf:type (" type ")"))
 	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
 	       (resource (concatenate 'string "rdf:resource (" resource ")")))
 	     content))
+    (when (and type
+	       (stringp content)
+	       (> (length content) 0))
+      (error "~awhen rdf:type is set no literal content is allowed: ~a!"
+	     err-pref content))
     (when (and (or type
 		   (and (string= node-name "type")
 			(string= node-ns *rdf-ns*))

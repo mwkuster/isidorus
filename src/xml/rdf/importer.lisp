@@ -876,8 +876,8 @@
       (error "~aliteral content not allowed here: ~a"
 	     err-pref content))
     (loop for arc across content
-       do (import-arc arc tm-id start-revision :document-id document-id
-		      :xml-base fn-xml-base :xml-lang fn-xml-lang))))
+       collect (import-arc arc tm-id start-revision :document-id document-id
+			   :xml-base fn-xml-base :xml-lang fn-xml-lang))))
 
 
 (defun make-recursion-from-arc (arc tm-id start-revision
