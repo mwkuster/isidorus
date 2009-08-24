@@ -248,8 +248,8 @@ In seinen Armen das Kind war tot.]]>
 	<rdf:type rdf:resource="/types/Poem"/>
 	<arcs:dateRange>
 	  <rdf:Description xml:base="http://does.not.exist">
-	    <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1772</arcs:start>
-	    <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1774</arcs:end>
+	    <arcs:start rdf:datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1772</arcs:start>
+	    <arcs:end rdf:datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1774</arcs:end>
 	  </rdf:Description>
 	</arcs:dateRange>
 	<arcs:content rdf:parseType="Literal" xml:lang="de">

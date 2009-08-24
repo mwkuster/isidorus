@@ -27,6 +27,7 @@
 	   :*xml-ns*
 	   :*xmlns-ns*
 	   :*xml-string*
+	   :*xml-uri*
 	   :*rdf2tm-ns*
 	   :*rdf-statement*
 	   :*rdf-object*
@@ -37,7 +38,8 @@
 	   :*rdf-rest*
 	   :*rdf2tm-object*
 	   :*rdf2tm-subject*
-	   :*rdf2tm-scope-prefix*))
+	   :*rdf2tm-scope-prefix*
+	   :*tm2rdf-ns*))
 
 (in-package :constants)
 (defparameter *xtm2.0-ns* "http://www.topicmaps.org/xtm/")
@@ -74,7 +76,9 @@
 
 (defparameter *xml-string* "http://www.w3.org/2001/XMLSchema#string")
 
-(defparameter *rdf2tm-ns* "http://isidorus/rdf2tm_mapping#")
+(defparameter *xml-uri* "http://www.w3.org/2001/XMLSchema#anyURI")
+
+(defparameter *rdf2tm-ns* "http://isidorus/rdf2tm_mapping/")
 
 (defparameter *rdf-statement* "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement")
 
@@ -90,8 +94,10 @@
 
 (defparameter *rdf-rest* "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest")
 
-(defparameter *rdf2tm-object* "http://isidorus/rdf2tm_mapping#object")
+(defparameter *rdf2tm-object* "http://isidorus/rdf2tm_mapping/object")
 
-(defparameter *rdf2tm-subject* "http://isidorus/rdf2tm_mapping#subject")
+(defparameter *rdf2tm-subject* "http://isidorus/rdf2tm_mapping/subject")
 
-(defparameter *rdf2tm-scope-prefix* "http://isidorus/rdf2tm_mapping/scope#")
+(defparameter *rdf2tm-scope-prefix* "http://isidorus/rdf2tm_mapping/scope/")
+
+(defparameter *tm2rdf-ns* "http://isidorus/tm2rdf_mapping/")

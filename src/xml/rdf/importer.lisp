@@ -589,7 +589,7 @@
 (defun get-literals-of-node-content (node tm-id xml-base xml-lang)
   "Returns a list of literals that is produced of a node's content."
   (declare (dom:element node))
-  (tm-id-p tm-id "get-literals-of-content")
+  (tm-id-p tm-id "get-literals-of-noode-content")
   (let ((properties (child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base))
 	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
@@ -607,7 +607,8 @@
 					   property nil))
 			   (prop-content (child-nodes-or-text property)))
 		       (and (or datatype
-				(string= parseType "Literal")
+				(and parseType
+				     (string= parseType "Literal"))
 				(and (not (or nodeID resource UUID parseType))
 				     (or (not prop-content)
 					 (stringp prop-content))))

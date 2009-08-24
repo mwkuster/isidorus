@@ -33,8 +33,7 @@
 		*rdf-rest*
 		*rdf2tm-scope-prefix*)
   (:import-from :xml-constants
-		*rdf_core_psis.xtm*)
-  (:import-from :xml-constants
+		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
   (:import-from :xml-tools
                 get-attribute
@@ -306,7 +305,6 @@
     (when (and (string= property-ns *rdf-ns*)
 	       (string= property-name "li"))
       (set-_n-name owner-identifier property)))
-      ;(set-_n-name property _n-counter)))
   t)
 
 
@@ -371,6 +369,7 @@
 	     datatype))
     (when (and (or nodeID resource)
 	       (> (length content) 0))
+      ;(set-_n-name property _n-counter)))
       (error "~awhen ~a is set no content is allowed: ~a!"
 	     err-pref
 	     (cond
@@ -428,7 +427,6 @@
    function and sets all rdf:li properties as a tupple to the
    *_n-map* list."
   (let ((child-nodes (child-nodes-or-text node :trim t)))
-	;(_n-counter 0))
     (when (get-ns-attribute node "li")
       (dom:map-node-map
        #'(lambda(attr)

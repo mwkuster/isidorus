@@ -66,6 +66,7 @@
            :item-identifiers
            :item-identifiers-p
            :list-instanceOf
+	   :list-super-types
            :locators
            :locators-p
            :make-construct
@@ -105,6 +106,8 @@
            :*TM-REVISION*
 
            :with-revision ;;macros
+
+	   :string-starts-with ;;helpers
            ))
 
 (declaim (optimize (debug 3) (safety 3) (speed 0) (space 0)))
@@ -647,7 +650,6 @@ specific keyword arguments for their purpose"))
                 (elephant:get-instances-by-value 'PersistentIdC 'uri (uri id))
                 (elephant:get-instances-by-value 'SubjectLocatorC 'uri (uri id)))))
              1)
-      ;(format t "cfdi: ~A --> ~A~%" construct (item-identifiers construct))
       (error 
        (make-condition 'duplicate-identifier-error 
                        :message (format nil "Duplicate Identifier ~a has been found" (uri id))
@@ -1173,6 +1175,33 @@ TM (which must then exist)"
                (in-topicmap tm (parent role)))
              (player-in-roles topic))
             (player-in-roles topic)))))
+
+
+(defgeneric list-super-types (topic &key tm)
+ (:documentation "Generate a list of all topics that this topic is an
+  subclass of, optionally filtered by a topic map"))
+
+
+(defmethod list-super-types ((topic TopicC)  &key (tm nil))
+  (remove-if 
+   #'null
+   (map 'list #'(lambda(x)
+                  (when (loop for psi in (psis (instance-of x))
+                           when (string= (uri psi) *subtype-psi*)
+                           return t)
+                    (loop for role in (roles (parent x))
+                       when (not (eq role x))
+                       return (player role))))
+        (if tm
+            (remove-if-not 
+             (lambda (role)
+               (format t "player: ~a" (player role))
+               (format t "parent: ~a" (parent role))
+               (format t "topic: ~a~&" topic)
+               (in-topicmap tm (parent role)))
+             (player-in-roles topic))
+            (player-in-roles topic)))))
+
 
 (defun string-starts-with (str prefix)
   "Checks if string str starts with a given prefix"

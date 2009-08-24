@@ -11,14 +11,14 @@
 <topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
 
   <topic id="subject">
-    <subjectIdentifier href="http://isidorus/rdf2tm_mapping#subject"/>
+    <subjectIdentifier href="http://isidorus/rdf2tm_mapping/subject"/>
     <name>
       <value>subject</value>
     </name>
   </topic>
 
   <topic id="object">
-    <subjectIdentifier href="http://isidorus/rdf2tm_mapping#object"/>
+    <subjectIdentifier href="http://isidorus/rdf2tm_mapping/object"/>
     <name>
       <value>object</value>
     </name>
