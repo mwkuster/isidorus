@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
   <!-- this file contains constructs that are originally defined as TM and
-       RDF, so certain constructs are not consistent because of test cases -->
+       RDF. So certain constructs are not consistent because of test cases,
+       but all are valid! -->
   <tm:topic id="goethe">
-    <tm:subjectIdentifier href="http://some.where/author/Goehte"/>
+    <tm:subjectIdentifier href="http://some.where/author/Goethe"/>
     <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
     <tm:name>
       <tm:type><tm:topicRef href="#firstName"/></tm:type>
@@ -77,10 +78,12 @@
   </tm:topic>
 
   <tm:topic id="zauberlehrling">
-    <tm:subectIdentifier href="http://some.where/poem/Der_Zauberlehrling"/>
-    <tm:subectIdentifier href="http://some.where/poem/Zauberlehrling"/>
-    <tm:itemIdentity href="http://some.where/poem/Zauberlehrling_itemIdentity"/>
-    <tm:subjectLocator href="http://some.where/resource"/>
+    <tm:subjectIdentifier href="http://some.where/poem/Der_Zauberlehrling"/>
+    <tm:subjectIdentifier href="http://some.where/poem/Zauberlehrling"/>
+    <tm:itemIdentity href="http://some.where/poem/Zauberlehrling_itemIdentity_1"/>
+    <tm:itemIdentity href="http://some.where/poem/Zauberlehrling_itemIdentity_2"/>
+    <tm:subjectLocator href="http://some.where/resource_1"/>
+    <tm:subjectLocator href="http://some.where/resource_2"/>
     <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#title"/></tm:type>
@@ -188,7 +191,7 @@
   </tm:topic>
 
   <tm:topic id="title">
-    <tm:subjetcIdentifier href="http://some.where/relationship/title"/>
+    <tm:subjectIdentifier href="http://some.where/relationship/title"/>
   </tm:topic>
 
   <tm:topic id="poem">
@@ -465,8 +468,8 @@
     </tm:role>
   </tm:association>
 
-  <!-- the rdf:li elements are contained as a collection, to test the export
-       of collections -->
+  <!-- === the rdf:li elements are contained as a collection, to test the
+       export of collections =============================================== -->
   <tm:topic id="wrote">
     <tm:subjectIdentifier href="http://some.where/relationship/wrote"/>
   </tm:topic>
@@ -573,6 +576,60 @@
     <tm:role>
       <tm:type><tm:topicRef href="#isi-object"/></tm:type>
       <tm:topicRef href="#nil"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- === tests some TM associations that owns mor than two roles ========= -->
+  <tm:topic id="authorInfo">
+    <tm:subjectIdentifier href="http://some.where/relationship/authorInfo"/>
+  </tm:topic>
+
+  <tm:topic id="schiller">
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#firstName"/></tm:type>
+      <tm:value>Johann Christoph Friedrich</tm:value>
+    </tm:name>
+    <tm:name>
+      <tm:type><tm:topicRef href="#lastName"/></tm:type>
+      <tm:value>von Schiller</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#authorInfo"/></tm:type>
+      <tm:resourceRef href="http://de.wikipedia.org/wiki/Schiller"/>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="associatedWithEachOther">
+    <tm:subjectIdentifier href="http://some.where/relationship/associatedWithEachOther"/>
+  </tm:topic>
+
+  <tm:topic id="writer">
+    <tm:subjectIdentifier href="http://some.where/roletype/writer"/>
+  </tm:topic>
+
+  <tm:topic id="literature">
+    <tm:subjectIdentifier href="http://some.where/roletype/literature"/>
+  </tm:topic>
+  
+  <tm:association>
+    <tm:itemIdentity href="http://some.where/test-association"/>
+    <tm:type><tm:topicRef href="#associatedWithEachOther"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#schiller"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#literature"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#literature"/></tm:type>
+      <tm:topicRef href="#ballad"/>
     </tm:role>
   </tm:association>
 </tm:topicMap>
