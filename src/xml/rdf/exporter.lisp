@@ -140,7 +140,21 @@
   (if (psis topic)
       (cxml:attribute "rdf:resource" (uri (first (psis topic))))
       (cxml:attribute "rdf:nodeID" (make-object-id topic))))
-		      
+
+
+(defun isi-occurrence-p (owner-topic)
+  "Returns t if the owner topic has an occurrence that will
+   be mapped to an RDF occurrence node and no an
+   usual RDF property."
+  (declare (TopicC owner-topic))
+  (loop for occ in (occurrences owner-topic)
+     when (let ((ii (item-identifiers occ))
+		(scopes (loop for scope in (themes occ)
+			   when (not (xml-lang-p scope))
+			   collect scope)))
+	    (or ii scopes
+		(> (length (themes occ)) 1)))
+     return t))
 
 
 (defgeneric to-rdf-elem (construct)
@@ -221,6 +235,7 @@
 		     when (not (xml-lang-p theme))
 		     collect theme))))
     (if (or scopes
+	    (> (length (themes construct)) 1)
 	    (item-identifiers construct)
 	    (/= (length (psis (instance-of construct))) 1))
 	(cxml:with-element "isi:occurrence"
@@ -259,13 +274,21 @@
           ;; rdf:resource, rdf:about or any other reference
       (cxml:with-element "rdf:Description"
 	(let ((psi (when (psis construct)
-		     (first (psis construct)))))
+		     (first (psis construct))))
+	      (ii (item-identifiers construct))
+	      (sl (locators construct))
+	      (t-names (names construct))
+	      (t-occs (occurrences construct)))
 	  (if psi
 	      (cxml:attribute "rdf:about" (uri psi))
 	      (cxml:attribute "rdf:nodeID" (make-object-id construct)))
+	  (when (or (> (length (psis construct)) 1)
+		    ii sl t-names
+		    (isi-occurrence-p construct))
+	    (make-isi-type "topic"))
 	  (map 'list #'to-rdf-elem (remove psi (psis construct)))
-	  (map 'list #'to-rdf-elem (locators construct))
-	  (map 'list #'to-rdf-elem (item-identifiers construct))
+	  (map 'list #'to-rdf-elem sl)
+	  (map 'list #'to-rdf-elem ii)
 	  (map 'list #'(lambda(x)
 			 (cxml:with-element "rdf:type"
 			   (make-topic-reference x)))
@@ -274,8 +297,8 @@
 			 (cxml:with-element "rdfs:subClassOf"
 			   (make-topic-reference x)))
 	       (list-super-types construct))
-	  (map 'list #'to-rdf-elem (names construct))
-	  (map 'list #'to-rdf-elem (occurrences construct))))))
+	  (map 'list #'to-rdf-elem t-names)
+	  (map 'list #'to-rdf-elem t-occs)))))
   
 
 (defmethod to-rdf-elem ((construct AssociationC))
