@@ -30,7 +30,7 @@
            :merge-test-db
 	   :set-up-test-db
 	   :tear-down-test-db
-	   
+	   :rdf-exporter-test-db
 	   :*TEST-TM*
 	   :*NOTIFICATIONBASE-TM*
 	   :*XTM-TM*
@@ -191,4 +191,23 @@
 				   :document-id document-id)
     (elephant:open-store (xml-importer:get-store-spec db-dir))
     (&body)
+    (tear-down-test-db)))
+
+
+(def-fixture rdf-exporter-test-db()
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm")
+	(document-id "doc-id")
+	(exported-file-path "./__out__.rdf"))
+    (clean-out-db db-dir)
+    (handler-case (delete-file exported-file-path)
+      (error () )) ;do nothing
+    (setf d:*current-xtm* document-id)
+    (setup-repository *poems_light.xtm* db-dir :tm-id tm-id
+		      :xtm-id document-id)
+    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (rdf-exporter:export-rdf exported-file-path :tm-id tm-id)
+    (&body)
+    (handler-case (delete-file exported-file-path)
+      (error () )) ;do nothing
     (tear-down-test-db)))

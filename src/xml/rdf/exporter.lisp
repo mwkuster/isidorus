@@ -35,6 +35,21 @@
 (defvar *ns-map* nil) ;; ((:prefix <string> :uri <string>))
 
 
+(defmacro with-property (construct &body body)
+  "Generates a property element with a corresponding namespace
+   and tag name before executing the body. This macro is for usin
+   in occurrences and association that are mapped to RDF properties."
+  `(let ((ns-list
+	  (separate-uri (uri (first (psis (instance-of ,construct)))))))
+     (declare ((or OccurrenceC AssociationC) ,construct))
+     (let ((ns (getf ns-list :prefix))
+	   (tag-name (getf ns-list :suffix)))
+       (cxml:with-namespace ((get-ns-prefix ns) ns)
+	 (cxml:with-element (concatenate 'string (get-ns-prefix ns)
+					 ":" tag-name)
+	   ,@body)))))
+
+
 (defun export-rdf (rdf-path &key tm-id (revision (get-revision)))
   "Exports the topoic map bound to tm-id as RDF."
   (with-reader-lock
@@ -206,6 +221,7 @@
    properties itemIdentity, scope and value."
   (cxml:with-element "isi:variant"
     (cxml:attribute "rdf:parseType" "Resource")
+    (make-isi-type "Variant")
     (map 'list #'to-rdf-elem (item-identifiers construct))
     (scopes-to-rdf-elems construct)
     (resourceX-to-rdf-elem construct)))
@@ -216,7 +232,7 @@
    properties itemIdentity, nametype, value, variant and scope."
   (cxml:with-element "isi:name"
     (cxml:attribute "rdf:parseType" "Resource")
-    (make-isi-type "name")
+    (make-isi-type "Name")
     (map 'list #'to-rdf-elem (item-identifiers construct))
     (cxml:with-element "isi:nametype"
       (make-topic-reference (instance-of construct)))
@@ -240,24 +256,18 @@
 	    (/= (length (psis (instance-of construct))) 1))
 	(cxml:with-element "isi:occurrence"
 	  (cxml:attribute "rdf:parseType" "Resource")
-	  (make-isi-type "occurrence")
+	  (make-isi-type "Occurrence")
 	  (map 'list #'to-rdf-elem (item-identifiers construct))
 	  (cxml:with-element "isi:occurrencetype"
 	    (make-topic-reference (instance-of construct)))
 	  (scopes-to-rdf-elems construct)
 	  (resourceX-to-rdf-elem construct))
-	(let ((ns-list
-	       (separate-uri (uri (first (psis (instance-of construct)))))))
-	  (let ((ns (getf ns-list :prefix))
-		(tag-name (getf ns-list :suffix)))
-	    (cxml:with-namespace ((get-ns-prefix ns) ns)
-	      (cxml:with-element (concatenate 'string (get-ns-prefix ns)
-					      ":" tag-name)
-		(cxml:attribute "rdf:datatype" (datatype construct))
-		(when (themes construct)
-		  (cxml:attribute "xml:lang" (get-xml-lang
-					      (first (themes construct)))))
-		(cxml:text (charvalue construct)))))))))
+	(with-property construct
+	  (cxml:attribute "rdf:datatype" (datatype construct))
+	  (when (themes construct)
+	    (cxml:attribute "xml:lang" (get-xml-lang
+					(first (themes construct)))))
+	  (cxml:text (charvalue construct))))))
 
 
 (defmethod to-rdf-elem ((construct TopicC))
@@ -269,9 +279,9 @@
 		    (occurrences construct)))
 	   (or (used-as-type construct)
 	       (used-as-theme construct)
-	       (player-in-roles construct)))
+	       (xml-lang-p construct)))
       nil ;; do not export this topic explicitly, since it has been exported as
-          ;; rdf:resource, rdf:about or any other reference
+          ;; rdf:resource, property or any other reference
       (cxml:with-element "rdf:Description"
 	(let ((psi (when (psis construct)
 		     (first (psis construct))))
@@ -285,7 +295,7 @@
 	  (when (or (> (length (psis construct)) 1)
 		    ii sl t-names
 		    (isi-occurrence-p construct))
-	    (make-isi-type "topic"))
+	    (make-isi-type "Topic"))
 	  (map 'list #'to-rdf-elem (remove psi (psis construct)))
 	  (map 'list #'to-rdf-elem sl)
 	  (map 'list #'to-rdf-elem ii)
@@ -336,7 +346,7 @@
 	(association-roles (roles association)))
     (cxml:with-element "rdf:Description" 
       (cxml:attribute "rdf:nodeID" (make-object-id association))
-      (make-isi-type "association")
+      (make-isi-type "Association")
       (cxml:with-element "isi:associationtype"
 	(make-topic-reference association-type))
       (map 'list #'to-rdf-elem ii)
@@ -352,7 +362,7 @@
 	(player-top (player construct)))
     (cxml:with-element "isi:role"
       (cxml:attribute "rdf:parseType" "Resource")
-      (make-isi-type "role")
+      (make-isi-type "Role")
       (map 'list #'to-rdf-elem ii)
       (cxml:with-element "isi:roletype"
 	(make-topic-reference role-type))
@@ -384,12 +394,5 @@
 		(cxml:attribute "rdf:about" (uri psi))
 		(cxml:attribute "rdf:nodeID"
 				(make-object-id (player subject-role))))
-	    (let ((ns-list
-		   (separate-uri (uri
-				  (first (psis (instance-of association)))))))
-	      (let ((ns (getf ns-list :prefix))
-		    (tag-name (getf ns-list :suffix)))
-		(cxml:with-namespace ((get-ns-prefix ns) ns)
-		  (cxml:with-element (concatenate 'string (get-ns-prefix ns)
-						  ":" tag-name)
-		    (make-topic-reference (player object-role))))))))))))
+	    (with-property association
+	      (make-topic-reference (player object-role)))))))))

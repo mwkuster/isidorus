@@ -29,7 +29,8 @@
 	   :*t100.xtm*
 	   :*atom_test.xtm*
 	   :*atom-conf.lisp*
-	   :*poems_light.rdf*))
+	   :*poems_light.rdf*
+	   :*poems_light.xtm*))
 
 (in-package :unittests-constants)
 
@@ -94,3 +95,7 @@
 (defparameter *poems_light.rdf*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "poems_light.rdf")))
+
+(defparameter *poems_light.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "poems_light.xtm")))

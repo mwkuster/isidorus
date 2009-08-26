@@ -138,6 +138,8 @@
 					    :depends-on ("fixtures"))
 				     (:file "threading_test")
 				     (:file "rdf_importer_test"
+					    :depends-on ("fixtures"))
+				     (:file "rdf_exporter_test"
 					    :depends-on ("fixtures")))
 			:depends-on ("atom"
                                      "constants"

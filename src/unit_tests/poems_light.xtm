@@ -7,6 +7,7 @@
     <tm:subjectIdentifier href="http://some.where/author/Goethe"/>
     <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
     <tm:name>
+      <tm:itemIdentity href="http://some.where/name_ii_1"/>
       <tm:type><tm:topicRef href="#firstName"/></tm:type>
       <tm:value>Johann Wolfgang</tm:value>
     </tm:name>
@@ -17,7 +18,7 @@
   </tm:topic>
 
   <tm:topic id="UUID-born-event">
-    <tm:instanceOf href="#event"/>
+    <tm:instanceOf><tm:topicRef href="#event"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#date"/></tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">28.08.1749</tm:resourceData>
@@ -55,6 +56,10 @@
     <tm:subjectIdentifier href="http://some.where/metropolis/Berlin"/>
     <tm:instanceOf><tm:topicRef href="#metropolis"/></tm:instanceOf>
     <tm:occurrence>
+      <tm:type><tm:topicRef href="#fullName"/></tm:type>
+      <tm:resourceData>Berlin</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
       <tm:type><tm:topicRef href="#population"/></tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">3431473</tm:resourceData>
     </tm:occurrence>
@@ -72,6 +77,10 @@
     <tm:subjectIdentifier href="http://some.where/city/Weimar"/>
     <tm:instanceOf><tm:topicRef href="#city"/></tm:instanceOf>
     <tm:occurrence>
+      <tm:type><tm:topicRef href="#fullName"/></tm:type>
+      <tm:resourceData>Weimar</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
       <tm:type><tm:topicRef href="#population"/></tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">64720</tm:resourceData>
     </tm:occurrence>
@@ -86,6 +95,8 @@
     <tm:subjectLocator href="http://some.where/resource_2"/>
     <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf>
     <tm:occurrence>
+      <tm:itemIdentity href="http://some.where/occurrence_ii_1"/>
+      <tm:itemIdentity href="http://some.where/occurrence_ii_2"/>
       <tm:type><tm:topicRef href="#title"/></tm:type>
       <tm:scope>
 	<tm:topicRef href="#de"/>
@@ -147,7 +158,7 @@
     <tm:occurrence>
       <tm:type><tm:topicRef href="#content"/></tm:type>
       <tm:scope><tm:topicRef href="#de"/></tm:scope>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string"> Bedecke deinen Himmel, Zeus, ... </tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Bedecke deinen Himmel, Zeus, ...</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
@@ -284,7 +295,7 @@
   </tm:topic>
 
   <tm:topic id="lastName">
-    <tm:subjectIdentifier href="http://some.where/relationsip/lastName"/>
+    <tm:subjectIdentifier href="http://some.where/relationship/lastName"/>
   </tm:topic>
 
   <tm:topic id="event">
@@ -589,6 +600,11 @@
     <tm:name>
       <tm:type><tm:topicRef href="#firstName"/></tm:type>
       <tm:value>Johann Christoph Friedrich</tm:value>
+      <tm:variant>
+	<tm:itemIdentity href="http://some.where/variant_ii_1"/>
+	<tm:scope><tm:topicRef href="#display"/></tm:scope>
+	<tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Friedrich</tm:resourceData>
+      </tm:variant>
     </tm:name>
     <tm:name>
       <tm:type><tm:topicRef href="#lastName"/></tm:type>
@@ -598,6 +614,10 @@
       <tm:type><tm:topicRef href="#authorInfo"/></tm:type>
       <tm:resourceRef href="http://de.wikipedia.org/wiki/Schiller"/>
     </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="display">
+    <tm:subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#display"/>
   </tm:topic>
 
   <tm:topic id="associatedWithEachOther">
@@ -628,6 +648,7 @@
       <tm:topicRef href="#poem"/>
     </tm:role>
     <tm:role>
+      <tm:itemIdentity href="http://some.where/test-role"/>
       <tm:type><tm:topicRef href="#literature"/></tm:type>
       <tm:topicRef href="#ballad"/>
     </tm:role>

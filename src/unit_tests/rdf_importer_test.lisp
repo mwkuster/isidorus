@@ -32,8 +32,7 @@
 		*rdf-subject*
 		*rdf-object*
 		*rdf-predicate*
-		*rdf-statement*
-		*xml-string*)
+		*rdf-statement*)
   (:import-from :xml-tools
                 xpath-child-elems-by-qname
 		xpath-single-child-elem-by-qname
