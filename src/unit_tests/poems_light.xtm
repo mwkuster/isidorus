@@ -148,7 +148,7 @@
   </tm:topic>
 
   <tm:topic id="prometheus">
-    <tm:subjectIdentifier href="http://some.where/ballad/Prometheus"/>
+    <tm:subjectIdentifier href="http://some.where/poem/Prometheus"/>
     <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#title"/></tm:type>
