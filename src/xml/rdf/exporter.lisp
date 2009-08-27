@@ -24,15 +24,45 @@
   (:import-from :isidorus-threading
 		with-reader-lock
 		with-writer-lock)
-  (:import-from :exporter
-		*export-tm*
-		export-to-elem)
   (:export :export-rdf))
 
 (in-package :rdf-exporter)
 
 
+(defvar *export-tm* nil "TopicMap which is exported (nil if all is
+                         to be exported, the same mechanism as
+                         in xtm-exporter")
+
 (defvar *ns-map* nil) ;; ((:prefix <string> :uri <string>))
+
+
+(defun rdf-li-or-uri (uri)
+  "Returns a string which represents an URI. If the given URI is
+   of the type rdf:_n there will be returned rdf:li."
+  (let ((rdf-len (length *rdf-ns*)))
+    (let ((prep-uri (when (string-starts-with
+			   uri (concatenate 'string *rdf-ns* "_"))
+		      (subseq uri (+ rdf-len 1)))))
+      (if prep-uri
+	  (handler-case (progn
+			  (parse-integer prep-uri)
+			  (concatenate 'string *rdf-ns* "li"))
+	    (condition () uri))
+	  uri))))
+
+
+(defun init-*ns-map* ()
+  "Initializes the variable *ns-map* woith some prefixes and corresponding
+   namepsaces. So the predifend namespaces are not contain ed twice."
+  (setf *ns-map* (list
+		  (list :prefix "isi"
+			:uri *tm2rdf-ns*)
+		  (list :prefix "rdf"
+			:uri *rdf-ns*)
+		  (list :prefix "rdfs"
+			:uri *rdfs-ns*)
+		  (list :prefix "xml"
+			:uri *xml-ns*))))
 
 
 (defmacro with-property (construct &body body)
@@ -40,7 +70,8 @@
    and tag name before executing the body. This macro is for usin
    in occurrences and association that are mapped to RDF properties."
   `(let ((ns-list
-	  (separate-uri (uri (first (psis (instance-of ,construct)))))))
+	  (separate-uri (rdf-li-or-uri
+			 (uri (first (psis (instance-of ,construct))))))))
      (declare ((or OccurrenceC AssociationC) ,construct))
      (let ((ns (getf ns-list :prefix))
 	   (tag-name (getf ns-list :suffix)))
@@ -50,12 +81,34 @@
 	   ,@body)))))
 
 
+(defmacro export-to-elem (tm to-elem)
+  "Exports all topics and associations depending to the given
+   tm. If tm is nil all topics and associations are exported.
+   Thic macro is equal to the one in xtm-exporter with a different
+   handler for associations."
+  `(setf *export-tm* ,tm)
+  `(format t "*export-tm*: ~a" *export-tm*)
+  `(map 'list 
+        ,to-elem
+        (remove-if 
+         #'null 
+         (map 'list 
+              #'(lambda(top)
+                  (d:find-item-by-revision top revision))
+              (if ,tm
+                  (union
+                    (d:topics ,tm) (d:associations ,tm))
+                  (union
+                   (elephant:get-instances-by-class 'd:TopicC)
+                   (list-tm-associations)))))))
+
+
 (defun export-rdf (rdf-path &key tm-id (revision (get-revision)))
   "Exports the topoic map bound to tm-id as RDF."
   (with-reader-lock
     (let ((tm (when tm-id
 		(get-item-by-item-identifier tm-id :revision revision))))
-      (setf *ns-map* nil)
+      (init-*ns-map*)
       (setf *export-tm* tm)
       (with-revision revision
 	(with-open-file (stream rdf-path :direction :output)
@@ -288,7 +341,8 @@
 	      (ii (item-identifiers construct))
 	      (sl (locators construct))
 	      (t-names (names construct))
-	      (t-occs (occurrences construct)))
+	      (t-occs (occurrences construct))
+	      (t-assocs (list-rdf-mapped-associations construct)))
 	  (if psi
 	      (cxml:attribute "rdf:about" (uri psi))
 	      (cxml:attribute "rdf:nodeID" (make-object-id construct)))
@@ -308,7 +362,20 @@
 			   (make-topic-reference x)))
 	       (list-super-types construct))
 	  (map 'list #'to-rdf-elem t-names)
-	  (map 'list #'to-rdf-elem t-occs)))))
+	  (map 'list #'to-rdf-elem (sort-constructs
+				    (union t-occs t-assocs)))))))
+
+
+(defun sort-constructs (constructs)
+  "Sorts names and associations by the instance-of name.
+   So rdf:_n can be exported in the correct order."
+  (sort constructs #'(lambda(x y)
+		       (declare ((or OccurrenceC AssociationC) x y))
+		       (let ((x-psi (when (psis (instance-of x))
+				      (uri (first (psis (instance-of x))))))
+			     (y-psi (when (psis (instance-of y))
+				      (uri (first (psis (instance-of y)))))))
+			 (string< x-psi y-psi)))))
   
 
 (defmethod to-rdf-elem ((construct AssociationC))
@@ -387,12 +454,52 @@
 				association-roles)))
       (when (and subject-role object-role
 		 (= (length association-roles) 2))
-	(cxml:with-element "rdf:Description"
-	  (let ((psi (when (psis (player subject-role))
-		       (first (psis (player subject-role))))))
-	    (if psi
-		(cxml:attribute "rdf:about" (uri psi))
-		(cxml:attribute "rdf:nodeID"
-				(make-object-id (player subject-role))))
-	    (with-property association
-	      (make-topic-reference (player object-role)))))))))
+	(with-property association
+	  (make-topic-reference (player object-role)))))))
+
+
+(defun list-rdf-mapped-associations(subject-topic)
+  "Returns all associations that were mapped from RDF to TM
+   and are still having two roles of the type isi:subject and
+   isi:object."
+  (declare (TopicC subject-topic))
+  (let ((isi-subject (get-item-by-psi *rdf2tm-subject*))
+	(isi-object (get-item-by-psi *rdf2tm-object*)))
+    (let ((topic-roles
+	   (remove-if
+	    #'null
+	    (map 'list 
+		 #'(lambda(x)
+		     (when (and (eql (instance-of x) isi-subject)
+				(= (length (roles (parent x))) 2)
+				(find-if #'(lambda(y)
+					     (eql (instance-of y) isi-object))
+					 (roles (parent x))))
+		       x))
+		 (player-in-roles subject-topic)))))
+      (map 'list #'parent topic-roles))))
+
+
+(defun list-tm-associations()
+  "Returns a list of associations that were not mapped from RDF
+   and are not of the type type-instance or supertype-subtype."
+  (let ((isi-subject (get-item-by-psi *rdf2tm-subject*))
+	(isi-object (get-item-by-psi *rdf2tm-object*))
+	(type-instance (get-item-by-psi *type-instance-psi*))
+	(supertype-subtype (get-item-by-psi *supertype-subtype-psi*)))
+    (remove-if 
+     #'null
+     (map 'list 
+	  #'(lambda(x)
+	      (when (and
+		     (not (or (eql (instance-of x) type-instance)
+			      (eql (instance-of x) supertype-subtype)))
+		     (or (/= (length (roles x)) 2)
+			 (not (find-if #'(lambda(y)
+					   (eql (instance-of y) isi-object))
+				       (roles x)))
+			 (not (find-if #'(lambda(y)
+					   (eql (instance-of y) isi-subject))
+				       (roles x)))))
+		x))
+	  (elephant:get-instances-by-class 'AssociationC)))))
