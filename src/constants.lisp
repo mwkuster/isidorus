@@ -50,7 +50,10 @@
 	   :*tm2rdf-role-type-uri*
 	   :*tm2rdf-role-property*
 	   :*tm2rdf-association-type-uri*
-	   :*tm2rdf-associaiton-property*))
+	   :*tm2rdf-associaiton-property*
+	   :*tm2rdf-subjectIdentifier-property*
+	   :*tm2rdf-itemIdentity-property*
+	   :*tm2rdf-subjectLocator-property*))
 	   
 
 (in-package :constants)
@@ -135,3 +138,9 @@
 (defparameter *tm2rdf-association-type-uri* (concatenate 'string *tm2rdf-ns* "Association"))
 
 (defparameter *tm2rdf-association-property* (concatenate 'string *tm2rdf-ns* "association"))
+
+(defparameter *tm2rdf-subjectIdentifier-property* (concatenate 'string *tm2rdf-ns* "subjectIdentifier"))
+
+(defparameter *tm2rdf-subjectLocator-property* (concatenate 'string *tm2rdf-ns* "subjectLocator"))
+
+(defparameter *tm2rdf-itemIdentity-property* (concatenate 'string *tm2rdf-ns* "itemIdentity"))

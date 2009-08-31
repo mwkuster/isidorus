@@ -110,6 +110,12 @@
 	  (types (get-types-of-node elem tm-id :parent-xml-base xml-base))
 	  (super-classes
 	   (get-super-classes-of-node-content elem tm-id xml-base)))
+      ;TODO: collect isidorus' subjectIdentifiers, itemIdentities,
+      ;                  subjectLocators, names and occurrences
+      ;      add the collected constructs to the topic-stub
+
+      ;TODO: collect associations and association roles and create the
+      ;      corresponding constructs and stops the recusrion
       (with-tm (start-revision document-id tm-id)
 	(let ((this
 	       (make-topic-stub
@@ -176,6 +182,9 @@
 			     (super-classes
 			      (get-super-classes-of-node-content
 			       elem tm-id xml-base)))
+			       ;TODO: collect isidorus' subjectIdentifiers, itemIdentities,
+                               ;                  subjectLocators, names and occurrences
+                               ;      add the collected constructs to the topic-stub
 			 (make-literals this literals tm-id start-revision
 					:document-id document-id)
 			 (make-associations this associations xml-importer::tm
@@ -580,7 +589,7 @@
   "Returns a list of literals that is produced of a node's content."
   (declare (dom:element node))
   (tm-id-p tm-id "get-literals-of-noode-content")
-  (let ((properties (child-nodes-or-text node :trim t))
+  (let ((properties (non-isidorus-child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base))
 	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
     (let ((literals
@@ -605,8 +614,6 @@
 			    (not (or prop-literals type))
 			    (string/= parseType "Collection")
 			    (string/= parseType "Resource")))
-
-
 		collect (let ((content (child-nodes-or-text property))
 			      (ID (get-absolute-attribute property tm-id
 							  fn-xml-base "ID"))
@@ -651,8 +658,8 @@
 		      :ID nil))
 	       nil))
 	  (content-types
-	   (when (child-nodes-or-text node :trim t)
-	     (loop for child across (child-nodes-or-text node :trim t)
+	   (when (non-isidorus-child-nodes-or-text node :trim t)
+	     (loop for child across (non-isidorus-child-nodes-or-text node :trim t)
 		when (and (string= (dom:namespace-uri child) *rdf-ns*)
 			  (string= (get-node-name child) "type"))
 		collect (let ((nodeID (get-ns-attribute child "nodeID"))
@@ -766,7 +773,7 @@
   "Returns a list of super-classes and IDs."
   (declare (dom:element node))
   (tm-id-p tm-id "get-super-classes-of-node-content")
-  (let ((content (child-nodes-or-text node :trim t))
+  (let ((content (non-isidorus-child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base)))
     (when content
       (loop for property across content
@@ -799,7 +806,7 @@
 (defun get-associations-of-node-content (node tm-id xml-base)
   "Returns a list of associations with a type, value and ID member."
   (declare (dom:element node))
-  (let ((properties (child-nodes-or-text node :trim t))
+  (let ((properties (non-isidorus-child-nodes-or-text node :trim t))
 	(fn-xml-base (get-xml-base node :old-base xml-base)))
     (loop for property across properties
        when (let ((prop-name (get-node-name property))
@@ -859,7 +866,7 @@
   "Calls the next function that handles all DOM child elements
    of the passed element as arcs."
   (declare (dom:element node))
-  (let ((content (child-nodes-or-text node :trim t))
+  (let ((content (non-isidorus-child-nodes-or-text node :trim t))
 	(err-pref "From make-recursion-from-node(): ")
 	(fn-xml-base (get-xml-base node :old-base xml-base))
 	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
@@ -878,7 +885,7 @@
   (declare (dom:element arc))
   (let ((fn-xml-base (get-xml-base arc :old-base xml-base))
 	(fn-xml-lang (get-xml-lang arc :old-lang xml-lang))
-	(content (child-nodes-or-text arc))
+	(content (non-isidorus-child-nodes-or-text arc))
 	(parseType (get-ns-attribute arc "parseType")))
     (let ((datatype (get-absolute-attribute arc tm-id xml-base "datatype"))
 	  (type (get-absolute-attribute arc tm-id xml-base "type"))

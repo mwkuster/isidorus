@@ -42,7 +42,10 @@
 		*tm2rdf-role-type-uri*
 		*tm2rdf-role-property*
 		*tm2rdf-association-type-uri*
-		*tm2rdf-association-property*)
+		*tm2rdf-association-property*
+		*tm2rdf-subjectIdentifier-property*
+		*tm2rdf-itemIdentity-property*
+		*tm2rdf-subjectLocator-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
@@ -663,3 +666,25 @@
 			       (not (stringp content)))
 		      (type-p (elt content 0) type tm-id
 			      :parent-xml-base xml-base))))))))))
+
+
+(defun non-isidorus-child-nodes-or-text (elem &key (trim nil))
+  "Returns a list of node elements that are no isidorus properties, e.g.
+   isidorus:name, string-content or nil."
+  (let ((content (child-nodes-or-text elem :trim trim)))
+    (if (or (not content)
+	    (stringp content))
+	content
+	(remove-if #'(lambda(x)
+		       (let ((x-uri (if (dom:namespace-uri x)
+					(concatenate-uri (dom:namespace-uri x)
+							 (get-node-name x))
+					(get-node-name x))))
+			 (or (string= x-uri *tm2rdf-name-property*)
+			     (string= x-uri *tm2rdf-variant-property*)
+			     (string= x-uri *tm2rdf-occurrence-property*)
+			     (string= x-uri *tm2rdf-role-property*)
+			     (string= x-uri *tm2rdf-subjectIdentifier-property*)
+			     (string= x-uri *tm2rdf-itemIdentity-property*)
+			     (string= x-uri *tm2rdf-subjectLocator-property*))))
+		   content))))
