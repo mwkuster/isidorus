@@ -31,7 +31,18 @@
 		*rdf-nil*
 		*rdf-first*
 		*rdf-rest*
-		*rdf2tm-scope-prefix*)
+		*rdf2tm-scope-prefix*
+		*tm2rdf-topic-type-uri*
+		*tm2rdf-name-type-uri*
+		*tm2rdf-name-property*
+		*tm2rdf-variant-type-uri*
+		*tm2rdf-variant-property*
+		*tm2rdf-occurrence-type-uri*
+		*tm2rdf-occurrence-property*
+		*tm2rdf-role-type-uri*
+		*tm2rdf-role-property*
+		*tm2rdf-association-type-uri*
+		*tm2rdf-association-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
@@ -369,8 +380,7 @@
 	     datatype))
     (when (and (or nodeID resource)
 	       (> (length content) 0))
-      ;(set-_n-name property _n-counter)))
-      (error "~awhen ~a is set no content is allowed: ~a!"
+     (error "~awhen ~a is set no content is allowed: ~a!"
 	     err-pref
 	     (cond
 	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
@@ -470,3 +480,186 @@
   (unless (absolute-uri-p tm-id)
     (error "From ~a(): you must provide a stable identifier (PSI-style) for this TM: ~a!"
 	   fun-name tm-id)))
+
+
+(defun get-types-of-node (elem tm-id &key (parent-xml-base nil))
+  "Returns a plist of all node's types of the form
+   (:topicid <string> :psi <string> :ID <string>)."
+  (let ((xml-base (get-xml-base elem :old-base parent-xml-base)))
+    (remove-if
+     #'null
+     (append (unless (string= (get-type-of-node-name elem)
+			      (concatenate 'string *rdf-ns*
+					   "Description"))
+	       (list 
+		(list :topicid (get-type-of-node-name elem)
+		      :psi (get-type-of-node-name elem)
+		      :ID nil)))
+	     (get-types-of-node-content elem tm-id xml-base)))))
+
+
+(defun get-type-psis (elem tm-id
+		      &key (parent-xml-base nil))
+  "Returns a list of type-uris of the passed node."
+  (let ((types (get-types-of-node elem tm-id
+				  :parent-xml-base parent-xml-base)))
+    (remove-if #'null
+	       (map 'list #'(lambda(x)
+			      (getf x :psi))
+		    types))))
+
+
+(defun get-all-type-psis-of-id (nodeID tm-id document)
+  "Returns a list of type-uris for resources identified by the given
+   nodeID by analysing the complete XML-DOM."
+  (let ((root (elt (dom:child-nodes document) 0)))
+    (remove-duplicates
+     (remove-if #'null
+		(if (and (string= (dom:namespace-uri root) *rdf-ns*)
+			 (string= (get-node-name root)"RDF"))
+		    (loop for node across (child-nodes-or-text root)
+		       append (get-all-type-psis-across-dom
+			       root tm-id :resource-id nodeID))
+		    (get-all-type-psis-across-dom
+		     root tm-id :resource-id nodeID)))
+     :test #'string=)))
+
+
+(defun get-all-type-psis (elem tm-id &key (parent-xml-base nil))
+  "Returns a list of type-uris for the element by analysing the complete
+   XML-DOM."
+  (let ((xml-base (get-xml-base elem :old-base parent-xml-base)))
+    (let ((root (elt (dom:child-nodes (dom:owner-document elem)) 0))
+	  (nodeID (get-ns-attribute elem "nodeID"))
+	  (about (get-absolute-attribute elem tm-id xml-base "about")))
+      (remove-duplicates
+       (remove-if #'null
+		  (if (or nodeID about)
+		      (if (and (string= (dom:namespace-uri root) *rdf-ns*)
+			       (string= (get-node-name root) "RDF"))
+			  (loop for node across (child-nodes-or-text root)
+			     append (get-all-type-psis-across-dom
+				     root tm-id :resource-uri about
+				     :resource-id nodeID))
+			  (get-all-type-psis-across-dom
+			   root tm-id :resource-uri about
+			   :resource-id nodeID))
+		      (get-type-psis elem tm-id :parent-xml-base parent-xml-base)))
+       :test #'string=))))
+
+
+(defun get-all-type-psis-across-dom (elem tm-id &key (parent-xml-base nil)
+				     (resource-uri nil) (resource-id nil)
+				     (types nil))
+  "Returns a list of type PSI strings collected over the complete XML-DOM
+   corresponding to the passed id's or uri."
+  (when (or resource-uri resource-id)
+    (let ((xml-base (get-xml-base elem :old-base parent-xml-base)))
+      (let ((datatype (when (get-ns-attribute elem "datatype")
+			t))
+	    (parseType (when (get-ns-attribute elem "parseType")
+			 (string= (get-ns-attribute elem "parseType")
+				  "Literal"))))
+	(if (or datatype parseType)
+	    types
+	    (let ((nodeID (get-ns-attribute elem "nodeID"))
+		  (about (get-absolute-attribute elem tm-id xml-base "about")))
+	      (let ((fn-types
+		     (append types
+			     (when (or (and about resource-uri
+					    (string= about resource-uri))
+				       (and nodeID resource-id
+					    (string= nodeID resource-id)))
+			       (get-type-psis elem tm-id
+					      :parent-xml-base xml-base))))
+		    (content (child-nodes-or-text elem :trim t)))
+		(if (or (stringp content)
+			(not content))
+		    fn-types
+		    (loop for child-node across content
+		       append (get-all-type-psis-across-dom
+			       child-node tm-id :parent-xml-base xml-base
+			       :resource-uri resource-uri
+			       :resource-id resource-id
+			       :types fn-types))))))))))
+
+
+(defun type-p (elem type-uri tm-id &key (parent-xml-base nil))
+  "Returns t if the type-uri is a type of elem."
+  (declare (string tm-id type-uri))
+  (declare (dom:element elem))
+  (tm-id-p tm-id "type-p")
+  (find type-uri (get-all-type-psis elem tm-id
+				    :parent-xml-base parent-xml-base)
+	:test #'string=))
+
+
+(defun type-of-id-p (node-id type-uri tm-id document)
+  "Returns t if type-uri is a type of the passed node-id."
+  (declare (string node-id type-uri tm-id))
+  (declare (dom:document document))
+  (tm-id-p tm-id "type-of-ndoe-id-p")
+  (find type-uri (get-all-type-psis-of-id node-id tm-id document)
+	:test #'string=))
+
+
+(defun property-name-of-node-p (elem property-name-uri)
+  "Returns t if the elements tag-name and namespace are equal
+   to the given uri."
+  (declare (dom:element elem))
+  (declare (string property-name-uri))
+  (when property-name-uri
+    (let ((uri (concatenate-uri (dom:namespace-uri elem)
+				(get-node-name elem))))
+      (string= uri property-name-uri))))
+
+
+(defun isidorus-type-p (property-elem-or-node-elem tm-id what
+			&key(parent-xml-base nil))
+  "Returns t if the node elem is of the type isidorus:<Type> and is
+   contained in a porperty isidorus:<type>."
+  (declare (dom:element property-elem-or-node-elem))
+  (declare (symbol what))
+  (tm-id-p tm-id "isidorus-type-p")
+  (let ((xml-base (get-xml-base property-elem-or-node-elem
+				:old-base parent-xml-base))
+	(type-and-property (cond
+			     ((eql what 'name)
+			      (list :type *tm2rdf-name-type-uri*
+				    :property *tm2rdf-name-property*))
+			     ((eql what 'variant)
+			      (list :type *tm2rdf-variant-type-uri*
+				    :property *tm2rdf-variant-property*))
+			     ((eql what 'occurrence)
+			      (list :type *tm2rdf-occurrence-type-uri*
+				    :property *tm2rdf-occurrence-property*))
+			     ((eql what 'role)
+			      (list :type *tm2rdf-role-type-uri*
+				    :property *tm2rdf-role-property*))
+			     ((eql what 'topic)
+			      (list :type *tm2rdf-topic-type-uri*))
+			     ((eql what 'association)
+			      (list :type 
+				    *tm2rdf-association-type-uri*)))))
+    (when type-and-property
+      (let ((type (getf type-and-property :type))
+	    (property (getf type-and-property :property))
+	    (nodeID (get-ns-attribute property-elem-or-node-elem "nodeID"))
+	    (document (dom:owner-document property-elem-or-node-elem))
+	    (elem-uri (concatenate-uri
+		       (dom:namespace-uri
+			property-elem-or-node-elem)
+		       (get-node-name property-elem-or-node-elem))))
+	(if (or (string= type *tm2rdf-topic-type-uri*)
+		(string= type *tm2rdf-association-type-uri*))
+	    (type-p property-elem-or-node-elem type tm-id
+		    :parent-xml-base parent-xml-base)
+	    (when (string= elem-uri property)
+	      (if nodeID
+		  (type-of-id-p nodeId type tm-id document)
+		  (let ((content (child-nodes-or-text  property-elem-or-node-elem
+						       :trim t)))
+		    (when (and (= (length content) 1)
+			       (not (stringp content)))
+		      (type-p (elt content 0) type tm-id
+			      :parent-xml-base xml-base))))))))))

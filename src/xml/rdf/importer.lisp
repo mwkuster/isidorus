@@ -96,8 +96,7 @@
   (format t ">> import-node: ~a <<~%" (dom:node-name elem)) ;TODO: remove
   (tm-id-p tm-id "import-node")
   (parse-node elem)
-  (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
-	(fn-xml-lang (get-xml-lang elem :old-lang xml-lang)))
+  (let ((fn-xml-lang (get-xml-lang elem :old-lang xml-lang)))
     (let ((about (get-absolute-attribute elem tm-id xml-base "about"))	   
 	  (nodeID (get-ns-attribute elem "nodeID"))
 	  (ID (get-absolute-attribute elem tm-id xml-base "ID"))
@@ -108,16 +107,7 @@
 			    (get-literals-of-node-content
 			     elem tm-id xml-base fn-xml-lang)))
 	  (associations (get-associations-of-node-content elem tm-id xml-base))
-	  (types (remove-if
-		  #'null
-		  (append (list
-			   (unless (string= (get-type-of-node-name elem)
-					    (concatenate 'string *rdf-ns*
-							 "Description"))
-			     (list :topicid (get-type-of-node-name elem)
-				   :psi (get-type-of-node-name elem)
-				   :ID nil)))
-			  (get-types-of-node-content elem tm-id fn-xml-base))))
+	  (types (get-types-of-node elem tm-id :parent-xml-base xml-base))
 	  (super-classes
 	   (get-super-classes-of-node-content elem tm-id xml-base)))
       (with-tm (start-revision document-id tm-id)

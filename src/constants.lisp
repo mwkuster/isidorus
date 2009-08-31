@@ -39,7 +39,19 @@
 	   :*rdf2tm-object*
 	   :*rdf2tm-subject*
 	   :*rdf2tm-scope-prefix*
-	   :*tm2rdf-ns*))
+	   :*tm2rdf-ns*
+	   :*tm2rdf-topic-type-uri*
+	   :*tm2rdf-name-type-uri*
+	   :*tm2rdf-name-property*
+	   :*tm2rdf-variant-type-uri*
+	   :*tm2rdf-variant-property*
+	   :*tm2rdf-occurrence-type-uri*
+	   :*tm2rdf-occurrence-property*
+	   :*tm2rdf-role-type-uri*
+	   :*tm2rdf-role-property*
+	   :*tm2rdf-association-type-uri*
+	   :*tm2rdf-associaiton-property*))
+	   
 
 (in-package :constants)
 (defparameter *xtm2.0-ns* "http://www.topicmaps.org/xtm/")
@@ -80,24 +92,46 @@
 
 (defparameter *rdf2tm-ns* "http://isidorus/rdf2tm_mapping/")
 
-(defparameter *rdf-statement* "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement")
+(defparameter *rdf-statement* (concatenate 'string *rdf-ns* "Statement"))
 
-(defparameter *rdf-object* "http://www.w3.org/1999/02/22-rdf-syntax-ns#object")
+(defparameter *rdf-object* (concatenate 'string *rdf-ns* "object"))
 
-(defparameter *rdf-subject* "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject")
+(defparameter *rdf-subject* (concatenate 'string *rdf-ns* "subject"))
 
-(defparameter *rdf-predicate* "http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate")
+(defparameter *rdf-predicate* (concatenate 'string *rdf-ns* "predicate"))
 
-(defparameter *rdf-nil* "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
+(defparameter *rdf-nil* (concatenate 'string *rdf-ns* "nil"))
 
-(defparameter *rdf-first* "http://www.w3.org/1999/02/22-rdf-syntax-ns#first")
+(defparameter *rdf-first* (concatenate 'string *rdf-ns* "first"))
 
-(defparameter *rdf-rest* "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest")
+(defparameter *rdf-rest* (concatenate 'string *rdf-ns* "rest"))
 
-(defparameter *rdf2tm-object* "http://isidorus/rdf2tm_mapping/object")
+(defparameter *rdf2tm-object* (concatenate 'string *rdf2tm-ns* "object"))
 
-(defparameter *rdf2tm-subject* "http://isidorus/rdf2tm_mapping/subject")
+(defparameter *rdf2tm-subject* (concatenate 'string *rdf2tm-ns* "subject"))
 
-(defparameter *rdf2tm-scope-prefix* "http://isidorus/rdf2tm_mapping/scope/")
+(defparameter *rdf2tm-scope-prefix* (concatenate 'string *rdf2tm-ns* "scope/"))
 
 (defparameter *tm2rdf-ns* "http://isidorus/tm2rdf_mapping/")
+
+(defparameter *tm2rdf-topic-type-uri* (concatenate 'string *tm2rdf-ns* "Topic"))
+
+(defparameter *tm2rdf-name-type-uri* (concatenate 'string *tm2rdf-ns* "Name"))
+
+(defparameter *tm2rdf-name-property* (concatenate 'string *tm2rdf-ns* "name"))
+
+(defparameter *tm2rdf-variant-type-uri* (concatenate 'string *tm2rdf-ns* "Variant"))
+
+(defparameter *tm2rdf-variant-property* (concatenate 'string *tm2rdf-ns* "variant"))
+
+(defparameter *tm2rdf-occurrence-type-uri* (concatenate 'string *tm2rdf-ns* "Occurrence"))
+
+(defparameter *tm2rdf-occurrence-property* (concatenate 'string *tm2rdf-ns* "occurrence"))
+
+(defparameter *tm2rdf-role-type-uri* (concatenate 'string *tm2rdf-ns* "Role"))
+
+(defparameter *tm2rdf-role-property* (concatenate 'string *tm2rdf-ns* "role"))
+
+(defparameter *tm2rdf-association-type-uri* (concatenate 'string *tm2rdf-ns* "Association"))
+
+(defparameter *tm2rdf-association-property* (concatenate 'string *tm2rdf-ns* "association"))

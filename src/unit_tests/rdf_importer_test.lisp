@@ -18,6 +18,7 @@
                 *rdf-ns*
 		*rdfs-ns*
 		*rdf2tm-ns*
+		*tm2rdf-ns*
 		*xml-ns*
 		*xml-string*
 		*instance-psi*
@@ -32,7 +33,13 @@
 		*rdf-subject*
 		*rdf-object*
 		*rdf-predicate*
-		*rdf-statement*)
+		*rdf-statement*
+		*tm2rdf-topic-type-uri*
+		*tm2rdf-name-type-uri*
+		*tm2rdf-variant-type-uri*
+		*tm2rdf-occurrence-type-uri*
+		*tm2rdf-role-type-uri*
+		*tm2rdf-association-type-uri*)
   (:import-from :xml-tools
                 xpath-child-elems-by-qname
 		xpath-single-child-elem-by-qname
@@ -59,7 +66,10 @@
 	   :test-poems-rdf-topics
 	   :test-empty-collection
 	   :test-collection
-	   :test-xml-base))
+	   :test-xml-base
+	   :test-get-type-psis
+	   :test-get-all-type-psis
+	   :test-isidorus-type-p))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -3054,7 +3064,200 @@
 		       "http://base-3/test")))))))
 
 
+(test test-get-type-psis
+  "Tests the function get-type-psis."
+  (let ((tm-id "http://test-tm/")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:sw=\"http://test/arcs/\">"
+		      " <sw:Node rdf:about=\"http://sw/node\""
+		      "          rdf:type=\"http://sw/Node-1\">"
+		      "  <sw:type rdf:resource=\"anyResource\"/>"
+		      "  <rdf:type rdf:resource=\"Node-2\"/>"
+		      "  <rdf:type rdf:resource=\"http://sw/Node-3\"/>"
+		      "  <rdf:type rdf:nodeID=\"anyType\"/>"
+		      " </sw:Node>"
+
+		      " <rdf:Description rdf:about=\"http://sw/emtpy\"/>"
+		      "</rdf:RDF>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
+	(is (= (length (rdf-importer::child-nodes-or-text rdf-node)) 2))
+	(let ((resource-1 
+	       (elt (rdf-importer::child-nodes-or-text rdf-node) 0))
+	      (resource-2 
+	       (elt (rdf-importer::child-nodes-or-text rdf-node) 1))
+	      (types (list "http://test/arcs/Node" "http://sw/Node-1"
+			   "http://xml-base/Node-2" "http://sw/Node-3"))
+	      (types-2 (list "http://test/arcs/Node" "http://sw/Node-1"
+			     (concatenate 'string tm-id "Node-2")
+			     "http://sw/Node-3")))
+	  (is-true resource-1)
+	  (is-true resource-2)
+	  (is (= (length
+		  (intersection
+		   types
+		   (rdf-importer::get-type-psis
+		    resource-1 tm-id
+		    :parent-xml-base "http://xml-base/")
+		   :test #'string=))
+		 (length types)))
+	  (is (= (length
+		  (intersection
+		   types-2
+		   (rdf-importer::get-type-psis resource-1 tm-id)
+		   :test #'string=))
+		 (length types-2)))
+	  (is-false (rdf-importer::get-type-psis
+		     resource-2 tm-id
+		     :parent-xml-base "http://xml-base/")))))))
+
+
+(test test-get-all-type-psis
+  "Tests the functions get-all-type-psis, get-type-psis-across-dom and
+   get-type-psis."
+  (let ((tm-id "http://test-tm/")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:sw=\"http://test/arcs/\">"
+		      " <rdf:Description rdf:nodeID=\"anyNode\">"
+		      "  <rdf:type rdf:resource=\"http://type-1\"/>"
+		      "  <sw:arc>"
+		      "   <rdf:Description rdf:nodeID=\"anyNode\" "
+		      "                   rdf:type=\"http://type-2\"/>"
+		      "  </sw:arc>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:nodeID=\"anotherNode\">"
+		      "  <rdf:type rdf:resource=\"http://type-3\"/>"
+		      " </rdf:Description>"
+
+		      " <sw:NodeType rdf:nodeID=\"anyNode\"/>"
+
+		      " <rdf:Description rdf:nodeID=\"anyNode\" "
+		      "                  rdf:datatype=\"anyDatatype\">"
+		      "  <rdf:type rdf:resource=\"http://type-7\"/>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:about=\"http://a-node\">"
+		      "  <sw:arc>"
+		      "   <rdf:Description rdf:about=\"http://b-node\">"
+		      "   <rdf:type rdf:resource=\"http://type-5\"/>"
+		      "    <rdf:arc>"
+		      "     <rdf:Description rdf:nodeID=\"anyNode\">"
+		      "      <rdf:type rdf:resource=\"http://type-5\"/>"
+		      "      <rdf:type rdf:resource=\"http://type-6\"/>"
+		      "     </rdf:Description>"
+		      "    </rdf:arc>"
+		      "   </rdf:Description>"
+		      "  </sw:arc>"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((root (elt (dom:child-nodes (cxml:parse doc-1
+						  (cxml-dom:make-dom-builder)))
+		     0)))
+      (is (= (length (rdf-importer::child-nodes-or-text root)) 5))
+      (let ((any-node-1 (elt (rdf-importer::child-nodes-or-text root) 0))
+	    (another-node (elt (rdf-importer::child-nodes-or-text root) 1))
+	    (fn-types (list "http://type-1" "http://type-2"
+			    "http://test/arcs/NodeType" "http://type-5"
+			    "http://type-6"))
+	    (any-node-4 (elt (rdf-importer::child-nodes-or-text root) 3)))
+	(let ((types-1 (rdf-importer::get-all-type-psis any-node-1 tm-id))
+	      (types-4 (rdf-importer::get-all-type-psis any-node-4 tm-id))
+	      (types-another-node (rdf-importer::get-all-type-psis
+				   another-node tm-id)))
+	  (is (= (length (intersection fn-types types-1 :test #'string=))
+		 (length fn-types)))
+	  (is (= (length types-another-node) 1))
+	  (is (string= "http://type-3"
+		       (first types-another-node)))
+	  (is (= (length (intersection fn-types types-4 :test #'string=))
+		 (length fn-types))))))))
+
+
+(test test-isidorus-type-p
+  "Tests the function isidorus-type-p."
+    (let ((tm-id "http://test-tm/")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:sw=\"http://test/arcs/\" "
+		      "xmlns:isi=\"" *tm2rdf-ns* "\">"
+		      " <isi:Topic rdf:about=\"http://node-1\">"
+		      "  <isi:name>"
+		      "   <rdf:Description rdf:nodeID=\"name-id\"/>"
+		      "  </isi:name>"
+		      "  <isi:occurrence rdf:nodeID=\"occurrence-id\"/>"
+		      "  <isi:occurrence>"
+		      "   <rdf:Description>"
+		      "    <rdf:type rdf:resource=\""
+		                          *tm2rdf-occurrence-type-uri* "\"/>"
+		      "   </rdf:Description>"
+		      "  </isi:occurrence>"
+		      " </isi:Topic>"
+
+		      " <rdf:Description rdf:nodeID=\"name-id\">"
+		      "  <rdf:type rdf:resource=\"" *tm2rdf-name-type-uri*"\"/>"
+		      "  <isi:variant>"
+		      "   <isi:Variant rdf:nodeID=\"variant-id\"/>"
+		      "  </isi:variant>"
+		      " </rdf:Description>"
+
+		      " <isi:Occurrence rdf:nodeID=\"occurrence-id\"/>"
+
+		      " <rdf:Description rdf:nodeID=\"association-id\">"
+		      "  <rdf:type rdf:resource=\""
+		                      *tm2rdf-association-type-uri* "\"/>"
+		      "  <isi:role>"
+		      "   <isi:Role rdf:nodeID=\"role-id\"/>"
+                      "  </isi:role>"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((root (elt (dom:child-nodes (cxml:parse doc-1
+						  (cxml-dom:make-dom-builder)))
+		     0)))
+      (is (= (length (rdf-importer::child-nodes-or-text root)) 4))
+      (let ((topic-node (elt (rdf-importer::child-nodes-or-text root) 0))
+	    (association-node (elt (rdf-importer::child-nodes-or-text root) 3)))
+	(let ((topic-name (elt (rdf-importer::child-nodes-or-text topic-node) 
+			       0))
+	      (topic-occurrence-1 (elt (rdf-importer::child-nodes-or-text
+					topic-node)
+				       1))
+	      (topic-occurrence-2 (elt (rdf-importer::child-nodes-or-text
+					topic-node)
+				       2))
+	      (association-role (elt (rdf-importer::child-nodes-or-text
+				      association-node)
+				     1))
+	      (name-variant (elt (rdf-importer::child-nodes-or-text
+				  (elt (rdf-importer::child-nodes-or-text root)
+				       1))
+				 1)))
+	  (is-true (rdf-importer::isidorus-type-p topic-node tm-id 
+						  'rdf-importer::topic))
+	  (is-true (rdf-importer::isidorus-type-p association-node tm-id
+						  'rdf-importer::association))
+	  (is-true (rdf-importer::isidorus-type-p topic-name tm-id
+						  'rdf-importer::name))
+	  (is-true (rdf-importer::isidorus-type-p name-variant tm-id
+						  'rdf-importer::variant))
+	  (is-true (rdf-importer::isidorus-type-p topic-occurrence-1 tm-id
+						  'rdf-importer::occurrence))
+	  (is-true (rdf-importer::isidorus-type-p topic-occurrence-2 tm-id
+						  'rdf-importer::occurrence))
+	  (is-true (rdf-importer::isidorus-type-p association-role tm-id
+						  'rdf-importer::role))
+	  (is-false (rdf-importer::isidorus-type-p
+		     (elt (rdf-importer::child-nodes-or-text root) 1) tm-id
+		     'rdf-importer::name))
+	  (is-false (rdf-importer::isidorus-type-p
+		     (elt (rdf-importer::child-nodes-or-text root) 2) tm-id
+		     'rdf-importer::occurrence)))))))
+
+
 (defun run-rdf-importer-tests()
+  "Runs all defined tests."
   (when elephant:*store-controller*
     (elephant:close-store))
   (it.bese.fiveam:run! 'test-get-literals-of-node)
@@ -3075,4 +3278,7 @@
   (it.bese.fiveam:run! 'test-poems-rdf-topics)
   (it.bese.fiveam:run! 'test-empty-collection)
   (it.bese.fiveam:run! 'test-collection)
-  (it.bese.fiveam:run! 'test-xml-base))
+  (it.bese.fiveam:run! 'test-xml-base)
+  (it.bese.fiveam:run! 'test-get-type-psis)
+  (it.bese.fiveam:run! 'test-get-all-type-psis)
+  (it.bese.fiveam:run! 'test-isidorus-type-p))
