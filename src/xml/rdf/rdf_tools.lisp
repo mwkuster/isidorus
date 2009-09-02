@@ -45,7 +45,15 @@
 		*tm2rdf-association-property*
 		*tm2rdf-subjectIdentifier-property*
 		*tm2rdf-itemIdentity-property*
-		*tm2rdf-subjectLocator-property*)
+		*tm2rdf-subjectLocator-property*
+		*tm2rdf-ns*
+		*tm2rdf-value-property*
+		*tm2rdf-nametype-property*
+		*tm2rdf-scope-property*
+		*tm2rdf-varianttype-property*
+		*tm2rdf-occurrencetype-property*
+		*tm2rdf-roletype-property*
+		*tm2rdf-associationtype-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
@@ -290,6 +298,29 @@
 			 :psi (or ID about)))))))
 
 
+(defun get-ref-of-property (property-elem tm-id xml-base)
+  "Returns a plist of the form (:topicid <string> :psi <string>).
+   That contains the property's value."
+  (declare (dom:element property-elem))
+  (declare (string tm-id))
+  (let ((nodeId (get-ns-attribute property-elem "nodeID"))
+	(resource (get-ns-attribute property-elem "resource"))
+	(content (let ((node-refs
+			(get-node-refs (child-nodes-or-text property-elem)
+				       tm-id xml-base)))
+		   (when node-refs
+		     (first node-refs)))))
+    (cond
+      (nodeID
+       (list :topicid nodeID
+	     :psi nil))
+      (resource
+       (list :topicid resource
+	     :psi resource))
+      (content
+       content))))
+
+
 (defun parse-property-name (property owner-identifier)
   "Parses the given property's name to the known rdf/rdfs nodes and arcs.
    If the given name es equal to an node an error is thrown otherwise
@@ -501,6 +532,19 @@
 	     (get-types-of-node-content elem tm-id xml-base)))))
 
 
+(defun get-types-of-property (elem tm-id &key (parent-xml-base nil))
+  "Returns a plist of all property's types of the form
+   (:topicid <string> :psi <string> :ID <string>)."
+  (let ((xml-base (get-xml-base elem :old-base parent-xml-base)))
+    (remove-if #'null
+	       (append
+		(get-types-of-node-content elem tm-id xml-base)
+		(when (get-ns-attribute elem "type")
+		  (list :ID nil
+			:topicid (get-ns-attribute elem "type")
+			:psi (get-ns-attribute elem "type")))))))
+
+
 (defun get-type-psis (elem tm-id
 		      &key (parent-xml-base nil))
   "Returns a list of type-uris of the passed node."
@@ -617,6 +661,34 @@
       (string= uri property-name-uri))))
 
 
+(defun non-isidorus-type-p (elem tm-id &key (parent-xml-base nil)
+			    (ignore-topic nil))
+  "Returns t if the passed element is not of an isidorus' type.
+   The environmental property is not analysed by this function!"
+  (declare (dom:element elem))
+  (declare (string tm-id))
+  (let ((nodeID (get-ns-attribute elem "nodeID"))
+	(document (dom:owner-document elem))
+	(types 
+	 (let ((b-types
+		(list 
+		 *tm2rdf-name-type-uri* *tm2rdf-variant-type-uri*
+		 *tm2rdf-occurrence-type-uri* *tm2rdf-association-type-uri*
+		 *tm2rdf-role-type-uri*))
+	       (a-types (list *tm2rdf-topic-type-uri*)))
+	   (if ignore-topic
+	       b-types
+	       (append a-types b-types)))))
+    (if nodeID
+	(not (loop for type in types
+		when (type-of-id-p nodeId type tm-id document)
+		return t))
+	(not (loop for type in types
+		when (type-p elem type tm-id 
+			     :parent-xml-base parent-xml-base)
+		return t)))))
+
+
 (defun isidorus-type-p (property-elem-or-node-elem tm-id what
 			&key(parent-xml-base nil))
   "Returns t if the node elem is of the type isidorus:<Type> and is
@@ -654,7 +726,16 @@
 			property-elem-or-node-elem)
 		       (get-node-name property-elem-or-node-elem))))
 	(if (or (string= type *tm2rdf-topic-type-uri*)
-		(string= type *tm2rdf-association-type-uri*))
+		(string= type *tm2rdf-association-type-uri*)
+		(let ((parseType (get-ns-attribute property-elem-or-node-elem
+						   "parseType")))
+		  (and parseType
+		       (string= parseType "Resource")))
+		(get-ns-attribute property-elem-or-node-elem "type")
+		(get-ns-attribute property-elem-or-node-elem "value"
+				  :ns-uri *tm2rdf-ns*)
+		(get-ns-attribute property-elem-or-node-elem "itemIdentity"
+				  :ns-uri *tm2rdf-ns*))
 	    (type-p property-elem-or-node-elem type tm-id
 		    :parent-xml-base parent-xml-base)
 	    (when (string= elem-uri property)
@@ -686,5 +767,85 @@
 			     (string= x-uri *tm2rdf-role-property*)
 			     (string= x-uri *tm2rdf-subjectIdentifier-property*)
 			     (string= x-uri *tm2rdf-itemIdentity-property*)
+			     (string= x-uri *tm2rdf-value-property*)
+			     (string= x-uri *tm2rdf-scope-property*)
+			     (string= x-uri *tm2rdf-nametype-property*)
+			     (string= x-uri *tm2rdf-varianttype-property*)
+			     (string= x-uri *tm2rdf-associationtype-property*)
+			     (string= x-uri *tm2rdf-occurrencetype-property*)
+			     (string= x-uri *tm2rdf-roletype-property*)
 			     (string= x-uri *tm2rdf-subjectLocator-property*))))
 		   content))))
+
+
+(defun get-all-isidorus-nodes-by-id (node-id current-node type-uri
+					&key (parent-xml-base nil)
+				     (collected-nodes nil))
+  "Returns a list of all nodes that own the given nodeID and are of
+   type type-uri, rdf:Description or when the rdf:parseType is set to
+   Resource or the isidorus:value attribute is set."
+  (declare (dom:element current-node))
+  (declare (string node-id))
+  (let ((datatype (when (get-ns-attribute current-node "datatype")
+		    t))
+	(parseType (let ((attr (get-ns-attribute current-node "parseType")))
+		     (when (and attr
+				(string= attr "Literal"))
+		       t)))
+	(content (child-nodes-or-text current-node :trim t))
+	(xml-base (get-xml-base current-node :old-base parent-xml-base))
+	(nodeID (get-ns-attribute current-node "nodeID"))
+	(node-uri-p (let ((node-uri
+			   (concatenate-uri (dom:namespace-uri current-node)
+					    (get-node-name current-node)))
+			  (description (concatenate 'string *rdf-ns* 
+						    "Description")))
+		      (or (string= node-uri (if type-uri type-uri ""))
+			  (string= node-uri description)
+			  (get-ns-attribute current-node "type")
+			  (get-ns-attribute current-node "value" 
+					    :ns-uri *tm2rdf-ns*)
+			  (get-ns-attribute current-node "itemIdentity"
+					    :ns-uri *tm2rdf-ns*)
+			  (let ((parseType (get-ns-attribute current-node 
+							     "parseType")))
+			    (when parseType
+			      (string= parseType "Resource")))))))
+    (remove-duplicates
+     (remove-if 
+      #'null
+      (if (or datatype parseType (stringp content) (not content))
+	  (if (and (string= nodeID node-id) node-uri-p)
+	      (append (list (list :elem current-node
+				  :xml-base xml-base))
+		      collected-nodes)
+	      collected-nodes)
+	  (if (and (string= nodeID node-id) node-uri-p)
+	      (loop for item across content
+		 append (get-all-isidorus-nodes-by-id
+			 node-id item type-uri
+			 :collected-nodes (append
+					   (list (list :elem current-node
+						       :xml-base xml-base))
+					   collected-nodes)
+			 :parent-xml-base xml-base))
+	      (loop for item across content
+		 append (get-all-isidorus-nodes-by-id 
+			 node-id item type-uri 
+			 :collected-nodes collected-nodes
+			 :parent-xml-base xml-base)))))
+     :test #'(lambda(x y)
+	       (eql (getf x :elem) (getf y :elem))))))
+
+
+(defun filter-isidorus-literals (literals)
+  "Removes all literals that are known isidorus properties which
+   are able to contain literal data."
+  (remove-if #'(lambda(x)
+		 (or (string= (getf x :type)
+			      *tm2rdf-subjectIdentifier-property*)
+		     (string= (getf x :type)
+			      *tm2rdf-itemIdentity-property*)
+		     (string= (getf x :type)
+			      *tm2rdf-subjectLocator-property*)))
+	     literals))

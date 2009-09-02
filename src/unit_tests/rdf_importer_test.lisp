@@ -21,6 +21,7 @@
 		*tm2rdf-ns*
 		*xml-ns*
 		*xml-string*
+		*xml-uri*
 		*instance-psi*
 		*type-psi*
 		*type-instance-psi*
@@ -69,7 +70,9 @@
 	   :test-xml-base
 	   :test-get-type-psis
 	   :test-get-all-type-psis
-	   :test-isidorus-type-p))
+	   :test-isidorus-type-p
+	   :test-get-all-isidorus-nodes-by-id
+	   :test-import-isidorus-name))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -3256,6 +3259,227 @@
 		     'rdf-importer::occurrence)))))))
 
 
+(test test-get-all-isidorus-nodes-by-id
+  "Tests the function get-all-isidorus-nodes-by-id."
+  (let ((doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:sw=\"http://test/arcs/\">"
+		      " <rdf:Description rdf:nodeID=\"node-id-1\"/>"
+		      " <rdf:Description rdf:nodeID=\"node-id-2\"/>"
+		      " <rdf:Description rdf:nodeID=\"node-id-1\">"
+		      "  <sw:arc rdf:nodeID=\"node-id-2\"/>"
+		      " </rdf:Description>"
+		      " <rdf:Description rdf:nodeID=\"node-id-3\">"
+		      "  <sw:arc rdf:nodeID=\"node-id-1\"/>"
+		      "  <sw:arc rdf:nodeID=\"node-id-4\"/>"
+		      " </rdf:Description>"
+		      " <sw:Node rdf:nodeID=\"node-id-4\" "
+		      "          xml:base=\"http://base/\">"
+		      "  <sw:arc>"
+		      "   <rdf:Description rdf:nodeID=\"node-id-1\" "
+		      "                    xml:base=\"suffix\"/>"
+		      "  </sw:arc>"
+		      " </sw:Node>"
+		      "</rdf:RDF>")))
+    (let ((root (elt (dom:child-nodes (cxml:parse doc-1
+						  (cxml-dom:make-dom-builder)))
+		     0))
+	  (description (concatenate 'string *rdf-ns* "Description"))
+	  (sw-node "http://test/arcs/Node"))
+      (let ((node-id-1 (list 
+			(list :elem (elt (rdf-importer::child-nodes-or-text 
+					  root) 0)
+			      :xml-base nil)
+			(list :elem (elt (rdf-importer::child-nodes-or-text 
+					  root) 2)
+			      :xml-base nil)
+			(list :elem (elt
+				     (rdf-importer::child-nodes-or-text 
+				      (elt
+				       (rdf-importer::child-nodes-or-text 
+					(elt (rdf-importer::child-nodes-or-text 
+					      root) 4)) 0)) 0)
+			      :xml-base "http://base/suffix")))
+	    (node-id-2 (elt (rdf-importer::child-nodes-or-text root) 1))
+	    (node-id-3 (elt (rdf-importer::child-nodes-or-text root) 3))
+	    (node-id-4 (elt (rdf-importer::child-nodes-or-text root) 4)))
+	(is (= (length (rdf-importer::child-nodes-or-text root)) 5))
+	(is (= (length (rdf-importer::get-all-isidorus-nodes-by-id
+			"node-id-3" root nil)) 1))
+	(is (eql (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
+			       "node-id-3" root nil)) :elem)
+		 node-id-3))
+	(is (= (length (rdf-importer::get-all-isidorus-nodes-by-id
+			"node-id-2" root nil)) 1))
+	(is (eql (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
+			       "node-id-2" root description)) :elem)
+		 node-id-2))
+	(is (eql (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
+			       "node-id-4" root sw-node)) :elem)
+		 node-id-4))
+	(is (string= (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
+				   "node-id-4" root sw-node)) :xml-base)
+		     "http://base/"))
+	(is (= (length (intersection
+			node-id-1
+			(rdf-importer::get-all-isidorus-nodes-by-id
+			 "node-id-1" root description)
+			:test #'(lambda(x y)
+				  (and (eql (getf x :elem) (getf y :elem))
+				       (string= (getf x :xml-base) 
+						(getf y :xml-base))))))
+	       (length node-id-1)))))))
+
+
+(test test-import-isidorus-name
+  "Tests all functions that are responsible to import a resource
+   representing isidorus:Name."
+  (let ((revision-1 100)
+	(tm-id "http://test/tm-id")
+	(document-id "doc-id")
+	(db-dir "./data_base")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "                 xmlns:sw=\"http://test/arcs/\""
+		      "                 xmlns:isi=\"" *tm2rdf-ns* "\">"
+		      " <rdf:Description rdf:about=\"http://node-1\">"
+		      "  <isi:subjectIdentifier>http://topic-psi-1</isi:subjectIdentifier>"
+		      "  <isi:subjectLocator>http://topic-sl-1</isi:subjectLocator>"
+		      "  <isi:itemIdentity>http://topic-ii-1</isi:itemIdentity>"
+		      "  <sw:arc rdf:resource=\"http://resource-1\"/>"
+		      "  <isi:name>"
+		      "   <isi:Name>"
+		      "    <isi:itemIdentity>http://itemIdentity-1</isi:itemIdentity>"
+		      "    <isi:itemIdentity>http://itemIdentity-2</isi:itemIdentity>"
+		      "    <isi:scope rdf:resource=\"http://scope-1\"/>"
+		      "    <isi:scope rdf:resource=\"http://scope-2\"/>"
+		      "    <isi:value rdf:datatype=\"anyDatatype\">value-1</isi:value>"
+		      "    <isi:nametype rdf:resource=\"http://nametype-1\"/>"
+		      "    <isi:variant rdf:nodeID=\"variant-1\"/>"
+		      "   </isi:Name>"
+		      "  </isi:name>"
+		      "  <isi:name rdf:parseType=\"Resource\">"
+		      "    <rdf:type rdf:resource=\"" *tm2rdf-name-type-uri* "\"/>"
+		      "    <isi:itemIdentity>http://itemIdentity-4</isi:itemIdentity>"
+		      "    <isi:value rdf:datatype=\"anyDatatype\">value-3</isi:value>"
+		      "    <isi:nametype rdf:resource=\"http://nametype-2\"/>"
+		      "    <isi:variant rdf:parseType=\"Resource\">"
+		      "     <rdf:type>"
+		      "      <rdf:Description rdf:about=\"" *tm2rdf-variant-type-uri* "\"/>"
+		      "     </rdf:type>"
+		      "     <isi:value>value-4</isi:value>"
+		      "     <isi:scope>"
+		      "      <rdf:Description rdf:about=\"http://scope-3\"/>"
+		      "     </isi:scope>"
+		      "    </isi:variant>"
+		      "  </isi:name>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:nodeID=\"variant-1\">"
+		      "  <isi:scope rdf:resource=\"http://scope-3\"/>"
+		      "  <isi:value rdf:datatype=\"dt-2\">value-2</isi:value>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:nodeID=\"variant-1\">"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-3</isi:itemIdentity>"
+		      "  <rdf:type rdf:resource=\"" *tm2rdf-variant-type-uri* "\"/>"
+		      "  <isi:scope rdf:resource=\"http://scope-4\"/>"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((root (elt (dom:child-nodes (cxml:parse doc-1
+						  (cxml-dom:make-dom-builder)))
+		     0)))
+      (is (= (length (rdf-importer::child-nodes-or-text root)) 3))
+      (rdf-init-db :db-dir db-dir :start-revision revision-1)
+      (rdf-importer::import-dom root revision-1 :tm-id tm-id
+				:document-id document-id)
+      (is (= (length (elephant:get-instances-by-class 'd:NameC)) 2))
+      (is (= (length (elephant:get-instances-by-class 'd:VariantC)) 2))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 27))
+      (is-false (find-if #'(lambda(x)
+			     (not (d:psis x)))
+			 (elephant:get-instances-by-class 'd:TopicC)))
+      (is-true (d:get-item-by-psi  "http://node-1"))
+      (is-true (d:get-item-by-psi  "http://topic-psi-1"))
+      (is-true (d:get-item-by-psi  "http://resource-1"))
+      (is-true (d:get-item-by-psi  "http://scope-1"))
+      (is-true (d:get-item-by-psi  "http://scope-2"))
+      (is-true (d:get-item-by-psi  "http://scope-3"))
+      (is-true (d:get-item-by-psi  "http://scope-4"))
+      (is-true (d:get-item-by-psi  "http://nametype-1"))
+      (is-true (d:get-item-by-psi  "http://nametype-1"))
+      (is-true (d:get-item-by-psi  "http://test/arcs/arc"))
+      (let ((top (d:get-item-by-psi  "http://node-1"))
+	    (nt-1 (d:get-item-by-psi "http://nametype-1"))
+	    (nt-2 (d:get-item-by-psi "http://nametype-2"))
+	    (scope-1 (d:get-item-by-psi  "http://scope-1"))
+	    (scope-2 (d:get-item-by-psi  "http://scope-2"))
+	    (scope-3 (d:get-item-by-psi  "http://scope-3"))
+	    (scope-4 (d:get-item-by-psi  "http://scope-4")))
+	(is (= (length (d:psis top)) 2))
+	(is-true (find (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri
+						       "http://topic-psi-1")
+		       (d:psis top)))
+	(is (= (length (d:item-identifiers top)) 1))
+	(is (string= (d:uri (first (d:item-identifiers top))) 
+		     "http://topic-ii-1"))
+	(is (= (length (d:locators top)) 1))
+	(is (string= (d:uri (first (d:locators top))) 
+		     "http://topic-sl-1"))
+	(is (= (length (d:names top)) 2))
+	(let ((name-1 (find-if #'(lambda(x)
+				   (eql (d:instance-of x) nt-1))
+			       (d:names top)))
+	      (name-2 (find-if #'(lambda(x)
+				   (eql (d:instance-of x) nt-2))
+			       (d:names top))))
+	  (is-true name-1)
+	  (is-true name-2)
+	  (is (= (length (d:item-identifiers name-1)) 2))
+	  (is (= (length 
+		  (intersection 
+		   (d:item-identifiers name-1)
+		   (list (elephant:get-instance-by-value 
+			  'd:ItemIdentifierC 'd:uri "http://itemIdentity-1")
+			 (elephant:get-instance-by-value 
+			  'd:ItemIdentifierC 'd:uri "http://itemIdentity-2"))))
+		 2))
+	  (is (= (length (d:item-identifiers name-2)) 1))
+	  (is (string= (d:uri (first (d:item-identifiers name-2)))
+		       "http://itemIdentity-4"))
+	  (is (= (length (d:themes name-1)) 2))
+	  (is (= (length (intersection (list scope-1 scope-2)
+				       (d:themes name-1)))
+		 2))
+	  (is-false (d:themes name-2))
+	  (is (string= (d:charvalue name-1) "value-1"))
+	  (is (string= (d:charvalue name-2) "value-3"))
+	  (is (= (length (d:variants name-1)) 1))
+	  (is (= (length (d:variants name-2)) 1))
+	  (let ((variant-1 (first (d:variants name-1)))
+		(variant-2 (first (d:variants name-2))))
+	    (is (= (length (d:item-identifiers variant-1)) 1))
+	    (is (string= (d:uri (first (d:item-identifiers variant-1)))
+			 "http://itemIdentity-3"))
+	    (is-false (d:item-identifiers variant-2))
+	    (is (= (length (d:themes variant-1)) 4))
+	    (is (= (length (intersection (list scope-3 scope-4 
+					       scope-1 scope-2)
+					 (d:themes variant-1)))
+		   4))
+	    (is (= (length (d:themes variant-2)) 1))
+	    (is (eql scope-3 (first (d:themes variant-2))))
+	    (is (string= (d:charvalue variant-1)
+			 "value-2"))
+	    (is (string= (d:charvalue variant-2)
+			 "value-4"))
+	    (is (string= (d:datatype variant-1)
+			 (concatenate 'string tm-id "/dt-2")))
+	    (is (string= (d:datatype variant-2)
+			 *xml-string*))))))))
+
+
+
 (defun run-rdf-importer-tests()
   "Runs all defined tests."
   (when elephant:*store-controller*
@@ -3281,4 +3505,6 @@
   (it.bese.fiveam:run! 'test-xml-base)
   (it.bese.fiveam:run! 'test-get-type-psis)
   (it.bese.fiveam:run! 'test-get-all-type-psis)
-  (it.bese.fiveam:run! 'test-isidorus-type-p))
+  (it.bese.fiveam:run! 'test-isidorus-type-p)
+  (it.bese.fiveam:run! 'test-get-all-isidorus-nodes-by-id)
+  (it.bese.fiveam:run! 'test-import-isidorus-name))

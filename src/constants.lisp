@@ -53,7 +53,14 @@
 	   :*tm2rdf-associaiton-property*
 	   :*tm2rdf-subjectIdentifier-property*
 	   :*tm2rdf-itemIdentity-property*
-	   :*tm2rdf-subjectLocator-property*))
+	   :*tm2rdf-subjectLocator-property*
+	   :*tm2rdf-value-property*
+	   :*tm2rdf-nametype-property*
+	   :*tm2rdf-scope-property*
+	   :*tm2rdf-varianttype-property*
+	   :*tm2rdf-occurrencetype-property*
+	   :*tm2rdf-roletype-property*
+	   :*tm2rdf-associationtype-property*))
 	   
 
 (in-package :constants)
@@ -144,3 +151,17 @@
 (defparameter *tm2rdf-subjectLocator-property* (concatenate 'string *tm2rdf-ns* "subjectLocator"))
 
 (defparameter *tm2rdf-itemIdentity-property* (concatenate 'string *tm2rdf-ns* "itemIdentity"))
+
+(defparameter *tm2rdf-value-property* (concatenate 'string *tm2rdf-ns* "value"))
+
+(defparameter *tm2rdf-nametype-property* (concatenate 'string *tm2rdf-ns* "nametype"))
+
+(defparameter *tm2rdf-scope-property* (concatenate 'string *tm2rdf-ns* "scope"))
+
+(defparameter *tm2rdf-varianttype-property* (concatenate 'string *tm2rdf-ns* "varianttype"))
+
+(defparameter *tm2rdf-occurrencetype-property* (concatenate 'string *tm2rdf-ns* "occurrencetype"))
+
+(defparameter *tm2rdf-roletype-property* (concatenate 'string *tm2rdf-ns* "roletype"))
+
+(defparameter *tm2rdf-associationtype-property* (concatenate 'string *tm2rdf-ns* "associationtype"))
