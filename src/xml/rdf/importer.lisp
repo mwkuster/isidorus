@@ -180,8 +180,6 @@
 		     (name-value (getf (make-value nodes tm-id) :value))
 		     (name-scopes (make-scopes nodes tm-id start-revision
 					       :document-id document-id)))
-		 ;(format t "ii: ~a~%type: ~a~%value: ~a~%scopes: ~a~%~%"
-		;	 item-identities name-type name-value name-scopes)
 		 (let ((this
 			(make-construct 'NameC
 					:start-revision start-revision
@@ -248,25 +246,8 @@
 					     (getf value-and-type :value)
 					     :datatype 
 					     (getf value-and-type :datatype)
-					     :name owner-name))))))))))
-			  
+					     :name owner-name))))))))))						  
 
-(defun self-or-child-node (property-node type-uri &key (xml-base))
-  "Returns either the passed node or the child-node when it is
-   rdf:Description."
-  (declare (dom:element property-node))
-  (let ((content (child-nodes-or-text property-node :trim t)))
-    (if (and (= (length content) 1)
-	     (or (and (string= (dom:namespace-uri (elt content 0)) *rdf-ns*)
-		      (string= (get-node-name (elt content 0)) "Description"))
-		 (string= (concatenate-uri (dom:namespace-uri (elt content 0))
-					   (get-node-name (elt content 0)))
-			  type-uri)))
-	(list :elem (elt content 0)
-	      :xml-base (get-xml-base (elt content 0) :old-base xml-base))
-	(list :elem property-node
-	      :xml-base xml-base))))
-								  
 
 (defun make-scopes (node-list tm-id start-revision
 		    &key (document-id *document-id*))

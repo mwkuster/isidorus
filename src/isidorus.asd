@@ -53,8 +53,10 @@
 									       "exporter_xtm2.0"))))
 				     (:module "rdf"
 					      :components ((:file "rdf_tools")
-							   (:file "importer"
+							   (:file "isidorus_constructs_tools"
 								  :depends-on ("rdf_tools"))
+							   (:file "importer"
+								  :depends-on ("rdf_tools" "isidorus_constructs_tools"))
 							   (:file "exporter"))
 					      :depends-on ("xtm")))
 			:depends-on ("constants"
