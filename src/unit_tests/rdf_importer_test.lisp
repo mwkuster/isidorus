@@ -72,7 +72,8 @@
 	   :test-get-all-type-psis
 	   :test-isidorus-type-p
 	   :test-get-all-isidorus-nodes-by-id
-	   :test-import-isidorus-name))
+	   :test-import-isidorus-name
+	   :test-import-isidorus-occurrence))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -3479,6 +3480,103 @@
 			 *xml-string*))))))))
 
 
+(test test-import-isidorus-occurrence
+  "Tests all functions that are responsible to import a resource
+   representing isidorus:Occurrence."
+  (let ((revision-1 100)
+	(tm-id "http://test/tm-id")
+	(document-id "doc-id")
+	(db-dir "./data_base")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "                 xmlns:sw=\"http://test/arcs/\""
+		      "                 xmlns:isi=\"" *tm2rdf-ns* "\">"
+		      " <rdf:Description rdf:about=\"http://node-1\">"
+		      "  <sw:arc rdf:resource=\"http://resource-1\"/>"
+		      "  <isi:occurrence rdf:type=\"http://isidorus/tm2rdf_mapping/Occurrence\">"
+		      "   <isi:occurrencetype rdf:resource=\"http://occurrence-1\"/>"
+		      "   <isi:value rdf:datatype=\"dt-1\">value-1</isi:value>"
+		      "  </isi:occurrence>"
+		      "  <isi:occurrence rdf:nodeID=\"occurrence-2\"/>"
+		      "  <isi:occurrence>"
+		      "   <isi:Occurrence rdf:nodeID=\"occurrence-2\">"
+		      "    <isi:occurrencetype rdf:resource=\"http://occurrence-2\"/>"
+		      "    <isi:scope rdf:resource=\"http://scope-1\"/>"
+		      "   </isi:Occurrence>"
+		      "  </isi:occurrence>"
+		      "  <isi:occurrence rdf:parseType=\"Resource\">"
+		      "   <rdf:type rdf:resource=\"" *tm2rdf-occurrence-type-uri* "\"/>"
+		      "   <isi:occurrencetype rdf:resource=\"http://occurrence-3\"/>"
+		      "   <!-- should get the charvalue '' of type xml-string -->"
+		      "  </isi:occurrence>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:nodeID=\"occurrence-2\">"
+		      "  <isi:scope rdf:resource=\"http://scope-2\"/>"
+		      "  <isi:value>value-2</isi:value>"
+		      "  <isi:occurrencetype rdf:resource=\"http://occurrence-2\"/>"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-1</isi:itemIdentity>"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-2</isi:itemIdentity>"
+		      "  <isi:shouldBeIgnored>anyText</isi:shouldBeIgnored>"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((root (elt (dom:child-nodes (cxml:parse doc-1
+						  (cxml-dom:make-dom-builder)))
+		     0)))
+      (is (= (length (rdf-importer::child-nodes-or-text root)) 2))
+      (rdf-init-db :db-dir db-dir :start-revision revision-1)
+      (rdf-importer::import-dom root revision-1 :tm-id tm-id
+				:document-id document-id)
+      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 3))
+      (is (= (length (elephant:get-instances-by-class 'd:NameC))) 0)
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 26))
+      (let ((node-1 (d:get-item-by-psi "http://node-1"))
+	    (occurrence-1 (d:get-item-by-psi "http://occurrence-1"))
+	    (occurrence-2 (d:get-item-by-psi "http://occurrence-2"))
+	    (occurrence-3 (d:get-item-by-psi "http://occurrence-3"))
+	    (scope-1 (d:get-item-by-psi "http://scope-1"))
+	    (scope-2 (d:get-item-by-psi "http://scope-2")))
+	(is-true node-1)
+	(is-true occurrence-1)
+	(is-true occurrence-2)
+	(is-true occurrence-3)
+	(is-true scope-1)
+	(is-true scope-2)
+	(let ((occ-1 (find-if #'(lambda(x)
+				  (eql (d:instance-of x) occurrence-1))
+			      (d:occurrences node-1)))
+	      (occ-2 (find-if #'(lambda(x)
+				  (eql (d:instance-of x) occurrence-2))
+			      (d:occurrences node-1)))
+	      (occ-3 (find-if #'(lambda(x)
+				  (eql (d:instance-of x) occurrence-3))
+			      (d:occurrences node-1))))
+	  (is-true occ-1)
+	  (is-true occ-2)
+	  (is-true occ-3)
+	  (is-false (d:item-identifiers occ-1))
+	  (is-false (d:themes occ-1))
+	  (is (string= (d:charvalue occ-1) "value-1"))
+	  (is (string= (d:datatype occ-1) (concatenate 'string tm-id "/dt-1")))
+	  (is (= (length (intersection 
+			  (d:item-identifiers occ-2)
+			  (list (elephant:get-instance-by-value 
+				 'd:ItemIdentifierC 'd:uri 
+				 "http://itemIdentity-1")
+				(elephant:get-instance-by-value 
+				 'd:ItemIdentifierC 'd:uri 
+				 "http://itemIdentity-2"))))
+		 2))
+	  (is (= (length (intersection (list scope-1 scope-2)
+				       (d:themes occ-2)))
+		 2))
+	  (is (string= (d:charvalue occ-2) "value-2"))
+	  (is (string= (d:datatype occ-2) *xml-string*))
+	  (is-false (d:item-identifiers occ-3))
+	  (is-false (d:themes occ-3))
+	  (is (string= (d:charvalue occ-3) ""))
+	  (is (string= (d:datatype occ-3) *xml-string*)))))))
+
 
 (defun run-rdf-importer-tests()
   "Runs all defined tests."
@@ -3507,4 +3605,5 @@
   (it.bese.fiveam:run! 'test-get-all-type-psis)
   (it.bese.fiveam:run! 'test-isidorus-type-p)
   (it.bese.fiveam:run! 'test-get-all-isidorus-nodes-by-id)
-  (it.bese.fiveam:run! 'test-import-isidorus-name))
+  (it.bese.fiveam:run! 'test-import-isidorus-name)
+  (it.bese.fiveam:run! 'test-import-isidorus-occurrence))

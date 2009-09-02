@@ -104,7 +104,8 @@
 	  (ID (get-absolute-attribute elem tm-id xml-base "ID"))
 	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
       (parse-properties-of-node elem (or about nodeID ID UUID))
-      ;TODO: create associaitons and roles
+      ;TODO: create associations and roles -> and iterate in import-dom
+      ;      over those elements
     (let ((literals (append (get-literals-of-node elem fn-xml-lang)
 			    (get-literals-of-node-content
 			     elem tm-id xml-base fn-xml-lang)))
@@ -126,8 +127,11 @@
 		:item-identifiers item-identifiers
 		:subject-locators subject-locators)))
 	  (make-isidorus-names elem this tm-id start-revision
-			       :owner-xml-base fn-xml-base)
-	  ;TODO: create topic occurrences
+			       :owner-xml-base fn-xml-base
+			       :document-id document-id)
+	  (make-isidorus-occurrences elem this tm-id start-revision
+				     :owner-xml-base fn-xml-base
+				     :document-id document-id)
 	  (make-literals this literals tm-id start-revision
 			 :document-id document-id)
 	  (make-associations this associations xml-importer::tm
@@ -143,17 +147,70 @@
 	  this))))))
 
 
+(defun make-isidorus-occurrences (owner-elem owner-topic tm-id start-revision
+				  &key (owner-xml-base nil)
+				  (document-id *document-id*))
+  "Creates all occurrences of resource nodes that are in a
+   property isidorus:occurrence and have the type isidorus:Occurrence."
+  (declare (dom:element owner-elem))
+  (declare (string tm-id))
+  (declare (TopicC owner-topic))
+  (let ((content (child-nodes-or-text owner-elem :trim t))
+	(root (elt (dom:child-nodes (dom:owner-document owner-elem)) 0))
+	(err-pref "From make-isidorus-occurrence(): "))
+    (when (and (not (stringp content))
+	       (> (length content) 0))
+      (loop for property across content
+	 when (isidorus-type-p property tm-id 'occurrence
+			       :parent-xml-base owner-xml-base)
+	 collect 
+	   (let ((xml-base (get-xml-base property 
+					 :old-base owner-xml-base)))
+	     (let ((nodes 
+		    (let ((nodeID (nodeID-of-property-or-child property)))
+		      (if nodeID
+			  (get-all-isidorus-nodes-by-id
+			   nodeID root *tm2rdf-occurrence-type-uri*)
+			  (list (self-or-child-node
+				 property *tm2rdf-occurrence-type-uri*
+				 :xml-base xml-base))))))
+	       (let ((item-identities
+		      (remove-if #'null
+				 (loop for node in nodes
+				    append (make-isidorus-identifiers
+					    (getf node :elem) start-revision))))
+		     (occurrence-type (make-x-type 
+				       nodes tm-id start-revision
+				       *tm2rdf-occurrencetype-property*
+				       :document-id document-id))
+		     (value-and-datatype (make-value nodes tm-id))
+		     (occurrence-scopes (make-scopes nodes tm-id start-revision
+						     :document-id document-id)))
+		 (unless occurrence-type
+		   (error "~aoccurrencetype is missing!"
+			  err-pref))
+		 (make-construct 'OccurrenceC
+				 :start-revision start-revision
+				 :topic owner-topic
+				 :themes occurrence-scopes
+				 :item-identifiers item-identities
+				 :instance-of occurrence-type
+				 :charvalue (getf value-and-datatype :value)
+				 :datatype (getf value-and-datatype 
+						 :datatype)))))))))
+
 
 (defun make-isidorus-names (owner-elem owner-topic tm-id start-revision 
 			    &key (owner-xml-base nil)
 			    (document-id *document-id*))
-  "Creates all names of a resource node that are in a property isidorus:name
+  "Creates all names of resource nodes that are in a property isidorus:name
    and have the type isidorus:Name."
   (declare (dom:element owner-elem))
   (declare (string tm-id))
   (declare (TopicC owner-topic))
   (let ((content (child-nodes-or-text owner-elem :trim t))
-	(root (elt (dom:child-nodes (dom:owner-document owner-elem)) 0)))
+	(root (elt (dom:child-nodes (dom:owner-document owner-elem)) 0))
+	(err-pref "From make-isidorus-name(): "))
     (when (and (not (stringp content))
 	       (> (length content) 0))
       (loop for property across content
@@ -163,7 +220,7 @@
 	   (let ((xml-base (get-xml-base property 
 					 :old-base owner-xml-base)))
 	     (let ((nodes 
-		    (let ((nodeID (get-ns-attribute property "nodeID")))
+		    (let ((nodeID (nodeID-of-property-or-child property)))
 		      (if nodeID
 			  (get-all-isidorus-nodes-by-id
 			   nodeID root *tm2rdf-name-type-uri*)
@@ -175,11 +232,15 @@
 				 (loop for node in nodes
 				    append (make-isidorus-identifiers
 					    (getf node :elem) start-revision))))
-		     (name-type (make-name-type nodes tm-id start-revision
-						:document-id document-id))
+		     (name-type (make-x-type nodes tm-id start-revision
+					     *tm2rdf-nametype-property*
+					     :document-id document-id))
 		     (name-value (getf (make-value nodes tm-id) :value))
 		     (name-scopes (make-scopes nodes tm-id start-revision
 					       :document-id document-id)))
+		 (unless name-type
+		   (error "~anametype is missing!"
+			  err-pref))
 		 (let ((this
 			(make-construct 'NameC
 					:start-revision start-revision
@@ -200,7 +261,8 @@
   (let ((root 
 	 (when name-nodes
 	   (elt (dom:child-nodes 
-		 (dom:owner-document (getf (first name-nodes) :elem))) 0))))
+		 (dom:owner-document (getf (first name-nodes) :elem))) 0)))
+	(err-pref "From make-isidorus-variant(): "))
     (remove-if
      #'null
      (loop for name-node in name-nodes
@@ -237,7 +299,10 @@
 				   (make-scopes nodes tm-id start-revision
 						:document-id document-id)
 				   (themes owner-name))) ;XTM 2.0: 4.12
-				 (value-and-type (make-value nodes tm-id)))	   
+				 (value-and-type (make-value nodes tm-id)))
+			     (unless variant-scopes
+			       (error "~ascope is missing!"
+				      err-pref))
 			     (make-construct 'VariantC
 					     :start-revision start-revision
 					     :item-identifiers item-identities
@@ -336,7 +401,7 @@
   
   
 
-(defun make-name-type (node-list tm-id start-revision 
+(defun make-x-type (node-list tm-id start-revision uri-of-property
 		       &key (document-id *document-id*))
   "Creates a topic stub that is the type of the name represented by the
    passed nodes."
@@ -348,7 +413,7 @@
 		      when (let ((prop-ns (dom:namespace-uri property))
 				 (prop-name (get-node-name property)))
 			     (string= (concatenate-uri prop-ns prop-name)
-				      *tm2rdf-nametype-property*))
+				      uri-of-property))
 		      return property))
 	    return (let ((content (child-nodes-or-text (getf node :elem)
 						       :trim t)))
@@ -356,7 +421,7 @@
 			when (let ((prop-ns (dom:namespace-uri property))
 				   (prop-name (get-node-name property)))
 			       (string= (concatenate-uri prop-ns prop-name)
-					*tm2rdf-nametype-property*))
+					uri-of-property))
 			return (list
 				:elem property 
 				:xml-base (get-xml-base property
@@ -368,7 +433,7 @@
       (let ((type-uri (get-ref-of-property (getf property :elem) tm-id
 					   (getf property :xml-base))))
 	(unless type-uri
-	  (error "From make-name-type(): type-uri is missing!"))
+	  (error "From make-x-type(): type-uri is missing!"))
 	(with-tm (start-revision document-id tm-id)
 	  (make-topic-stub (getf type-uri :psi) nil 
 			   (getf type-uri :topicid) nil start-revision
@@ -430,7 +495,9 @@
 			   (make-isidorus-names elem this tm-id start-revision
 						:owner-xml-base xml-base
 						:document-id document-id)
-			   ;TDOD: create topic occurrences
+			   (make-isidorus-occurrences
+			    elem this tm-id start-revision
+			    :owner-xml-base xml-base :document-id document-id)
 			   (make-literals this literals tm-id start-revision
 					  :document-id document-id)
 			   (make-associations

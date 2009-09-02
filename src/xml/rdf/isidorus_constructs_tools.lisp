@@ -318,3 +318,18 @@
 	      :xml-base (get-xml-base (elt content 0) :old-base xml-base))
 	(list :elem property-node
 	      :xml-base xml-base))))
+
+
+(defun nodeID-of-property-or-child (elem)
+  "Returns either the nodeID of the given element or if tere isn't one
+   the nodeID of the element's first child node. If there is no nodeID
+   at all, nil is returned."
+  (declare (dom:element elem))
+  (let ((elem-nodeID (get-ns-attribute elem "nodeID")))
+    (if elem-nodeID
+	elem-nodeID
+	(let ((elem-content (child-nodes-or-text elem :trim t)))
+	  (when (and (> (length elem-content) 0)
+		     (not (stringp elem-content)))
+	    (get-ns-attribute (elt elem-content 0) "nodeID"))))))
+	      
