@@ -226,12 +226,14 @@
 			     (string= x-uri *tm2rdf-associationtype-property*)
 			     (string= x-uri *tm2rdf-occurrencetype-property*)
 			     (string= x-uri *tm2rdf-roletype-property*)
-			     (string= x-uri *tm2rdf-subjectLocator-property*))))
+			     (string= x-uri *tm2rdf-subjectLocator-property*)
+			     (string= x-uri *tm2rdf-player-property*))))
 		   content))))
 
 
 (defun get-all-isidorus-nodes-by-id (node-id current-node type-uri
 					&key (parent-xml-base nil)
+				     (parent-xml-lang nil)
 				     (collected-nodes nil))
   "Returns a list of all nodes that own the given nodeID and are of
    type type-uri, rdf:Description or when the rdf:parseType is set to
@@ -246,6 +248,7 @@
 		       t)))
 	(content (child-nodes-or-text current-node :trim t))
 	(xml-base (get-xml-base current-node :old-base parent-xml-base))
+	(xml-lang (get-xml-lang current-node :old-lang parent-xml-lang))
 	(nodeID (get-ns-attribute current-node "nodeID"))
 	(node-uri-p (let ((node-uri
 			   (concatenate-uri (dom:namespace-uri current-node)
@@ -269,7 +272,8 @@
       (if (or datatype parseType (stringp content) (not content))
 	  (if (and (string= nodeID node-id) node-uri-p)
 	      (append (list (list :elem current-node
-				  :xml-base xml-base))
+				  :xml-base parent-xml-base
+				  :xml-lang parent-xml-lang))
 		      collected-nodes)
 	      collected-nodes)
 	  (if (and (string= nodeID node-id) node-uri-p)
@@ -277,15 +281,19 @@
 		 append (get-all-isidorus-nodes-by-id
 			 node-id item type-uri
 			 :collected-nodes (append
-					   (list (list :elem current-node
-						       :xml-base xml-base))
+					   (list (list 
+						  :elem current-node
+						  :xml-base parent-xml-base
+						  :xml-lang parent-xml-lang))
 					   collected-nodes)
-			 :parent-xml-base xml-base))
+			 :parent-xml-base xml-base
+			 :parent-xml-lang xml-lang))
 	      (loop for item across content
 		 append (get-all-isidorus-nodes-by-id 
 			 node-id item type-uri 
 			 :collected-nodes collected-nodes
-			 :parent-xml-base xml-base)))))
+			 :parent-xml-base xml-base
+			 :parent-xml-lang xml-lang)))))
      :test #'(lambda(x y)
 	       (eql (getf x :elem) (getf y :elem))))))
 

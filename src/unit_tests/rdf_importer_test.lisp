@@ -73,7 +73,8 @@
 	   :test-isidorus-type-p
 	   :test-get-all-isidorus-nodes-by-id
 	   :test-import-isidorus-name
-	   :test-import-isidorus-occurrence))
+	   :test-import-isidorus-occurrence
+	   :test-import-isidorus-association))
 
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
@@ -3275,7 +3276,8 @@
 		      "  <sw:arc rdf:nodeID=\"node-id-4\"/>"
 		      " </rdf:Description>"
 		      " <sw:Node rdf:nodeID=\"node-id-4\" "
-		      "          xml:base=\"http://base/\">"
+		      "          xml:base=\"http://base/\""
+		      "          xml:lang=\"de\">"
 		      "  <sw:arc>"
 		      "   <rdf:Description rdf:nodeID=\"node-id-1\" "
 		      "                    xml:base=\"suffix\"/>"
@@ -3300,7 +3302,8 @@
 				       (rdf-importer::child-nodes-or-text 
 					(elt (rdf-importer::child-nodes-or-text 
 					      root) 4)) 0)) 0)
-			      :xml-base "http://base/suffix")))
+			      :xml-base "http://base/"
+			      :xml-lang "de")))
 	    (node-id-2 (elt (rdf-importer::child-nodes-or-text root) 1))
 	    (node-id-3 (elt (rdf-importer::child-nodes-or-text root) 3))
 	    (node-id-4 (elt (rdf-importer::child-nodes-or-text root) 4)))
@@ -3318,9 +3321,10 @@
 	(is (eql (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
 			       "node-id-4" root sw-node)) :elem)
 		 node-id-4))
-	(is (string= (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
-				   "node-id-4" root sw-node)) :xml-base)
-		     "http://base/"))
+	(is-false (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
+				"node-id-4" root sw-node)) :xml-base))
+	(is-false (getf (first (rdf-importer::get-all-isidorus-nodes-by-id
+				"node-id-4" root sw-node)) :xml-lang))
 	(is (= (length (intersection
 			node-id-1
 			(rdf-importer::get-all-isidorus-nodes-by-id
@@ -3578,6 +3582,136 @@
 	  (is (string= (d:datatype occ-3) *xml-string*)))))))
 
 
+(test test-import-isidorus-association
+  "Tests all functions that are responsible to import a resource
+   representing isidorus:Association."
+  (let ((revision-1 100)
+	(tm-id "http://test/tm-id")
+	(document-id "doc-id")
+	(db-dir "./data_base")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "                 xmlns:sw=\"http://test/arcs/\""
+		      "                 xmlns:isi=\"" *tm2rdf-ns* "\">"
+		      " <rdf:Description rdf:nodeID=\"association-1\">"
+		      "  <rdf:type rdf:resource=\"" *tm2rdf-association-type-uri* "\"/>"
+		      "  <isi:associationtype rdf:resource=\"http://associationtype-1\"/>"
+		      "  <isi:scope>"
+		      "   <rdf:Description rdf:about=\"http://scope-1\">"
+		      "    <rdf:type rdf:resource=\"" *tm2rdf-topic-type-uri* "\"/>"
+		      "    <isi:subjectLocator rdf:datatype=\"" *xml-uri* "\">http://sl-1</isi:subjectLocator>"
+		      "    <isi:subjectLocator rdf:datatype=\"" *xml-uri* "\">http://sl-2</isi:subjectLocator>"
+		      "    <isi:name rdf:parseType=\"Resource\">"
+		      "     <rdf:type rdf:resource=\"" *tm2rdf-name-type-uri* "\"/>"
+		      "     <isi:nametype rdf:resource=\"http://nametype-1\"/>"
+		      "     <isi:value rdf:datatype=\"" *xml-string* "\">value-1</isi:value>"
+		      "     <isi:scope rdf:parseType=\"Resource\">"
+		      "       <sw:arc rdf:parseType=\"Literal\">value-of-arc</sw:arc>"
+		      "     </isi:scope>"
+		      "    </isi:name>"
+		      "   </rdf:Description>"
+		      "  </isi:scope>"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-a1</isi:itemIdentity>"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-a2</isi:itemIdentity>"
+		      "  <isi:role rdf:nodeID=\"role-1\"/>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:nodeID=\"role-1\">"
+		      "  <rdf:type rdf:resource=\"" *tm2rdf-role-type-uri* "\"/>"
+		      "  <isi:player rdf:resource=\"http://player-1\"/>"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-3</isi:itemIdentity>"
+		      "  <isi:roletype rdf:nodeID=\"roletype-1\"/>"
+		      " </rdf:Description>"
+
+		      " <rdf:Description rdf:nodeID=\"association-1\">"
+		      "  <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-a1</isi:itemIdentity>"
+		      "  <isi:scope rdf:resource=\"http://scope-2\"/>"
+		      "  <isi:role rdf:parseType=\"Resource\">"
+		      "   <rdf:type rdf:resource=\"" *tm2rdf-role-type-uri* "\"/>"
+		      "   <isi:player rdf:nodeID=\"player-2\"/>"
+		      "   <isi:roletype rdf:resource=\"http://roletype-2\"/>"
+		      "  </isi:role>"
+		      "  <isi:role>"
+		      "   <rdf:Description rdf:nodeID=\"role-1\">"
+		      "    <isi:itemIdentity rdf:datatype=\"" *xml-uri* "\">http://itemIdentity-3</isi:itemIdentity>"
+		      "   </rdf:Description>"
+		      "  </isi:role>"
+		      " </rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((root (elt (dom:child-nodes (cxml:parse doc-1
+						  (cxml-dom:make-dom-builder)))
+		     0)))
+      (is (= (length (rdf-importer::child-nodes-or-text root)) 3))
+      (rdf-init-db :db-dir db-dir :start-revision revision-1)
+      (rdf-importer::import-dom root revision-1 :tm-id tm-id
+				:document-id document-id)
+      (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 28))
+      (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 1))
+      (is (= (length (elephant:get-instances-by-class 'd:RoleC)) 2))
+      (setf d::*current-xtm* document-id)
+      (let ((assoc (first (elephant:get-instances-by-class 'd:AssociationC)))
+	    (assoc-type (d:get-item-by-psi "http://associationtype-1"))
+	    (scope-1 (d:get-item-by-psi "http://scope-1"))
+	    (player-1 (d:get-item-by-psi "http://player-1"))
+	    (player-2 (d:get-item-by-id "player-2"))
+	    (roletype-1 (d:get-item-by-id "roletype-1"))
+	    (roletype-2 (d:get-item-by-psi "http://roletype-2"))
+	    (nametype-1 (d:get-item-by-psi "http://nametype-1"))
+	    (scope-2 (d:get-item-by-psi "http://scope-2")))
+	(let ((role-1 (first (d:used-as-type roletype-1)))
+	      (role-2 (first (d:used-as-type roletype-2))))
+	  (is-true scope-1)
+	  (is (= (length (intersection
+			  (list
+			   (elephant:get-instance-by-value 'd:SubjectLocatorC
+							   'd:uri "http://sl-1")
+			   (elephant:get-instance-by-value 'd:SubjectLocatorC
+							   'd:uri "http://sl-2"))
+			  (d:locators scope-1)))
+		 2))
+	  (is (= (length (d:names scope-1)) 1))
+	  (is (eql (d:instance-of (first (d:names scope-1))) nametype-1))
+	  (is (string= (d:charvalue (first (d:names scope-1))) "value-1"))
+	  (is (= (length (d:themes (first (d:names scope-1)))) 1))
+	  (is-false (d:psis (first (d:themes (first (d:names scope-1))))))
+	  (is-true player-1)
+	  (is-true player-2)
+	  (is-true roletype-1)
+	  (is (string= (d:uri (first (d::topic-identifiers roletype-1)))
+		       "roletype-1"))
+	  (is-true roletype-2)
+	  (is-true assoc-type)
+	  (is-true scope-2)
+	  (is-true role-1)
+	  (is (= (length (intersection 
+			  (list 
+			   (elephant:get-instance-by-value 
+			    'd:ItemIdentifierC 'd:uri  "http://itemIdentity-3"))
+			  (d:item-identifiers role-1)))
+		 1))
+	  (is (eql player-1 (d:player role-1)))
+	  (is-true role-2)
+	  (is-false (d:item-identifiers role-2))
+	  (is (eql player-2 (d:player role-2)))
+	  (is (= (length (intersection (d:roles assoc)
+				       (list role-1 role-2)))
+		 2))
+	  (is (= (length (intersection
+			  (d:themes assoc)
+			  (list scope-1 scope-2)))
+		 2))
+	  (is (= (length 
+		  (intersection
+		   (d:item-identifiers assoc)
+		   (list
+		    (elephant:get-instance-by-value 
+		     'd:ItemIdentifierC 'd:uri "http://itemIdentity-a1")
+		    (elephant:get-instance-by-value 
+		     'd:ItemIdentifierC 'd:uri "http://itemIdentity-a2"))))
+		 2)))))))
+
+
 (defun run-rdf-importer-tests()
   "Runs all defined tests."
   (when elephant:*store-controller*
@@ -3606,4 +3740,5 @@
   (it.bese.fiveam:run! 'test-isidorus-type-p)
   (it.bese.fiveam:run! 'test-get-all-isidorus-nodes-by-id)
   (it.bese.fiveam:run! 'test-import-isidorus-name)
-  (it.bese.fiveam:run! 'test-import-isidorus-occurrence))
+  (it.bese.fiveam:run! 'test-import-isidorus-occurrence)
+  (it.bese.fiveam:run! 'test-import-isidorus-association))

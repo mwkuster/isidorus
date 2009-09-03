@@ -60,7 +60,8 @@
 	   :*tm2rdf-varianttype-property*
 	   :*tm2rdf-occurrencetype-property*
 	   :*tm2rdf-roletype-property*
-	   :*tm2rdf-associationtype-property*))
+	   :*tm2rdf-associationtype-property*
+	   :*tm2rdf-player-property*))
 	   
 
 (in-package :constants)
@@ -165,3 +166,5 @@
 (defparameter *tm2rdf-roletype-property* (concatenate 'string *tm2rdf-ns* "roletype"))
 
 (defparameter *tm2rdf-associationtype-property* (concatenate 'string *tm2rdf-ns* "associationtype"))
+
+(defparameter *tm2rdf-player-property* (concatenate 'string *tm2rdf-ns* "player"))

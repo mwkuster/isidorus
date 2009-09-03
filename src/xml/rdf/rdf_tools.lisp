@@ -53,7 +53,8 @@
 		*tm2rdf-varianttype-property*
 		*tm2rdf-occurrencetype-property*
 		*tm2rdf-roletype-property*
-		*tm2rdf-associationtype-property*)
+		*tm2rdf-associationtype-property*
+		*tm2rdf-player-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
