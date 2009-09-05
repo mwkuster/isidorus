@@ -329,8 +329,8 @@
             (lambda(version) 
               (and (>= revision (start-revision version))
                    (or
-                 (< revision (end-revision version))
-                 (= 0 (end-revision version)))))
+		    (< revision (end-revision version))
+		    (= 0 (end-revision version)))))
             (versions constr))
        constr))))
 

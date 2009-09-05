@@ -20,7 +20,13 @@
 		*rdf2tm-scope-prefix*
 		*tm2rdf-ns*
 		*type-instance-psi*
-		*supertype-subtype-psi*)
+		*supertype-subtype-psi*
+		*tm2rdf-name-type-uri*
+		*tm2rdf-variant-type-uri*
+		*tm2rdf-occurrence-type-uri*
+		*tm2rdf-topic-type-uri*
+		*tm2rdf-association-type-uri*
+		*tm2rdf-role-type-uri*)
   (:import-from :isidorus-threading
 		with-reader-lock
 		with-writer-lock)
@@ -123,11 +129,11 @@
   (setf *ns-map* nil))
 
 
-(defun make-isi-type (type)
+(defun make-isi-type (type-uri)
   "Creates a rdf:type property with the URL-prefix of *tm2rdf-ns*."
-  (declare (string type))
+  (declare (string type-uri))
   (cxml:with-element "rdf:type"
-    (cxml:attribute "rdf:resource" (concatenate 'string *tm2rdf-ns* type))))
+    (cxml:attribute "rdf:resource" type-uri)))
 
 
 (defun get-ns-prefix (ns-uri)
@@ -273,27 +279,31 @@
   "Creates a blank node that represents a VariantC element with the
    properties itemIdentity, scope and value."
   (cxml:with-element "isi:variant"
-    (cxml:attribute "rdf:parseType" "Resource")
-    (make-isi-type "Variant")
-    (map 'list #'to-rdf-elem (item-identifiers construct))
-    (scopes-to-rdf-elems construct)
-    (resourceX-to-rdf-elem construct)))
+    (cxml:with-element "rdf:Description"
+      (cxml:attribute "rdf:nodeID" (make-object-id construct))
+      ;(cxml:attribute "rdf:parseType" "Resource")
+      (make-isi-type *tm2rdf-variant-type-uri*)
+      (map 'list #'to-rdf-elem (item-identifiers construct))
+      (scopes-to-rdf-elems construct)
+      (resourceX-to-rdf-elem construct))))
 
 
 (defmethod to-rdf-elem ((construct NameC))
   "Creates a blank node that represents a name element with the
    properties itemIdentity, nametype, value, variant and scope."
   (cxml:with-element "isi:name"
-    (cxml:attribute "rdf:parseType" "Resource")
-    (make-isi-type "Name")
-    (map 'list #'to-rdf-elem (item-identifiers construct))
-    (cxml:with-element "isi:nametype"
-      (make-topic-reference (instance-of construct)))
-    (scopes-to-rdf-elems construct)
-    (cxml:with-element "isi:value"
-      (cxml:attribute "rdf:datatype" *xml-string*)
-      (cxml:text (charvalue construct)))
-    (map 'list #'to-rdf-elem (variants construct))))
+    ;(cxml:attribute "rdf:parseType" "Resource")
+    (cxml:with-element "rdf:Description"
+      (cxml:attribute "rdf:nodeID" (make-object-id construct))
+      (make-isi-type *tm2rdf-name-type-uri*)
+      (map 'list #'to-rdf-elem (item-identifiers construct))
+      (cxml:with-element "isi:nametype"
+	(make-topic-reference (instance-of construct)))
+      (scopes-to-rdf-elems construct)
+      (cxml:with-element "isi:value"
+	(cxml:attribute "rdf:datatype" *xml-string*)
+	(cxml:text (charvalue construct)))
+      (map 'list #'to-rdf-elem (variants construct)))))
 
 
 (defmethod to-rdf-elem ((construct OccurrenceC))
@@ -308,13 +318,15 @@
 	    (item-identifiers construct)
 	    (/= (length (psis (instance-of construct))) 1))
 	(cxml:with-element "isi:occurrence"
-	  (cxml:attribute "rdf:parseType" "Resource")
-	  (make-isi-type "Occurrence")
-	  (map 'list #'to-rdf-elem (item-identifiers construct))
-	  (cxml:with-element "isi:occurrencetype"
-	    (make-topic-reference (instance-of construct)))
-	  (scopes-to-rdf-elems construct)
-	  (resourceX-to-rdf-elem construct))
+	  (cxml:with-element "rdf:Description"
+	    (cxml:attribute "rdf:nodeID" (make-object-id construct))
+  	    ;(cxml:attribute "rdf:parseType" "Resource")
+	    (make-isi-type *tm2rdf-occurrence-type-uri*)
+	    (map 'list #'to-rdf-elem (item-identifiers construct))
+	    (cxml:with-element "isi:occurrencetype"
+	      (make-topic-reference (instance-of construct)))
+	    (scopes-to-rdf-elems construct)
+	    (resourceX-to-rdf-elem construct)))
 	(with-property construct
 	  (cxml:attribute "rdf:datatype" (datatype construct))
 	  (when (themes construct)
@@ -349,7 +361,7 @@
 	  (when (or (> (length (psis construct)) 1)
 		    ii sl t-names
 		    (isi-occurrence-p construct))
-	    (make-isi-type "Topic"))
+	    (make-isi-type *tm2rdf-topic-type-uri*))
 	  (map 'list #'to-rdf-elem (remove psi (psis construct)))
 	  (map 'list #'to-rdf-elem sl)
 	  (map 'list #'to-rdf-elem ii)
@@ -413,7 +425,7 @@
 	(association-roles (roles association)))
     (cxml:with-element "rdf:Description" 
       (cxml:attribute "rdf:nodeID" (make-object-id association))
-      (make-isi-type "Association")
+      (make-isi-type *tm2rdf-association-type-uri*)
       (cxml:with-element "isi:associationtype"
 	(make-topic-reference association-type))
       (map 'list #'to-rdf-elem ii)
@@ -428,13 +440,15 @@
 	(role-type (instance-of construct))
 	(player-top (player construct)))
     (cxml:with-element "isi:role"
-      (cxml:attribute "rdf:parseType" "Resource")
-      (make-isi-type "Role")
-      (map 'list #'to-rdf-elem ii)
-      (cxml:with-element "isi:roletype"
-	(make-topic-reference role-type))
-      (cxml:with-element "isi:player"
-	(make-topic-reference player-top)))))
+      (cxml:with-element "rdf:Description"
+	(cxml:attribute "rdf:nodeID" (make-object-id construct))
+        ;(cxml:attribute "rdf:parseType" "Resource")
+	(make-isi-type *tm2rdf-role-type-uri*)
+	(map 'list #'to-rdf-elem ii)
+	(cxml:with-element "isi:roletype"
+	  (make-topic-reference role-type))
+	(cxml:with-element "isi:player"
+	  (make-topic-reference player-top))))))
 
 
 (defun rdf-mapped-association-to-rdf-elem (association)

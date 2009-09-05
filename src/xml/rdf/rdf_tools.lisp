@@ -45,16 +45,7 @@
 		*tm2rdf-association-property*
 		*tm2rdf-subjectIdentifier-property*
 		*tm2rdf-itemIdentity-property*
-		*tm2rdf-subjectLocator-property*
-		*tm2rdf-ns*
-		*tm2rdf-value-property*
-		*tm2rdf-nametype-property*
-		*tm2rdf-scope-property*
-		*tm2rdf-varianttype-property*
-		*tm2rdf-occurrencetype-property*
-		*tm2rdf-roletype-property*
-		*tm2rdf-associationtype-property*
-		*tm2rdf-player-property*)
+		*tm2rdf-subjectLocator-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
@@ -92,7 +83,8 @@
   (:export :setup-rdf-module 
 	   :rdf-importer
 	   :init-rdf-module
-	   :*rdf-core-xtm*))
+	   :*rdf-core-xtm*
+	   :*document-id*))
 
 (in-package :rdf-importer)
 
@@ -112,6 +104,8 @@
 (defvar *rdf-core-xtm* "rdf_core.xtm")
 
 (defvar *_n-map* nil)
+
+(defvar *document-id* "isidorus-rdf-document")
 
 
 (defun _n-p (node)
@@ -297,29 +291,6 @@
 		       (UUID (get-ns-attribute node "UUID" :ns-uri *rdf2tm-ns*)))
 		   (list :topicid (or ID about nodeID UUID)
 			 :psi (or ID about)))))))
-
-
-(defun get-ref-of-property (property-elem tm-id xml-base)
-  "Returns a plist of the form (:topicid <string> :psi <string>).
-   That contains the property's value."
-  (declare (dom:element property-elem))
-  (declare (string tm-id))
-  (let ((nodeId (get-ns-attribute property-elem "nodeID"))
-	(resource (get-ns-attribute property-elem "resource"))
-	(content (let ((node-refs
-			(get-node-refs (child-nodes-or-text property-elem)
-				       tm-id xml-base)))
-		   (when node-refs
-		     (first node-refs)))))
-    (cond
-      (nodeID
-       (list :topicid nodeID
-	     :psi nil))
-      (resource
-       (list :topicid resource
-	     :psi resource))
-      (content
-       content))))
 
 
 (defun parse-property-name (property owner-identifier)
@@ -531,18 +502,3 @@
 		      :psi (get-type-of-node-name elem)
 		      :ID nil)))
 	     (get-types-of-node-content elem tm-id xml-base)))))
-
-
-(defun get-types-of-property (elem tm-id &key (parent-xml-base nil))
-  "Returns a plist of all property's types of the form
-   (:topicid <string> :psi <string> :ID <string>)."
-  (let ((xml-base (get-xml-base elem :old-base parent-xml-base)))
-    (remove-if #'null
-	       (append
-		(get-types-of-node-content elem tm-id xml-base)
-		(when (get-ns-attribute elem "type")
-		  (list :ID nil
-			:topicid (get-ns-attribute elem "type")
-			:psi (get-ns-attribute elem "type")))))))
-
-

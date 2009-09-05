@@ -86,23 +86,30 @@
   "Returns t if the owner-element has a node that corresponds to a
    role with the given parameters."
   (loop for item across (dom:child-nodes owner-elem)
-     when (let ((node-ns (dom:namespace-uri item))
-		(node-name (rdf-importer::get-node-name item)))
-	    (and (= (length (dom:child-nodes item)) 
+     when (let* ((node-ns (dom:namespace-uri item))
+		 (node-name (rdf-importer::get-node-name item))
+		 (content (rdf-importer::child-nodes-or-text item :trim t))
+		 (descr (when (and (not (stringp content))
+				   (= (length content) 1))
+			  (elt content 0))))
+	    (and descr
+		 (string= (dom:namespace-uri descr) *rdf-ns*)
+		 (string= (rdf-importer::get-node-name descr) "Description")
+		 (= (length (dom:child-nodes descr)) 
 		    (+ 3 (length item-identifiers)))
 		 (string= node-ns *tm2rdf-ns*)
 		 (string= node-name "role")
-		 (type-p item (concatenate 'string *tm2rdf-ns* "Role"))
+		 (type-p descr (concatenate 'string *tm2rdf-ns* "types/Role"))
 		 (if player-uri
-		     (property-p item *tm2rdf-ns* "player"
+		     (property-p descr *tm2rdf-ns* "player"
 				 :resource player-uri)
-		     (property-p item *tm2rdf-ns* "player"
+		     (property-p descr *tm2rdf-ns* "player"
 				 :nodeID player-id))
-		 (property-p item *tm2rdf-ns* "roletype"
+		 (property-p descr *tm2rdf-ns* "roletype"
 			     :resource roletype-uri)
 		 (= (length item-identifiers)
 		    (length (loop for ii in item-identifiers
-			       when (identifier-p item ii)
+			       when (identifier-p descr ii)
 			       collect ii)))))
      return t))
 
@@ -193,26 +200,35 @@
   "Returns t if the owner contains a variant element with the passed
    characteristics."
     (loop for item across (dom:child-nodes owner-elem)
-       when (let ((node-ns (dom:namespace-uri item))
-		  (node-name (rdf-importer::get-node-name item)))
-	      (and (= (+ (length variant-scopes)
+       when (let* ((node-ns (dom:namespace-uri item))
+		   (node-name (rdf-importer::get-node-name item))
+		   (content (rdf-importer::child-nodes-or-text item :trim t))
+		   (descr (when (and (not (stringp content))
+				     (= (length content) 1))
+			    (elt content 0))))
+	      (and descr
+		   (string= (dom:namespace-uri descr) *rdf-ns*)
+		   (string= (rdf-importer::get-node-name descr) "Description")
+		   (rdf-importer::get-ns-attribute descr "nodeID")
+		   (= (+ (length variant-scopes)
 			 (length item-identifiers)
 			 2)
 		      (length (dom:child-nodes owner-elem)))
 		   (string= node-ns *tm2rdf-ns*)
 		   (string= node-name "variant")
-		   (literal-p item *tm2rdf-ns* "value" variant-value
+		   (literal-p descr *tm2rdf-ns* "value" variant-value
 			      :datatype datatype)
 		   (= (length variant-scopes)
 		      (length (loop for scope in variant-scopes
-				 when (property-p item *tm2rdf-ns* "scope"
+				 when (property-p descr *tm2rdf-ns* "scope"
 						  :resource scope)
 				 collect scope)))
 		   (= (length item-identifiers)
 		      (length (loop for ii in item-identifiers
-				 when (identifier-p item ii)
+				 when (identifier-p descr ii)
 				 collect ii)))
-		   (type-p item (concatenate 'string *tm2rdf-ns* "Variant"))))
+		   (type-p descr (concatenate 'string *tm2rdf-ns* 
+					     "types/Variant"))))
        return t))
 
 
@@ -220,35 +236,43 @@
 	       &key (variants nil))
   "Returns t if the parent node owns a name with the given characterics."
   (loop for item across (dom:child-nodes owner-elem)
-     when (let ((node-ns (dom:namespace-uri item))
-		(node-name (rdf-importer::get-node-name item)))
-	    (and (= (length (dom:child-nodes item))
+     when (let* ((node-ns (dom:namespace-uri item))
+		 (node-name (rdf-importer::get-node-name item))
+		 (content (rdf-importer::child-nodes-or-text item :trim t))
+		 (descr (when (and (not (stringp content))
+				   (= (length content) 1))
+			  (elt content 0))))
+	    (and descr
+		 (string= (dom:namespace-uri descr) *rdf-ns*)
+		 (string= (rdf-importer::get-node-name descr) "Description")
+		 (rdf-importer::get-ns-attribute descr "nodeID")
+		 (= (length (dom:child-nodes descr))
 		    (+ 3 (length name-scopes)
 		       (length item-identifiers)
 		       (length variants)))
 		 (string= node-ns *tm2rdf-ns*)
 		 (string= node-name "name")
-		 (type-p item (concatenate 'string *tm2rdf-ns*
-					   "Name"))
-		 (property-p item *tm2rdf-ns* "nametype" :resource name-type)
+		 (type-p descr (concatenate 'string *tm2rdf-ns*
+					   "types/Name"))
+		 (property-p descr *tm2rdf-ns* "nametype" :resource name-type)
 		 (= (length name-scopes)
 		    (length (loop for scope in name-scopes
-			       when (property-p item *tm2rdf-ns* "scope"
+			       when (property-p descr *tm2rdf-ns* "scope"
 						:resource scope)
 			       collect scope)))
 		 (= (length item-identifiers)
 		    (length (loop for ii in item-identifiers
-			       when (identifier-p item ii)
+			       when (identifier-p descr ii)
 			       collect ii)))
 		 (= (length variants)
 		    (length (loop for variant in variants
 			       when (variant-p
-				     item (getf variant :scopes)
+				     descr (getf variant :scopes)
 				     (getf variant :item-identifiers)
 				     (getf variant :value)
 				     :datatype (getf variant :datatype))
 			       collect variant)))
-		 (literal-p item *tm2rdf-ns* "value" name-value)))
+		 (literal-p descr *tm2rdf-ns* "value" name-value)))
      return t))
 
 
@@ -257,27 +281,34 @@
 		     &key (datatype *xml-string*))
   "Returns t if the parent node owns an occurrence with the given characterics."
   (loop for item across (dom:child-nodes owner-elem)
-     when (let ((node-ns (dom:namespace-uri item))
-		(node-name (rdf-importer::get-node-name item)))
-	    (and (= (length (dom:child-nodes item))
+     when (let* ((node-ns (dom:namespace-uri item))
+		 (node-name (rdf-importer::get-node-name item))
+		 (content (rdf-importer::child-nodes-or-text item :trim t))
+		 (descr (when (and (not (stringp content))
+				   (= (length content) 1))
+			  (elt content 0))))
+	    (and descr
+		 (string= (dom:namespace-uri descr) *rdf-ns*)
+		 (string= (rdf-importer::get-node-name descr) "Description")
+		 (= (length (dom:child-nodes descr))
 		    (+ 3 (length occurrence-scopes)
 		       (length item-identifiers)))
 		 (string= node-ns *tm2rdf-ns*)
 		 (string= node-name "occurrence")
-		 (type-p item (concatenate 'string *tm2rdf-ns*
-					   "Occurrence"))
-		 (property-p item *tm2rdf-ns* "occurrencetype"
+		 (type-p descr (concatenate 'string *tm2rdf-ns*
+					   "types/Occurrence"))
+		 (property-p descr *tm2rdf-ns* "occurrencetype"
 			     :resource occurrence-type)
 		 (= (length occurrence-scopes)
 		    (length (loop for scope in occurrence-scopes
-			       when (property-p item *tm2rdf-ns* "scope"
+			       when (property-p descr *tm2rdf-ns* "scope"
 						:resource scope)
 			       collect scope)))
 		 (= (length item-identifiers)
 		    (length (loop for ii in item-identifiers
-			       when (identifier-p item ii)
+			       when (identifier-p descr ii)
 			       collect ii)))
-		 (literal-p item *tm2rdf-ns* "value" occurrence-value
+		 (literal-p descr *tm2rdf-ns* "value" occurrence-value
 			    :datatype datatype)))
      return t))
 
@@ -308,7 +339,7 @@
 			     (= (length (dom:child-nodes x)) 7))
 			 goethes)))
 	(is-true me)
-	(is (type-p me "http://isidorus/tm2rdf_mapping/Topic"))
+	(is (type-p me "http://isidorus/tm2rdf_mapping/types/Topic"))
 	(is (type-p me "http://some.where/types/Author"))
 	(is (literal-p me *sw-arc* "lastName"
 		       "von Goethe"))
@@ -352,7 +383,7 @@
 			 erlkoenigs)))
 	(is-true me)
 	(is-true (type-p me "http://some.where/types/Ballad"))
-	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "Topic")))
+	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Topic")))
 	(is-true (literal-p me *sw-arc* "content"
 			    "Wer reitet so spät durch Nacht und Wind? ..."
 			    :xml-lang "de"))
@@ -410,7 +441,7 @@
 			 zauberlehrlings)))
 	(is-true me)
 	(is-true (type-p me "http://some.where/types/Poem"))
-	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "Topic")))
+	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Topic")))
 	(is-true (identifier-p me "http://some.where/poem/Zauberlehrling"
 			       :what "subjectIdentifier"))
 	(is-true (identifier-p
@@ -694,7 +725,7 @@
       (is (= (length (get-resources-by-id schiller-id)) 1))
       (let ((me (elt (get-resources-by-id schiller-id) 0)))
 	(is-true (type-p me "http://some.where/types/Author"))
-	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "Topic")))
+	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Topic")))
 	(is-true (literal-p me *sw-arc* "authorInfo"
 			    "http://de.wikipedia.org/wiki/Schiller"
 			    :datatype *xml-uri*))
@@ -828,7 +859,7 @@
 	(is (= (length assocs)))
 	(let ((me (elt assocs 0)))
 	  (is (= (length (dom:child-nodes me)) 7))
-	  (is-true (type-p me (concatenate 'string *tm2rdf-ns* "Association")))
+	  (is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Association")))
 	  (is-true (identifier-p me "http://some.where/test-association"))
 	  (is-true (property-p me *tm2rdf-ns* "associationtype"
 			       :resource (concatenate

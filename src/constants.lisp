@@ -125,25 +125,25 @@
 
 (defparameter *tm2rdf-ns* "http://isidorus/tm2rdf_mapping/")
 
-(defparameter *tm2rdf-topic-type-uri* (concatenate 'string *tm2rdf-ns* "Topic"))
+(defparameter *tm2rdf-topic-type-uri* (concatenate 'string *tm2rdf-ns* "types/Topic"))
 
-(defparameter *tm2rdf-name-type-uri* (concatenate 'string *tm2rdf-ns* "Name"))
+(defparameter *tm2rdf-name-type-uri* (concatenate 'string *tm2rdf-ns* "types/Name"))
 
 (defparameter *tm2rdf-name-property* (concatenate 'string *tm2rdf-ns* "name"))
 
-(defparameter *tm2rdf-variant-type-uri* (concatenate 'string *tm2rdf-ns* "Variant"))
+(defparameter *tm2rdf-variant-type-uri* (concatenate 'string *tm2rdf-ns* "types/Variant"))
 
 (defparameter *tm2rdf-variant-property* (concatenate 'string *tm2rdf-ns* "variant"))
 
-(defparameter *tm2rdf-occurrence-type-uri* (concatenate 'string *tm2rdf-ns* "Occurrence"))
+(defparameter *tm2rdf-occurrence-type-uri* (concatenate 'string *tm2rdf-ns* "types/Occurrence"))
 
 (defparameter *tm2rdf-occurrence-property* (concatenate 'string *tm2rdf-ns* "occurrence"))
 
-(defparameter *tm2rdf-role-type-uri* (concatenate 'string *tm2rdf-ns* "Role"))
+(defparameter *tm2rdf-role-type-uri* (concatenate 'string *tm2rdf-ns* "types/Role"))
 
 (defparameter *tm2rdf-role-property* (concatenate 'string *tm2rdf-ns* "role"))
 
-(defparameter *tm2rdf-association-type-uri* (concatenate 'string *tm2rdf-ns* "Association"))
+(defparameter *tm2rdf-association-type-uri* (concatenate 'string *tm2rdf-ns* "types/Association"))
 
 (defparameter *tm2rdf-association-property* (concatenate 'string *tm2rdf-ns* "association"))
 
