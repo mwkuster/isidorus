@@ -45,7 +45,8 @@
 		*tm2rdf-association-property*
 		*tm2rdf-subjectIdentifier-property*
 		*tm2rdf-itemIdentity-property*
-		*tm2rdf-subjectLocator-property*)
+		*tm2rdf-subjectLocator-property*
+		*tm2rdf-ns*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)

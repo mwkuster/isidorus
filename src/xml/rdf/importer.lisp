@@ -42,6 +42,7 @@
 				  (truename rdf-xml-path)
 				  (cxml-dom:make-dom-builder)))))
       (import-dom rdf-dom start-revision :tm-id tm-id :document-id document-id))
+    (map-to-tm tm-id start-revision :document-id document-id)
     (format t "#Objects in the store: Topics: ~a, Associations: ~a~%"
 	    (length (elephant:get-instances-by-class 'TopicC))
 	    (length (elephant:get-instances-by-class 'AssociationC)))
