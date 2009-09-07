@@ -272,6 +272,7 @@
   (dolist (versioninfo (versions construct))
     (delete-construct versioninfo)))
 
+
 (defgeneric add-to-version-history (construct &key start-revision end-revision)
   (:documentation "Add version history to a topic map construct"))
 
@@ -990,7 +991,9 @@ rules (5.4)"
                              (used-as-type construct)))
     (delete-construct dependent))
   (dolist (theme (used-as-theme construct))
-    (elephant:remove-association construct 'used-as-theme theme)))
+    (elephant:remove-association construct 'used-as-theme theme))
+  (dolist (tm (in-topicmaps construct))
+    (elephant:remove-association construct 'in-topicmaps tm)))
   
 (defun get-all-constructs-by-uri (uri)
   (delete 
@@ -1422,7 +1425,9 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 
 (defmethod delete-construct :before ((construct AssociationC))
   (dolist (role (roles construct))
-    (delete-construct role)))
+    (delete-construct role))
+  (dolist (tm (in-topicmaps construct))
+    (elephant:remove-association construct 'in-topicmaps tm)))
 
 (defmethod find-all-equivalent ((construct AssociationC))
   (let

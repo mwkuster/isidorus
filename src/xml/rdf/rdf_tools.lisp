@@ -46,7 +46,14 @@
 		*tm2rdf-subjectIdentifier-property*
 		*tm2rdf-itemIdentity-property*
 		*tm2rdf-subjectLocator-property*
-		*tm2rdf-ns*)
+		*tm2rdf-ns*
+		*tm2rdf-value-property*
+		*tm2rdf-scope-property*
+		*tm2rdf-nametype-property*
+		*tm2rdf-occurrencetype-property*
+		*tm2rdf-roletype-property*
+		*tm2rdf-player-property*
+		*tm2rdf-associationtype-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)

@@ -19,32 +19,179 @@
 	   (map 'list #'(lambda(top)
 			  (map-isi-topic top start-revision))
 		topics-to-map))
-	  (mapped-associations associations-to-map))
-		
-      (append mapped-topics mapped-associations)
-    ;check-for-duplicate-identifiers
-    ;delete-construct:
-    ;    *item-identifier-property
-    ;    *subject-identifier-property
-    ;    *subject-locator-proeprty*
-    ;    *topic-type
-    ;    *occurrence-type
-    ;    *occurrence-property
-    ;    *name-type
-    ;    *name-property
-    ;    *variant-type
-    ;    *variant-property
-    ;    *occurrence-type-property
-    ;    *value-property
-    ;    *scope-property
-    ;    *nametype-property
-      )))
+	  (mapped-associations
+	   (map 'list #'(lambda(top)
+			  (map-isi-association top start-revision tm-id
+					       :document-id document-id))
+		associations-to-map)))
+      (let ((constructs
+	     (append mapped-topics mapped-associations)))
+	(clear-store start-revision)
+	(map 'list #'d::check-for-duplicate-identifiers constructs)
+	constructs))))
+
+
+(defun clear-store(start-revision)
+  "Deletes all topics that are neede for RDF2TM mapping and are not
+   referenced in an associaiton, as type or scope."
+  (let ((psi-uris
+	 (list *tm2rdf-topic-type-uri* *tm2rdf-name-type-uri*
+	       *tm2rdf-variant-type-uri* *tm2rdf-occurrence-type-uri*
+	       *tm2rdf-association-type-uri* *tm2rdf-role-type-uri*
+	       *tm2rdf-itemIdentity-property* *tm2rdf-subjectLocator-property*
+	       *tm2rdf-subjectIdentifier-property* *tm2rdf-role-property*
+	       *tm2rdf-subjectIdentifier-property* *tm2rdf-player-property* 
+	       *tm2rdf-nametype-property* *tm2rdf-value-property* 
+	       *tm2rdf-occurrence-property* *tm2rdf-roletype-property*
+	       *tm2rdf-variant-property* *tm2rdf-occurrencetype-property* 
+	       *tm2rdf-name-property* *tm2rdf-associationtype-property*
+	       *tm2rdf-scope-property*)))
+    (dolist (uri psi-uris)
+      (delete-topic-if-not-referenced uri start-revision))))
+
+
+(defun delete-topic-if-not-referenced(type-psi start-revision)
+  "Deletes a topic when it is not referenced."
+  (declare (string type-psi))
+  (declare (integer start-revision))
+  (let ((type-topic (get-item-by-psi type-psi
+				     :revision start-revision)))
+    (when type-topic
+      (when (and (not (player-in-roles type-topic))
+		 (not (used-as-type type-topic))
+		 (not (used-as-theme type-topic)))
+	(d::delete-construct type-topic)))))
+
+
+(defun delete-instance-of-association(instance-topic type-topic)
+  "Deletes a type-instance associaiton that corresponds woith the passed
+   parameters."
+  (when (and instance-topic type-topic)
+    (let ((instance (get-item-by-psi *instance-psi*))
+	  (type-instance (get-item-by-psi *type-instance-psi*))
+	  (type (get-item-by-psi *type-psi*)))
+      (declare (TopicC instance-topic type-topic))
+      (let ((assocs (map 'list
+			 #'(lambda(role)
+			     (when (and (eql (instance-of role) instance)
+					(eql (instance-of (parent role))
+					     type-instance))
+			       (parent role)))
+			 (player-in-roles instance-topic))))
+	(map 'list #'(lambda(assoc)
+		       (when (find-if #'(lambda(role)
+					  (and (eql (instance-of role) type)
+					       (eql (player role) type-topic)))
+				    (roles assoc))
+			 (d::delete-construct assoc)))
+	     assocs)
+	nil))))
+			 
+
+(defun get-isi-roles(assoc-top start-revision)
+  "Returns all topics representing association-roles."
+  (declare (TopicC assoc-top))
+  (declare (integer start-revision))
+  (let ((role-assocs
+	 (get-associations-by-type assoc-top start-revision 
+				   *tm2rdf-role-property*
+				   *rdf2tm-subject*)))
+    (let ((players
+	   (get-players-by-role-type role-assocs start-revision
+				     *rdf2tm-object*)))
+      (map 'list #'d::delete-construct role-assocs)
+      players)))
+
+
+(defun map-isi-role(role-top start-revision)
+  "Maps a passed topic with all its isidorus:types to a
+   property list representing an association-role."
+  (declare (TopicC role-top))
+  (declare (integer start-revision))
+  (let ((err-pref "From map-isi-role(): ")
+	(role-type-topic (get-item-by-psi *tm2rdf-role-type-uri*
+					  :revision start-revision))
+	(ids (map-isi-identifiers role-top start-revision))
+	(type-assocs
+	 (get-associations-by-type
+	  role-top start-revision *tm2rdf-roletype-property*
+	  *rdf2tm-subject*))
+	(player-assocs
+	 (get-associations-by-type
+	  role-top start-revision *tm2rdf-player-property*
+	  *rdf2tm-subject*)))
+    (let ((types (get-players-by-role-type
+		  type-assocs start-revision *rdf2tm-object*))
+	  (role-players (get-players-by-role-type
+			 player-assocs start-revision *rdf2tm-object*)))
+      (elephant:ensure-transaction  (:txn-nosync t)
+	(map 'list #'d::delete-construct type-assocs)
+	(map 'list #'d::delete-construct player-assocs)
+	(when (/= 1 (length types))
+	  (error "~aexpect one type topic but found: ~a"
+		 err-pref (length types)))
+	(when (= 0 (length role-players))
+	  (error "~aexpect one player but found: ~a"
+		 err-pref (length role-players)))
+	(delete-instance-of-association role-top role-type-topic)
+	(d::delete-construct role-top)
+	(list :instance-of (first types)
+	      :player (first role-players)
+	      :item-identifiers ids)))))
+
+
+(defun map-isi-association(assoc-top start-revision tm-id
+			   &key (document-id *document-id*))
+  "Maps a passed topic with all its isidorus:types to a TM association."
+  (declare (TopicC assoc-top))
+  (declare (integer start-revision))
+  (format t "A")
+  (let ((err-pref "From map-isi-association(): ")
+	(ids (map-isi-identifiers assoc-top start-revision))
+	(type-assocs
+	 (get-associations-by-type
+	  assoc-top start-revision *tm2rdf-associationtype-property*
+	  *rdf2tm-subject*))
+	(scope-assocs
+	 (get-associations-by-type
+	  assoc-top start-revision *tm2rdf-scope-property*
+	  *rdf2tm-subject*))
+	(role-tops (get-isi-roles assoc-top start-revision)))
+    (let ((types (get-players-by-role-type
+		  type-assocs start-revision *rdf2tm-object*))
+	  (scopes (get-players-by-role-type
+		   scope-assocs start-revision *rdf2tm-object*))
+	  (assoc-roles 
+	   (remove-if #'null (map 'list 
+				  #'(lambda(role-top)
+				      (map-isi-role role-top start-revision))
+				  role-tops))))
+      (elephant:ensure-transaction  (:txn-nosync t)
+	(map 'list #'d::delete-construct type-assocs)
+	(map 'list #'d::delete-construct scope-assocs)
+	(when (/= 1 (length types))
+	  (error "~aexpect one type topic but found: ~a"
+		 err-pref (length types)))
+	(when (= 0 (length assoc-roles))
+	  (error "~aexpect at least one role but found: ~a"
+		 err-pref (length assoc-roles)))
+	(d::delete-construct assoc-top)
+	(with-tm (start-revision document-id tm-id)
+	  (add-to-topicmap
+	   xml-importer::tm
+	   (make-construct 'AssociationC
+			   :start-revision start-revision
+			   :item-identifiers ids
+			   :instance-of (first types)
+			   :themes scopes
+			   :roles assoc-roles)))))))
 
 
 (defun map-isi-topic(top start-revision)
-  "maps a passed topic with all its isidorus:types to a TM topic."
+  "Maps a passed topic with all its isidorus:types to a TM topic."
   (declare (integer start-revision))
   (declare(TopicC top))
+  (format t "T")
   (let ((new-psis (map-isi-identifiers
 		   top start-revision
 		   :id-type-uri *tm2rdf-subjectidentifier-property*))
@@ -87,13 +234,14 @@
   (declare (NameC name))
   (declare (integer start-revision))
   (let ((ids (map-isi-identifiers variant-top start-revision))
+	(variant-type-topic (get-item-by-psi *tm2rdf-variant-type-uri*
+					     :revision start-revision))
 	(scope-assocs
 	 (get-associations-by-type
-	  variant-top start-revision
-	  (concatenate 'string *tm2rdf-ns* "scope")
+	  variant-top start-revision *tm2rdf-scope-property*
 	  *rdf2tm-subject*))
 	(value-type-topic 
-	 (get-item-by-psi (concatenate 'string *tm2rdf-ns* "value"))))
+	 (get-item-by-psi *tm2rdf-value-property*)))
     (let ((scopes (get-players-by-role-type
 		   scope-assocs start-revision *rdf2tm-object*))
 	  (value-and-datatype
@@ -108,6 +256,7 @@
 		       :datatype *xml-string*)))))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct scope-assocs)
+	(delete-instance-of-association variant-top variant-type-topic)
 	(d::delete-construct variant-top)
 	(make-construct 'VariantC
 			:start-revision start-revision
@@ -123,19 +272,19 @@
   (declare (TopicC top name-top))
   (declare (integer start-revision))
   (let ((err-pref "From map-isi-name(): ")
+	(name-type-topic (get-item-by-psi *tm2rdf-name-type-uri*
+					  :revision start-revision))
 	(ids (map-isi-identifiers name-top start-revision))
 	(type-assocs
 	 (get-associations-by-type
-	  name-top start-revision
-	  (concatenate 'string *tm2rdf-ns* "nametype")
+	  name-top start-revision *tm2rdf-nametype-property*
 	  *rdf2tm-subject*))
 	(scope-assocs
 	 (get-associations-by-type
-	  name-top start-revision
-	  (concatenate 'string *tm2rdf-ns* "scope")
+	  name-top start-revision *tm2rdf-scope-property*
 	  *rdf2tm-subject*))
 	(value-type-topic 
-	 (get-item-by-psi (concatenate 'string *tm2rdf-ns* "value")))
+	 (get-item-by-psi *tm2rdf-value-property*))
 	(variant-topics (get-isi-variants name-top start-revision)))
     (let ((types (get-players-by-role-type
 		  type-assocs start-revision *rdf2tm-object*))
@@ -165,6 +314,7 @@
 	  (map 'list #'(lambda(variant-top)
 			 (map-isi-variant name variant-top start-revision))
 	       variant-topics)
+	  (delete-instance-of-association name-top name-type-topic)
 	  (d::delete-construct name-top)
 	  name)))))
 
@@ -189,18 +339,18 @@
   (declare (integer start-revision))
   (let ((err-pref "From map-isi-occurrence(): ")
 	(ids (map-isi-identifiers occ-top start-revision))
+	(occurrence-type-topic (get-item-by-psi *tm2rdf-occurrence-type-uri*
+						:revision start-revision))
 	(type-assocs
 	 (get-associations-by-type
-	  occ-top start-revision
-	  (concatenate 'string *tm2rdf-ns* "occurrencetype")
+	  occ-top start-revision *tm2rdf-occurrencetype-property*
 	  *rdf2tm-subject*))
 	(scope-assocs
 	 (get-associations-by-type
-	  occ-top start-revision
-	  (concatenate 'string *tm2rdf-ns* "scope")
+	  occ-top start-revision *tm2rdf-scope-property*
 	  *rdf2tm-subject*))
 	(value-type-topic 
-	 (get-item-by-psi (concatenate 'string *tm2rdf-ns* "value"))))
+	 (get-item-by-psi *tm2rdf-value-property*)))
     (let ((types (get-players-by-role-type
 		  type-assocs start-revision *rdf2tm-object*))
 	  (scopes (get-players-by-role-type
@@ -221,6 +371,7 @@
 	(when (/= 1 (length types))
 	  (error "~aexpect one type topic but found: ~a"
 		 err-pref (length types)))
+	(delete-instance-of-association occ-top occurrence-type-topic)
 	(d::delete-construct occ-top)
 	(make-construct 'OccurrenceC
 			:start-revision start-revision
@@ -316,7 +467,6 @@
 			 (player role))))
 		 associations))))
       players)))
-
   
 
 (defun get-occurrences-by-type (top start-revision
@@ -378,16 +528,24 @@
   (declare (ReifiableConstructC construct))
   (dolist (id identifiers)
     (declare (ItemIdentifierC id))
-    (setf (identified-construct id) construct))
+    (if (find-if #'(lambda(ii)
+		     (string= (uri ii) (uri id)))
+		 (item-identifiers construct))
+	(d::delete-construct id)
+	(setf (identified-construct id) construct)))
   construct)
 
 
 (defun bound-subject-identifiers (top identifiers)
-    "Bounds the passed psis to the passed topic."
+  "Bounds the passed psis to the passed topic."
   (declare (TopicC top))
   (dolist (id identifiers)
     (declare (PersistentIdC id))
-    (setf (identified-construct id) top))
+    (if (find-if #'(lambda(psi)
+		     (string= (uri psi) (uri id)))
+		 (psis top))
+	(d::delete-construct id)
+	(setf (identified-construct id) top)))
   top)
 
 
@@ -396,6 +554,9 @@
   (declare (TopicC top))
   (dolist (id locators)
     (declare (SubjectLocatorC id))
-    (setf (identified-construct id) top))
+    (if (find-if #'(lambda(locator)
+		     (string= (uri locator) (uri id)))
+		 (locators top))
+	(d::delete-construct id)
+	(setf (identified-construct id) top)))
   top)
-
