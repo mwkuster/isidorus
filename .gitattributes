@@ -47,6 +47,7 @@ src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text
 src/unit_tests/dangling_topicref.xtm -text
 src/unit_tests/duplicate_identifier.xtm -text
+src/unit_tests/full_mapping.rdf -text
 src/unit_tests/inconsistent.xtm -text
 src/unit_tests/inconsistent_2_0.xtm -text
 src/unit_tests/multiple_tms_ont.xtm -text

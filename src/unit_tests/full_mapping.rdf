@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:isi="http://isidorus/tm2rdf_mapping/"
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	 xmlns:xml="http://www.w3.org/XML/1998/namespace">
+  <!-- === topic: marge ==================================================== -->
+  <rdf:Description rdf:about="http://simpsons/marge">
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Topic"/>
+    <isi:name>
+      <rdf:Description rdf:nodeID="id_283">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
+	<isi:nametype rdf:resource="http://simpsons/firstName"/>
+	<isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Marjorie</isi:value>
+      </rdf:Description>
+    </isi:name>
+    <isi:name>
+      <rdf:Description rdf:nodeID="id_285">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
+	<isi:nametype rdf:resource="http://simpsons/lastName"/>
+	<isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Simpson</isi:value>
+      </rdf:Description>
+    </isi:name>
+    <ns5:profession xmlns:ns5="http://simpsons/" rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Housewife</ns5:profession>
+    <isi:occurrence rdf:nodeID="id_1234"/> <!-- equal to ns5:profession, should be merged -->
+  </rdf:Description>
+
+  <rdf:Description rdf:nodeID="id_1234">
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Occurrence"/>
+    <isi:occurrencetype rdf:resource="http://simpsons/profession"/>
+    <isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Housewife</isi:value>
+  </rdf:Description>
+
+
+  <rdf:Description rdf:nodeID="id_285">
+    <isi:variant rdf:parseType="Resource">
+      <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Variant"/>
+      <isi:scope rdf:resource="http://simpsons/display"/>
+      <isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Marge</isi:value>
+    </isi:variant>
+  </rdf:Description>
+
+
+  <rdf:Description rdf:about="http://simpsons/marge">
+    <isi:subjectIdentifier rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/marjorie</isi:subjectIdentifier>
+  </rdf:Description>
+
+  <!-- === topic: homer ==================================================== -->
+  <rdf:Description rdf:about="http://simpsons/homer">
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Topic"/>
+    <isi:subjectIdentifier rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/homer_simpson</isi:subjectIdentifier>
+    <isi:subjectLocator rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://some.where/resource</isi:subjectLocator>
+    <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/ii/homer</isi:itemIdentity>
+    <isi:name>
+      <rdf:Description rdf:nodeID="id_266">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
+	<isi:nametype rdf:resource="http://simpsons/firstName"/>
+	<isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Homer J.</isi:value>
+	<isi:variant>
+	  <rdf:Description rdf:nodeID="id_272">
+	    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Variant"/>
+	    <isi:scope rdf:resource="http://simpsons/display"/>
+	    <isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Homer</isi:value>
+	  </rdf:Description>
+	</isi:variant>
+      </rdf:Description>
+    </isi:name>
+    <!-- <isi:name rdf:resource="id_2345"/> --> <!-- should be merged with id_266 -->
+    <isi:name>
+      <rdf:Description rdf:nodeID="id_277">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
+	<isi:nametype rdf:resource="http://simpsons/lastName"/>
+	<isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Simpson</isi:value>
+      </rdf:Description>
+    </isi:name>
+    <isi:occurrence>
+      <rdf:Description rdf:nodeID="id_279">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Occurrence"/>
+	<isi:occurrencetype rdf:resource="http://simpsons/profession"/>
+	<isi:scope rdf:resource="http://simpsons/en"/>
+	<isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Safety Inspector</isi:value>
+      </rdf:Description>
+    </isi:occurrence>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="id_2345">
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
+    <isi:nametype rdf:resource="http://simpsons/firstName"/>
+    <isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Homer J.</isi:value>
+    <isi:variant>
+      <rdf:Description rdf:nodeID="id_272">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Variant"/>
+	<isi:scope rdf:resource="http://simpsons/display"/>
+	<isi:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Homer</isi:value>
+      </rdf:Description>
+    </isi:variant>
+  </rdf:Description>
+
+  <!-- === association: married ============================================ -->
+  <rdf:Description rdf:nodeID="id_291">
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Association"/>
+    <isi:associationtype rdf:resource="http://simpsons/married"/>
+    <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/married/ii-1</isi:itemIdentity>
+    <isi:role>
+      <rdf:Description rdf:nodeID="id_292">
+	<isi:itemIdentity rdf:datatype="">http://simpsons/role-husband/ii</isi:itemIdentity>
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
+	<isi:roletype rdf:resource="http://simpsons/husband"/>
+	<isi:player rdf:resource="http://simpsons/homer"/>
+      </rdf:Description>
+    </isi:role>
+    <isi:role>
+      <rdf:Description rdf:nodeID="id_295">
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
+	<isi:roletype rdf:resource="http://simpsons/wife"/>
+	<isi:player rdf:resource="http://simpsons/marge"/>
+      </rdf:Description>
+    </isi:role>
+  </rdf:Description>
+
+  <rdf:Description>
+    <isi:itemIdentity rdf:datatype="">http://simpsons/maried/ii-2</isi:itemIdentity>
+    <isi:role>
+      <rdf:Description rdf:nodeID="id_295">
+	<isi:itemIdentity rdf:datatype="">http://simpsons/role-wife/ii</isi:itemIdentity>
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
+	<isi:roletype rdf:resource="http://simpsons/wife"/>
+	<isi:player rdf:resource="http://simpsons/marge"/>
+      </rdf:Description>
+    </isi:role>
+  </rdf:Description>
+</rdf:RDF>

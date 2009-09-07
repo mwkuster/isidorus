@@ -110,6 +110,7 @@
 				     (:static-file "poems.rdf")
 				     (:static-file "poems_light.rdf")
 				     (:static-file "poems_light.xtm")
+				     (:static-file "full_mapping.rdf")
 				     (:file "atom-conf")
 				     (:file "unittests-constants"
 					    :depends-on ("dangling_topicref.xtm"

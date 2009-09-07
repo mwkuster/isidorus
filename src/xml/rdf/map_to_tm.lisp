@@ -302,8 +302,8 @@
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct scope-assocs)
 	(when (/= 1 (length types))
-	  (error "~aexpect one type topic but found: ~a"
-		 err-pref (length types)))
+	  (error "~aexpect one type topic but found: ~a (~a)"
+		 err-pref (length types) value))
 	(let ((name (make-construct 'NameC
 				    :start-revision start-revision
 				    :topic top
