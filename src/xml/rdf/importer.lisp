@@ -411,28 +411,25 @@
    If about or ID is set there will also be created a new PSI."
   (declare (TopicMapC tm))
   (let ((topic-id (or about ID nodeID UUID))
-	(psi-uri (or about ID)))
+	(psi-uri (or about ID))
+	(ii-uri (unless (or about ID)
+		  (concatenate 'string *rdf2tm-blank-node-prefix* 
+			       (or nodeID UUID)))))
     (let ((top 
 	   ;seems like there is a bug in d:get-item-by-id:
 	   ;this functions returns an emtpy topic although there is no one
-	   ;with a corresponding topic id and/or version and/or xtm-id
+	   ;with a corresponding topic id and/or version.
+	   ;Thus the version is temporary checked manually.
 	   (let ((inner-top
 		  (get-item-by-id topic-id :xtm-id document-id
 				  :revision start-revision)))
-	     ;;(when inner-top
-	     ;;  (let ((versions (d::versions inner-top)))
-	     ;;	 (unless (find-if #'(lambda(version)
-	     ;;			      (= start-revision
-	     ;;				 (d::start-revision version)))
-	     ;;			  versions)
-	     ;;	   (d::add-to-version-history inner-top
-	     ;;				      :start-revision start-revision)
-	     ;;	   (add-to-topicmap tm inner-top)))))))
-	     (when (and inner-top
-	     		(find-if #'(lambda(x)
-	     			     (= (d::start-revision x) start-revision))
-	     			 (d::versions inner-top)))
-	       inner-top))))
+	     (when inner-top
+	       (let ((versions (d::versions inner-top)))
+	     	 (when (find-if #'(lambda(version)
+	     			      (= start-revision
+	     				 (d::start-revision version)))
+	     			  versions)
+		   inner-top))))))
       (if top
 	  top
 	  (elephant:ensure-transaction (:txn-nosync t)
@@ -440,7 +437,12 @@
 			  (list
 			   (make-instance 'PersistentIdC
 					  :uri psi-uri
-					  :start-revision start-revision)))))
+					  :start-revision start-revision))))
+		  (iis (when ii-uri
+			 (list
+			  (make-instance 'ItemIdentifierC
+					 :uri ii-uri
+					 :start-revision start-revision)))))
 	      (handler-case (let ((top
 				   (add-to-topicmap
 				    tm
@@ -448,6 +450,7 @@
 			     'TopicC
 				     :topicid topic-id
 				     :psis psis
+				     :item-identifiers iis
 				     :xtm-id document-id
 				     :start-revision start-revision))))
 			      (format t "t")
@@ -463,12 +466,12 @@
   (when lang
     (let ((psi-and-topic-id
 	   (concatenate-uri *rdf2tm-scope-prefix* lang)))
-      (let ((top (get-item-by-id psi-and-topic-id :xtm-id document-id
-				 :revision start-revision)))
-	(if top
-	    top
-	    (make-topic-stub psi-and-topic-id nil nil nil start-revision
-			     tm :document-id document-id))))))
+      ;(let ((top (get-item-by-id psi-and-topic-id :xtm-id document-id
+;				 :revision start-revision)))
+;	(if top
+;	    top
+      (make-topic-stub psi-and-topic-id nil nil nil start-revision
+		       tm :document-id document-id))))
 
 
 (defun make-association (top association tm start-revision

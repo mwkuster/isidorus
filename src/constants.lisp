@@ -61,7 +61,8 @@
 	   :*tm2rdf-occurrencetype-property*
 	   :*tm2rdf-roletype-property*
 	   :*tm2rdf-associationtype-property*
-	   :*tm2rdf-player-property*))
+	   :*tm2rdf-player-property*
+	   :*rdf2tm-blank-node-prefix*))
 	   
 
 (in-package :constants)
@@ -122,6 +123,8 @@
 (defparameter *rdf2tm-subject* (concatenate 'string *rdf2tm-ns* "subject"))
 
 (defparameter *rdf2tm-scope-prefix* (concatenate 'string *rdf2tm-ns* "scope/"))
+
+(defparameter *rdf2tm-blank-node-prefix* (concatenate 'string *rdf2tm-ns* "blank_node/"))
 
 (defparameter *tm2rdf-ns* "http://isidorus/tm2rdf_mapping/")
 

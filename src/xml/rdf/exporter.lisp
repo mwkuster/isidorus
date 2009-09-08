@@ -39,7 +39,7 @@
                          to be exported, the same mechanism as
                          in xtm-exporter")
 
-(defvar *ns-map* nil) ;; ((:prefix <string> :uri <string>))
+(defvar *ns-map* nil "((:prefix <string> :uri <string>))")
 
 
 (defun rdf-li-or-uri (uri)
@@ -297,8 +297,9 @@
       (cxml:attribute "rdf:nodeID" (make-object-id construct))
       (make-isi-type *tm2rdf-name-type-uri*)
       (map 'list #'to-rdf-elem (item-identifiers construct))
-      (cxml:with-element "isi:nametype"
-	(make-topic-reference (instance-of construct)))
+      (when (slot-boundp construct 'instance-of)
+	(cxml:with-element "isi:nametype"
+	  (make-topic-reference (instance-of construct))))
       (scopes-to-rdf-elems construct)
       (cxml:with-element "isi:value"
 	(cxml:attribute "rdf:datatype" *xml-string*)

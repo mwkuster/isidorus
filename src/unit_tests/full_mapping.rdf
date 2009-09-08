@@ -64,7 +64,7 @@
 	</isi:variant>
       </rdf:Description>
     </isi:name>
-    <!-- <isi:name rdf:resource="id_2345"/> --> <!-- should be merged with id_266 -->
+    <isi:name rdf:resource="id_2345"/> <!-- should be merged with id_266 -->
     <isi:name>
       <rdf:Description rdf:nodeID="id_277">
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
@@ -102,7 +102,7 @@
     <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/married/ii-1</isi:itemIdentity>
     <isi:role>
       <rdf:Description rdf:nodeID="id_292">
-	<isi:itemIdentity rdf:datatype="">http://simpsons/role-husband/ii</isi:itemIdentity>
+	<isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/role-husband/ii</isi:itemIdentity>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
 	<isi:roletype rdf:resource="http://simpsons/husband"/>
 	<isi:player rdf:resource="http://simpsons/homer"/>
@@ -117,14 +117,28 @@
     </isi:role>
   </rdf:Description>
 
+  <rdf:Description rdf:nodeID="id_295">
+    <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/role-wife/ii</isi:itemIdentity>
+  </rdf:Description>
+
   <rdf:Description>
-    <isi:itemIdentity rdf:datatype="">http://simpsons/maried/ii-2</isi:itemIdentity>
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Association"/>
+    <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/married/ii-1</isi:itemIdentity>
+    <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/married/ii-2</isi:itemIdentity>
+    <isi:associationtype rdf:resource="http://simpsons/married"/>
     <isi:role>
-      <rdf:Description rdf:nodeID="id_295">
-	<isi:itemIdentity rdf:datatype="">http://simpsons/role-wife/ii</isi:itemIdentity>
+      <rdf:Description>
+	<isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/role-wife/ii</isi:itemIdentity>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
 	<isi:roletype rdf:resource="http://simpsons/wife"/>
 	<isi:player rdf:resource="http://simpsons/marge"/>
+      </rdf:Description>
+    </isi:role>
+    <isi:role>
+      <rdf:Description>
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
+	<isi:roletype rdf:resource="http://simpsons/husband"/>
+	<isi:player rdf:resource="http://simpsons/homer"/>
       </rdf:Description>
     </isi:role>
   </rdf:Description>

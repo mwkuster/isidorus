@@ -71,13 +71,15 @@
 	  (type-instance (get-item-by-psi *type-instance-psi*))
 	  (type (get-item-by-psi *type-psi*)))
       (declare (TopicC instance-topic type-topic))
-      (let ((assocs (map 'list
-			 #'(lambda(role)
-			     (when (and (eql (instance-of role) instance)
-					(eql (instance-of (parent role))
-					     type-instance))
-			       (parent role)))
-			 (player-in-roles instance-topic))))
+      (let ((assocs (remove-if 
+		     #'null 
+		     (map 'list
+			  #'(lambda(role)
+			      (when (and (eql (instance-of role) instance)
+					 (eql (instance-of (parent role))
+					      type-instance))
+				(parent role)))
+			  (player-in-roles instance-topic)))))
 	(map 'list #'(lambda(assoc)
 		       (when (find-if #'(lambda(role)
 					  (and (eql (instance-of role) type)
@@ -86,6 +88,13 @@
 			 (d::delete-construct assoc)))
 	     assocs)
 	nil))))
+
+
+(defun delete-related-associations (top)
+  "Deletes all associaitons related to the passed topic."
+  (dolist (assoc-role (player-in-roles top))
+    (d::delete-construct (parent assoc-role)))
+  top)
 			 
 
 (defun get-isi-roles(assoc-top start-revision)
@@ -109,8 +118,6 @@
   (declare (TopicC role-top))
   (declare (integer start-revision))
   (let ((err-pref "From map-isi-role(): ")
-	(role-type-topic (get-item-by-psi *tm2rdf-role-type-uri*
-					  :revision start-revision))
 	(ids (map-isi-identifiers role-top start-revision))
 	(type-assocs
 	 (get-associations-by-type
@@ -133,7 +140,7 @@
 	(when (= 0 (length role-players))
 	  (error "~aexpect one player but found: ~a"
 		 err-pref (length role-players)))
-	(delete-instance-of-association role-top role-type-topic)
+	(delete-related-associations role-top)
 	(d::delete-construct role-top)
 	(list :instance-of (first types)
 	      :player (first role-players)
@@ -175,6 +182,7 @@
 	(when (= 0 (length assoc-roles))
 	  (error "~aexpect at least one role but found: ~a"
 		 err-pref (length assoc-roles)))
+	(delete-related-associations assoc-top)
 	(d::delete-construct assoc-top)
 	(with-tm (start-revision document-id tm-id)
 	  (add-to-topicmap
@@ -234,8 +242,6 @@
   (declare (NameC name))
   (declare (integer start-revision))
   (let ((ids (map-isi-identifiers variant-top start-revision))
-	(variant-type-topic (get-item-by-psi *tm2rdf-variant-type-uri*
-					     :revision start-revision))
 	(scope-assocs
 	 (get-associations-by-type
 	  variant-top start-revision *tm2rdf-scope-property*
@@ -256,7 +262,7 @@
 		       :datatype *xml-string*)))))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct scope-assocs)
-	(delete-instance-of-association variant-top variant-type-topic)
+	(delete-related-associations variant-top)
 	(d::delete-construct variant-top)
 	(make-construct 'VariantC
 			:start-revision start-revision
@@ -272,8 +278,6 @@
   (declare (TopicC top name-top))
   (declare (integer start-revision))
   (let ((err-pref "From map-isi-name(): ")
-	(name-type-topic (get-item-by-psi *tm2rdf-name-type-uri*
-					  :revision start-revision))
 	(ids (map-isi-identifiers name-top start-revision))
 	(type-assocs
 	 (get-associations-by-type
@@ -314,7 +318,7 @@
 	  (map 'list #'(lambda(variant-top)
 			 (map-isi-variant name variant-top start-revision))
 	       variant-topics)
-	  (delete-instance-of-association name-top name-type-topic)
+	  (delete-related-associations name-top)
 	  (d::delete-construct name-top)
 	  name)))))
 
@@ -339,8 +343,6 @@
   (declare (integer start-revision))
   (let ((err-pref "From map-isi-occurrence(): ")
 	(ids (map-isi-identifiers occ-top start-revision))
-	(occurrence-type-topic (get-item-by-psi *tm2rdf-occurrence-type-uri*
-						:revision start-revision))
 	(type-assocs
 	 (get-associations-by-type
 	  occ-top start-revision *tm2rdf-occurrencetype-property*
@@ -371,7 +373,7 @@
 	(when (/= 1 (length types))
 	  (error "~aexpect one type topic but found: ~a"
 		 err-pref (length types)))
-	(delete-instance-of-association occ-top occurrence-type-topic)
+	(delete-related-associations occ-top)
 	(d::delete-construct occ-top)
 	(make-construct 'OccurrenceC
 			:start-revision start-revision
