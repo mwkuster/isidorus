@@ -277,8 +277,7 @@
   "Maps the passed occurrence-topic to a TM occurrence."
   (declare (TopicC top name-top))
   (declare (integer start-revision))
-  (let ((err-pref "From map-isi-name(): ")
-	(ids (map-isi-identifiers name-top start-revision))
+  (let ((ids (map-isi-identifiers name-top start-revision))
 	(type-assocs
 	 (get-associations-by-type
 	  name-top start-revision *tm2rdf-nametype-property*
@@ -290,8 +289,11 @@
 	(value-type-topic 
 	 (get-item-by-psi *tm2rdf-value-property*))
 	(variant-topics (get-isi-variants name-top start-revision)))
-    (let ((types (get-players-by-role-type
-		  type-assocs start-revision *rdf2tm-object*))
+    (let ((types (let ((fn-types
+			(get-players-by-role-type
+			 type-assocs start-revision *rdf2tm-object*)))
+		   (when fn-types
+		     (first fn-types))))
 	  (scopes (get-players-by-role-type
 		   scope-assocs start-revision *rdf2tm-object*))
 	  (value 
@@ -305,14 +307,11 @@
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct scope-assocs)
-	(when (/= 1 (length types))
-	  (error "~aexpect one type topic but found: ~a (~a)"
-		 err-pref (length types) value))
 	(let ((name (make-construct 'NameC
 				    :start-revision start-revision
 				    :topic top
 				    :charvalue value
-				    :instance-of (first types)
+				    :instance-of types
 				    :item-identifiers ids
 				    :themes scopes)))
 	  (map 'list #'(lambda(variant-top)
