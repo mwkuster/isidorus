@@ -31,7 +31,7 @@
   </rdf:Description>
 
 
-  <rdf:Description rdf:nodeID="id_285">
+  <rdf:Description rdf:nodeID="id_283">
     <isi:variant rdf:parseType="Resource">
       <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Variant"/>
       <isi:scope rdf:resource="http://simpsons/display"/>
@@ -121,13 +121,13 @@
     <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/role-wife/ii</isi:itemIdentity>
   </rdf:Description>
 
-  <rdf:Description>
+  <rdf:Description rdf:nodeID="id_291">
     <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Association"/>
     <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/married/ii-1</isi:itemIdentity>
     <isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/married/ii-2</isi:itemIdentity>
     <isi:associationtype rdf:resource="http://simpsons/married"/>
     <isi:role>
-      <rdf:Description>
+      <rdf:Description rdf:nodeID="id_295">
 	<isi:itemIdentity rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://simpsons/role-wife/ii</isi:itemIdentity>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
 	<isi:roletype rdf:resource="http://simpsons/wife"/>
@@ -135,7 +135,7 @@
       </rdf:Description>
     </isi:role>
     <isi:role>
-      <rdf:Description>
+      <rdf:Description rdf:nodeID="id_292">
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
 	<isi:roletype rdf:resource="http://simpsons/husband"/>
 	<isi:player rdf:resource="http://simpsons/homer"/>
