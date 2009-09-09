@@ -32,7 +32,7 @@
            :test-change-lists
            :test-changed-p
            :versions-test
-           ))
+           :run-versions-tests))
 (declaim (optimize (debug 3)))
 
 (in-package :versions-test)
@@ -363,4 +363,12 @@ test suite"
                                     :revision (1+ fixtures::revision3))))))
 
 
-            
+
+(defun run-versions-tests()
+  (it.bese.fiveam:run! 'test-get-item-by-id-t100)
+  (it.bese.fiveam:run! 'test-get-item-by-id-t301)
+  (it.bese.fiveam:run! 'test-norwegian-curriculum-association)
+  (it.bese.fiveam:run! 'test-instance-of-t64)
+  (it.bese.fiveam:run! 'test-change-lists)
+  (it.bese.fiveam:run! 'test-changed-p)
+  (it.bese.fiveam:run! 'test-mark-as-deleted))

@@ -28,7 +28,9 @@
                 duplicate-identifier-error)
   (:export :atom-test
            :test-feed-to-string
-           :test-collection-configuration))
+           :test-collection-configuration
+	   :test-changes-feeds
+	   :run-atom-tests))
 
 ;test configuration
 (in-package :atom-test)
@@ -204,3 +206,8 @@
             (mapcar #'type-of collection-entries)))
           )))
 
+
+(defun run-atom-tests()
+  (it.bese.fiveam:run! 'test-feed-to-string)
+  (it.bese.fiveam:run! 'test-changes-feeds)
+  (it.bese.fiveam:run! 'test-collection-configuration))
