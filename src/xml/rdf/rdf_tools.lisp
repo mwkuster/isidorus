@@ -282,21 +282,21 @@
   t)
 
 
-(defun get-node-refs (nodes tm-id xml-base)
+(defun get-node-refs (nodes tm-id parent-xml-base)
   "Returns a list of node references that can be used as topic IDs."
   (when (and nodes
 	     (> (length nodes) 0))
     (loop for node across nodes
-       collect (let ((fn-xml-base (get-xml-base node :old-base xml-base)))
+       collect (let ((xml-base (get-xml-base node :old-base parent-xml-base)))
 		 (parse-node node)
 		 (let ((ID (when (get-ns-attribute node "ID")
 			     (absolutize-id (get-ns-attribute node "ID")
-					    fn-xml-base tm-id)))
+					    xml-base tm-id)))
 		       (nodeID (get-ns-attribute node "nodeID"))
 		       (about (when (get-ns-attribute node "about")
 				(absolutize-value
 				 (get-ns-attribute node "about")
-				 fn-xml-base tm-id)))
+				 xml-base tm-id)))
 		       (UUID (get-ns-attribute node "UUID" :ns-uri *rdf2tm-ns*)))
 		   (list :topicid (or ID about nodeID UUID)
 			 :psi (or ID about)))))))
@@ -465,29 +465,28 @@
   t)
 
 
-(defun get-absolute-attribute (elem tm-id xml-base attr-name
+(defun get-absolute-attribute (elem tm-id parent-xml-base attr-name
 			       &key (ns-uri *rdf-ns*))
   "Returns an absolute 'attribute' or nil."
   (declare (dom:element elem))
   (declare (string attr-name))
   (tm-id-p tm-id "get-ID")
   (let ((attr (get-ns-attribute elem attr-name :ns-uri ns-uri))
-	(fn-xml-base (get-xml-base elem :old-base xml-base)))
+	(xml-base (get-xml-base elem :old-base parent-xml-base)))
     (when attr
       (if (and (string= ns-uri *rdf-ns*)
 	       (string= attr-name "ID"))
-	  (absolutize-id attr fn-xml-base tm-id)
-	  (absolutize-value attr fn-xml-base tm-id)))))
+	  (absolutize-id attr xml-base tm-id)
+	  (absolutize-value attr xml-base tm-id)))))
 
 
-(defun get-datatype (elem tm-id xml-base)
+(defun get-datatype (elem tm-id parent-xml-base)
   "Returns a datatype value. The default is xml:string."
-  (let ((fn-xml-base (get-xml-base elem :old-base xml-base)))
-    (let ((datatype
-	   (get-absolute-attribute elem tm-id fn-xml-base "datatype")))
-      (if datatype
-	  datatype
-	  *xml-string*))))
+  (let ((datatype
+	 (get-absolute-attribute elem tm-id parent-xml-base "datatype")))
+    (if datatype
+	datatype
+	*xml-string*)))
 
 
 (defun tm-id-p (tm-id fun-name)
@@ -500,14 +499,13 @@
 (defun get-types-of-node (elem tm-id &key (parent-xml-base nil))
   "Returns a plist of all node's types of the form
    (:topicid <string> :psi <string> :ID <string>)."
-  (let ((xml-base (get-xml-base elem :old-base parent-xml-base)))
-    (remove-if
-     #'null
-     (append (unless (string= (get-type-of-node-name elem)
-			      (concatenate 'string *rdf-ns*
-					   "Description"))
-	       (list 
-		(list :topicid (get-type-of-node-name elem)
-		      :psi (get-type-of-node-name elem)
-		      :ID nil)))
-	     (get-types-of-node-content elem tm-id xml-base)))))
+  (remove-if
+   #'null
+   (append (unless (string= (get-type-of-node-name elem)
+			    (concatenate 'string *rdf-ns*
+					 "Description"))
+	     (list 
+	      (list :topicid (get-type-of-node-name elem)
+		    :psi (get-type-of-node-name elem)
+		    :ID nil)))
+	   (get-types-of-node-content elem tm-id parent-xml-base))))

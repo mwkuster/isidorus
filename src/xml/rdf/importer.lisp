@@ -84,31 +84,36 @@
 	(let ((children (child-nodes-or-text rdf-dom :trim t)))
 	  (when children
 	    (loop for child across children
-	       do (import-node child tm-id start-revision :document-id document-id
-			       :xml-base xml-base :xml-lang xml-lang))))
-	(import-node rdf-dom tm-id start-revision :document-id document-id
-		     :xml-base xml-base :xml-lang xml-lang)))
+	       do (import-node child tm-id start-revision
+			       :document-id document-id
+			       :parent-xml-base xml-base
+			       :parent-xml-lang xml-lang))))
+	(import-node rdf-dom tm-id start-revision
+		     :document-id document-id
+		     :parent-xml-base xml-base
+		     :parent-xml-lang xml-lang)))
   (setf *_n-map* nil))
 
 
 (defun import-node (elem tm-id start-revision &key (document-id *document-id*)
-		    (xml-base nil) (xml-lang nil))
+		    (parent-xml-base nil) (parent-xml-lang nil))
+  "Imports an RDF node with all its properties and 'child' RDF nodes."
   (tm-id-p tm-id "import-node")
   (parse-node elem)
-  (let ((fn-xml-lang (get-xml-lang elem :old-lang xml-lang)))
-    (let ((about (get-absolute-attribute elem tm-id xml-base "about"))	   
-	  (nodeID (get-ns-attribute elem "nodeID"))
-	  (ID (get-absolute-attribute elem tm-id xml-base "ID"))
-	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
-      (parse-properties-of-node elem (or about nodeID ID UUID))
-
-    (let ((literals (append (get-literals-of-node elem fn-xml-lang)
+  (let ((about (get-absolute-attribute elem tm-id parent-xml-base "about"))
+	(nodeID (get-ns-attribute elem "nodeID"))
+	(ID (get-absolute-attribute elem tm-id parent-xml-base "ID"))
+	(UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
+    (parse-properties-of-node elem (or about nodeID ID UUID))
+    (let ((literals (append (get-literals-of-node elem parent-xml-lang)
 			    (get-literals-of-node-content
-			     elem tm-id xml-base fn-xml-lang)))
-	  (associations (get-associations-of-node-content elem tm-id xml-base))
-	  (types (get-types-of-node elem tm-id :parent-xml-base xml-base))
+			     elem tm-id parent-xml-base parent-xml-lang)))
+	  (associations (get-associations-of-node-content elem tm-id
+							  parent-xml-base))
+	  (types (get-types-of-node elem tm-id 
+				    :parent-xml-base parent-xml-base))
 	  (super-classes
-	   (get-super-classes-of-node-content elem tm-id xml-base)))
+	   (get-super-classes-of-node-content elem tm-id parent-xml-base)))
       (with-tm (start-revision document-id tm-id)
 	(let ((this
 	       (make-topic-stub
@@ -124,19 +129,18 @@
 			      start-revision :document-id document-id)
 	  (make-recursion-from-node elem tm-id start-revision
 				    :document-id document-id
-				    :xml-base xml-base
-				    :xml-lang xml-lang)
-	  this))))))
+				    :parent-xml-base parent-xml-base
+				    :parent-xml-lang parent-xml-lang)
+	  this)))))
 
 
 (defun import-arc (elem tm-id start-revision
 		   &key (document-id *document-id*)
-		   (xml-base nil) (xml-lang nil))
+		   (parent-xml-base nil) (parent-xml-lang nil))
   "Imports a property that is an blank_node and continues the recursion
    on this element."
   (declare (dom:element elem))
-  (let ((fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
-	(fn-xml-base (get-xml-base elem :old-base xml-base))
+  (let ((xml-lang (get-xml-lang elem :old-lang parent-xml-lang))
 	(UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*))
 	(parseType (get-ns-attribute elem "parseType"))
 	(content (child-nodes-or-text elem :trim t)))
@@ -156,24 +160,26 @@
 					    :revision start-revision)))
 		       (let ((literals
 			      (append (get-literals-of-property
-				       elem fn-xml-lang)
+				       elem xml-lang)
 				      (get-literals-of-node-content
-				       elem tm-id xml-base fn-xml-lang)))
+				       elem tm-id parent-xml-base
+				       parent-xml-lang)))
 			     (associations
 			      (get-associations-of-node-content
-			       elem tm-id xml-base))
+			       elem tm-id parent-xml-base))
 			     (types
 			      (remove-if
 			       #'null
 			       (append
-				(get-types-of-node-content elem tm-id fn-xml-base)
+				(get-types-of-node-content elem tm-id
+							   parent-xml-base)
 				(when (get-ns-attribute elem "type")
 				  (list :ID nil
 					:topicid (get-ns-attribute elem "type")
 					:psi (get-ns-attribute elem "type"))))))
 			     (super-classes
 			      (get-super-classes-of-node-content
-			       elem tm-id xml-base)))
+			       elem tm-id parent-xml-base)))
 			 (make-literals this literals tm-id start-revision
 					:document-id document-id)
 			 (make-associations this associations xml-importer::tm
@@ -186,19 +192,20 @@
 		       this)))))
 	    (make-recursion-from-arc elem tm-id start-revision
 				     :document-id document-id
-				     :xml-base xml-base :xml-lang xml-lang)
+				     :parent-xml-base parent-xml-base
+				     :parent-xml-lang parent-xml-lang)
 	    this-topic)))))
 
 
 (defun make-collection (elem tm-id start-revision
 			&key (document-id *document-id*)
-			(xml-base nil) (xml-lang nil))
+			(parent-xml-base nil) (parent-xml-lang nil))
   "Creates a collection structure of a node that contains
    parseType='Collection."
   (declare (dom:element elem))
   (with-tm (start-revision document-id tm-id)
-    (let ((fn-xml-base (get-xml-base elem :old-base xml-base))
-	  (fn-xml-lang (get-xml-lang elem :old-lang xml-lang))
+    (let ((xml-base (get-xml-base elem :old-base parent-xml-base))
+	  (xml-lang (get-xml-lang elem :old-lang parent-xml-lang))
 	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
       (let ((this (make-topic-stub nil nil nil UUID start-revision
 				   xml-importer::tm
@@ -206,8 +213,8 @@
 	    (items (loop for item across (child-nodes-or-text elem :trim t)
 		      collect (import-node item tm-id start-revision
 					   :document-id document-id
-					   :xml-base fn-xml-base
-					   :xml-lang fn-xml-lang))))
+					   :parent-xml-base xml-base
+					   :parent-xml-lang xml-lang))))
 	(let ((last-blank-node this))
 	  (dotimes (index (length items))
 	    (let ((is-end
@@ -466,10 +473,6 @@
   (when lang
     (let ((psi-and-topic-id
 	   (concatenate-uri *rdf2tm-scope-prefix* lang)))
-      ;(let ((top (get-item-by-id psi-and-topic-id :xtm-id document-id
-;				 :revision start-revision)))
-;	(if top
-;	    top
       (make-topic-stub psi-and-topic-id nil nil nil start-revision
 		       tm :document-id document-id))))
 
@@ -612,13 +615,13 @@
 	    occurrence))))))
 	    
 
-(defun get-literals-of-node-content (node tm-id xml-base xml-lang)
+(defun get-literals-of-node-content (node tm-id parent-xml-base parent-xml-lang)
   "Returns a list of literals that is produced of a node's content."
   (declare (dom:element node))
   (tm-id-p tm-id "get-literals-of-noode-content")
   (let ((properties (child-nodes-or-text node :trim t))
-	(fn-xml-base (get-xml-base node :old-base xml-base))
-	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
+	(xml-base (get-xml-base node :old-base parent-xml-base))
+	(xml-lang (get-xml-lang node :old-lang parent-xml-lang)))
     (let ((literals
 	   (when properties
 	     (loop for property across properties
@@ -643,11 +646,11 @@
 			    (string/= parseType "Resource")))
 		collect (let ((content (child-nodes-or-text property))
 			      (ID (get-absolute-attribute property tm-id
-							  fn-xml-base "ID"))
+							  xml-base "ID"))
 			      (child-xml-lang
-			       (get-xml-lang property :old-lang fn-xml-lang)))
+			       (get-xml-lang property :old-lang xml-lang)))
 			  (let ((full-name (get-type-of-node-name property))
-				(datatype (get-datatype property tm-id fn-xml-base))
+				(datatype (get-datatype property tm-id xml-base))
 				(text
 				 (cond
 				   ((= (length content) 0)
@@ -670,18 +673,18 @@
       literals)))
 
 
-(defun get-types-of-node-content (node tm-id xml-base)
+(defun get-types-of-node-content (node tm-id parent-xml-base)
   "Returns a list of type-uris that corresponds to the node's content
    or attributes."
   (tm-id-p tm-id "get-types-of-node-content")
-  (let ((fn-xml-base (get-xml-base node :old-base xml-base)))
+  (let ((xml-base (get-xml-base node :old-base parent-xml-base)))
     (let ((attr-type
 	   (if (get-ns-attribute node "type")
 	       (list
 		(list :topicid (absolutize-value (get-ns-attribute node "type")
-						 fn-xml-base tm-id)
+						 xml-base tm-id)
 		      :psi (absolutize-value (get-ns-attribute node "type")
-					     fn-xml-base tm-id)
+					     xml-base tm-id)
 		      :ID nil))
 	       nil))
 	  (content-types
@@ -691,17 +694,17 @@
 			  (string= (get-node-name child) "type"))
 		collect (let ((nodeID (get-ns-attribute child "nodeID"))
 			      (resource (get-absolute-attribute
-					 child tm-id fn-xml-base "resource"))
+					 child tm-id xml-base "resource"))
 			      (UUID (get-ns-attribute child "UUID"
 						      :ns-uri *rdf2tm-ns*))
 			      (ID (get-absolute-attribute child tm-id
-							  fn-xml-base "ID")))
+							  xml-base "ID")))
 			  (if (or nodeID resource UUID)
 			      (list :topicid (or nodeID resource UUID)
 				    :psi resource
 				    :ID ID)
 			      (let ((child-xml-base
-				     (get-xml-base child :old-base fn-xml-base)))
+				     (get-xml-base child :old-base xml-base)))
 				(let ((refs
 				       (get-node-refs
 					(child-nodes-or-text child :trim t)
@@ -712,9 +715,9 @@
       (remove-if #'null (append attr-type content-types)))))
 
 
-(defun get-literals-of-property (property xml-lang)
+(defun get-literals-of-property (property parent-xml-lang)
   "Returns a list of attributes that are treated as literal nodes."
-  (let ((fn-xml-lang (get-xml-lang property :old-lang xml-lang))
+  (let ((xml-lang (get-xml-lang property :old-lang parent-xml-lang))
 	(attributes nil))
     (dom:map-node-map
      #'(lambda(attr)
@@ -737,7 +740,7 @@
 		  (push (list :type l-type
 			      :value l-value
 			      :ID  nil
-			      :lang fn-xml-lang
+			      :lang xml-lang
 			      :datatype *xml-string*)
 			attributes)))
 	       ((or (string= attr-ns *xml-ns*)
@@ -749,16 +752,16 @@
 		  (push (list :type l-type
 			      :value l-value
 			      :ID nil
-			      :lang fn-xml-lang
+			      :lang xml-lang
 			      :datatype *xml-string*)
 			attributes)))))))
      (dom:attributes property))
     attributes))
 
 
-(defun get-literals-of-node (node xml-lang)
+(defun get-literals-of-node (node parent-xml-lang)
   "Returns alist of attributes that are treated as literal nodes."
-  (let ((fn-xml-lang (get-xml-lang node :old-lang xml-lang))
+  (let ((xml-lang (get-xml-lang node :old-lang parent-xml-lang))
 	(attributes nil))
     (dom:map-node-map
      #'(lambda(attr)
@@ -777,7 +780,7 @@
 		  (push (list :type l-type
 			      :value l-value
 			      :ID nil
-			      :lang fn-xml-lang
+			      :lang xml-lang
 			      :datatype *xml-string*)
 			attributes)))
 	       ((or (string= attr-ns *xml-ns*)
@@ -789,19 +792,19 @@
 		  (push (list :type l-type
 			      :value l-value
 			      :ID nil
-			      :lang fn-xml-lang
+			      :lang xml-lang
 			      :datatype *xml-string*)
 			attributes)))))))
      (dom:attributes node))
     attributes))
 
 
-(defun get-super-classes-of-node-content (node tm-id xml-base)
+(defun get-super-classes-of-node-content (node tm-id parent-xml-base)
   "Returns a list of super-classes and IDs."
   (declare (dom:element node))
   (tm-id-p tm-id "get-super-classes-of-node-content")
   (let ((content (child-nodes-or-text node :trim t))
-	(fn-xml-base (get-xml-base node :old-base xml-base)))
+	(xml-base (get-xml-base node :old-base parent-xml-base)))
     (when content
       (loop for property across content
 	 when (let ((prop-name (get-node-name property))
@@ -809,13 +812,13 @@
 		(and (string= prop-name "subClassOf")
 		     (string= prop-ns *rdfs-ns*)))
 	 collect (let ((prop-xml-base (get-xml-base property
-						    :old-base fn-xml-base)))
+						    :old-base xml-base)))
 		   (let ((ID (get-absolute-attribute property tm-id
-						     fn-xml-base "ID"))
+						     xml-base "ID"))
 			 (nodeID (get-ns-attribute property "nodeID"))
 			 (resource
 			  (get-absolute-attribute property tm-id
-						  fn-xml-base "resource"))
+						  xml-base "resource"))
 			 (UUID (get-ns-attribute property "UUID"
 						 :ns-uri *rdf2tm-ns*)))
 		     (if (or nodeID resource UUID)
@@ -830,17 +833,17 @@
 				 :ID ID)))))))))
 
 
-(defun get-associations-of-node-content (node tm-id xml-base)
+(defun get-associations-of-node-content (node tm-id parent-xml-base)
   "Returns a list of associations with a type, value and ID member."
   (declare (dom:element node))
   (let ((properties (child-nodes-or-text node :trim t))
-	(fn-xml-base (get-xml-base node :old-base xml-base)))
+	(xml-base (get-xml-base node :old-base parent-xml-base)))
     (loop for property across properties
        when (let ((prop-name (get-node-name property))
 		  (prop-ns (dom:namespace-uri property))
 		  (prop-content (child-nodes-or-text property))
 		  (resource (get-absolute-attribute property tm-id
-						    fn-xml-base "resource"))
+						    xml-base "resource"))
 		  (nodeID (get-ns-attribute property "nodeID"))
 		  (type (get-ns-attribute property "type"))
 		  (parseType (get-ns-attribute property "parseType"))
@@ -858,7 +861,7 @@
 		   (not (and (string= prop-name "subClassOf")
 			     (string= prop-ns *rdfs-ns*)))))
        collect (let ((prop-xml-base (get-xml-base property
-						  :old-base fn-xml-base))
+						  :old-base xml-base))
 		     (content (child-nodes-or-text property :trim t))
 		     (parseType (get-ns-attribute property "parseType")))
 		 (let ((resource
@@ -866,12 +869,12 @@
 				 (= (length content) 0))
 			    *rdf-nil*
 			    (get-absolute-attribute property tm-id
-						    fn-xml-base "resource")))
+						    xml-base "resource")))
 		       (nodeID (get-ns-attribute property "nodeID"))
 		       (UUID (get-ns-attribute property "UUID"
 					       :ns-uri *rdf2tm-ns*))
 		       (ID (get-absolute-attribute property tm-id
-						   fn-xml-base "ID"))
+						   xml-base "ID"))
 		       (full-name (get-type-of-node-name property)))
 		   (if (or nodeID resource UUID)
 		       (list :type full-name
@@ -889,42 +892,45 @@
 
 (defun make-recursion-from-node (node tm-id start-revision
 				 &key (document-id *document-id*)
-				 (xml-base nil) (xml-lang nil))
+				 (parent-xml-base nil) (parent-xml-lang nil))
   "Calls the next function that handles all DOM child elements
    of the passed element as arcs."
   (declare (dom:element node))
   (let ((content (child-nodes-or-text node :trim t))
 	(err-pref "From make-recursion-from-node(): ")
-	(fn-xml-base (get-xml-base node :old-base xml-base))
-	(fn-xml-lang (get-xml-lang node :old-lang xml-lang)))
+	(xml-base (get-xml-base node :old-base parent-xml-base))
+	(xml-lang (get-xml-lang node :old-lang parent-xml-lang)))
     (when (stringp content)
       (error "~aliteral content not allowed here: ~a"
 	     err-pref content))
     (loop for arc across content
        collect (import-arc arc tm-id start-revision :document-id document-id
-			   :xml-base fn-xml-base :xml-lang fn-xml-lang))))
+			   :parent-xml-base xml-base
+			   :parent-xml-lang xml-lang))))
 
 
 (defun make-recursion-from-arc (arc tm-id start-revision
 				&key (document-id *document-id*)
-				(xml-base nil) (xml-lang nil))
+				(parent-xml-base nil) (parent-xml-lang nil))
   "Calls the next function that handles the arcs content nodes/arcs."
   (declare (dom:element arc))
-  (let ((fn-xml-base (get-xml-base arc :old-base xml-base))
-	(fn-xml-lang (get-xml-lang arc :old-lang xml-lang))
+  (let ((xml-base (get-xml-base arc :old-base parent-xml-base))
+	(xml-lang (get-xml-lang arc :old-lang parent-xml-lang))
 	(content (child-nodes-or-text arc))
 	(parseType (get-ns-attribute arc "parseType")))
-    (let ((datatype (get-absolute-attribute arc tm-id xml-base "datatype"))
-	  (type (get-absolute-attribute arc tm-id xml-base "type"))
-	  (resource (get-absolute-attribute arc tm-id xml-base "resource"))
+    (let ((datatype (get-absolute-attribute arc tm-id
+					    parent-xml-base "datatype"))
+	  (type (get-absolute-attribute arc tm-id parent-xml-base "type"))
+	  (resource (get-absolute-attribute arc tm-id
+					    parent-xml-base "resource"))
 	  (nodeID (get-ns-attribute arc "nodeID"))
-	  (literals (get-literals-of-property arc xml-lang)))
+	  (literals (get-literals-of-property arc parent-xml-lang)))
       (if (and parseType
 	       (string= parseType "Collection"))
 	  (make-collection arc tm-id start-revision
 			   :document-id document-id
-			   :xml-base xml-base
-			   :xml-lang xml-lang)
+			   :parent-xml-base parent-xml-base
+			   :parent-xml-lang parent-xml-lang)
 	  (if (or datatype resource nodeID
 		  (and parseType
 		       (string= parseType "Literal"))
@@ -938,10 +944,10 @@
 		  (loop for item across content
 		     collect (import-arc item tm-id start-revision
 					 :document-id document-id
-					 :xml-base fn-xml-base
-					 :xml-lang fn-xml-lang))
+					 :parent-xml-base xml-base
+					 :parent-xml-lang xml-lang))
 		  (loop for item across content
 		     collect (import-node item tm-id start-revision
 					  :document-id document-id
-					  :xml-base xml-base
-					  :xml-lang xml-lang))))))))
+					  :parent-xml-base xml-base
+					  :parent-xml-lang xml-lang))))))))
