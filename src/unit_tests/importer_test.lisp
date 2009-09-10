@@ -662,6 +662,5 @@ references, duplicate PSIs or item identifiers"
 ;as (importer-test:run-importer-tests)
 (defun run-importer-tests ()
   (run! 'importer-test))
-;or (it.bese.fiveam.run! )
 
   

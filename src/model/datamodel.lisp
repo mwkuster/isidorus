@@ -101,6 +101,8 @@
 	   :variants
 	   :xor
            :create-latest-fragment-of-topic
+	   :reified
+	   :reifier
 
            :*current-xtm* ;; special variables
            :*TM-REVISION*
@@ -372,11 +374,11 @@ the construct doesn't have versions yet or not anymore)"))
            (symbol-value '*TM-REVISION*))
           (t 0)))
        (properties (slot-value construct slot-name)))
-                                        ;(format t "revision in filter-slot-value-by-revision is ~a~&" revision)
+       ;(format t "revision in filter-slot-value-by-revision is ~a~&" revision)
     (cond
       ((not properties) 
        nil)   ;if we don't have any properties, we don't have to worry
-                                        ;about revisions
+              ;about revisions
       ((= 0 revision)
        (remove 
         nil
@@ -599,26 +601,45 @@ specific keyword arguments for their purpose"))
     :inherit t
     :documentation "Slot that realizes a 1 to N
                      relation between reifiable constructs and their
-                     identifiers; pseudo-initarg is :item-identifiers. Is inherited by all reifiable constructs"))
+                     identifiers; pseudo-initarg is :item-identifiers. Is inherited by all reifiable constructs")
+   (reifier
+    :associate TopicC
+    :inherit t
+    :documentation "Represents a reifier association to a topic, i.e.
+                   it stands for a 1:1 association between this class and TopicC"))
   (:documentation "Reifiable constructs as per TMDM"))
+
+
+(defgeneric reifier (construct &key revision)
+  (:method ((construct ReifiableConstructC) &key (revision *TM-REVISION*))
+    (when (slot-boundp construct 'reifier)
+      (filter-slot-value-by-revision construct 'reifier :start-revision revision))))
+
+(defgeneric (setf reifier) (topic TopicC)
+  (:method (topic (construct ReifiableConstructC))
+    (setf (slot-value construct 'reifier) topic)
+    (setf (reified topic) construct)))
 
 (defgeneric item-identifiers (construct &key revision)
   (:method ((construct ReifiableConstructC) &key (revision *TM-REVISION*))
     (filter-slot-value-by-revision construct 'item-identifiers :start-revision revision)))
 
-(defmethod initialize-instance :around ((instance ReifiableConstructC) &key (item-identifiers nil))
+(defmethod initialize-instance :around ((instance ReifiableConstructC) &key (item-identifiers nil) (reifier nil))
   "adds associations to these ids after the instance was initialized."
   (declare (list item-identifiers))
   (call-next-method)
   (dolist (id item-identifiers)
     (declare (ItemIdentifierC id))
     (setf (identified-construct id) instance))
+  (when reifier
+    (setf (reifier instance) reifier))
   instance)
-
 
 (defmethod delete-construct :before ((construct ReifiableConstructC))
   (dolist (id (item-identifiers construct))
-    (delete-construct id)))
+    (delete-construct id))
+  (when (reifier construct)
+    (slot-makunbound (reifier construct) 'reified)))
 
 (defgeneric item-identifiers-p (constr)
   (:documentation "Test for the existence of item identifiers")
@@ -928,8 +949,22 @@ rules (5.4)"
    (in-topicmaps
     :associate (TopicMapC topics)
     :many-to-many t
-    :documentation "list of all topic maps this topic is part of"))
+    :documentation "list of all topic maps this topic is part of")
+   (reified
+    :associate ReifiableConstructC
+    :documentation "contains a reified object, represented as 1:1 association"))
   (:documentation "Topic in a Topic Map"))
+
+
+(defgeneric reified (topic &key revision)
+  (:method ((topic TopicC) &key (revision *TM-REVISION*))
+    (when (slot-boundp topic 'reified)
+      (filter-slot-value-by-revision topic 'reified :start-revision revision))))
+
+(defgeneric (setf reified) (reifiable ReifiableConstructC)
+  (:method (reifiable (topic TopicC))
+    (setf (slot-value topic 'reified) reifiable)
+    (setf (reifier reifiable) topic)))
 
 (defgeneric occurrences (topic &key revision)
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
@@ -966,19 +1001,21 @@ rules (5.4)"
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
     (filter-slot-value-by-revision topic 'in-topicmaps :start-revision revision)))
 
-(defmethod initialize-instance :around ((instance TopicC) &key (psis nil) (locators nil))
+(defmethod initialize-instance :around ((instance TopicC) &key (psis nil) (locators nil) (reified nil))
   "implement the pseudo-initargs :topic-ids, :persistent-ids, and :subject-locators"
   (declare (list psis))
   (declare (list locators))
   (call-next-method)
-                                        ;item-identifiers are handled in the around-method for ReifiableConstructs,
-                                        ;TopicIdentificationCs are handled in make-construct of TopicC
+  ;item-identifiers are handled in the around-method for ReifiableConstructs,
+  ;TopicIdentificationCs are handled in make-construct of TopicC
   (dolist (persistent-id psis)
     (declare (PersistentIdC persistent-id))
     (setf (identified-construct persistent-id) instance))
   (dolist (subject-locator locators)
     (declare (SubjectLocatorC subject-locator))
-    (setf (identified-construct subject-locator) instance)))
+    (setf (identified-construct subject-locator) instance))
+  (when reified
+    (setf (reified instance) reified)))
 
 
 (defmethod delete-construct :before ((construct TopicC))
@@ -993,7 +1030,9 @@ rules (5.4)"
   (dolist (theme (used-as-theme construct))
     (elephant:remove-association construct 'used-as-theme theme))
   (dolist (tm (in-topicmaps construct))
-    (elephant:remove-association construct 'in-topicmaps tm)))
+    (elephant:remove-association construct 'in-topicmaps tm))
+  (when (reified construct)
+    (slot-makunbound (reified construct) 'reifier)))
   
 (defun get-all-constructs-by-uri (uri)
   (delete 
