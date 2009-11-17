@@ -103,6 +103,7 @@
            :create-latest-fragment-of-topic
 	   :reified
 	   :reifier
+	   :add-reifier
 
            :*current-xtm* ;; special variables
            :*TM-REVISION*
@@ -619,6 +620,54 @@ specific keyword arguments for their purpose"))
   (:method (topic (construct ReifiableConstructC))
     (setf (slot-value construct 'reifier) topic)
     (setf (reified topic) construct)))
+
+(defgeneric add-reifier (construct reifier-uri)
+  (:method ((construct ReifiableConstructC) reifier-uri)
+    (let ((err "From add-reifier(): "))
+      (let ((item-identifier
+	     (elephant:get-instance-by-value 'Item-IdentifierC 'uri reifier-uri)))
+	(unless item-identifier
+	  (error "~ano item-identifier could be found with the uri ~a"
+		 err reifier-uri))
+	(let ((reifier-topic (identified-construct item-identifier)))
+	  (unless (typep reifier-topic 'TopicC)
+	    (error "~aitem-identifier ~a must be bound to a topic, but is ~a"
+		   err reifier-uri (type-of reifier-topic)))
+	  (cond
+	    ((and (not (reifier construct))
+		  (not (reified reifier-topic)))
+	     (setf (reifier construct) reifier-topic)
+	     (setf (reified reifier-topic) construct))
+	    ((and (not (reified reifier-topic))
+		  (reifier construct))
+	     ;merge topics
+	     t)
+	    ((and (not (reifier construct))
+		  (reified reifier-topic))
+	     (error "~a~a reifies already another object ~a"
+		    err reifier-uri (reified reifier-topic)))
+	    (t
+	     (when (not (eql (reified reifier-topic) construct))
+	       (error "~a~a reifies already another object ~a"
+		      err reifier-uri (reified reifier-topic)))
+	     ;merge both topics or throw an error
+	     t)))))
+    construct))
+
+
+(defgeneric merge-reifier-topics (old-topic new-topic)
+  (:method ((old-topic TopicC) (new-topic TopicC))
+    ;move all item-identifiers to the new topic ;check if they are already existing
+    ;move all subject-locators to the new topic ;check if they are already existing
+    ;move all subject-identifiers to the new topic ;check if they are already existing
+    ;move all names to the new topic ;check if they are already existing
+    ;move all occurrences to the new topic ;check if they are already existing
+    ;check all objects where the topic is the type of
+    ;check all roles where the topic is a player of
+    ;check all objects where the topic is a scope of
+    (format t "~a~a" old-topic new-topic)
+    ))
+
 
 (defgeneric item-identifiers (construct &key revision)
   (:method ((construct ReifiableConstructC) &key (revision *TM-REVISION*))
