@@ -631,7 +631,7 @@ specific keyword arguments for their purpose"))
 		 err reifier-uri))
 	(let ((reifier-topic (identified-construct item-identifier)))
 	  (unless (typep reifier-topic 'TopicC)
-	    (error "~aitem-identifier ~a must be bound to a topic, but is ~a"
+	    (error "~anitem-identifier ~a must be bound to a topic, but is ~a"
 		   err reifier-uri (type-of reifier-topic)))
 	  (cond
 	    ((and (not (reifier construct))
@@ -640,8 +640,7 @@ specific keyword arguments for their purpose"))
 	     (setf (reified reifier-topic) construct))
 	    ((and (not (reified reifier-topic))
 		  (reifier construct))
-	     ;merge topics
-	     t)
+	     (merge-reifier-topics (reifier construct) reifier-topic))
 	    ((and (not (reifier construct))
 		  (reified reifier-topic))
 	     (error "~a~a reifies already another object ~a"
@@ -650,23 +649,50 @@ specific keyword arguments for their purpose"))
 	     (when (not (eql (reified reifier-topic) construct))
 	       (error "~a~a reifies already another object ~a"
 		      err reifier-uri (reified reifier-topic)))
-	     ;merge both topics or throw an error
-	     t)))))
+	     (merge-reifier-topics (reifier construct) reifier-topic))))))
     construct))
 
-
 (defgeneric merge-reifier-topics (old-topic new-topic)
+  ;;the reifier topics are not only merged but also bound to the reified-construct
   (:method ((old-topic TopicC) (new-topic TopicC))
-    ;move all item-identifiers to the new topic ;check if they are already existing
-    ;move all subject-locators to the new topic ;check if they are already existing
-    ;move all subject-identifiers to the new topic ;check if they are already existing
-    ;move all names to the new topic ;check if they are already existing
-    ;move all occurrences to the new topic ;check if they are already existing
-    ;check all objects where the topic is the type of
-    ;check all roles where the topic is a player of
-    ;check all objects where the topic is a scope of
-    (format t "~a~a" old-topic new-topic)
-    ))
+    (unless (eql old-topic new-topic)
+      ;merges all identifiers
+      (move-identifiers old-topic new-topic)
+      (move-identifiers old-topic new-topic :what 'locators)
+      (move-identifiers old-topic new-topic :what 'psis)
+      (move-identifiers old-topic new-topic :what 'topic-identifiers)
+      ;merges all typed-object-associations
+      (dolist (typed-construct (used-as-type new-topic))
+	(remove-association typed-construct 'instance-of new-topic)
+	(add-association typed-construct 'instance-of old-topic))
+      ;merges all scope-object-associations
+      (dolist (scoped-construct (used-as-theme new-topic))
+	(remove-association scoped-construct 'theme new-topic)
+	(add-association scoped-construct 'theme old-topic))
+      (dolist (tm (in-topicmaps new-topic))
+	(add-association tm 'topic old-topic)) ;the new-topic is removed from this tm by deleting it
+      (dolist (a-role (player-in-roles new-topic))
+	(remove-association a-role 'player new-topic)
+	(add-association a-role 'player old-topic))
+      ;merges all names
+      (dolist (name (names new-topic))
+	(remove-association name 'topic new-topic)
+	(add-association name 'topic old-topic))
+      ;merges all occurrences
+      (dolist (occurrence (occurrences new-topic))
+	(remove-association occurrence 'topic new-topic)
+	(add-association occurrence 'topic old-topic))
+      ;merges all version-infos
+      (let ((versions-to-move
+	     (loop for vrs in (versions new-topic)
+		when (not (find-if #'(lambda(x)
+				       (and (= (start-revision x) (start-revision vrs))
+					    (= (end-revision x) (end-revision vrs))))
+				   (versions old-topic)))
+		collect vrs)))
+	(dolist (vrs versions-to-move)
+	  (remove-association vrs 'versioned-construct new-topic)
+	  (add-association vrs 'versioned-construct old-topic))))))
 
 
 (defgeneric item-identifiers (construct &key revision)
@@ -1049,6 +1075,39 @@ rules (5.4)"
 (defgeneric in-topicmaps (topic &key revision)
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
     (filter-slot-value-by-revision topic 'in-topicmaps :start-revision revision)))
+
+(defun move-identifiers(destination-topic source-topic &key (what 'item-identifiers))
+  "Moves all identifiers from the source-topic to the destination topic."
+  (declare (TopicC destination-topic source-topic))
+  (let ((all-source-identifiers
+	 (cond
+	   ((eql what 'item-identifiers)
+	    (item-identifiers source-topic))
+	   ((eql what 'locators)
+	    (locators source-topic))
+	   (t
+	    (psis source-topic))))
+	(all-destination-identifiers
+	 (cond
+	   ((eql what 'item-identifiers)
+	    (item-identifiers destination-topic))
+	   ((eql what 'locators)
+	    (locators destination-topic))
+	   ((eql what 'psis)
+	    (psis destination-topic))
+	   ((eql what 'topic-identifiers)
+	    (topic-identifiers destination-topic)))))
+    (let ((identifiers-to-move
+	   (loop for id in all-source-identifiers
+	      when (not (find-if #'(lambda(x)
+				     (if (eql what 'topic-identifiers)
+					 (string= (xtm-id x) (xtm-id id))
+					 (string= (uri x) (uri id))))
+				 all-destination-identifiers))
+	      collect id)))
+      (dolist (item identifiers-to-move)
+	(remove-association source-topic what item)
+	(add-association destination-topic what item)))))
 
 (defmethod initialize-instance :around ((instance TopicC) &key (psis nil) (locators nil) (reified nil))
   "implement the pseudo-initargs :topic-ids, :persistent-ids, and :subject-locators"
