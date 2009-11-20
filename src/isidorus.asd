@@ -143,7 +143,9 @@
 				     (:file "rdf_importer_test"
 					    :depends-on ("fixtures"))
 				     (:file "rdf_exporter_test"
-					    :depends-on ("fixtures")))
+					    :depends-on ("fixtures"))
+				     (:file "reification_test"
+					    :depends-on ("fixtures" "unittests-constants")))
 			:depends-on ("atom"
                                      "constants"
 				     "model"
