@@ -1615,6 +1615,7 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 	     (merge-reifier-topics (reifier construct) reifier-topic))))))
     construct))
 
+
 (defgeneric merge-reifier-topics (old-topic new-topic)
   ;;the reifier topics are not only merged but also bound to the reified-construct
   (:method ((old-topic TopicC) (new-topic TopicC))
@@ -1632,8 +1633,10 @@ copied. Returns nil if neither association nor role identifiers had to be copied
       (dolist (scoped-construct (used-as-theme new-topic))
 	(remove-association scoped-construct 'themes new-topic)
 	(add-association scoped-construct 'themes old-topic))
+      ;merges all topic-maps
       (dolist (tm (in-topicmaps new-topic))
 	(add-association tm 'topic old-topic)) ;the new-topic is removed from this tm by deleting it
+      ;merges all role-players
       (dolist (a-role (player-in-roles new-topic))
 	(remove-association a-role 'player new-topic)
 	(add-association a-role 'player old-topic))

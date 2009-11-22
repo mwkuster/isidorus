@@ -9,6 +9,17 @@
 
 (in-package :xml-importer)
 
+(defun set-reifier (reifiable-elem reifiable-construct)
+  "Sets the reifier-topic of the passed elem to the passed construct."
+  (declare (dom:element reifiable-elem))
+  (declare (ReifiableConstructC reifiable-construct))
+  (let ((reifier-uri (get-attribute reifiable-elem "reifier")))
+    (when (and (stringp reifier-uri)
+	       (> (length reifier-uri) 0))
+      (add-reifier reifiable-construct reifier-uri))
+    reifiable-construct))
+
+
 (defun from-identifier-elem (classsymbol elem start-revision)
   "Generate an identifier object of type 'classsymbol' (a subclass of
 IdentifierC) from a given identifier element for a revision and return
@@ -127,7 +138,7 @@ return that set. If the input is nil, the list of themes is empty
 				:themes themes)))
       (loop for variant-elem across (xpath-child-elems-by-qname name-elem *xtm2.0-ns* "variant")
 	 do (from-variant-elem variant-elem name start-revision :xtm-id xtm-id))
-      name)))
+      (set-reifier name-elem name))))
 
 
 (defun from-resourceX-elem (parent-elem)
@@ -180,13 +191,14 @@ return that set. If the input is nil, the list of themes is empty
     (unless variant-value
       (error "VariantC: one of resourceRef and resourceData must be set"))
        
-       (make-construct 'VariantC
-		       :start-revision start-revision
-		       :item-identifiers item-identifiers
-		       :themes themes
-		       :charvalue (getf variant-value :data)
-		       :datatype (getf variant-value :type)
-		       :name name)))
+       (let ((variant (make-construct 'VariantC
+				      :start-revision start-revision
+				      :item-identifiers item-identifiers
+				      :themes themes
+				      :charvalue (getf variant-value :data)
+				      :datatype (getf variant-value :type)
+				      :name name)))
+	 (set-reifier variant-elem variant))))
 		           
 
 (defun from-occurrence-elem (occ-elem top start-revision &key (xtm-id *current-xtm*))
@@ -211,14 +223,15 @@ occurrence = element occurrence { reifiable,
        (occurrence-value (from-resourceX-elem occ-elem)))
     (unless occurrence-value
       (error "OccurrenceC: one of resourceRef and resourceData must be set"))
-    (make-construct 'OccurrenceC 
-                    :start-revision start-revision
-                    :topic top
-                    :themes themes
-                    :item-identifiers item-identifiers
-                    :instance-of instance-of
-                    :charvalue (getf occurrence-value :data)
-                    :datatype (getf occurrence-value :type))))
+    (let ((occurrence (make-construct 'OccurrenceC 
+				      :start-revision start-revision
+				      :topic top
+				      :themes themes
+				      :item-identifiers item-identifiers
+				      :instance-of instance-of
+				      :charvalue (getf occurrence-value :data)
+				      :datatype (getf occurrence-value :type))))
+      (set-reifier occ-elem occurrence))))
     
     
 
@@ -322,7 +335,13 @@ topicRef }"
             (xpath-single-child-elem-by-qname 
              role-elem
              *xtm2.0-ns*
-             "topicRef")) :xtm-id xtm-id)))
+             "topicRef")) :xtm-id xtm-id))
+	 (reifier-uri
+	  (let ((value (get-attribute role-elem "reifier")))
+	    (if (and (stringp value)
+		     (> (length value) 0))
+		value
+		nil))))
 ;      (unless (and player instance-of)
 ;        (error "Role in association not complete"))
       (unless player ;instance-of will be set later - if there is no one
@@ -331,7 +350,10 @@ topicRef }"
              role-elem
              *xtm2.0-ns*
              "topicRef"))))
-      (list :instance-of instance-of :player player :item-identifiers item-identifiers))))
+      (list :reifier-uri reifier-uri
+	    :instance-of instance-of
+	    :player player
+	    :item-identifiers item-identifiers))))
 
 
 (defun from-association-elem (assoc-elem start-revision
@@ -339,7 +361,7 @@ topicRef }"
                               tm
                               (xtm-id *current-xtm*))
   "Constructs an AssociationC object from an association element
-association = element association { reifiable, type, scope?, role+ }"
+   association = element association { reifiable, type, scope?, role+ }"
   (declare (dom:element assoc-elem))
   (declare (integer start-revision))
   (declare (TopicMapC tm))
@@ -366,14 +388,25 @@ association = element association { reifiable, type, scope?, role+ }"
                 assoc-elem
                 *xtm2.0-ns* "role"))))
       (setf roles (set-standard-role-types roles)); sets standard role types if there are missing some of them
-      
-      (add-to-topicmap tm 
-	    (make-construct 'AssociationC
-			    :start-revision start-revision
-			    :item-identifiers item-identifiers
-			    :instance-of instance-of
-			    :themes themes
-			    :roles roles)))))
+      (let ((assoc (add-to-topicmap
+		    tm 
+		    (make-construct 'AssociationC
+				    :start-revision start-revision
+				    :item-identifiers item-identifiers
+				    :instance-of instance-of
+				    :themes themes
+				    :roles roles))))
+	(map 'list #'(lambda(assoc-role)
+		       (map 'list #'(lambda(list-role)
+				      (when (and (eql (instance-of assoc-role)
+						      (getf list-role :instance-of))
+						 (eql (player assoc-role)
+						      (getf list-role :player))
+						 (getf list-role :reifier-uri))
+					(add-reifier assoc-role (getf list-role :reifier-uri))))
+			    roles))
+	     (roles assoc))
+	(set-reifier assoc-elem assoc)))))
 
 
 

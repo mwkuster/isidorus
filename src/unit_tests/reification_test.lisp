@@ -96,6 +96,20 @@
 				       :topicid "name-type"
 				       :xtm-id xtm-id-1
 				       :start-revision revision-1))
+	    (assoc-type (make-construct 'TopicC
+					:psis (list (make-instance 'PersistentIdC
+								   :uri "psi-assoc-type"
+								   :start-revision revision-1))
+				       :topicid "assoc-type"
+				       :xtm-id xtm-id-1
+				       :start-revision revision-1))
+	    (role-type (make-construct 'TopicC
+				       :psis (list (make-instance 'PersistentIdC
+								  :uri "psi-role-type"
+								  :start-revision revision-1))
+				       :topicid "assoc-type"
+				       :xtm-id xtm-id-1
+				       :start-revision revision-1))
 	    (occurrence-type (make-construct 'TopicC
 				       :psis (list (make-instance 'PersistentIdC
 								  :uri "psi-occurrence-type"
@@ -143,10 +157,29 @@
 					 :themes (list scope-1 topic-2)
 					 :instance-of topic-2
 					 :charvalue "test-name"
-					 :start-revision revision-2)))
-	  (is (= (length (elephant:get-instances-by-class 'TopicC)) 6))
+					 :start-revision revision-2))
+	      (assoc (make-construct 'AssociationC
+				     :item-identifiers nil
+				     :instance-of assoc-type
+				     :themes nil
+				     :roles
+				     (list 
+				      (list :instance-of role-type
+					    :player topic-1
+					    :item-identifiers
+					    (list (make-instance 'ItemIdentifierC
+								 :uri "role-1"
+								 :start-revision revision-1)))
+				      (list :instance-of role-type
+					    :player topic-2
+					    :item-identifiers
+					    (list (make-instance 'ItemIdentifierC
+								 :uri "role-2"
+								 :start-revision revision-1))))
+				     :start-revision revision-1)))
+	  (is (= (length (elephant:get-instances-by-class 'TopicC)) 8))
 	  (datamodel::merge-reifier-topics topic-1 topic-2)
-	  (is (= (length (elephant:get-instances-by-class 'TopicC)) 5))
+	  (is (= (length (elephant:get-instances-by-class 'TopicC)) 7))
 	  (is (= (length (union (list ii-1-1 ii-1-2 ii-2-1 ii-2-2)
 				(item-identifiers topic-1)))
 		 (length (list ii-1-1 ii-1-2 ii-2-1 ii-2-2))))
@@ -168,9 +201,16 @@
 	  (is (= (length (union (d:used-as-theme topic-1)
 				(list test-name)))
 		 (length (list test-name))))
-	  ;;TODO: roleplayer, topicmap
+	  (is (eql (player (first (roles assoc))) topic-1))
+	  (is (eql (player (second (roles assoc))) topic-1))
 	  ;;TODO: check all objects and their version-infos
 	  (elephant:close-store))))))
+
+
+;;TODO: check xtm1.0 importer
+;;TODO: check xtm2.0 importer
+;;TODO: check rdf importer
+;;TODO: check fragment exporter
 
 
 (defun run-reification-tests ()
