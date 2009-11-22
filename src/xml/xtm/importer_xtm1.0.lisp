@@ -9,6 +9,19 @@
 
 (in-package :xml-importer)
 
+(defun set-reifier-xtm1.0 (reifiable-elem reifiable-construct)
+  "Sets the reifier-topic of the passed elem to the passed construct."
+  (declare (dom:element reifiable-elem))
+  (declare (ReifiableConstructC reifiable-construct))
+  (let ((reifier-uri
+	 (when (dom:get-attribute-node reifiable-elem "id")
+	   (dom:node-value (dom:get-attribute-node reifiable-elem "id")))))
+    (when (and (stringp reifier-uri)
+	       (> (length reifier-uri) 0))
+      (add-reifier reifiable-construct (concatenate 'string "#" reifier-uri) nil))
+    reifiable-construct))
+
+
 (defun get-topic-id-xtm1.0 (topic-elem)
   "returns the id attribute of a topic element"
   (declare (dom:element topic-elem))
@@ -77,6 +90,7 @@
 				   :charvalue (getf variantName :data)
 				   :datatype (getf variantName :type)
 				   :name parent-name)))
+      (set-reifier-xtm1.0 variant-elem variant)
       (let ((inner-variants
 	     (map 'list #'(lambda(x)
 			    (from-variant-elem-xtm1.0 x variant start-revision :xtm-id xtm-id))
@@ -138,6 +152,7 @@
 				:topic top
 				:charvalue baseNameString
 				:themes themes)))
+      (set-reifier-xtm1.0 baseName-elem name)
       (map 'list #'(lambda(x)
 		     (from-variant-elem-xtm1.0 x name start-revision :xtm-id xtm-id))
 	   (xpath-child-elems-by-qname baseName-elem *xtm1.0-ns* "variant"))
@@ -248,13 +263,14 @@
     (unless instanceOf
       (format t "from-occurrence-elem-xtm1.0: type is missing -> http://psi.topicmaps.org/iso13250/model/type-instance~%")
       (setf instanceOf (get-item-by-id "type-instance" :xtm-id "core.xtm")))
-    (make-construct 'OccurrenceC
-		    :start-revision start-revision
-		    :topic top
-                    :themes themes
-                    :instance-of instanceOf
-                    :charvalue (getf occurrence-value :data)
-                    :datatype (getf occurrence-value :type))))
+    (let ((occurrence (make-construct 'OccurrenceC
+				      :start-revision start-revision
+				      :topic top
+				      :themes themes
+				      :instance-of instanceOf
+				      :charvalue (getf occurrence-value :data)
+				      :datatype (getf occurrence-value :type))))
+      (set-reifier-xtm1.0 occ-elem occurrence))))
 
 
 (defun from-subjectIdentity-elem-xtm1.0 (subjectIdentity-elem start-revision)
@@ -308,11 +324,17 @@
 					       (xpath-child-elems-by-qname
 						member-elem
 						*xtm1.0-ns*
-						"subjectIndicatorRef"))))))))
+						"subjectIndicatorRef")))))))
+	   (reifier-uri
+	    (when (dom:get-attribute-node member-elem "id")
+	      (concatenate 'string "#" (dom:node-value (dom:get-attribute-node member-elem "id"))))))
 	(declare (dom:element member-elem))
 	(unless player ; if no type is given a standard type will be assigend later in from-assoc...
 	  (error "from-member-elem-xtm1.0: missing player in role"))
-	(list :instance-of type :player (first player) :item-identifiers nil)))))
+	(list :instance-of type
+	      :player (first player)
+	      :item-identifiers nil
+	      :reifier-uri reifier-uri)))))
 
 
 (defun from-topic-elem-to-stub-xtm1.0 (topic-elem start-revision 
@@ -399,9 +421,19 @@
                                         :instance-of type
                                         :themes themes
                                         :roles roles)))
-        (add-to-topicmap tm association)
-	association))))
-
+	(add-to-topicmap tm association)
+	(set-reifier-xtm1.0 assoc-elem association)
+	(map 'list #'(lambda(assoc-role)
+		       (map 'list #'(lambda(list-role)
+				      (when (and (eql (instance-of assoc-role)
+						      (getf list-role :instance-of))
+						 (eql (player assoc-role)
+						      (getf list-role :player))
+						 (getf list-role :reifier-uri))
+					(add-reifier assoc-role (getf list-role :reifier-uri) nil)))
+			    roles))
+	     (roles association))))))
+	
 
 (defun set-standard-role-types (roles)
   "sets the missing role types of the passed roles to the default types."

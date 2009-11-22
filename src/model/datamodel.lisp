@@ -1585,34 +1585,36 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 ;;;;;;;;;;;;;;;;;
 ;; reification
 
-(defgeneric add-reifier (construct reifier-uri)
-  (:method ((construct ReifiableConstructC) reifier-uri)
+(defgeneric add-reifier (construct reifier-uri reifier-must-exist)
+  (:method ((construct ReifiableConstructC) reifier-uri reifier-must-exist)
     (let ((err "From add-reifier(): "))
       (let ((item-identifier
-	     (elephant:get-instance-by-value 'Item-IdentifierC 'uri reifier-uri)))
+	     (elephant:get-instance-by-value 'ItemIdentifierC 'uri reifier-uri)))
 	(unless item-identifier
-	  (error "~ano item-identifier could be found with the uri ~a"
-		 err reifier-uri))
-	(let ((reifier-topic (identified-construct item-identifier)))
-	  (unless (typep reifier-topic 'TopicC)
-	    (error "~anitem-identifier ~a must be bound to a topic, but is ~a"
-		   err reifier-uri (type-of reifier-topic)))
-	  (cond
-	    ((and (not (reifier construct))
-		  (not (reified reifier-topic)))
-	     (setf (reifier construct) reifier-topic))
-	    ((and (not (reified reifier-topic))
-		  (reifier construct))
-	     (merge-reifier-topics (reifier construct) reifier-topic))
-	    ((and (not (reifier construct))
-		  (reified reifier-topic))
-	     (error "~a~a reifies already another object ~a"
-		    err reifier-uri (reified reifier-topic)))
-	    (t
-	     (when (not (eql (reified reifier-topic) construct))
+	  (when reifier-must-exist
+	    (error "~ano item-identifier could be found with the uri ~a"
+		   err reifier-uri)))
+	(when item-identifier
+	  (let ((reifier-topic (identified-construct item-identifier)))
+	    (unless (typep reifier-topic 'TopicC)
+	      (error "~anitem-identifier ~a must be bound to a topic, but is ~a"
+		     err reifier-uri (type-of reifier-topic)))
+	    (cond
+	      ((and (not (reifier construct))
+		    (not (reified reifier-topic)))
+	       (setf (reifier construct) reifier-topic))
+	      ((and (not (reified reifier-topic))
+		    (reifier construct))
+	       (merge-reifier-topics (reifier construct) reifier-topic))
+	      ((and (not (reifier construct))
+		    (reified reifier-topic))
 	       (error "~a~a reifies already another object ~a"
 		      err reifier-uri (reified reifier-topic)))
-	     (merge-reifier-topics (reifier construct) reifier-topic))))))
+	      (t
+	       (when (not (eql (reified reifier-topic) construct))
+		 (error "~a~a reifies already another object ~a"
+			err reifier-uri (reified reifier-topic)))
+	       (merge-reifier-topics (reifier construct) reifier-topic)))))))
     construct))
 
 
