@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<!-- ======================================================================= -->
+<!--  Isidorus                                                               -->
+<!--  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann          -->
+<!--                                                                         -->
+<!--  Isidorus is freely distributable under the LGPL license.               -->
+<!--  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.    -->
+<!-- ======================================================================= -->
+
+
+<topicMap xmlns="http://www.topicmaps.org/xtm/1.0/"
+	  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="homer">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/homer"/>
+    </t:subjectIdentity>
+    <t:baseName id="homer-name">
+      <t:baseNameString>Homer Simpson</t:baseNameString>
+      <t:variant id="homer-name-variant">
+	<t:parameters><t:topicRef xlink:href="#fullName"/></t:parameters>
+	<t:variantName>
+	  <t:resourceData>Homer Jay Simpson</t:resourceData>
+	</t:variantName>
+      </t:variant>
+    </t:baseName>
+    <t:occurrence id="homer-occurrence">
+      <t:instanceOf>
+	<t:topicRef xlink:href="#profession"/>
+      </t:instanceOf>
+      <t:resourceData>Safety Inspector</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="marge">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/marge"/>
+    </t:subjectIdentity>
+    <t:baseName>
+      <t:baseNameString>Marge Simpson</t:baseNameString>
+      <t:variant>
+	<t:parameters><t:topicRef xlink:href="#fullName"/></t:parameters>
+	<t:variantName>
+	  <t:resourceData>Marjorie Simpson</t:resourceData>
+	</t:variantName>
+      </t:variant>
+    </t:baseName>
+    <t:occurrence>
+      <t:instanceOf>
+	<t:topicRef xlink:href="#profession"/>
+      </t:instanceOf>
+      <t:resourceData>Housewife</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="fullName">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/fullName"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="profession">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/profession"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="married">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/married"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="husband">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/husband"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="wife">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="http://simpsons.tv/wife"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:association xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+  		 xmlns:xlink="http://www.w3.org/1999/xlink"
+		 id="a-married">
+    <t:instanceOf>
+      <t:topicRef xlink:href="#married"/>
+    </t:instanceOf>
+    <t:member id="married-husband-role">
+      <t:roleSpec>
+        <t:topicRef xlink:href="#husband"/>
+      </t:roleSpec>
+      <t:topicRef xlink:href="#homer"/>
+    </t:member>
+    <t:member>
+      <t:roleSpec>
+        <t:topicRef xlink:href="#wife"/>
+      </t:roleSpec>
+      <t:topicRef xlink:href="#marge"/>
+    </t:member>
+  </t:association>
+
+
+  <!-- === reifier-topics ================================================== -->
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="homer-name-reifier">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="#homer-name"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="homer-name-variant-reifier">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="#homer-name-variant"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="homer-occurrence-reifier">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="#homer-occurrence"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="married-reifier">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="#a-married"/>
+    </t:subjectIdentity>
+  </t:topic>
+
+  <t:topic xmlns:t="http://www.topicmaps.org/xtm/1.0/"
+	   xmlns:xlink="http://www.w3.org/1999/xlink"
+	   id="married-husband-reifier">
+    <t:subjectIdentity>
+      <t:subjectIndicatorRef xlink:href="#married-husband"/>
+    </t:subjectIdentity>
+  </t:topic>
+</topicMap>

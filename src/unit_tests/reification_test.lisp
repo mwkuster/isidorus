@@ -207,9 +207,17 @@
 	  (elephant:close-store))))))
 
 
-;;TODO: check xtm1.0 importer
+(test test-xtm1.0-reification
+  "Tests the reification in the xtm1.0-importer."
+
+  )
+
+
+
 ;;TODO: check xtm2.0 importer
 ;;TODO: check rdf importer
+;;TODO: check xtm1.0 exporter
+;;TODO: check xtm2.0 exporter
 ;;TODO: check fragment exporter
 
 
