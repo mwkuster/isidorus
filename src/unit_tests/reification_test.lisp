@@ -17,7 +17,8 @@
   (:export
    :reification-test
    :run-reification-tests
-   :test-merge-reifier-topics))
+   :test-merge-reifier-topics
+   :test-xtm1.0-reification))
 
 
 (in-package :reification-test)
@@ -209,9 +210,72 @@
 
 (test test-xtm1.0-reification
   "Tests the reification in the xtm1.0-importer."
-
-  )
-
+  (let
+      ((dir "data_base"))
+    (with-fixture initialize-destination-db (dir)
+      (xml-importer:import-xtm *reification_xtm1.0.xtm* dir
+       :tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"
+       :xtm-id "reification-xtm"
+       :xtm-format '1.0)
+      (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
+      (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+      (let ((homer
+	     (identified-construct
+	      (elephant:get-instance-by-value 'PersistentIdC 'uri "http://simpsons.tv/homer")))
+	    (married-assoc
+	     (first (elephant:get-instances-by-class 'AssociationC))))
+	(let ((homer-occurrence (first (occurrences homer)))
+	      (homer-name (first (names homer)))
+	      (homer-variant (first (variants (first (names homer)))))
+	      (husband-role (find-if #'(lambda(x)
+					 (eql (instance-of x)
+					      (identified-construct
+					       (elephant:get-instance-by-value
+						'PersistentIdC 'uri "http://simpsons.tv/husband"))))
+				     (roles married-assoc)))
+	      (reifier-occurrence
+	       (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri "#homer-occurrence")))
+	      (reifier-name
+	       (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri "#homer-name")))
+	      (reifier-variant
+	       (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri "#homer-name-variant")))
+	      (reifier-married-assoc
+	       (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri "#a-married")))
+	      (reifier-husband-role
+	       (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri "#married-husband-role"))))
+      (is-true homer)
+      (is-true homer-occurrence)
+      (is-true homer-name)
+      (is-true homer-variant)
+      (is-true married-assoc)
+      (is-true husband-role)
+      (is-true reifier-occurrence)
+      (is-true reifier-name)
+      (is-true reifier-variant)
+      (is-true reifier-married-assoc)
+      (is-true reifier-husband-role)
+      (is (eql (reifier homer-occurrence) reifier-occurrence))
+      (is (eql (reified reifier-occurrence) homer-occurrence))
+      (is (eql (reifier homer-name) reifier-name))
+      (is (eql (reified reifier-name) homer-name))
+      (is (eql (reifier homer-variant) reifier-variant))
+      (is (eql (reified reifier-variant) homer-variant))
+      (is (eql (reifier married-assoc) reifier-married-assoc))
+      (is (eql (reified reifier-married-assoc) married-assoc))
+      (is (eql (reifier husband-role) reifier-husband-role))
+      (is (eql (reified reifier-husband-role) husband-role))
+      (is-true (handler-case 
+		   (progn (d::delete-construct homer-occurrence)
+			  t)
+		 (condition () nil)))
+      (is-false (occurrences homer))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
+      (is-true (handler-case 
+		   (progn (d::delete-construct reifier-occurrence)
+			  t)
+		 (condition () nil)))))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 11))
+      (elephant:close-store))))
 
 
 ;;TODO: check xtm2.0 importer
@@ -219,8 +283,10 @@
 ;;TODO: check xtm1.0 exporter
 ;;TODO: check xtm2.0 exporter
 ;;TODO: check fragment exporter
+;;TODO: check merge-reifier-topics (--> versioning)
 
 
 (defun run-reification-tests ()
   (it.bese.fiveam:run! 'test-merge-reifier-topics)
+  (it.bese.fiveam:run! 'test-xtm1.0-refication)
   )

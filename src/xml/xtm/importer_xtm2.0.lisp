@@ -16,7 +16,7 @@
   (let ((reifier-uri (get-attribute reifiable-elem "reifier")))
     (when (and (stringp reifier-uri)
 	       (> (length reifier-uri) 0))
-      (add-reifier reifiable-construct reifier-uri t))
+      (add-reifier reifiable-construct reifier-uri :xtm-version '2.0))
     reifiable-construct))
 
 
@@ -403,7 +403,7 @@ topicRef }"
 						 (eql (player assoc-role)
 						      (getf list-role :player))
 						 (getf list-role :reifier-uri))
-					(add-reifier assoc-role (getf list-role :reifier-uri) t)))
+					(add-reifier assoc-role (getf list-role :reifier-uri) :xtm-version '2.0)))
 			    roles))
 	     (roles assoc))
 	(set-reifier assoc-elem assoc)))))

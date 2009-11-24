@@ -614,12 +614,12 @@ specific keyword arguments for their purpose"))
 (defgeneric reifier (construct &key revision)
   (:method ((construct ReifiableConstructC) &key (revision *TM-REVISION*))
     (when (slot-boundp construct 'reifier)
-      (filter-slot-value-by-revision construct 'reifier :start-revision revision))))
+      (slot-value construct 'reifier))))
 
 (defgeneric (setf reifier) (topic TopicC)
   (:method (topic (construct ReifiableConstructC))
-    (setf (slot-value construct 'reifier) topic)
-    (setf (reified topic) construct)))
+    (setf (slot-value construct 'reifier) topic)))
+;    (setf (reified topic) construct)))
 
 (defgeneric item-identifiers (construct &key revision)
   (:method ((construct ReifiableConstructC) &key (revision *TM-REVISION*))
@@ -960,12 +960,12 @@ rules (5.4)"
 (defgeneric reified (topic &key revision)
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
     (when (slot-boundp topic 'reified)
-      (filter-slot-value-by-revision topic 'reified :start-revision revision))))
+      (slot-value topic 'reified))))
 
 (defgeneric (setf reified) (reifiable ReifiableConstructC)
   (:method (reifiable (topic TopicC))
-    (setf (slot-value topic 'reified) reifiable)
-    (setf (reifier reifiable) topic)))
+    (setf (slot-value topic 'reified) reifiable)))
+;    (setf (reifier reifiable) topic)))
 
 (defgeneric occurrences (topic &key revision)
   (:method ((topic TopicC) &key (revision *TM-REVISION*))
@@ -1585,24 +1585,27 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 ;;;;;;;;;;;;;;;;;
 ;; reification
 
-(defgeneric add-reifier (construct reifier-uri reifier-must-exist)
-  (:method ((construct ReifiableConstructC) reifier-uri reifier-must-exist)
+(defgeneric add-reifier (construct reifier-uri &key xtm-version)
+  (:method ((construct ReifiableConstructC) reifier-uri &key (xtm-version '2.0))
     (let ((err "From add-reifier(): "))
-      (let ((item-identifier
-	     (elephant:get-instance-by-value 'ItemIdentifierC 'uri reifier-uri)))
-	(unless item-identifier
-	  (when reifier-must-exist
-	    (error "~ano item-identifier could be found with the uri ~a"
+      (let ((identifier
+	     (elephant:get-instance-by-value (if (eql xtm-version '1.0)
+						 'PersistentIdC
+						 'ItemIdentifierC) 'uri reifier-uri)))
+	(unless identifier
+	  (when (eql xtm-version '2.0)
+	    (error "~ano identifier could be found with the uri ~a"
 		   err reifier-uri)))
-	(when item-identifier
-	  (let ((reifier-topic (identified-construct item-identifier)))
+	(when identifier
+	  (let ((reifier-topic (identified-construct identifier)))
 	    (unless (typep reifier-topic 'TopicC)
-	      (error "~anitem-identifier ~a must be bound to a topic, but is ~a"
+	      (error "~anidentifier ~a must be bound to a topic, but is ~a"
 		     err reifier-uri (type-of reifier-topic)))
 	    (cond
 	      ((and (not (reifier construct))
 		    (not (reified reifier-topic)))
-	       (setf (reifier construct) reifier-topic))
+	       (setf (reifier construct) reifier-topic)
+	       (setf (reified reifier-topic) construct))
 	      ((and (not (reified reifier-topic))
 		    (reifier construct))
 	       (merge-reifier-topics (reifier construct) reifier-topic))

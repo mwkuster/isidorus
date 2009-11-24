@@ -31,7 +31,8 @@
 	   :*atom-conf.lisp*
 	   :*poems_light.rdf*
 	   :*poems_light.xtm*
-	   :*full_mapping.rdf*))
+	   :*full_mapping.rdf*
+	   :*reification_xtm1.0.xtm*))
 
 (in-package :unittests-constants)
 
@@ -104,3 +105,7 @@
 (defparameter *full_mapping.rdf*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "full_mapping.rdf")))
+
+(defparameter *reification_xtm1.0.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "reification_xtm1.0.xtm")))

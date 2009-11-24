@@ -154,7 +154,7 @@
 	   xmlns:xlink="http://www.w3.org/1999/xlink"
 	   id="married-husband-reifier">
     <t:subjectIdentity>
-      <t:subjectIndicatorRef xlink:href="#married-husband"/>
+      <t:subjectIndicatorRef xlink:href="#married-husband-role"/>
     </t:subjectIdentity>
   </t:topic>
 </topicMap>

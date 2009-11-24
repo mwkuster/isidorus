@@ -18,7 +18,7 @@
 	   (dom:node-value (dom:get-attribute-node reifiable-elem "id")))))
     (when (and (stringp reifier-uri)
 	       (> (length reifier-uri) 0))
-      (add-reifier reifiable-construct (concatenate 'string "#" reifier-uri) nil))
+      (add-reifier reifiable-construct (concatenate 'string "#" reifier-uri) :xtm-version '1.0))
     reifiable-construct))
 
 
@@ -430,9 +430,10 @@
 						 (eql (player assoc-role)
 						      (getf list-role :player))
 						 (getf list-role :reifier-uri))
-					(add-reifier assoc-role (getf list-role :reifier-uri) nil)))
+					(add-reifier assoc-role (getf list-role :reifier-uri) :xtm-version '1.0)))
 			    roles))
-	     (roles association))))))
+	     (roles association))
+	association))))
 	
 
 (defun set-standard-role-types (roles)
