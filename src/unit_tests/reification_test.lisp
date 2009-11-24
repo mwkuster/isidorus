@@ -18,7 +18,8 @@
    :reification-test
    :run-reification-tests
    :test-merge-reifier-topics
-   :test-xtm1.0-reification))
+   :test-xtm1.0-reification
+   :test-xtm2.0-reification))
 
 
 (in-package :reification-test)
@@ -278,7 +279,75 @@
       (elephant:close-store))))
 
 
-;;TODO: check xtm2.0 importer
+(test test-xtm2.0-reification
+  "Tests the reification in the xtm2.0-importer."
+  (let
+      ((dir "data_base"))
+    (with-fixture initialize-destination-db (dir)
+      (xml-importer:import-xtm *reification_xtm2.0.xtm* dir
+       :tm-id "http://www.isidor.us/unittests/reification-xtm2.0-tests"
+       :xtm-id "reification-xtm")
+      (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
+      (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+      (let ((homer
+	     (identified-construct
+	      (elephant:get-instance-by-value 'PersistentIdC 'uri "http://simpsons.tv/homer")))
+	    (married-assoc
+	     (first (elephant:get-instances-by-class 'AssociationC))))
+	(let ((homer-occurrence (first (occurrences homer)))
+	      (homer-name (first (names homer)))
+	      (homer-variant (first (variants (first (names homer)))))
+	      (husband-role (find-if #'(lambda(x)
+					 (eql (instance-of x)
+					      (identified-construct
+					       (elephant:get-instance-by-value
+						'PersistentIdC 'uri "http://simpsons.tv/husband"))))
+				     (roles married-assoc)))
+	      (reifier-occurrence
+	       (identified-construct (elephant:get-instance-by-value 'ItemIdentifierC 'uri "http://simpsons.tv/homer-occurrence")))
+	      (reifier-name
+	       (identified-construct (elephant:get-instance-by-value 'ItemIdentifierC 'uri "http://simpsons.tv/homer-name")))
+	      (reifier-variant
+	       (identified-construct (elephant:get-instance-by-value 'ItemIdentifierC 'uri "http://simpsons.tv/homer-name-variant")))
+	      (reifier-married-assoc
+	       (identified-construct (elephant:get-instance-by-value 'ItemIdentifierC 'uri "http://simpsons.tv/married-association")))
+	      (reifier-husband-role
+	       (identified-construct (elephant:get-instance-by-value 'ItemIdentifierC 'uri "http://simpsons.tv/married-husband-role"))))
+      (is-true homer)
+      (is-true homer-occurrence)
+      (is-true homer-name)
+      (is-true homer-variant)
+      (is-true married-assoc)
+      (is-true husband-role)
+      (is-true reifier-occurrence)
+      (is-true reifier-name)
+      (is-true reifier-variant)
+      (is-true reifier-married-assoc)
+      (is-true reifier-husband-role)
+      (is (eql (reifier homer-occurrence) reifier-occurrence))
+      (is (eql (reified reifier-occurrence) homer-occurrence))
+      (is (eql (reifier homer-name) reifier-name))
+      (is (eql (reified reifier-name) homer-name))
+      (is (eql (reifier homer-variant) reifier-variant))
+      (is (eql (reified reifier-variant) homer-variant))
+      (is (eql (reifier married-assoc) reifier-married-assoc))
+      (is (eql (reified reifier-married-assoc) married-assoc))
+      (is (eql (reifier husband-role) reifier-husband-role))
+      (is (eql (reified reifier-husband-role) husband-role))
+      (is-true (handler-case 
+		   (progn (d::delete-construct homer-occurrence)
+			  t)
+		 (condition () nil)))
+      (is-false (occurrences homer))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
+      (is-true (handler-case 
+		   (progn (d::delete-construct reifier-occurrence)
+			  t)
+		 (condition () nil)))))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 11))
+      (elephant:close-store))))
+
+
 ;;TODO: check rdf importer
 ;;TODO: check xtm1.0 exporter
 ;;TODO: check xtm2.0 exporter
@@ -288,5 +357,6 @@
 
 (defun run-reification-tests ()
   (it.bese.fiveam:run! 'test-merge-reifier-topics)
-  (it.bese.fiveam:run! 'test-xtm1.0-refication)
+  (it.bese.fiveam:run! 'test-xtm1.0-reification)
+  (it.bese.fiveam:run! 'test-xtm2.0-reification)
   )

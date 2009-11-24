@@ -39,23 +39,23 @@
   </tm:topic>
 
   <tm:topic id="fullName">
-    <tm:subjectIdentiifer href="http://simpsons.tv/fullName"/>
+    <tm:subjectIdentifier href="http://simpsons.tv/fullName"/>
   </tm:topic>
 
   <tm:topic id="profession">
-    <tm:subjectIdentiifer href="http://simpsons.tv/profession"/>
+    <tm:subjectIdentifier href="http://simpsons.tv/profession"/>
   </tm:topic>
 
   <tm:topic id="married">
-    <tm:subjectIdentiifer href="http://simpsons.tv/married"/>
+    <tm:subjectIdentifier href="http://simpsons.tv/married"/>
   </tm:topic>
 
   <tm:topic id="husband">
-    <tm:subjectIdentiifer href="http://simpsons.tv/husband"/>
+    <tm:subjectIdentifier href="http://simpsons.tv/husband"/>
   </tm:topic>
 
   <tm:topic id="wife">
-    <tm:subjectIdentiifer href="http://simpsons.tv/wife"/>
+    <tm:subjectIdentifier href="http://simpsons.tv/wife"/>
   </tm:topic>
 
   <tm:association reifier="http://simpsons.tv/married-association">

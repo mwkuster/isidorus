@@ -32,7 +32,8 @@
 	   :*poems_light.rdf*
 	   :*poems_light.xtm*
 	   :*full_mapping.rdf*
-	   :*reification_xtm1.0.xtm*))
+	   :*reification_xtm1.0.xtm*
+	   :*reification_xtm2.0.xtm*))
 
 (in-package :unittests-constants)
 
@@ -109,3 +110,7 @@
 (defparameter *reification_xtm1.0.xtm*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "reification_xtm1.0.xtm")))
+
+(defparameter *reification_xtm2.0.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "reification_xtm2.0.xtm")))
