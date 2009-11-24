@@ -63,6 +63,7 @@ src/unit_tests/rdf_exporter_test.lisp -text
 src/unit_tests/rdf_importer_test.lisp -text
 src/unit_tests/reification_test.lisp -text
 src/unit_tests/reification_xtm1.0.xtm -text
+src/unit_tests/reification_xtm2.0.xtm -text
 src/unit_tests/sample_objects.xtm -text
 src/unit_tests/sample_objects_2_0.xtm -text
 src/unit_tests/t100.xtm -text
