@@ -1245,9 +1245,9 @@ TM (which must then exist)"
         (if tm
             (remove-if-not 
              (lambda (role)
-               (format t "player: ~a" (player role))
-               (format t "parent: ~a" (parent role))
-               (format t "topic: ~a~&" topic)
+               ;(format t "player: ~a" (player role))
+               ;(format t "parent: ~a" (parent role))
+               ;(format t "topic: ~a~&" topic)
                (in-topicmap tm (parent role)))
              (player-in-roles topic))
             (player-in-roles topic)))))

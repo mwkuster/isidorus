@@ -34,6 +34,23 @@
     (cxml:attribute "xlink:href" (format nil "#~a" (topicid topic)))))
 
 
+(defun to-reifier-elem-xtm1.0 (reifiable-construct)
+  "Exports an ID indicating a reifier.
+   The reifier is only exported if the reifier-topic contains a PSI starting with #.
+   This may cause differences since the xtm2.0 defines the referencing
+   of reifiers with item-identifiers."
+  (declare (ReifiableConstructC reifiable-construct))
+  (when (reifier reifiable-construct)
+    (let ((reifier-psi
+	   (find-if #'(lambda(x)
+			(when (and (stringp (uri x))
+				   (> (length (uri x)) 0))
+			  (eql (elt (uri x) 0) #\#)))
+		    (psis (reifier reifiable-construct)))))
+      (when reifier-psi
+	(cxml:attribute "id" (subseq (uri reifier-psi) 1 (length (uri reifier-psi))))))))
+		    
+
 (defun to-resourceX-elem-xtm1.0 (characteristic)
   (declare (CharacteristicC characteristic))
   (let ((characteristic-value
@@ -90,6 +107,7 @@
 (defmethod to-elem-xtm1.0 ((variant VariantC))
   "variant = element { parameters, variantName?, variant* }"
   (cxml:with-element "t:variant"
+    (to-reifier-elem-xtm1.0 variant)
     (when (themes variant)
       (cxml:with-element "t:parameters"
 	(map 'list #'to-topicRef-elem-xtm1.0 (themes variant))))
@@ -100,6 +118,7 @@
 (defmethod to-elem-xtm1.0 ((name NameC))
   "baseName = element baseName { scope?, baseNameString, variant* }"
   (cxml:with-element "t:baseName"
+    (to-reifier-elem-xtm1.0 name)
     (when (themes name)
       (to-scope-elem-xtm1.0 name))
     (cxml:with-element "t:baseNameString"
@@ -114,6 +133,7 @@
   "occurrence = element occurrence { instanceOf?, scope?,
                    (resourceRef | resourceData) }"
   (cxml:with-element "t:occurrence"
+    (to-reifier-elem-xtm1.0 occurrence)
     (when (instance-of occurrence)
       (to-instanceOf-elem-xtm1.0 (instance-of occurrence)))
     (when (themes occurrence)
@@ -146,6 +166,7 @@
   "member = element member { roleSpec?,
               (topicRef | resourceRef | subjectIndicatorRef)+ }"
   (cxml:with-element "t:member"
+    (to-reifier-elem-xtm1.0 role)
     (when (instance-of role)
       (to-roleSpec-elem-xtm1.0 (instance-of role)))
     (to-topicRef-elem-xtm1.0 (player role))))
@@ -154,6 +175,7 @@
 (defmethod to-elem-xtm1.0 ((association AssociationC))
   "association = element association { instanceOf?, scope?, member+ }"
   (cxml:with-element "t:association"
+    (to-reifier-elem-xtm1.0 association)
     (when (instance-of association)
       (to-instanceOf-elem-xtm1.0 (instance-of association)))
     (when (themes association)

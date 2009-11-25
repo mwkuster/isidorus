@@ -13,13 +13,22 @@
    :datamodel
    :it.bese.FiveAM
    :unittests-constants
-   :fixtures)
+   :fixtures
+   :exporter)
+  (:import-from :constants
+                *xtm2.0-ns*
+		*xtm1.0-ns*
+		*xtm1.0-xlink*)
+  (:import-from :xml-tools
+                xpath-child-elems-by-qname xpath-single-child-elem-by-qname
+		xpath-fn-string)
   (:export
    :reification-test
    :run-reification-tests
    :test-merge-reifier-topics
    :test-xtm1.0-reification
-   :test-xtm2.0-reification))
+   :test-xtm2.0-reification
+   :test-xtm1.0-reification-exporter))
 
 
 (in-package :reification-test)
@@ -348,8 +357,99 @@
       (elephant:close-store))))
 
 
+(test test-xtm1.0-reification-exporter
+  "Tests the reification in the xtm1.0-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.xtm")
+       (tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"))
+    (with-fixture initialize-destination-db (dir)
+      (handler-case (delete-file output-file)
+	(error () )) ;do nothing
+      (xml-importer:import-xtm *reification_xtm1.0.xtm* dir
+       :tm-id tm-id
+       :xtm-id "reification-xtm"
+       :xtm-format '1.0)
+      (export-xtm output-file :xtm-format '1.0 :tm-id tm-id)
+      (let ((document
+	     (dom:document-element
+	      (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+	(let ((homer-topic
+	       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
+		  when (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
+							     (xpath-single-child-elem-by-qname
+							      topic *xtm1.0-ns* "subjectIdentity")
+							     *xtm1.0-ns* "subjectIndicatorRef")
+			    when (string= (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")
+					  "http://simpsons.tv/homer")
+			    return t)
+		  return topic))
+	      (married-assoc (xpath-single-child-elem-by-qname document *xtm1.0-ns* "association")))
+	  (is-true homer-topic)
+	  (is-true married-assoc)
+	  (loop for occurrence across (xpath-child-elems-by-qname homer-topic *xtm1.0-ns* "occurrence")
+	     do (is (string= (dom:get-attribute occurrence "id") "homer-occurrence")))
+	  (loop for name across (xpath-child-elems-by-qname homer-topic *xtm1.0-ns* "baseName")
+	     do (progn (is (string= (dom:get-attribute name "id") "homer-name"))
+		       (loop  for variant across (xpath-child-elems-by-qname name *xtm1.0-ns* "variant")
+			  do (is (string= (dom:get-attribute variant "id") "homer-name-variant")))))
+	  (is (string= (dom:get-attribute married-assoc "id") "a-married"))
+	  (is-true (loop for role across (xpath-child-elems-by-qname married-assoc *xtm1.0-ns* "member")
+		      when (string= (dom:get-attribute role "id")
+				    "married-husband-role")
+		      return t)))
+	(is-true (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
+		  when (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
+							     (xpath-single-child-elem-by-qname
+							      topic *xtm1.0-ns* "subjectIdentity")
+							     *xtm1.0-ns* "subjectIndicatorRef")
+			    when (string= (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")
+					  "#homer-occurrence")
+			  return t)
+		    return t))
+	(is-true (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
+		    when (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
+							       (xpath-single-child-elem-by-qname
+								topic *xtm1.0-ns* "subjectIdentity")
+							       *xtm1.0-ns* "subjectIndicatorRef")
+			    when (string= (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")
+					  "#homer-name")
+			    return t)
+		    return t))
+	(is-true (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
+		    when (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
+							       (xpath-single-child-elem-by-qname
+								topic *xtm1.0-ns* "subjectIdentity")
+							       *xtm1.0-ns* "subjectIndicatorRef")
+			    when (string= (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")
+					  "#homer-name-variant")
+			    return t)
+		    return t))
+	(is-true (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
+		    when (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
+							       (xpath-single-child-elem-by-qname
+								topic *xtm1.0-ns* "subjectIdentity")
+							       *xtm1.0-ns* "subjectIndicatorRef")
+			    when (string= (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")
+					  "#a-married")
+			    return t)
+		    return t))
+	(is-true (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
+		    when (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
+							       (xpath-single-child-elem-by-qname
+								topic *xtm1.0-ns* "subjectIdentity")
+							       *xtm1.0-ns* "subjectIndicatorRef")
+			    when (string= (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")
+					  "#married-husband-role")
+			    return t)
+		    return t)))
+      (handler-case (delete-file output-file)
+	(error () )) ;do nothing
+      (elephant:close-store))))
+	    
+
+
 ;;TODO: check rdf importer
-;;TODO: check xtm1.0 exporter
 ;;TODO: check xtm2.0 exporter
 ;;TODO: check fragment exporter
 ;;TODO: check merge-reifier-topics (--> versioning)
@@ -360,4 +460,5 @@
   (it.bese.fiveam:run! 'test-merge-reifier-topics)
   (it.bese.fiveam:run! 'test-xtm1.0-reification)
   (it.bese.fiveam:run! 'test-xtm2.0-reification)
+  (it.bese.fiveam:run! 'test-xtm1.0-reification-exporter)
   )
