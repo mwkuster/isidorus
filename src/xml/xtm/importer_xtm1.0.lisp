@@ -18,8 +18,14 @@
 	   (dom:node-value (dom:get-attribute-node reifiable-elem "id")))))
     (when (and (stringp reifier-uri)
 	       (> (length reifier-uri) 0))
-      (add-reifier reifiable-construct (concatenate 'string "#" reifier-uri) :xtm-version '1.0))
-    reifiable-construct))
+      (let ((psi
+	     (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri
+					     (concatenate 'string "#" reifier-uri))))
+	(when psi
+	  (let ((reifier-topic (identified-construct psi)))
+	    (when reifier-topic
+	      (add-reifier reifiable-construct reifier-topic)))))))
+  reifiable-construct)
 
 
 (defun get-topic-id-xtm1.0 (topic-elem)
@@ -408,7 +414,6 @@
                           (from-member-elem-xtm1.0 
                            member-elem :xtm-id xtm-id))
                       (xpath-child-elems-by-qname assoc-elem *xtm1.0-ns* "member"))))
-      ;(format t "type: ~A~%themes: ~A~%roles: ~A~%~%" type themes roles)
       (unless roles
 	(error "from-association-elem-xtm1.0: roles are missing in association"))
       (setf roles (set-standard-role-types roles))
@@ -430,7 +435,16 @@
 						 (eql (player assoc-role)
 						      (getf list-role :player))
 						 (getf list-role :reifier-uri))
-					(add-reifier assoc-role (getf list-role :reifier-uri) :xtm-version '1.0)))
+					(let ((reifier-uri (getf list-role :reifier-uri)))
+					  (when (and (stringp reifier-uri)
+						     (> (length reifier-uri) 0))
+					    (let ((psi
+						   (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri
+										   reifier-uri)))
+					      (when psi
+						(let ((reifier-topic (identified-construct psi)))
+						  (when reifier-topic
+						    (add-reifier assoc-role reifier-topic)))))))))
 			    roles))
 	     (roles association))
 	association))))

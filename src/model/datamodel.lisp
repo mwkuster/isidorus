@@ -1585,40 +1585,30 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 ;;;;;;;;;;;;;;;;;
 ;; reification
 
-(defgeneric add-reifier (construct reifier-uri &key xtm-version)
-  (:method ((construct ReifiableConstructC) reifier-uri &key (xtm-version '2.0))
+(defgeneric add-reifier (construct reifier-topic)
+  (:method ((construct ReifiableConstructC) reifier-topic)
     (let ((err "From add-reifier(): "))
-      (let ((identifier
-	     (elephant:get-instance-by-value (if (eql xtm-version '1.0)
-						 'PersistentIdC
-						 'ItemIdentifierC) 'uri reifier-uri)))
-	(unless identifier
-	  (when (eql xtm-version '2.0)
-	    (error "~ano identifier could be found with the uri ~a"
-		   err reifier-uri)))
-	(when identifier
-	  (let ((reifier-topic (identified-construct identifier)))
-	    (unless (typep reifier-topic 'TopicC)
-	      (error "~anidentifier ~a must be bound to a topic, but is ~a"
-		     err reifier-uri (type-of reifier-topic)))
-	    (cond
-	      ((and (not (reifier construct))
-		    (not (reified reifier-topic)))
-	       (setf (reifier construct) reifier-topic)
-	       (setf (reified reifier-topic) construct))
-	      ((and (not (reified reifier-topic))
-		    (reifier construct))
-	       (merge-reifier-topics (reifier construct) reifier-topic))
-	      ((and (not (reifier construct))
-		    (reified reifier-topic))
-	       (error "~a~a reifies already another object ~a"
-		      err reifier-uri (reified reifier-topic)))
-	      (t
-	       (when (not (eql (reified reifier-topic) construct))
-		 (error "~a~a reifies already another object ~a"
-			err reifier-uri (reified reifier-topic)))
-	       (merge-reifier-topics (reifier construct) reifier-topic)))))))
-    construct))
+      (declare (TopicC reifier-topic))
+      (cond
+	((and (not (reifier construct))
+	      (not (reified reifier-topic)))
+	 (setf (reifier construct) reifier-topic)
+	 (setf (reified reifier-topic) construct))
+	((and (not (reified reifier-topic))
+	      (reifier construct))
+	 (merge-reifier-topics (reifier construct) reifier-topic))
+	((and (not (reifier construct))
+	      (reified reifier-topic))
+	 (error "~a~a ~a reifies already another object ~a"
+		err (psis reifier-topic) (item-identifiers reifier-topic)
+		(reified reifier-topic)))
+	(t
+	 (when (not (eql (reified reifier-topic) construct))
+	   (error "~a~a ~a reifies already another object ~a"
+		  err (psis reifier-topic) (item-identifiers reifier-topic)
+		  (reified reifier-topic)))
+	 (merge-reifier-topics (reifier construct) reifier-topic)))
+      construct)))
 
 
 (defgeneric merge-reifier-topics (old-topic new-topic)

@@ -353,6 +353,7 @@
 ;;TODO: check xtm2.0 exporter
 ;;TODO: check fragment exporter
 ;;TODO: check merge-reifier-topics (--> versioning)
+;;TODO: extend the fragment-importer in the RESTful-interface
 
 
 (defun run-reification-tests ()

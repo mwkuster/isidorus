@@ -13,11 +13,19 @@
   "Sets the reifier-topic of the passed elem to the passed construct."
   (declare (dom:element reifiable-elem))
   (declare (ReifiableConstructC reifiable-construct))
-  (let ((reifier-uri (get-attribute reifiable-elem "reifier")))
+  (let ((reifier-uri (get-attribute reifiable-elem "reifier"))
+	(err "From set-reifier(): "))
     (when (and (stringp reifier-uri)
 	       (> (length reifier-uri) 0))
-      (add-reifier reifiable-construct reifier-uri :xtm-version '2.0))
-    reifiable-construct))
+      (let ((ii
+	     (elephant:get-instance-by-value 'd:ItemIdentifierC 'd:uri reifier-uri)))
+	(if ii
+	    (let ((reifier-topic (identified-construct ii)))
+	      (if reifier-topic
+		  (add-reifier reifiable-construct reifier-topic)
+		  (error "~aitem-identifier ~a not found" err reifier-uri)))
+	    (error "~aitem-identifier ~a not found" err reifier-uri)))))
+    reifiable-construct)
 
 
 (defun from-identifier-elem (classsymbol elem start-revision)
@@ -367,7 +375,8 @@ topicRef }"
   (declare (TopicMapC tm))
   (elephant:ensure-transaction (:txn-nosync t) 
     (let 
-        ((item-identifiers 
+        ((err "From from-association-elem(): ")
+	 (item-identifiers 
           (make-identifiers 'ItemIdentifierC assoc-elem "itemIdentity" start-revision))
          (instance-of
           (from-type-elem 
@@ -403,7 +412,18 @@ topicRef }"
 						 (eql (player assoc-role)
 						      (getf list-role :player))
 						 (getf list-role :reifier-uri))
-					(add-reifier assoc-role (getf list-role :reifier-uri) :xtm-version '2.0)))
+					(let ((reifier-uri (getf list-role :reifier-uri)))
+					  (when (and (stringp reifier-uri)
+						     (> (length reifier-uri) 0))
+					    (let ((ii
+						   (elephant:get-instance-by-value 'd:ItemIdentifierC 'd:uri
+										   reifier-uri)))
+					      (if ii
+						(let ((reifier-topic (identified-construct ii)))
+						  (if reifier-topic
+						      (add-reifier assoc-role reifier-topic)
+						      (error "~aitem-identifier ~a not found" err reifier-uri)))
+						(error "~aitem-identifier ~a not found" err reifier-uri)))))))
 			    roles))
 	     (roles assoc))
 	(set-reifier assoc-elem assoc)))))
