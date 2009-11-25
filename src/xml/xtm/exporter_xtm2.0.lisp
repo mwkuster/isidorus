@@ -9,6 +9,16 @@
 
 (in-package :exporter)
 
+(defun to-reifier-elem (reifiable-construct)
+  "Exports the reifier-attribute.
+   The attribute is only exported if the reifier-topic contains at least
+   one item-identifier."
+  (declare (ReifiableConstructC reifiable-construct))
+  (when (and (reifier reifiable-construct)
+	     (item-identifiers (reifier reifiable-construct)))
+    (cxml:attribute "reifier"
+		    (uri (first (item-identifiers (reifier reifiable-construct)))))))
+
 (defun ref-to-elem (topic)
   (declare (TopicC topic))
   (cxml:with-element "t:topicRef"
@@ -29,6 +39,7 @@
   "name = element name { reifiable, 
                          type?, scope?, value, variant* }"
   (cxml:with-element "t:name"
+    (to-reifier-elem name)
     (map 'list #'to-elem (item-identifiers name))
     (when (slot-boundp name 'instance-of)
       (cxml:with-element "t:type"
@@ -74,6 +85,7 @@
 (defmethod to-elem ((variant VariantC))
   "variant = element variant { reifiable, scope, (resourceRef | resourceData) }"
   (cxml:with-element "t:variant"
+    (to-reifier-elem variant)
     (map 'list #'to-elem (item-identifiers variant))
     (when (themes variant)
       (cxml:with-element "t:scope"
@@ -91,6 +103,7 @@
   "occurrence = element occurrence { reifiable, 
                          type, scope?, (resourceRef | resourceData) }"
   (cxml:with-element "t:occurrence"
+    (to-reifier-elem occ)
     (map 'list #'to-elem (item-identifiers occ))
     (cxml:with-element "t:type"
       (ref-to-elem (instance-of occ)))
@@ -138,6 +151,7 @@
 (defmethod to-elem ((role RoleC))
   "role = element role { reifiable, type, topicRef }"
   (cxml:with-element "t:role"
+    (to-reifier-elem role)
     (map 'list #'to-elem (item-identifiers role))
     (cxml:with-element "t:type"
       (ref-to-elem (instance-of role)))
@@ -147,6 +161,7 @@
 (defmethod to-elem ((assoc AssociationC))
   "association = element association { reifiable, type, scope?, role+ }"
   (cxml:with-element "t:association"
+    (to-reifier-elem assoc)
     (map 'list #'to-elem (item-identifiers assoc))
     (cxml:with-element "t:type"
       (ref-to-elem (instance-of assoc)))

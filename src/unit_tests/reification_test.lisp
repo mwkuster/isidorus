@@ -28,7 +28,8 @@
    :test-merge-reifier-topics
    :test-xtm1.0-reification
    :test-xtm2.0-reification
-   :test-xtm1.0-reification-exporter))
+   :test-xtm1.0-reification-exporter
+   :test-xtm2.0-reification-exporter))
 
 
 (in-package :reification-test)
@@ -446,11 +447,73 @@
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
       (elephant:close-store))))
-	    
+
+(test test-xtm2.0-reification-exporter
+  "Tests the reification in the xtm2.0-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.xtm")
+       (tm-id "http://www.isidor.us/unittests/reification-xtm2.0-tests"))
+    (with-fixture initialize-destination-db (dir)
+      (handler-case (delete-file output-file)
+	(error () )) ;do nothing
+      (xml-importer:import-xtm *reification_xtm2.0.xtm* dir
+       :tm-id tm-id
+       :xtm-id "reification-xtm")
+      (export-xtm output-file :tm-id tm-id)
+      (let ((document
+	     (dom:document-element
+	      (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+	(let ((homer-topic
+	       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
+		  when (loop for psi across (xpath-child-elems-by-qname topic *xtm2.0-ns* "subjectIdentifier")
+			  when (string= (dom:get-attribute psi "href") "http://simpsons.tv/homer")
+			  return t)
+		  return topic))
+	      (married-assoc (xpath-single-child-elem-by-qname document *xtm2.0-ns* "association")))
+	  (is-true homer-topic)
+	  (is-true married-assoc)
+	  (loop for occurrence across (xpath-child-elems-by-qname homer-topic *xtm2.0-ns* "occurrence")
+	     do (is (string= (dom:get-attribute occurrence "reifier") "http://simpsons.tv/homer-occurrence")))
+	  (loop for name across (xpath-child-elems-by-qname homer-topic *xtm2.0-ns* "name")
+	     do (is (string= (dom:get-attribute name "reifier") "http://simpsons.tv/homer-name")))
+	  (loop for name across (xpath-child-elems-by-qname homer-topic *xtm2.0-ns* "name")
+	     do (loop for variant across (xpath-child-elems-by-qname name *xtm2.0-ns* "variant")
+		   do (is (string= (dom:get-attribute variant "reifier") "http://simpsons.tv/homer-name-variant"))))
+	  (is (string= (dom:get-attribute married-assoc "reifier") "http://simpsons.tv/married-association"))
+	  (is-true (loop for role across (xpath-child-elems-by-qname married-assoc *xtm2.0-ns* "role")
+		      when (string= (dom:get-attribute role "reifier") "http://simpsons.tv/married-husband-role")
+		      return t))
+	  (is-true (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
+		      when (loop for ii across (xpath-child-elems-by-qname topic *xtm2.0-ns* "itemIdentity")
+			      when (string= (dom:get-attribute ii "href") "http://simpsons.tv/homer-occurrence")
+			      return t)
+		      return t))
+	  (is-true (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
+		      when (loop for ii across (xpath-child-elems-by-qname topic *xtm2.0-ns* "itemIdentity")
+			      when (string= (dom:get-attribute ii "href") "http://simpsons.tv/homer-name")
+			      return t)
+		      return t))
+	  (is-true (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
+		      when (loop for ii across (xpath-child-elems-by-qname topic *xtm2.0-ns* "itemIdentity")
+			      when (string= (dom:get-attribute ii "href") "http://simpsons.tv/homer-name-variant")
+			      return t)
+		      return t))
+	  (is-true (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
+		      when (loop for ii across (xpath-child-elems-by-qname topic *xtm2.0-ns* "itemIdentity")
+			      when (string= (dom:get-attribute ii "href") "http://simpsons.tv/married-association")
+			      return t)
+		      return t))
+	  (is-true (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
+		      when (loop for ii across (xpath-child-elems-by-qname topic *xtm2.0-ns* "itemIdentity")
+			      when (string= (dom:get-attribute ii "href") "http://simpsons.tv/married-husband-role")
+			      return t)
+		      return t)))))
+    (elephant:close-store)))
+      
 
 
 ;;TODO: check rdf importer
-;;TODO: check xtm2.0 exporter
 ;;TODO: check fragment exporter
 ;;TODO: check merge-reifier-topics (--> versioning)
 ;;TODO: extend the fragment-importer in the RESTful-interface
@@ -461,4 +524,4 @@
   (it.bese.fiveam:run! 'test-xtm1.0-reification)
   (it.bese.fiveam:run! 'test-xtm2.0-reification)
   (it.bese.fiveam:run! 'test-xtm1.0-reification-exporter)
-  )
+  (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter))
