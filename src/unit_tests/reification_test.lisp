@@ -18,7 +18,14 @@
   (:import-from :constants
                 *xtm2.0-ns*
 		*xtm1.0-ns*
-		*xtm1.0-xlink*)
+		*xtm1.0-xlink*
+		*rdf-ns*
+		*rdfs-ns*
+		*type-psi*
+		*instance-psi*
+		*type-instance-psi*
+		*rdf2tm-subject*
+		*rdf2tm-object*)
   (:import-from :xml-tools
                 xpath-child-elems-by-qname xpath-single-child-elem-by-qname
 		xpath-fn-string)
@@ -29,7 +36,8 @@
    :test-xtm1.0-reification
    :test-xtm2.0-reification
    :test-xtm1.0-reification-exporter
-   :test-xtm2.0-reification-exporter))
+   :test-xtm2.0-reification-exporter
+   :test-rdf-importer-reification))
 
 
 (in-package :reification-test)
@@ -448,6 +456,7 @@
 	(error () )) ;do nothing
       (elephant:close-store))))
 
+
 (test test-xtm2.0-reification-exporter
   "Tests the reification in the xtm2.0-exporter."
   (let
@@ -510,12 +519,119 @@
 			      return t)
 		      return t)))))
     (elephant:close-store)))
-      
+
+
+(test test-rdf-importer-reification
+  "Tests the function import-node non-recursively. Especially the reification
+   of association- and occurrence-arcs."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id")
+	(doc-1
+	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		      "xmlns:arcs=\"http://test/arcs/\" "
+		      "xmlns:rdfs=\"" *rdfs-ns* "\">"
+		      "<rdf:Description rdf:about=\"first-node\">"
+		      "<arcs:arc1 rdf:ID=\"reification-1\">"
+		      "<rdf:Description rdf:about=\"second-node\" />"
+		      "</arcs:arc1>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:ID=\"#reification-1\">"
+		      "<arcs:arc2 rdf:resource=\"third-node\"/>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:nodeID=\"fourth-node\">"
+		      "<arcs:arc3 rdf:ID=\"reification-2\" rdf:datatype=\"dt\">"
+		      "occurrence data"
+		      "</arcs:arc3>"
+		      "</rdf:Description>"
+		      "<rdf:Description rdf:ID=\"#reification-2\">"
+		      "<arcs:arc4 rdf:resource=\"fifth-node\" />"
+		      "</rdf:Description>"
+		      "</rdf:RDF>")))
+    (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
+      (is-true dom-1)
+      (is (= (length (dom:child-nodes dom-1)) 1))
+      (let ((rdf-node (elt (dom:child-nodes dom-1) 0)))
+	(is (= (length (dom:child-nodes rdf-node)) 4))
+	(rdf-init-db :db-dir db-dir :start-revision revision-1)
+	(dotimes (iter (length (dom:child-nodes rdf-node)))
+	  (rdf-importer::import-node (elt (dom:child-nodes rdf-node) iter)
+				     tm-id revision-1
+				     :document-id document-id))
+	(is (= (length (dom:child-nodes rdf-node)) 4))
+	(rdf-init-db :db-dir db-dir :start-revision revision-1)
+	(dotimes (iter (length (dom:child-nodes rdf-node)))
+	  (rdf-importer::import-node (elt (dom:child-nodes rdf-node) iter)
+				     tm-id revision-1
+				     :document-id document-id))
+	(let ((reification-1 (d:get-item-by-id "http://test-tm#reification-1"
+					     :xtm-id document-id))
+	      (reification-2 (d:get-item-by-id "http://test-tm#reification-2"
+					       :xtm-id document-id))
+	      (first-node (d:get-item-by-id "http://test-tm/first-node"
+					  :xtm-id document-id))
+	      (second-node (d:get-item-by-id "http://test-tm/second-node"
+					   :xtm-id document-id))
+	      (third-node (d:get-item-by-id "http://test-tm/third-node"
+					  :xtm-id document-id))
+	      (fourth-node (d:get-item-by-id "fourth-node"
+					     :xtm-id document-id))
+	      (fifth-node (d:get-item-by-id "http://test-tm/fifth-node"
+					    :xtm-id document-id))
+	      (arc1 (d:get-item-by-id "http://test/arcs/arc1"
+				    :xtm-id document-id))
+	      (arc2 (d:get-item-by-id "http://test/arcs/arc2"
+				    :xtm-id document-id))
+	      (arc3 (d:get-item-by-id "http://test/arcs/arc3"
+				      :xtm-id document-id))
+	      (arc4 (d:get-item-by-id "http://test/arcs/arc4"
+				      :xtm-id document-id)))
+	  (is (= (length (d:psis reification-1)) 1))
+	  (is (string= (d:uri (first (d:psis reification-1)))
+		       "http://test-tm#reification-1"))
+	  (is (= (length (d:psis reification-2)) 1))
+	  (is (string= (d:uri (first (d:psis reification-2)))
+		       "http://test-tm#reification-2"))
+	  (is (= (length (d:psis first-node)) 1))
+	  (is (string= (d:uri (first (d:psis first-node)))
+		       "http://test-tm/first-node"))
+	  (is (= (length (d:psis second-node)) 1))
+	  (is (string= (d:uri (first (d:psis second-node)))
+		       "http://test-tm/second-node"))
+	  (is (= (length (d:psis third-node)) 1))
+	  (is (string= (d:uri (first (d:psis third-node)))
+		       "http://test-tm/third-node"))
+	  (is (= (length (d:psis fourth-node)) 0))
+	  (is (= (length (d:psis fifth-node)) 1))
+	  (is (string= (d:uri (first (d:psis fifth-node)))
+		       "http://test-tm/fifth-node"))
+	  (is (= (length (d:psis arc1)) 1))
+	  (is (string= (d:uri (first (d:psis arc1)))
+		       "http://test/arcs/arc1"))
+	  (is (= (length (d:psis arc2))))
+	  (is (string= (d:uri (first (d:psis arc2)))
+		       "http://test/arcs/arc2"))
+	  (is (= (length (d:psis arc3))))
+	  (is (string= (d:uri (first (d:psis arc3)))
+		       "http://test/arcs/arc3"))
+	  (is (= (length (d:psis arc4))))
+	  (is (string= (d:uri (first (d:psis arc4)))
+		       "http://test/arcs/arc4"))
+	  (is (= (length (d:used-as-type arc1)) 1))
+	  (is (eql (reifier (first (d:used-as-type arc1))) reification-1))
+	  (is (eql (reified reification-1) (first (d:used-as-type arc1))))
+	  (is (eql (reifier (first (d:used-as-type arc3))) reification-2))
+	  (is (eql (reified reification-2) (first (d:used-as-type arc3))))))))
+  (elephant:close-store))
+
 
 
 ;;TODO: check rdf importer
-;;TODO: check fragment exporter
+;;TODO: check rdf exporter
+;;TODO: check rdf-tm-reification-mapping
 ;;TODO: check merge-reifier-topics (--> versioning)
+;;TODO: check fragment exporter
 ;;TODO: extend the fragment-importer in the RESTful-interface
 
 
@@ -524,4 +640,5 @@
   (it.bese.fiveam:run! 'test-xtm1.0-reification)
   (it.bese.fiveam:run! 'test-xtm2.0-reification)
   (it.bese.fiveam:run! 'test-xtm1.0-reification-exporter)
-  (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter))
+  (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter)
+  (it.bese.fiveam:run! 'test-rdf-importer-reification))
