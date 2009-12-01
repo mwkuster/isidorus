@@ -360,8 +360,7 @@
       nil ;; do not export this topic explicitly, since it has been exported as
           ;; rdf:resource, property or any other reference
       (cxml:with-element "rdf:Description"
-	(let ((psi (when (psis construct)
-		     (first (psis construct))))
+	(let ((psi (get-reifier-psi construct))
 	      (ii (item-identifiers construct))
 	      (sl (locators construct))
 	      (t-names (names construct))
@@ -562,7 +561,10 @@
    When the topic does not own a psi the return value is nil."
   (declare (TopicC top))
   (when (psis top)
-    (let ((full-uri (uri (first (psis top))))
+    (let ((full-uri
+	   (let ((reifier-psi (get-reifier-psi top)))
+	     (when reifier-psi
+	       (uri reifier-psi))))
 	  (err "From get-reifier-uri(): "))
       (let ((slash-position (find #\/ full-uri :from-end t)))
 	(let ((hash-position (position #\# full-uri)))
@@ -575,3 +577,19 @@
 		  (if (= hash-position (+ (length full-uri) 1))
 		      (error "~athe PSI-URI ~a ends with an #" err full-uri)
 		      full-uri))))))))
+
+
+(defun get-reifier-psi(topic)
+  "Returns the first found psi that can be used as a reifier-id, i.e.
+   the psi-uri must contain a '#' or '/'."
+  (declare (TopicC topic))
+  (find-if #'(lambda(psi)
+	       (let ((hash-position (position #\# (uri psi) :from-end t))
+		     (slash-position (position #\/ (uri psi) :from-end t)))
+		 (if (or (and hash-position
+			      (< hash-position (- (length (uri psi)) 1)))
+			 (and slash-position
+			      (< slash-position (- (length (uri psi)) 1))))
+		     psi
+		     nil)))
+	   (psis topic)))
