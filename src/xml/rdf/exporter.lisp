@@ -279,9 +279,12 @@
   "Creates a blank node that represents a VariantC element with the
    properties itemIdentity, scope and value."
   (cxml:with-element "isi:variant"
+    (when (reifier construct)
+      (let ((reifier-uri (get-reifier-uri (reifier construct))))
+	(when reifier-uri
+	  (cxml:attribute "rdf:ID" reifier-uri))))
     (cxml:with-element "rdf:Description"
       (cxml:attribute "rdf:nodeID" (make-object-id construct))
-      ;(cxml:attribute "rdf:parseType" "Resource")
       (make-isi-type *tm2rdf-variant-type-uri*)
       (map 'list #'to-rdf-elem (item-identifiers construct))
       (scopes-to-rdf-elems construct)
@@ -292,7 +295,10 @@
   "Creates a blank node that represents a name element with the
    properties itemIdentity, nametype, value, variant and scope."
   (cxml:with-element "isi:name"
-    ;(cxml:attribute "rdf:parseType" "Resource")
+    (when (reifier construct)
+      (let ((reifier-uri (get-reifier-uri (reifier construct))))
+	(when reifier-uri
+	  (cxml:attribute "rdf:ID" reifier-uri))))
     (cxml:with-element "rdf:Description"
       (cxml:attribute "rdf:nodeID" (make-object-id construct))
       (make-isi-type *tm2rdf-name-type-uri*)
@@ -319,9 +325,12 @@
 	    (item-identifiers construct)
 	    (/= (length (psis (instance-of construct))) 1))
 	(cxml:with-element "isi:occurrence"
+	  (when (reifier construct)
+	    (let ((reifier-uri (get-reifier-uri (reifier construct))))
+	      (when reifier-uri
+		(cxml:attribute "rdf:ID" reifier-uri))))
 	  (cxml:with-element "rdf:Description"
 	    (cxml:attribute "rdf:nodeID" (make-object-id construct))
-  	    ;(cxml:attribute "rdf:parseType" "Resource")
 	    (make-isi-type *tm2rdf-occurrence-type-uri*)
 	    (map 'list #'to-rdf-elem (item-identifiers construct))
 	    (cxml:with-element "isi:occurrencetype"
@@ -345,7 +354,8 @@
 		    (occurrences construct)))
 	   (or (used-as-type construct)
 	       (used-as-theme construct)
-	       (xml-lang-p construct)))
+	       (xml-lang-p construct)
+	       (reified construct)))
       nil ;; do not export this topic explicitly, since it has been exported as
           ;; rdf:resource, property or any other reference
       (cxml:with-element "rdf:Description"
@@ -357,7 +367,12 @@
 	      (t-occs (occurrences construct))
 	      (t-assocs (list-rdf-mapped-associations construct)))
 	  (if psi
-	      (cxml:attribute "rdf:about" (uri psi))
+	      (if (reified construct)
+		  (let ((reifier-uri (get-reifier-uri construct)))
+		    (if reifier-uri
+			(concatenate 'string "#" (get-reifier-uri construct))
+			(cxml:attribute "rdf:about" (uri psi))))
+		  (cxml:attribute "rdf:about" (uri psi)))
 	      (cxml:attribute "rdf:nodeID" (make-object-id construct)))
 	  (when (or (> (length (psis construct)) 1)
 		    ii sl t-names
@@ -518,3 +533,34 @@
 				       (roles x)))))
 		x))
 	  (elephant:get-instances-by-class 'AssociationC)))))
+
+
+(defun export-reifier(reifiable-construct)
+  "Exports the reifier-ID-attribute"
+  (declare (ReifiableConstructC reifiable-construct))
+  (let ((reifier-topic (reifier reifiable-construct)))
+    (when (and reifier-topic
+	       (psis reifier-topic))
+      (let ((reifier-uri (get-reifier-uri reifier-topic)))
+	(when reifier-uri
+	  (cxml:attribute "rdf:ID" reifier-uri))))))
+
+
+(defun get-reifier-uri (top)
+  "Returns the uri that represents the reifier-id of a resource node.
+   When the topic does not own a psi the return value is nil."
+  (declare (TopicC top))
+  (when (psis top)
+    (let ((full-uri (uri (first (psis top))))
+	  (err "From get-reifier-uri(): "))
+      (let ((slash-position (find #\/ full-uri :from-end t)))
+	(let ((hash-position (position #\# full-uri)))
+	  (if (and hash-position
+		   (/= (- (length full-uri) 1) hash-position))
+	      (subseq full-uri (- hash-position 1))
+	      (if (and slash-position
+		       (/= (- (length full-uri) 1) slash-position))
+		  (subseq full-uri (+ 1 slash-position))
+		  (if (= hash-position (+ (length full-uri) 1))
+		      (error "~athe PSI-URI ~a ends with an #" err full-uri)
+		      full-uri))))))))

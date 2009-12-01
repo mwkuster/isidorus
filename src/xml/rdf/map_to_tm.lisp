@@ -64,7 +64,7 @@
 
 
 (defun delete-instance-of-association(instance-topic type-topic)
-  "Deletes a type-instance associaiton that corresponds woith the passed
+  "Deletes a type-instance associaiton that corresponds with the passed
    parameters."
   (when (and instance-topic type-topic)
     (let ((instance (get-item-by-psi *instance-psi*))

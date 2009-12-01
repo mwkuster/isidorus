@@ -104,6 +104,7 @@
 	   :reified
 	   :reifier
 	   :add-reifier
+	   :remove-reifier
 
            :*current-xtm* ;; special variables
            :*TM-REVISION*
@@ -1609,6 +1610,14 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 		  (reified reifier-topic)))
 	 (merge-reifier-topics (reifier construct) reifier-topic)))
       construct)))
+
+
+(defgeneric remove-reifier (construct)
+  (:method ((construct ReifiableConstructC))
+    (let ((reifier-topic (reifier construct)))
+      (when reifier-topic
+	(elephant:remove-association construct 'reifier reifier-topic)
+	(elephant:remove-association reifier-topic 'reified construct)))))
 
 
 (defgeneric merge-reifier-topics (old-topic new-topic)

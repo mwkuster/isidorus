@@ -627,7 +627,6 @@
 
 
 
-;;TODO: check rdf importer
 ;;TODO: check rdf exporter
 ;;TODO: check rdf-tm-reification-mapping
 ;;TODO: check merge-reifier-topics (--> versioning)
