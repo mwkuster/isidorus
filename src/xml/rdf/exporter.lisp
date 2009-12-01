@@ -26,7 +26,8 @@
 		*tm2rdf-occurrence-type-uri*
 		*tm2rdf-topic-type-uri*
 		*tm2rdf-association-type-uri*
-		*tm2rdf-role-type-uri*)
+		*tm2rdf-role-type-uri*
+		*tm2rdf-association-reifier-property*)
   (:import-from :isidorus-threading
 		with-reader-lock
 		with-writer-lock)
@@ -442,6 +443,9 @@
     (cxml:with-element "rdf:Description" 
       (cxml:attribute "rdf:nodeID" (make-object-id association))
       (make-isi-type *tm2rdf-association-type-uri*)
+      (when (reifier association)
+	(cxml:with-element *tm2rdf-association-reifier-property*
+	  (make-topic-reference (reifier association))))
       (cxml:with-element "isi:associationtype"
 	(make-topic-reference association-type))
       (map 'list #'to-rdf-elem ii)
@@ -458,7 +462,9 @@
     (cxml:with-element "isi:role"
       (cxml:with-element "rdf:Description"
 	(cxml:attribute "rdf:nodeID" (make-object-id construct))
-        ;(cxml:attribute "rdf:parseType" "Resource")
+        (when (reifier construct)
+	  (cxml:with-element *tm2rdf-association-reifier-property*
+	    (make-topic-reference (reifier construct))))
 	(make-isi-type *tm2rdf-role-type-uri*)
 	(map 'list #'to-rdf-elem ii)
 	(cxml:with-element "isi:roletype"
@@ -471,7 +477,8 @@
   "Exports an TM association as RDF that was imported from RDF.
    This is indicated by the existence of exactly two roles. One
    of the type isi:object, the other of the type isi:subject.
-   Scopes or itemIdentifiers are also forbidden."
+   Scopes or itemIdentifiers are also forbidden.
+   If the contained roles own any reifiers they are ignored."
   (declare (AssociationC association))
   (let ((isi-subject (get-item-by-psi *rdf2tm-subject*))
 	(isi-object (get-item-by-psi *rdf2tm-object*))
@@ -485,6 +492,10 @@
       (when (and subject-role object-role
 		 (= (length association-roles) 2))
 	(with-property association
+	  (when (reifier association)
+	    (let ((reifier-uri (get-reifier-uri (reifier association))))
+	      (when reifier-uri
+		(cxml:attribute "rdf:ID" reifier-uri))))
 	  (make-topic-reference (player object-role)))))))
 
 

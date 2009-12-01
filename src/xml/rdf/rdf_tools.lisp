@@ -54,7 +54,8 @@
 		*tm2rdf-roletype-property*
 		*tm2rdf-player-property*
 		*tm2rdf-associationtype-property*
-		*rdf2tm-blank-node-prefix*)
+		*rdf2tm-blank-node-prefix*
+		*tm2rdf-association-reifier-property*)
   (:import-from :xml-constants
 		*rdf_core_psis.xtm*
 		*core_psis.xtm*)
