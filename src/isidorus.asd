@@ -113,7 +113,7 @@
 				     (:static-file "full_mapping.rdf")
 				     (:static-file "reification_xtm1.0.xtm")
 				     (:static-file "reification_xtm2.0.xtm")
-				     (:static-file "reification.xtm")
+				     (:static-file "reification.rdf")
 				     (:file "atom-conf")
 				     (:file "unittests-constants"
 					    :depends-on ("dangling_topicref.xtm"

@@ -37,7 +37,8 @@
    :test-xtm2.0-reification
    :test-xtm1.0-reification-exporter
    :test-xtm2.0-reification-exporter
-   :test-rdf-importer-reification))
+   :test-rdf-importer-reification
+   :test-rdf-importer-reification-2))
 
 
 (in-package :reification-test)
@@ -626,12 +627,27 @@
   (elephant:close-store))
 
 
+(test test-rdf-importer-reification-2
+  "Tests the rdf-importer, especially some reification cases of
+   the tm2rdf mapping."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id"))
+    (rdf-importer:rdf-importer
+     *reification.rdf* db-dir :tm-id tm-id
+     :document-id document-id :start-revision revision-1)
+
+    ))
+
+
 
 ;;TODO: check rdf exporter
 ;;TODO: check rdf-tm-reification-mapping
 ;;TODO: check merge-reifier-topics (--> versioning)
 ;;TODO: check fragment exporter
 ;;TODO: extend the fragment-importer in the RESTful-interface
+;;TODO: DOKU
 
 
 (defun run-reification-tests ()
@@ -640,4 +656,5 @@
   (it.bese.fiveam:run! 'test-xtm2.0-reification)
   (it.bese.fiveam:run! 'test-xtm1.0-reification-exporter)
   (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification))
+  (it.bese.fiveam:run! 'test-rdf-importer-reification)
+  (it.bese.fiveam:run! 'test-rdf-importer-reification-2))

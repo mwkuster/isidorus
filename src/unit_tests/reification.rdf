@@ -32,37 +32,40 @@
 
   <!-- reification in Topic-Maps-mapped-RDF -->
   <rdf:Description rdf:about="http://simpsons.tv/lisa">
-    <isi:name rdf:ID="lisa-name">
+    <isi:name>
       <rdf:Description>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
-	<isi:type rdf:resource="http://simpsons.tv/lastName"/>
+	<isi:nametype rdf:resource="http://simpsons.tv/lastName"/>
 	<isi:value>Simpson</isi:value>
-	<isi:variant rdf:ID="lisa-name-variant">
+	<isi:reifier rdf:resource="lisa-name"/>
+	<isi:variant>
 	  <rdf:Description>
 	    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Variant"/>
 	    <isi:scope rdf:resource="http://simpsons.tv/sortName"/>
 	    <isi:value>Lisa Simpson</isi:value>
+	    <isi:reifier rdf:resource="lisa-name-variant"/>
 	  </rdf:Description>
 	</isi:variant>
       </rdf:Description>
     </isi:name>
-    <isi:occurrence rdf:ID="lisa-occurrence">
+    <isi:occurrence>
       <rdf:Description>
-	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/Occurrence"/>
-	<isi:type rdf:resource="http://simpsons.tv/profession"/>
+	<isi:reifier rdf:resource="lisa-occurrence"/>
+	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Occurrence"/>
+	<isi:occurrencetype rdf:resource="http://simpsons.tv/profession"/>
 	<isi:value>Student</isi:value>
       </rdf:Description>
     </isi:occurrence>
   </rdf:Description>
 
   <!-- reifiers -->
-    <rdf:Description rdf:about="#lisa-name">
+  <rdf:Description rdf:about="lisa-name">
     <arcs:author rdf:resource="http://some.where/me"/>
   </rdf:Description>
-  <rdf:Description rdf:about="#lisa-name-variant">
+  <rdf:Description rdf:about="lisa-name-variant">
     <arcs:author rdf:resource="http://some.where/me"/>
   </rdf:Description>
-  <rdf:Description rdf:about="#lisa-occurrence">
+  <rdf:Description rdf:about="lisa-occurrence">
     <arcs:author rdf:resource="http://some.where/me"/>
   </rdf:Description>
 
@@ -70,26 +73,27 @@
   <!-- reification in Topic-Maps-mapped-RDF (TM-association) -->
   <rdf:Description>
     <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Association"/>
-    <isi:type rdf:resource="http://simpsons.tv/friendship"/>
-    <isi:association-reifier rdf:resource="friendship-association"/>
-    <isi:role rdf:ID="friend-role">
+    <isi:associationtype rdf:resource="http://simpsons.tv/friendship"/>
+    <isi:reifier rdf:resource="friendship-association"/>
+    <isi:role>
       <rdf:Description>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
-	<isi:type rdf:resource="http://simpsons.tv/friend"/>
+	<isi:roletype rdf:resource="http://simpsons.tv/friend"/>
 	<isi:player rdf:resource="http://simpsons.tv/Lenny"/>
+	<isi:reifier rdf:resource="friend-role"/>
       </rdf:Description>
     </isi:role>
     <isi:role>
       <rdf:Description>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
-	<isi:type rdf:resource="http://simpsons.tv/friend"/>
+	<isi:roletype rdf:resource="http://simpsons.tv/friend"/>
 	<isi:player rdf:resource="http://simpsons.tv/Carl"/>
       </rdf:Description>
     </isi:role>
   </rdf:Description>
 
   <!-- reifiers -->
-  <rdf:Description rdf:about="#friend-role">
+  <rdf:Description rdf:about="friend-role">
     <arcs:author rdf:resource="http://some.where/me"/>
   </rdf:Description>
   <rdf:Description rdf:about="friendship-association">

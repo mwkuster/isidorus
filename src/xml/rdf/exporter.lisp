@@ -27,7 +27,7 @@
 		*tm2rdf-topic-type-uri*
 		*tm2rdf-association-type-uri*
 		*tm2rdf-role-type-uri*
-		*tm2rdf-association-reifier-property*)
+		*tm2rdf-reifier-property*)
   (:import-from :isidorus-threading
 		with-reader-lock
 		with-writer-lock)
@@ -213,7 +213,11 @@
    or rdf:nodeID, this depends on the PSIS of the topic."
   (declare (TopicC topic))
   (if (psis topic)
-      (cxml:attribute "rdf:resource" (uri (first (psis topic))))
+      (cxml:attribute "rdf:resource"
+		      (let ((psi (get-reifier-psi topic)))
+			(if psi
+			    (concatenate 'string "#" (get-reifier-uri topic))
+			    (uri (first (psis topic))))))
       (cxml:attribute "rdf:nodeID" (make-object-id topic))))
 
 
@@ -280,13 +284,10 @@
   "Creates a blank node that represents a VariantC element with the
    properties itemIdentity, scope and value."
   (cxml:with-element "isi:variant"
-    (when (reifier construct)
-      (let ((reifier-uri (get-reifier-uri (reifier construct))))
-	(when reifier-uri
-	  (cxml:attribute "rdf:ID" reifier-uri))))
     (cxml:with-element "rdf:Description"
       (cxml:attribute "rdf:nodeID" (make-object-id construct))
       (make-isi-type *tm2rdf-variant-type-uri*)
+      (export-reifier-as-mapping construct)
       (map 'list #'to-rdf-elem (item-identifiers construct))
       (scopes-to-rdf-elems construct)
       (resourceX-to-rdf-elem construct))))
@@ -296,13 +297,10 @@
   "Creates a blank node that represents a name element with the
    properties itemIdentity, nametype, value, variant and scope."
   (cxml:with-element "isi:name"
-    (when (reifier construct)
-      (let ((reifier-uri (get-reifier-uri (reifier construct))))
-	(when reifier-uri
-	  (cxml:attribute "rdf:ID" reifier-uri))))
     (cxml:with-element "rdf:Description"
       (cxml:attribute "rdf:nodeID" (make-object-id construct))
       (make-isi-type *tm2rdf-name-type-uri*)
+      (export-reifier-as-mapping construct)
       (map 'list #'to-rdf-elem (item-identifiers construct))
       (when (slot-boundp construct 'instance-of)
 	(cxml:with-element "isi:nametype"
@@ -326,13 +324,10 @@
 	    (item-identifiers construct)
 	    (/= (length (psis (instance-of construct))) 1))
 	(cxml:with-element "isi:occurrence"
-	  (when (reifier construct)
-	    (let ((reifier-uri (get-reifier-uri (reifier construct))))
-	      (when reifier-uri
-		(cxml:attribute "rdf:ID" reifier-uri))))
 	  (cxml:with-element "rdf:Description"
 	    (cxml:attribute "rdf:nodeID" (make-object-id construct))
 	    (make-isi-type *tm2rdf-occurrence-type-uri*)
+	    (export-reifier-as-mapping construct)
 	    (map 'list #'to-rdf-elem (item-identifiers construct))
 	    (cxml:with-element "isi:occurrencetype"
 	      (make-topic-reference (instance-of construct)))
@@ -340,6 +335,7 @@
 	    (resourceX-to-rdf-elem construct)))
 	(with-property construct
 	  (cxml:attribute "rdf:datatype" (datatype construct))
+	  (export-reifier construct)
 	  (when (themes construct)
 	    (cxml:attribute "xml:lang" (get-xml-lang
 					(first (themes construct)))))
@@ -442,9 +438,7 @@
     (cxml:with-element "rdf:Description" 
       (cxml:attribute "rdf:nodeID" (make-object-id association))
       (make-isi-type *tm2rdf-association-type-uri*)
-      (when (reifier association)
-	(cxml:with-element *tm2rdf-association-reifier-property*
-	  (make-topic-reference (reifier association))))
+      (export-reifier-as-mapping association)
       (cxml:with-element "isi:associationtype"
 	(make-topic-reference association-type))
       (map 'list #'to-rdf-elem ii)
@@ -461,9 +455,7 @@
     (cxml:with-element "isi:role"
       (cxml:with-element "rdf:Description"
 	(cxml:attribute "rdf:nodeID" (make-object-id construct))
-        (when (reifier construct)
-	  (cxml:with-element *tm2rdf-association-reifier-property*
-	    (make-topic-reference (reifier construct))))
+	(export-reifier-as-mapping construct)
 	(make-isi-type *tm2rdf-role-type-uri*)
 	(map 'list #'to-rdf-elem ii)
 	(cxml:with-element "isi:roletype"
@@ -491,10 +483,7 @@
       (when (and subject-role object-role
 		 (= (length association-roles) 2))
 	(with-property association
-	  (when (reifier association)
-	    (let ((reifier-uri (get-reifier-uri (reifier association))))
-	      (when reifier-uri
-		(cxml:attribute "rdf:ID" reifier-uri))))
+	  (export-reifier association)
 	  (make-topic-reference (player object-role)))))))
 
 
@@ -554,6 +543,18 @@
       (let ((reifier-uri (get-reifier-uri reifier-topic)))
 	(when reifier-uri
 	  (cxml:attribute "rdf:ID" reifier-uri))))))
+
+
+(defun export-reifier-as-mapping (reifiable-construct)
+  "Exports the reifier as isi:reifier property."
+  (declare (ReifiableConstructC reifiable-construct))
+  (let ((reifier-topic (reifier reifiable-construct)))
+    (when (and reifier-topic
+	       (psis reifier-topic))
+      (let ((reifier-uri (get-reifier-uri reifier-topic)))
+	(when reifier-uri
+	  (cxml:with-element *tm2rdf-reifier-property*
+	    (cxml:attribute "rdf:resource" reifier-uri)))))))
 
 
 (defun get-reifier-uri (top)

@@ -105,14 +105,14 @@
 	 (get-associations-by-type assoc-top start-revision 
 				   *tm2rdf-role-property*
 				   *rdf2tm-subject*)))
-    (let ((players-and-reifiers
-	   (get-players-and-reifiers-by-role-type
+    (let ((players
+	   (get-players-by-role-type
 	    role-assocs start-revision *rdf2tm-object*))) 
       (map 'list #'d::delete-construct role-assocs)
-      players-and-reifiers)))
+      players)))
 
 
-(defun map-isi-role(role-top reifier-topic start-revision)
+(defun map-isi-role(role-top start-revision)
   "Maps a passed topic with all its isidorus:types to a
    property list representing an association-role."
   (declare (TopicC role-top))
@@ -130,7 +130,8 @@
     (let ((types (get-players-by-role-type
 		  type-assocs start-revision *rdf2tm-object*))
 	  (role-players (get-players-by-role-type
-			 player-assocs start-revision *rdf2tm-object*)))
+			 player-assocs start-revision *rdf2tm-object*))
+	  (reifiers (get-isi-reifiers role-top start-revision)))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct player-assocs)
@@ -145,7 +146,7 @@
 	(list :instance-of (first types)
 	      :player (first role-players)
 	      :item-identifiers ids
-	      :reifier reifier-topic)))))
+	      :reifiers reifiers)))))
 
 
 (defun map-isi-association(assoc-top start-revision tm-id
@@ -160,28 +161,21 @@
 	 (get-associations-by-type
 	  assoc-top start-revision *tm2rdf-associationtype-property*
 	  *rdf2tm-subject*))
-	(reifier-assocs
-	 (get-associations-by-type
-	  assoc-top start-revision *tm2rdf-association-reifier-property*
-	  *rdf2tm-subject*))
 	(scope-assocs
 	 (get-associations-by-type
 	  assoc-top start-revision *tm2rdf-scope-property*
 	  *rdf2tm-subject*))
-	(role-and-reifier-topics (get-isi-roles assoc-top start-revision)))
+	(role-topics (get-isi-roles assoc-top start-revision)))
     (let ((types (get-players-by-role-type
 		  type-assocs start-revision *rdf2tm-object*))
 	  (scopes (get-players-by-role-type
 		   scope-assocs start-revision *rdf2tm-object*))
-	  (reifier-topics (get-players-by-role-type
-			   reifier-assocs start-revision  *rdf2tm-object*))
+	  (reifier-topics (get-isi-reifiers assoc-top start-revision))
 	  (assoc-roles 
 	   (remove-if #'null (map 'list 
-				  #'(lambda(role-and-reifier)
-				      (map-isi-role (getf role-and-reifier :player)
-						    (getf role-and-reifier :reifier)
-						    start-revision))
-				  role-and-reifier-topics))))
+				  #'(lambda(role-topic)
+				      (map-isi-role role-topic start-revision))
+				  role-topics))))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct scope-assocs)
@@ -210,13 +204,14 @@
 							  (getf list-item :instance-of))
 						     (eql (player association-role)
 							  (getf list-item :player))
-						     (getf list-item :reifier)))
+						     (getf list-item :reifiers)))
 					    assoc-roles)))
 			      (when found-item
-				(add-reifier association-role (getf found-item :reifier)))))
+				(dolist (reifier-topic (getf found-item :reifiers))
+				  (add-reifier association-role reifier-topic)))))
 		  (roles association))
-	     (when reifier-topics
-	       (add-reifier association (first reifier-topics)))
+	     (dolist (reifier-topic reifier-topics)
+	       (add-reifier association reifier-topic))
 	     association)))))))
 
 
@@ -232,21 +227,17 @@
 		       top start-revision
 		       :id-type-uri *tm2rdf-subjectlocator-property*))
 	(new-item-ids (map-isi-identifiers top start-revision))
-	(occurrence-and-reifier-topics (get-isi-occurrences top start-revision))
-	(name-and-reifier-topics (get-isi-names top start-revision)))
+	(occurrence-topics (get-isi-occurrences top start-revision))
+	(name-topics (get-isi-names top start-revision)))
     (bound-subject-identifiers top new-psis)
     (bound-subject-locators top new-locators)
     (bound-item-identifiers top new-item-ids)
-    (map 'list #'(lambda(occurrence-and-reifier)
-		   (map-isi-occurrence top (getf occurrence-and-reifier :player)
-				       (getf occurrence-and-reifier :reifier)
-				       start-revision))
-	 occurrence-and-reifier-topics)
-    (map 'list #'(lambda(name-and-reifier)
-		   (map-isi-name top (getf name-and-reifier :player)
-				 (getf name-and-reifier :reifier)
-				 start-revision))
-	 name-and-reifier-topics))
+    (map 'list #'(lambda(occurrence-topic)
+		   (map-isi-occurrence top occurrence-topic start-revision))
+	 occurrence-topics)
+    (map 'list #'(lambda(name-topic)
+		   (map-isi-name top name-topic start-revision))
+	 name-topics))
   top)
 
 
@@ -258,14 +249,14 @@
 	 (get-associations-by-type name-top start-revision 
 				   *tm2rdf-variant-property*
 				   *rdf2tm-subject*)))
-    (let ((players-and-reifiers
-	   (get-players-and-reifiers-by-role-type
+    (let ((players
+	   (get-players-by-role-type
 	    variant-assocs start-revision *rdf2tm-object*)))
       (map 'list #'d::delete-construct variant-assocs)
-      players-and-reifiers)))
+      players)))
 
 
-(defun map-isi-variant (name variant-top reifier-topic start-revision)
+(defun map-isi-variant (name variant-top start-revision)
   "Maps the passed variant-topic to a TM variant."
   (declare (TopicC variant-top))
   (declare (NameC name))
@@ -288,7 +279,8 @@
 		 (list :value (charvalue value-occ)
 		       :datatype (datatype value-occ))
 		 (list :value ""
-		       :datatype *xml-string*)))))
+		       :datatype *xml-string*))))
+	  (reifiers (get-isi-reifiers variant-top start-revision)))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct scope-assocs)
 	(delete-related-associations variant-top)
@@ -301,11 +293,12 @@
 			       :charvalue (getf value-and-datatype :value)
 			       :datatype (getf value-and-datatype :datatype)
 			       :name name)))
-	  (add-reifier variant reifier-topic)
+	  (dolist (reifier-topic reifiers)
+	    (add-reifier variant reifier-topic))
 	  variant)))))
 
 
-(defun map-isi-name (top name-top reifier-topic start-revision)
+(defun map-isi-name (top name-top start-revision)
   "Maps the passed occurrence-topic to a TM occurrence."
   (declare (TopicC top name-top))
   (declare (integer start-revision))
@@ -320,7 +313,7 @@
 	  *rdf2tm-subject*))
 	(value-type-topic 
 	 (get-item-by-psi *tm2rdf-value-property*))
-	(variant-and-reifier-topics (get-isi-variants name-top start-revision)))
+	(variant-topics (get-isi-variants name-top start-revision)))
     (let ((type (let ((fn-types
 			(get-players-by-role-type
 			 type-assocs start-revision *rdf2tm-object*)))
@@ -335,7 +328,8 @@
 			   (occurrences name-top))))
 	     (if value-occ
 		 (charvalue value-occ)
-		 ""))))
+		 "")))
+	  (reifiers (get-isi-reifiers name-top start-revision)))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct scope-assocs)
@@ -346,14 +340,14 @@
 				    :instance-of type
 				    :item-identifiers ids
 				    :themes scopes)))
-	  (add-reifier name reifier-topic)
-	  (map 'list #'(lambda(variant-and-reifier)
-			 (map-isi-variant name (getf variant-and-reifier :player)
-					  (getf variant-and-reifier :reifier)
+	  (map 'list #'(lambda(variant-topic)
+			 (map-isi-variant name variant-topic
 					  start-revision))
-	       variant-and-reifier-topics)
+	       variant-topics)
 	  (delete-related-associations name-top)
 	  (d::delete-construct name-top)
+	  (dolist (reifier-topic reifiers)
+	    (add-reifier name reifier-topic))
 	  name)))))
 
 
@@ -364,14 +358,14 @@
   (let ((assocs (get-associations-by-type
 		 top start-revision *tm2rdf-name-property*
 		 *rdf2tm-subject*)))
-    (let ((name-and-reifier-topics
-	   (get-players-and-reifiers-by-role-type
+    (let ((name-topics
+	   (get-players-by-role-type
 	    assocs start-revision *rdf2tm-object*)))
       (map 'list #'d::delete-construct assocs)
-      name-and-reifier-topics)))
+      name-topics)))
 
 
-(defun map-isi-occurrence(top occ-top reifier-topic start-revision)
+(defun map-isi-occurrence(top occ-top start-revision)
   "Maps all topics that represents occurrences of the passed topic top
    to occurrence objects."
   (declare (TopicC top occ-top))
@@ -401,7 +395,8 @@
 		 (list :value (charvalue value-occ)
 		       :datatype (datatype value-occ))
 		 (list :value ""
-		       :datatype *xml-string*)))))
+		       :datatype *xml-string*))))
+	  (reifiers (get-isi-reifiers occ-top start-revision)))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct scope-assocs)
@@ -419,7 +414,8 @@
 			       :instance-of (first types)
 			       :charvalue (getf value-and-datatype :value)
 			       :datatype (getf value-and-datatype :datatype))))
-	  (add-reifier occurrence reifier-topic)
+	  (dolist (reifier-topic reifiers)
+	    (add-reifier occurrence reifier-topic))
 	  occurrence)))))
 
 
@@ -430,11 +426,11 @@
   (let ((assocs (get-associations-by-type
 		 top start-revision *tm2rdf-occurrence-property*
 		 *rdf2tm-subject*)))
-    (let ((occurrences-and-reifiers
-	   (get-players-and-reifiers-by-role-type
+    (let ((occurrence-topics
+	   (get-players-by-role-type
 	    assocs start-revision *rdf2tm-object*)))
       (map 'list #'d::delete-construct assocs)
-      occurrences-and-reifiers)))
+      occurrence-topics)))
 
 
 (defun get-isi-topics (tm-id start-revision
@@ -509,31 +505,6 @@
 		 associations))))
       players)))
 
-
-(defun get-players-and-reifiers-by-role-type (associations start-revision
-					     role-type-psi)
-  "Returns tuples of the form (:player <player> :reifier <reifier>)"
-    (declare (list associations))
-  (declare (integer start-revision))
-  (declare (string role-type-psi))
-  (let ((role-type (get-item-by-psi role-type-psi
-				    :revision start-revision)))
-    (let ((tuples
-	   (remove-if
-	    #'null
-	    (map 'list
-		 #'(lambda(assoc)
-		     (let ((role 
-			    (find-if #'(lambda(role)
-					 (eql role-type (instance-of role)))
-				     (roles assoc))))
-		       (when role
-			 (let ((reifier-topic (reifier assoc)))
-			   (list :player (player role)
-				 :reifier reifier-topic)))))
-		 associations))))
-      tuples)))
-  
 
 (defun get-occurrences-by-type (top start-revision
 			       &key (occurrence-type-uri
@@ -626,3 +597,16 @@
 	(d::delete-construct id)
 	(setf (identified-construct id) top)))
   top)
+
+
+(defun get-isi-reifiers (construct start-revision)
+  "Returns all reifiers from the passed construct."
+  (declare (TopicC construct))
+  (let ((reifier-assocs
+	 (get-associations-by-type
+	  construct start-revision *tm2rdf-reifier-property*
+	  *rdf2tm-subject*)))
+    (let ((reifiers
+	   (get-players-by-role-type
+	    reifier-assocs start-revision *rdf2tm-object*)))
+      reifiers)))

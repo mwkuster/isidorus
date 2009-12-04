@@ -63,7 +63,7 @@
 	   :*tm2rdf-associationtype-property*
 	   :*tm2rdf-player-property*
 	   :*rdf2tm-blank-node-prefix*
-	   :*tm2rdf-association-reifier-property*))
+	   :*tm2rdf-reifier-property*))
 	   
 
 (in-package :constants)
@@ -173,4 +173,4 @@
 
 (defparameter *tm2rdf-player-property* (concatenate 'string *tm2rdf-ns* "player"))
 
-(defparameter *tm2rdf-association-reifier-property* (concatenate 'string *tm2rdf-ns* "association-reifier"))
+(defparameter *tm2rdf-reifier-property* (concatenate 'string *tm2rdf-ns* "reifier"))
