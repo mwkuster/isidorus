@@ -502,7 +502,7 @@
   "Returns all associations that were mapped from RDF to TM
    and are still having two roles of the type isi:subject and
    isi:object."
-  (declare (Topic Csubject-topic))
+  (declare (TopicC subject-topic))
   (let ((isi-subject (get-item-by-psi *rdf2tm-subject*))
 	(isi-object (get-item-by-psi *rdf2tm-object*)))
     (let ((topic-roles
