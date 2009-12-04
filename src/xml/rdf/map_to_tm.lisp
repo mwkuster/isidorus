@@ -45,7 +45,7 @@
 	       *tm2rdf-occurrence-property* *tm2rdf-roletype-property*
 	       *tm2rdf-variant-property* *tm2rdf-occurrencetype-property* 
 	       *tm2rdf-name-property* *tm2rdf-associationtype-property*
-	       *tm2rdf-scope-property*)))
+	       *tm2rdf-scope-property* *tm2rdf-reifier-property*)))
     (dolist (uri psi-uris)
       (delete-topic-if-not-referenced uri start-revision))))
 

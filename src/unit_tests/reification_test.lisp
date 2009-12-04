@@ -38,7 +38,8 @@
    :test-xtm1.0-reification-exporter
    :test-xtm2.0-reification-exporter
    :test-rdf-importer-reification
-   :test-rdf-importer-reification-2))
+   :test-rdf-importer-reification-2
+   :test-rdf-importer-reification-3))
 
 
 (in-package :reification-test)
@@ -550,6 +551,7 @@
 		      "<arcs:arc4 rdf:resource=\"fifth-node\" />"
 		      "</rdf:Description>"
 		      "</rdf:RDF>")))
+    (clean-out-db db-dir)
     (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
       (is-true dom-1)
       (is (= (length (dom:child-nodes dom-1)) 1))
@@ -634,11 +636,67 @@
 	(tm-id "http://test-tm/")
 	(revision-1 100)
 	(document-id "doc-id"))
+    (clean-out-db db-dir)
     (rdf-importer:rdf-importer
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
+    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (let ((homer (get-item-by-id "http://simpsons.tv/homer" :xtm-id document-id))
+	  (bart (get-item-by-id "http://simpsons.tv/bart" :xtm-id document-id))
+	  (married (get-item-by-id "http://simpsons.tv/arcs/married" :xtm-id document-id)))
+      (is-true homer)
+      (is-true bart)
+      (is-true married)
+      (is (= (length (used-as-type married)) 1))
+      (is-true (reifier (first (used-as-type married))))
+      (is-true (reified (reifier (first (used-as-type married)))))
+      (is (= (length (psis (reifier (first (used-as-type married))))) 1))
+      (is (string= (uri (first (psis (reifier (first (used-as-type married))))))
+		   "http://test-tm#married-arc"))
+      (is (= (length (occurrences bart)) 1))
+      (is-true (reifier (first (occurrences bart))))
+      (is-true (reified (reifier (first (occurrences bart)))))
+      (is (string= (uri (first (psis (reifier (first (occurrences bart))))))
+		   "http://test-tm#lastName-arc"))))
+  (elephant:close-store))
 
-    ))
+
+(test test-rdf-importer-reification-3
+  "Tests the rdf-importer, especially some reification cases of
+   the tm2rdf mapping."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id"))
+    (clean-out-db db-dir)
+    (rdf-importer:rdf-importer
+     *reification.rdf* db-dir :tm-id tm-id
+     :document-id document-id :start-revision revision-1)
+    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (let ((lisa (get-item-by-id "http://simpsons.tv/lisa" :xtm-id document-id)))
+      (is-true lisa)
+      (is (= (length (names lisa)) 1))
+      (is (= (length (occurrences lisa)) 1))
+      (let ((name (first (names lisa)))
+	    (occurrence (first (occurrences lisa))))
+	(is (= (length (variants name)) 1))
+	(let ((variant (first (variants name))))
+	  (is-true (reifier name))
+	  (is-true (reified (reifier name)))
+	  (is (= (length (psis (reifier name))) 1))
+	  (is (string= (uri (first (psis (reifier name))))
+		       (concatenate 'string tm-id "lisa-name")))
+	  (is-true (reifier variant))
+	  (is-true (reified (reifier variant)))
+	  (is (= (length (psis (reifier variant))) 1))
+	  (is (string= (uri (first (psis (reifier variant))))
+		       (concatenate 'string tm-id "lisa-name-variant")))
+	  (is-true (reifier occurrence))
+	  (is-true (reified (reifier occurrence)))
+	  (is (= (length (psis (reifier occurrence))) 1))
+	  (is (string= (uri (first (psis (reifier occurrence))))
+		       (concatenate 'string tm-id "lisa-occurrence")))))))
+  (elephant:close-store))
 
 
 
@@ -647,6 +705,7 @@
 ;;TODO: check merge-reifier-topics (--> versioning)
 ;;TODO: check fragment exporter
 ;;TODO: extend the fragment-importer in the RESTful-interface
+;;TODO: Delete the tm2rdf-mapping-constructs --> maybe there is a bug in the map-to-tm-file???
 ;;TODO: DOKU
 
 
@@ -657,4 +716,5 @@
   (it.bese.fiveam:run! 'test-xtm1.0-reification-exporter)
   (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter)
   (it.bese.fiveam:run! 'test-rdf-importer-reification)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification-2))
+  (it.bese.fiveam:run! 'test-rdf-importer-reification-2)
+  (it.bese.fiveam:run! 'test-rdf-importer-reification-3))

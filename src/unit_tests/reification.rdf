@@ -32,6 +32,7 @@
 
   <!-- reification in Topic-Maps-mapped-RDF -->
   <rdf:Description rdf:about="http://simpsons.tv/lisa">
+    <rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Topic"/>
     <isi:name>
       <rdf:Description>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Name"/>
