@@ -80,15 +80,15 @@
       <rdf:Description>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
 	<isi:roletype rdf:resource="http://simpsons.tv/friend"/>
-	<isi:player rdf:resource="http://simpsons.tv/Lenny"/>
-	<isi:reifier rdf:resource="friend-role"/>
+	<isi:player rdf:resource="http://simpsons.tv/lenny"/>
       </rdf:Description>
     </isi:role>
     <isi:role>
       <rdf:Description>
 	<rdf:type rdf:resource="http://isidorus/tm2rdf_mapping/types/Role"/>
 	<isi:roletype rdf:resource="http://simpsons.tv/friend"/>
-	<isi:player rdf:resource="http://simpsons.tv/Carl"/>
+	<isi:player rdf:resource="http://simpsons.tv/carl"/>
+	<isi:reifier rdf:resource="friend-role"/>
       </rdf:Description>
     </isi:role>
   </rdf:Description>

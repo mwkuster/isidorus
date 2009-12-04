@@ -39,7 +39,8 @@
    :test-xtm2.0-reification-exporter
    :test-rdf-importer-reification
    :test-rdf-importer-reification-2
-   :test-rdf-importer-reification-3))
+   :test-rdf-importer-reification-3
+   :test-rdf-importer-reification-4))
 
 
 (in-package :reification-test)
@@ -699,9 +700,46 @@
   (elephant:close-store))
 
 
+(test test-rdf-importer-reification-4
+  "Tests the rdf-importer, especially some reification cases of
+   the tm2rdf mapping."
+  (let ((db-dir "data_base")
+	(tm-id "http://test-tm/")
+	(revision-1 100)
+	(document-id "doc-id"))
+    (clean-out-db db-dir)
+    (rdf-importer:rdf-importer
+     *reification.rdf* db-dir :tm-id tm-id
+     :document-id document-id :start-revision revision-1)
+    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (let ((friendship (get-item-by-id "http://simpsons.tv/friendship" :xtm-id document-id))
+	  (carl (get-item-by-id "http://simpsons.tv/carl" :xtm-id document-id)))
+      (is-true friendship)
+      (is-true carl)
+      (is (= (length (used-as-type friendship)) 1))
+      (is (typep (first (used-as-type friendship)) 'd:AssociationC))
+      (let ((friendship-association (first (used-as-type friendship))))
+	(is-true (reifier friendship-association))
+	(is-true (reified (reifier friendship-association)))
+	(is (= (length (psis (reifier friendship-association))) 1))
+	(is (string= (uri (first (psis (reifier friendship-association))))
+		     (concatenate 'string tm-id "friendship-association")))
+	(is (= (length (roles friendship-association)) 2))
+	(let ((carl-role
+	       (find-if #'(lambda(role)
+			    (eql (player role) carl))
+			(roles friendship-association))))
+	  (is-true carl-role)
+	  (is-true (reifier carl-role))
+	  (is-true (reified (reifier carl-role)))
+	  (is (= (length (psis (reifier carl-role))) 1))
+	  (is (string= (uri (first (psis (reifier carl-role))))
+		       (concatenate 'string tm-id "friend-role")))))))
+  (elephant:close-store))
+
+
 
 ;;TODO: check rdf exporter
-;;TODO: check rdf-tm-reification-mapping
 ;;TODO: check merge-reifier-topics (--> versioning)
 ;;TODO: check fragment exporter
 ;;TODO: extend the fragment-importer in the RESTful-interface
@@ -717,4 +755,5 @@
   (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter)
   (it.bese.fiveam:run! 'test-rdf-importer-reification)
   (it.bese.fiveam:run! 'test-rdf-importer-reification-2)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification-3))
+  (it.bese.fiveam:run! 'test-rdf-importer-reification-3)
+  (it.bese.fiveam:run! 'test-rdf-importer-reification-4))
