@@ -214,10 +214,12 @@
   (declare (TopicC topic))
   (if (psis topic)
       (cxml:attribute "rdf:resource"
-		      (let ((psi (get-reifier-psi topic)))
-			(if psi
-			    (concatenate 'string "#" (get-reifier-uri topic))
-			    (uri (first (psis topic))))))
+		      (if (reified topic)
+			  (let ((psi (get-reifier-psi topic)))
+			    (if psi
+				(concatenate 'string "#" (get-reifier-uri topic))
+				(uri (first (psis topic)))))
+			  (uri (first (psis topic)))))
       (cxml:attribute "rdf:nodeID" (make-object-id topic))))
 
 
@@ -351,8 +353,7 @@
 		    (occurrences construct)))
 	   (or (used-as-type construct)
 	       (used-as-theme construct)
-	       (xml-lang-p construct)
-	       (reified construct)))
+	       (xml-lang-p construct)))
       nil ;; do not export this topic explicitly, since it has been exported as
           ;; rdf:resource, property or any other reference
       (cxml:with-element "rdf:Description"
@@ -366,7 +367,7 @@
 	      (if (reified construct)
 		  (let ((reifier-uri (get-reifier-uri construct)))
 		    (if reifier-uri
-			(concatenate 'string "#" (get-reifier-uri construct))
+			(cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
 			(cxml:attribute "rdf:about" (uri psi))))
 		  (cxml:attribute "rdf:about" (uri psi)))
 	      (cxml:attribute "rdf:nodeID" (make-object-id construct)))
@@ -553,7 +554,7 @@
 	       (psis reifier-topic))
       (let ((reifier-uri (get-reifier-uri reifier-topic)))
 	(when reifier-uri
-	  (cxml:with-element *tm2rdf-reifier-property*
+	  (cxml:with-element "isi:reifier"
 	    (cxml:attribute "rdf:resource" reifier-uri)))))))
 
 
@@ -567,11 +568,11 @@
 	     (when reifier-psi
 	       (uri reifier-psi))))
 	  (err "From get-reifier-uri(): "))
-      (let ((slash-position (find #\/ full-uri :from-end t)))
+      (let ((slash-position (position #\/ full-uri :from-end t)))
 	(let ((hash-position (position #\# full-uri)))
 	  (if (and hash-position
 		   (/= (- (length full-uri) 1) hash-position))
-	      (subseq full-uri (- hash-position 1))
+	      (subseq full-uri (+ hash-position 1))
 	      (if (and slash-position
 		       (/= (- (length full-uri) 1) slash-position))
 		  (subseq full-uri (+ 1 slash-position))

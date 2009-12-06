@@ -40,7 +40,8 @@
    :test-rdf-importer-reification
    :test-rdf-importer-reification-2
    :test-rdf-importer-reification-3
-   :test-rdf-importer-reification-4))
+   :test-rdf-importer-reification-4
+   :test-rdf-reification-exporter))
 
 
 (in-package :reification-test)
@@ -521,6 +522,8 @@
 			      when (string= (dom:get-attribute ii "href") "http://simpsons.tv/married-husband-role")
 			      return t)
 		      return t)))))
+    (handler-case (delete-file output-file)
+      (error () )) ;do nothing
     (elephant:close-store)))
 
 
@@ -738,6 +741,27 @@
   (elephant:close-store))
 
 
+(test test-rdf-reification-exporter
+  "Tests the reification in the rdf-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.rdf")
+       (tm-id "http://simpsons.tv"))
+    (handler-case (delete-file output-file)
+      (error () )) ;do nothing
+    (rdf-importer:rdf-importer *reification.rdf*
+       :tm-id tm-id
+       :document-id "reification-xtm")
+      (rdf-exporter:export-rdf output-file :tm-id tm-id)
+      (let ((document
+	     (dom:document-element
+	      (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+	))
+  (handler-case (delete-file output-file)
+    (error () )) ;do nothing
+  (elephant:close-store))
+
+
 
 ;;TODO: check rdf exporter
 ;;TODO: check merge-reifier-topics (--> versioning)
@@ -756,4 +780,5 @@
   (it.bese.fiveam:run! 'test-rdf-importer-reification)
   (it.bese.fiveam:run! 'test-rdf-importer-reification-2)
   (it.bese.fiveam:run! 'test-rdf-importer-reification-3)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification-4))
+  (it.bese.fiveam:run! 'test-rdf-importer-reification-4)
+  (it.bese.fiveam:run! 'test-rdf-reification-exporter))
