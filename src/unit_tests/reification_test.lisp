@@ -42,7 +42,9 @@
    :test-rdf-importer-reification-3
    :test-rdf-importer-reification-4
    :test-rdf-exporter-reification
-   :test-rdf-exporter-reification-2))
+   :test-rdf-exporter-reification-2
+   :test-rdf-exporter-reification-3
+   :test-rdf-exporter-reification-4))
 
 
 (in-package :reification-test)
@@ -831,16 +833,145 @@
     (let ((document
 	   (dom:document-element
 	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
-      )
+      (let ((lisa
+	     (loop for resource across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns resource *rdf-ns* "about")))
+		       (and (stringp about) (string= about "http://simpsons.tv/lisa")))
+		return resource)))
+	(is-true lisa)
+	(let ((lisa-name
+	       (let ((arc
+		      (xpath-single-child-elem-by-qname lisa "http://isidorus/tm2rdf_mapping/" "name")))
+		 (when arc
+		   (xpath-single-child-elem-by-qname arc *rdf-ns* "Description"))))
+	      (lisa-occurrence
+	       (xpath-single-child-elem-by-qname lisa "http://simpsons.tv/" "profession")))
+	  (is-true lisa-name)
+	  (is-true lisa-occurrence)
+	  (let ((lisa-name-variant
+		 (let ((arc
+			(xpath-single-child-elem-by-qname lisa-name "http://isidorus/tm2rdf_mapping/" "variant")))
+		   (when arc
+		     (xpath-single-child-elem-by-qname arc *rdf-ns* "Description")))))
+	    (is-true lisa-name-variant)
+	    (let ((name-reifier
+		   (let ((elem
+			  (xpath-single-child-elem-by-qname
+			   lisa-name "http://isidorus/tm2rdf_mapping/" "reifier")))
+		     (when elem
+		       (dom:get-attribute-ns elem *rdf-ns* "resource"))))
+		  (variant-reifier
+		   (let ((elem
+			  (xpath-single-child-elem-by-qname
+			   lisa-name-variant "http://isidorus/tm2rdf_mapping/" "reifier")))
+		     (when elem
+		       (dom:get-attribute-ns elem *rdf-ns* "resource"))))
+		  (occurrence-reifier (dom:get-attribute-ns lisa-occurrence *rdf-ns* "ID")))
+	      (is (and (stringp name-reifier)
+		       (string= name-reifier "lisa-name")))
+	      (is (and (stringp variant-reifier)
+		       (string= variant-reifier "lisa-name-variant")))
+	      (is (and (stringp occurrence-reifier)
+		       (string= occurrence-reifier "lisa-occurrence"))))))))
     (handler-case (delete-file output-file)
       (error () ))) ;do nothing
   (elephant:close-store))
 
-;;TODO: check rdf exporter
+
+(test test-rdf-exporter-reification-3
+  "Tests the reification in the rdf-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.rdf")
+       (tm-id "http://simpsons.tv"))
+    (handler-case (delete-file output-file)
+      (error () )) ;do nothing
+    (clean-out-db dir)
+    (rdf-importer:rdf-importer *reification.rdf* dir
+       :tm-id tm-id
+       :document-id "reification-xtm")
+    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (let ((document
+	   (dom:document-element
+	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+      (let ((homer
+	     (loop for resource across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns resource *rdf-ns* "about")))
+		       (and (stringp about) (string= about "http://simpsons.tv/homer")))
+		return resource)))
+	(is-true homer)
+	(let ((married-arc
+	       (xpath-single-child-elem-by-qname homer "http://simpsons.tv/arcs/" "married")))
+	  (is-true married-arc)
+	  (let ((reifier-id (dom:get-attribute-ns married-arc *rdf-ns* "ID")))
+	    (is (and (stringp reifier-id)
+		     (string= reifier-id "married-arc")))))))
+    (handler-case (delete-file output-file)
+      (error () ))) ;do nothing
+  (elephant:close-store))
+
+
+(test test-rdf-exporter-reification-4
+  "Tests the reification in the rdf-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.rdf")
+       (tm-id "http://simpsons.tv"))
+    (handler-case (delete-file output-file)
+      (error () )) ;do nothing
+    (clean-out-db dir)
+    (rdf-importer:rdf-importer *reification.rdf* dir
+       :tm-id tm-id
+       :document-id "reification-xtm")
+    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (let ((document
+	   (dom:document-element
+	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+      (let ((association
+	     (loop for resource across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((type (xpath-single-child-elem-by-qname resource *rdf-ns* "type")))
+		       (when type
+			 (let ((type-uri
+				(dom:get-attribute-ns type *rdf-ns* "resource")))
+			   (and (stringp type-uri)
+				(string= type-uri "http://isidorus/tm2rdf_mapping/types/Association")))))
+		return resource)))
+	(is-true association)
+	(let ((role
+	       (loop for resource across
+		    (xpath-child-elems-by-qname association "http://isidorus/tm2rdf_mapping/" "role")
+		  when (let ((description (xpath-single-child-elem-by-qname resource *rdf-ns* "Description")))
+			 (when description
+			   (xpath-single-child-elem-by-qname
+			    description "http://isidorus/tm2rdf_mapping/" "reifier")))
+		  return (xpath-single-child-elem-by-qname resource *rdf-ns* "Description"))))
+	  (is-true role)
+	  (let ((association-reifier
+		 (let ((elem (xpath-single-child-elem-by-qname
+			      association "http://isidorus/tm2rdf_mapping/" "reifier")))
+		   (when elem
+		     (dom:get-attribute-ns elem *rdf-ns* "resource"))))
+		(role-reifier
+		 (let ((elem (xpath-single-child-elem-by-qname
+			      role "http://isidorus/tm2rdf_mapping/" "reifier")))
+		   (when elem
+		     (dom:get-attribute-ns elem *rdf-ns* "resource")))))
+	    (is-true association-reifier)
+	    (is-true role-reifier)
+	    (is (and (stringp association-reifier)
+		     (string= association-reifier "friendship-association")))
+	    (is (and (stringp role-reifier)
+		     (string= role-reifier "friend-role")))))))
+    (handler-case (delete-file output-file)
+      (error () ))) ;do nothing
+  (elephant:close-store))
+
+
 ;;TODO: check merge-reifier-topics (--> versioning)
 ;;TODO: check fragment exporter
 ;;TODO: extend the fragment-importer in the RESTful-interface
-;;TODO: Delete the tm2rdf-mapping-constructs --> maybe there is a bug in the map-to-tm-file???
 ;;TODO: DOKU
 
 
@@ -855,4 +986,6 @@
   (it.bese.fiveam:run! 'test-rdf-importer-reification-3)
   (it.bese.fiveam:run! 'test-rdf-importer-reification-4)
   (it.bese.fiveam:run! 'test-rdf-exporter-reification)
-  (it.bese.fiveam:run! 'test-rdf-exporter-reification-2))
+  (it.bese.fiveam:run! 'test-rdf-exporter-reification-2)
+  (it.bese.fiveam:run! 'test-rdf-exporter-reification-3)
+  (it.bese.fiveam:run! 'test-rdf-exporter-reification-4))
