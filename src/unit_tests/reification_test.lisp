@@ -41,7 +41,8 @@
    :test-rdf-importer-reification-2
    :test-rdf-importer-reification-3
    :test-rdf-importer-reification-4
-   :test-rdf-reification-exporter))
+   :test-rdf-exporter-reification
+   :test-rdf-exporter-reification-2))
 
 
 (in-package :reification-test)
@@ -741,7 +742,7 @@
   (elephant:close-store))
 
 
-(test test-rdf-reification-exporter
+(test test-rdf-exporter-reification
   "Tests the reification in the rdf-exporter."
   (let
       ((dir "data_base")
@@ -749,19 +750,91 @@
        (tm-id "http://simpsons.tv"))
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
-    (rdf-importer:rdf-importer *reification.rdf*
+    (clean-out-db dir)
+    (rdf-importer:rdf-importer *reification.rdf* dir
        :tm-id tm-id
        :document-id "reification-xtm")
-      (rdf-exporter:export-rdf output-file :tm-id tm-id)
-      (let ((document
-	     (dom:document-element
-	      (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
-	))
-  (handler-case (delete-file output-file)
-    (error () )) ;do nothing
+    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (let ((document
+	   (dom:document-element
+	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+      (let ((married-arc
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#married-arc")))
+		return reifier-node))
+	    (lastName-arc
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#lastName-arc")))
+		return reifier-node))
+	    (lisa-name
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#lisa-name")))
+		return reifier-node))
+	    (lisa-name-variant
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#lisa-name-variant")))
+		return reifier-node))
+	    (lisa-occurrence
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#lisa-occurrence")))
+		return reifier-node))
+	    (friendship-association
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#friendship-association")))
+		return reifier-node))
+	    (friend-role
+	     (loop for reifier-node across (xpath-child-elems-by-qname document *rdf-ns* "Description")
+		when (let ((about (dom:get-attribute-ns reifier-node *rdf-ns* "about")))
+		       (and (stringp about) (string= about "#friend-role")))
+		return reifier-node)))
+	(is-true married-arc)
+	(is-true lastName-arc)
+	(is-true lisa-name)
+	(is-true lisa-name-variant)
+	(is-true lisa-occurrence)
+	(is-true friendship-association)
+	(is-true friend-role)
+	(dolist (reifier-node (list married-arc lastName-arc lisa-name
+				    lisa-name-variant lisa-occurrence
+				    friendship-association friend-role))
+	  (let ((author-arc
+		 (xpath-single-child-elem-by-qname reifier-node "http://simpsons.tv/arcs/" "author")))
+	    (is-true author-arc)
+	    (let ((resource (dom:get-attribute-ns author-arc *rdf-ns* "resource")))
+	      (is (and (stringp resource) (string= resource "http://some.where/me"))))))))
+    (handler-case (delete-file output-file)
+      (error () ))) ;do nothing
   (elephant:close-store))
 
 
+(test test-rdf-exporter-reification-2
+  "Tests the reification in the rdf-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.rdf")
+       (tm-id "http://simpsons.tv"))
+    (handler-case (delete-file output-file)
+      (error () )) ;do nothing
+    (clean-out-db dir)
+    (rdf-importer:rdf-importer *reification.rdf* dir
+       :tm-id tm-id
+       :document-id "reification-xtm")
+    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (let ((document
+	   (dom:document-element
+	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
+      )
+    (handler-case (delete-file output-file)
+      (error () ))) ;do nothing
+  (elephant:close-store))
 
 ;;TODO: check rdf exporter
 ;;TODO: check merge-reifier-topics (--> versioning)
@@ -781,4 +854,5 @@
   (it.bese.fiveam:run! 'test-rdf-importer-reification-2)
   (it.bese.fiveam:run! 'test-rdf-importer-reification-3)
   (it.bese.fiveam:run! 'test-rdf-importer-reification-4)
-  (it.bese.fiveam:run! 'test-rdf-reification-exporter))
+  (it.bese.fiveam:run! 'test-rdf-exporter-reification)
+  (it.bese.fiveam:run! 'test-rdf-exporter-reification-2))

@@ -1640,7 +1640,7 @@ copied. Returns nil if neither association nor role identifiers had to be copied
 	(add-association scoped-construct 'themes old-topic))
       ;merges all topic-maps
       (dolist (tm (in-topicmaps new-topic))
-	(add-association tm 'topic old-topic)) ;the new-topic is removed from this tm by deleting it
+	(add-association tm 'topics old-topic)) ;the new-topic is removed from this tm by deleting it
       ;merges all role-players
       (dolist (a-role (player-in-roles new-topic))
 	(remove-association a-role 'player new-topic)
