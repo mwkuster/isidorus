@@ -57,6 +57,8 @@ engine for this Topic Map"
 (defmethod find-referenced-topics ((characteristic CharacteristicC))
   "characteristics are scopable + typable"
   (append
+   (when (reifier characteristic)
+     (list (reifier characteristic)))
    (themes characteristic)
    (when (instance-of-p characteristic)
      (list (instance-of characteristic)))
@@ -68,12 +70,16 @@ engine for this Topic Map"
 
 (defmethod find-referenced-topics ((role RoleC))
   (append
+   (when (reifier role)
+     (list (reifier role)))
    (list (instance-of role))
    (list (player role))))
 
 (defmethod find-referenced-topics ((association AssociationC))
   "associations are scopable + typable"
   (append
+   (when (reifier association)
+     (list (reifier association)))
    (list (instance-of association))
    (themes association)
    (mapcan #'find-referenced-topics (roles association))))

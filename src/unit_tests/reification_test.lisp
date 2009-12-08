@@ -44,7 +44,8 @@
    :test-rdf-exporter-reification
    :test-rdf-exporter-reification-2
    :test-rdf-exporter-reification-3
-   :test-rdf-exporter-reification-4))
+   :test-rdf-exporter-reification-4
+   :test-fragment-reification))
 
 
 (in-package :reification-test)
@@ -969,8 +970,42 @@
   (elephant:close-store))
 
 
+(test test-fragment-reification
+  "Tests the reification in the rdf-exporter."
+  (let
+      ((dir "data_base")
+       (output-file "__out__.rdf")
+       (tm-id "http://simpsons.tv"))
+    (handler-case (delete-file output-file)
+      (error () )) ;do nothing
+    (clean-out-db dir)
+    (rdf-importer:rdf-importer *reification.rdf* dir
+       :tm-id tm-id
+       :document-id "reification-xtm")
+    (elephant:open-store (xml-importer:get-store-spec dir))
+    (let ((fragment (d:create-latest-fragment-of-topic "http://simpsons.tv/lisa")))
+      (is-true fragment)
+      (is (= (length (union (referenced-topics fragment)
+			    (list (d:get-item-by-psi "http://simpsons.tv/lastName")
+				  (d:get-item-by-psi "http://simpsons.tv/sortName")
+				  (d:get-item-by-psi "http://simpsons.tv/profession")
+				  (d:get-item-by-psi "http://simpsons.tv/lisa-name")
+				  (d:get-item-by-psi "http://simpsons.tv/lisa-name-variant")
+				  (d:get-item-by-psi "http://simpsons.tv/lisa-occurrence"))))
+	     6)))
+    (let ((fragment (d:create-latest-fragment-of-topic "http://simpsons.tv/carl")))
+      (is-true fragment)
+      (is (= (length (union (referenced-topics fragment)
+			    (list (d:get-item-by-psi "http://simpsons.tv/friendship")
+				  (d:get-item-by-psi "http://simpsons.tv/friendship-association")
+				  (d:get-item-by-psi "http://simpsons.tv/friend")
+				  (d:get-item-by-psi "http://simpsons.tv/lenny")
+				  (d:get-item-by-psi "http://simpsons.tv/friend-role"))))
+	     5))))
+      (elephant:close-store))
+
+
 ;;TODO: check merge-reifier-topics (--> versioning)
-;;TODO: check fragment exporter
 ;;TODO: extend the fragment-importer in the RESTful-interface
 ;;TODO: DOKU
 
@@ -988,4 +1023,5 @@
   (it.bese.fiveam:run! 'test-rdf-exporter-reification)
   (it.bese.fiveam:run! 'test-rdf-exporter-reification-2)
   (it.bese.fiveam:run! 'test-rdf-exporter-reification-3)
-  (it.bese.fiveam:run! 'test-rdf-exporter-reification-4))
+  (it.bese.fiveam:run! 'test-rdf-exporter-reification-4)
+  (it.bese.fiveam:run! 'test-fragment-reification))
