@@ -296,13 +296,8 @@
 			  t)
 		 (condition () nil)))
       (is-false (occurrences homer))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
-      (is-true (handler-case 
-		   (progn (d::delete-construct reifier-occurrence)
-			  t)
-		 (condition () nil)))))
       (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 11))
-      (elephant:close-store))))
+      (elephant:close-store))))))
 
 
 (test test-xtm2.0-reification
@@ -365,13 +360,8 @@
 			  t)
 		 (condition () nil)))
       (is-false (occurrences homer))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
-      (is-true (handler-case 
-		   (progn (d::delete-construct reifier-occurrence)
-			  t)
-		 (condition () nil)))))
       (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 11))
-      (elephant:close-store))))
+      (elephant:close-store))))))
 
 
 (test test-xtm1.0-reification-exporter

@@ -51,24 +51,24 @@
     </name>
   </topic>
 
-  <topic id="superclass-subclass">
-    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#superclass-subclass"/>
+  <topic id="supertype-subtype">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"/>
     <name>
-      <value>superclass-subclass</value>
+      <value>supertype-subtype</value>
     </name>
   </topic>
 
-  <topic id="superclass">
-    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#superclass"/>
+  <topic id="supertype">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#supertype"/>
     <name>
-      <value>superclass</value>
+      <value>supertype</value>
     </name>
   </topic>
 
-  <topic id="subclass">
-    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#subclass"/>
+  <topic id="subtype">
+    <subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#subtype"/>
     <name>
-      <value>subclass</value>
+      <value>subtype</value>
     </name>
   </topic>
 
