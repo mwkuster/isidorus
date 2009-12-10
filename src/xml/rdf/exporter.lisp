@@ -31,7 +31,8 @@
   (:import-from :isidorus-threading
 		with-reader-lock
 		with-writer-lock)
-  (:export :export-rdf))
+  (:export :export-rdf
+	   :to-rdf-string))
 
 (in-package :rdf-exporter)
 
@@ -356,39 +357,7 @@
 	       (xml-lang-p construct)))
       nil ;; do not export this topic explicitly, since it has been exported as
           ;; rdf:resource, property or any other reference
-      (cxml:with-element "rdf:Description"
-	(let ((psi (get-reifier-psi construct))
-	      (ii (item-identifiers construct))
-	      (sl (locators construct))
-	      (t-names (names construct))
-	      (t-occs (occurrences construct))
-	      (t-assocs (list-rdf-mapped-associations construct)))
-	  (if psi
-	      (if (reified construct)
-		  (let ((reifier-uri (get-reifier-uri construct)))
-		    (if reifier-uri
-			(cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
-			(cxml:attribute "rdf:about" (uri psi))))
-		  (cxml:attribute "rdf:about" (uri psi)))
-	      (cxml:attribute "rdf:nodeID" (make-object-id construct)))
-	  (when (or (> (length (psis construct)) 1)
-		    ii sl t-names
-		    (isi-occurrence-p construct))
-	    (make-isi-type *tm2rdf-topic-type-uri*))
-	  (map 'list #'to-rdf-elem (remove psi (psis construct)))
-	  (map 'list #'to-rdf-elem sl)
-	  (map 'list #'to-rdf-elem ii)
-	  (map 'list #'(lambda(x)
-			 (cxml:with-element "rdf:type"
-			   (make-topic-reference x)))
-	       (list-instanceOf construct))
-	  (map 'list #'(lambda(x)
-			 (cxml:with-element "rdfs:subClassOf"
-			   (make-topic-reference x)))
-	       (list-super-types construct))
-	  (map 'list #'to-rdf-elem t-names)
-	  (map 'list #'to-rdf-elem (sort-constructs
-				    (union t-occs t-assocs)))))))
+      (topic-to-rdf-elem construct)))
 
 
 (defun sort-constructs (constructs)
@@ -595,3 +564,85 @@
 		     psi
 		     nil)))
 	   (psis topic)))
+
+
+(defmethod to-rdf-elem ((construct FragmentC))
+  "Exports TM-Fragments as RDF/XML data."
+  (topic-to-rdf-elem (topic construct))
+  ;all stubs are exported implicitely by references of the topic or associations
+  (map 'list #'to-rdf-elem (intersection (list-tm-associations) (associations construct))))
+
+
+(defun topic-to-rdf-elem (construct)
+  "Creates a node that describes a TM topic. The passed topic is exported
+   explicitely, although it was exported as a resource-reference."
+  (declare (TopicC construct))
+  (cxml:with-element "rdf:Description"
+    (let ((psi (get-reifier-psi construct))
+	  (ii (item-identifiers construct))
+	  (sl (locators construct))
+	  (t-names (names construct))
+	  (t-occs (occurrences construct))
+	  (t-assocs (list-rdf-mapped-associations construct)))
+      (if psi
+	  (if (reified construct)
+	      (let ((reifier-uri (get-reifier-uri construct)))
+		(if reifier-uri
+		    (cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
+		    (cxml:attribute "rdf:about" (uri psi))))
+	      (cxml:attribute "rdf:about" (uri psi)))
+	  (cxml:attribute "rdf:nodeID" (make-object-id construct)))
+      (when (or (> (length (psis construct)) 1)
+		ii sl t-names
+		(isi-occurrence-p construct))
+	(make-isi-type *tm2rdf-topic-type-uri*))
+      (map 'list #'to-rdf-elem (remove psi (psis construct)))
+      (map 'list #'to-rdf-elem sl)
+      (map 'list #'to-rdf-elem ii)
+      (map 'list #'(lambda(x)
+		     (cxml:with-element "rdf:type"
+		       (make-topic-reference x)))
+	   (list-instanceOf construct))
+      (map 'list #'(lambda(x)
+		     (cxml:with-element "rdfs:subClassOf"
+		       (make-topic-reference x)))
+	   (list-super-types construct))
+      (map 'list #'to-rdf-elem t-names)
+      (map 'list #'to-rdf-elem (sort-constructs
+				(union t-occs t-assocs))))))
+
+
+(defgeneric to-rdf-string (construct)
+  (:documentation "Prints the string representation of a Fragment element as RDF/XML"))
+
+
+(defmethod to-rdf-string ((construct FragmentC))
+  "Exports a FragmentC object as a string in RDF/XML representation."
+  (init-*ns-map*)
+  (let ((str
+	 (cxml:with-xml-output (cxml:make-string-sink :indentation 2 :canonical nil)
+	   (cxml:with-namespace ("isi" *tm2rdf-ns*)
+	     (cxml:with-namespace ("rdf" *rdf-ns*)
+	       (cxml:with-namespace ("rdfs" *rdfs-ns*)
+		 (cxml:with-namespace ("xml" *xml-ns*)
+		   (cxml:with-element "rdf:RDF"
+		     (to-rdf-elem construct)))))))))
+    (setf *ns-map* nil)
+    str))
+
+
+(defmethod to-rdf-string ((construct TopicMapConstructC))
+  "Exports a TopicMapConstructC object as a string in RDF/XML representation."
+  (init-*ns-map*)
+  (let ((str
+	 (cxml:with-xml-output (cxml:make-string-sink :indentation 2 :canonical nil)
+	   (cxml:with-namespace ("isi" *tm2rdf-ns*)
+	     (cxml:with-namespace ("rdf" *rdf-ns*)
+	       (cxml:with-namespace ("rdfs" *rdfs-ns*)
+		 (cxml:with-namespace ("xml" *xml-ns*)
+		   (cxml:with-element "rdf:RDF"
+		     (to-rdf-elem construct)))))))))
+    (setf *ns-map* nil)
+    str))
+
+

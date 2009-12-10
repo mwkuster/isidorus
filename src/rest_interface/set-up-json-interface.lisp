@@ -9,7 +9,8 @@
 
 (in-package :rest-interface)
 
-(defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psis -> localhost:8000/json/get/<fragment-psi>
+(defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
+(defparameter *json-get-rdf-prefix* "/json/get/rdf/(.+)$") ;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
 (defparameter *json-commit-url* "/json/commit/?$") ;the url to commit a json fragment by "put" or "post"
 (defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
 (defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary of all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
@@ -27,6 +28,7 @@
 (defparameter *ajax-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
 
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
+			      (json-get-rdf-prefix *json-get-rdf-prefix*)
 			      (json-get-all-psis *json-get-all-psis*)
 			      (json-commit-url *json-commit-url*)
 			      (json-get-summary-url *json-get-summary-url*)
@@ -78,6 +80,9 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-prefix #'return-json-fragment)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher json-get-rdf-prefix #'return-json-rdf-fragment)
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-topic-stub-prefix #'return-topic-stub-of-psi)
@@ -226,6 +231,31 @@
 	    (if fragment
 		(handler-case (with-reader-lock
 				(to-json-string fragment))
+		  (condition (err)
+		    (progn
+		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		      (setf (hunchentoot:content-type*) "text")
+		      (format nil "Condition: \"~a\"" err))))
+		(progn
+		  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Topic \"~a\" not found" psi)))))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
+(defun return-json-rdf-fragment(&optional psi)
+  "returns the json-fragmen belonging to the psi passed by the parameter psi"
+  (assert psi)
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (eq http-method :GET)
+	(let ((identifier (string-replace psi "%23" "#")))
+	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	  (let ((fragment
+		 (with-writer-lock
+		   (create-latest-fragment-of-topic identifier))))
+	    (if fragment
+		(handler-case (with-reader-lock
+				(rdf-exporter:to-rdf-string fragment))
 		  (condition (err)
 		    (progn
 		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)

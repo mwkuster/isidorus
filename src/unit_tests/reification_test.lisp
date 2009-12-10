@@ -1005,11 +1005,6 @@
       (elephant:close-store))
 
 
-;;TODO: check merge-reifier-topics (--> versioning)
-;;TODO: extend the fragment-importer in the RESTful-interface
-;;TODO: DOKU
-
-
 (defun run-reification-tests ()
   (it.bese.fiveam:run! 'test-merge-reifier-topics)
   (it.bese.fiveam:run! 'test-xtm1.0-reification)
