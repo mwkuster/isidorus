@@ -634,7 +634,8 @@ specific keyword arguments for their purpose"))
     (declare (ItemIdentifierC id))
     (setf (identified-construct id) instance))
   (when reifier
-    (setf (reifier instance) reifier))
+    (add-reifier instance reifier))
+    ;(setf (reifier instance) reifier))
   instance)
 
 (defmethod delete-construct :before ((construct ReifiableConstructC))
@@ -642,7 +643,6 @@ specific keyword arguments for their purpose"))
     (delete-construct id))
   (when (reifier construct)
     (remove-reifier construct)))
-    ;(slot-makunbound (reifier construct) 'reified)))
 
 (defgeneric item-identifiers-p (constr)
   (:documentation "Test for the existence of item identifiers")
