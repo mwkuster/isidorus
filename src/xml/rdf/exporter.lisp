@@ -569,7 +569,13 @@
 (defmethod to-rdf-elem ((construct FragmentC))
   "Exports TM-Fragments as RDF/XML data."
   (topic-to-rdf-elem (topic construct))
-  ;all stubs are exported implicitely by references of the topic or associations
+  (map 'list #'(lambda(top)
+		 (when (or (> (length (psis top)) 1)
+			   (item-identifiers top)
+			   (locators top))
+		   (topic-to-rdf-stub-elem top)))
+       (referenced-topics construct))
+  ;all other stubs are exported implicitely by references of the main topic or associations
   (map 'list #'to-rdf-elem (intersection (list-tm-associations) (associations construct))))
 
 
@@ -610,6 +616,26 @@
       (map 'list #'to-rdf-elem t-names)
       (map 'list #'to-rdf-elem (sort-constructs
 				(union t-occs t-assocs))))))
+
+
+(defun topic-to-rdf-stub-elem (construct)
+  "Exports a topic as a stub."
+  (declare (TopicC construct))
+  (cxml:with-element "rdf:Description"
+    (let ((psi (get-reifier-psi construct))
+	  (ii (item-identifiers construct))
+	  (sl (locators construct)))
+      (if psi
+	  (if (reified construct)
+	      (let ((reifier-uri (get-reifier-uri construct)))
+		(if reifier-uri
+		    (cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
+		    (cxml:attribute "rdf:about" (uri psi))))
+	      (cxml:attribute "rdf:about" (uri psi)))
+	  (cxml:attribute "rdf:nodeID" (make-object-id construct)))
+      (map 'list #'to-rdf-elem (remove psi (psis construct)))
+      (map 'list #'to-rdf-elem sl)
+      (map 'list #'to-rdf-elem ii))))
 
 
 (defgeneric to-rdf-string (construct)
