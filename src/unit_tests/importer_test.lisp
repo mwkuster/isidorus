@@ -197,7 +197,7 @@
            (top-t301 (get-item-by-id "t301"))
            (top-t301a (get-item-by-id "t301a"))
            ;one of the core PSIs
-           (top-sup-sub (get-item-by-id "superclass-subclass" :xtm-id "core.xtm")))
+           (top-sup-sub (get-item-by-id "supertype-subtype" :xtm-id "core.xtm")))
         (is (= (internal-id top-t301) 
                (internal-id top-t301a)))
         (is (= (length (occurrences top-t1)) 0))
@@ -210,7 +210,7 @@
         (is-true (item-identifiers (first (names top-t301)))) ;after merge
         (is (= 2 (length (psis top-t301)))) ;after merge
         (is (= 3 (length (occurrences top-t301)))) ;after merge
-        (is (string= "http://www.topicmaps.org/xtm/1.0/core.xtm#superclass-subclass"
+        (is (string= "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"
                      (uri (first (psis top-sup-sub)))))))
 
     ;34 topics in 35 topic elements in notificationbase.xtm and 13
