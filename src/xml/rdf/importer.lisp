@@ -354,10 +354,6 @@
 				 :player super-top)
 			   (list :instance-of role-type-2
 				 :player sub-top))))
-	;(when reifier-id
-	  ;(make-reification reifier-id sub-top super-top
-	;		    assoc-type start-revision tm
-	;		    :document-id document-id))
 	(let ((assoc
 	       (add-to-topicmap
 		tm
@@ -399,10 +395,6 @@
 				 :player type-top)
 			   (list :instance-of roletype-2
 				 :player instance-top))))
-	;(when reifier-id
-	;  (make-reification reifier-id instance-top type-top
-	;		    assoc-type start-revision tm
-	;		    :document-id document-id))
 	(let ((assoc
 	       (add-to-topicmap
 		tm
@@ -509,9 +501,6 @@
 				 :player player-1)
 			   (list :instance-of role-type-2
 				 :player top))))
-	  ;(when ID
-	  ;  (make-reification ID top player-1 type-top start-revision
-	;		      tm :document-id document-id))
 	  (let ((assoc
 		 (add-to-topicmap tm (make-construct 'AssociationC
 						     :start-revision start-revision
@@ -560,44 +549,6 @@
 					:document-id document-id)))
     (add-reifier reifiable-construct reifier-topic)))
 
-;(defun make-reification (reifier-id subject object predicate start-revision tm
-;			 &key document-id)
-;  "Creates a reification construct."
-;  (declare (string reifier-id))
-;  (declare ((or OccurrenceC TopicC) object))
-;  (declare (TopicC subject predicate))
-;  (declare (TopicMapC tm))
-;  (elephant:ensure-transaction (:txn-nosync t)
-;    (let ((reifier (make-topic-stub reifier-id nil nil nil start-revision tm
-;				    :document-id document-id))
-;	  (predicate-arc (make-topic-stub *rdf-predicate* nil nil nil
-;					  start-revision
-;					  tm :document-id document-id))
-;	  (object-arc (make-topic-stub *rdf-object* nil nil nil start-revision
-;				       tm :document-id document-id))
-;	  (subject-arc (make-topic-stub *rdf-subject* nil nil nil
-;					start-revision
-;					tm :document-id document-id))
-;	  (statement (make-topic-stub *rdf-statement* nil nil nil start-revision
-;				      tm :document-id document-id)))
-;      (make-instance-of-association reifier statement nil start-revision tm
-;				    :document-id document-id)
-;      (make-association-with-nodes reifier subject subject-arc tm
-;				   start-revision :document-id document-id)
-;      (make-association-with-nodes reifier predicate predicate-arc
-;				   tm start-revision :document-id document-id)
-;      (if (typep object 'd:TopicC)
-;	  (make-association-with-nodes reifier object object-arc
-;				       tm start-revision
-;				       :document-id document-id)
-;	  (make-construct 'd:OccurrenceC
-;			  :start-revision start-revision
-;			  :topic reifier
-;			  :themes (themes object)
-;			  :instance-of (instance-of object)
-;			  :charvalue (charvalue object)
-;			  :datatype (datatype object))))))
-
 
 (defun make-occurrence (top literal start-revision tm-id 
 			&key (document-id *document-id*))
@@ -628,8 +579,6 @@
 				 :charvalue value
 				 :datatype datatype)))
 	    (when ID
-	      ;(make-reification ID top occurrence type-top start-revision
-	;			xml-importer::tm :document-id document-id))
 	      (make-reification ID occurrence start-revision xml-importer::tm
 				:document-id document-id))
 	    occurrence))))))

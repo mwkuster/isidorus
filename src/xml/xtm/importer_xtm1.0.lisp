@@ -9,10 +9,9 @@
 
 (in-package :xml-importer)
 
-(defun set-reifier-xtm1.0 (reifiable-elem reifiable-construct)
-  "Sets the reifier-topic of the passed elem to the passed construct."
+(defun get-reifier-topic-xtm1.0 (reifiable-elem)
+  "Returns a reifier topic of the reifiable-element or nil."
   (declare (dom:element reifiable-elem))
-  (declare (ReifiableConstructC reifiable-construct))
   (let ((reifier-uri
 	 (when (dom:get-attribute-node reifiable-elem "id")
 	   (dom:node-value (dom:get-attribute-node reifiable-elem "id")))))
@@ -24,8 +23,7 @@
 	(when psi
 	  (let ((reifier-topic (identified-construct psi)))
 	    (when reifier-topic
-	      (add-reifier reifiable-construct reifier-topic)))))))
-  reifiable-construct)
+	      reifier-topic)))))))
 
 
 (defun get-topic-id-xtm1.0 (topic-elem)
@@ -87,7 +85,8 @@
 		       ((typep parent-construct 'VariantC)
 			(name parent-construct))
 		       (t
-			(error "from-variant-elem-xtm1.0: parent-cosntruct is neither NameC nor VariantC")))))
+			(error "from-variant-elem-xtm1.0: parent-construct is neither NameC nor VariantC"))))
+	(reifier-topic (get-reifier-topic-xtm1.0 variant-elem)))
     (unless (and variantName parameters)
       (error "from-variant-elem-xtm1.0: parameters and variantName must be set"))
     (let ((variant (make-construct 'VariantC
@@ -95,8 +94,8 @@
 				   :themes parameters
 				   :charvalue (getf variantName :data)
 				   :datatype (getf variantName :type)
+				   :reifier reifier-topic
 				   :name parent-name)))
-      (set-reifier-xtm1.0 variant-elem variant)
       (let ((inner-variants
 	     (map 'list #'(lambda(x)
 			    (from-variant-elem-xtm1.0 x variant start-revision :xtm-id xtm-id))
@@ -149,7 +148,8 @@
 		   (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "scope")
 		   :xtm-id xtm-id)))
 	(baseNameString (xpath-fn-string
-			 (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "baseNameString"))))
+			 (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "baseNameString")))
+	(reifier-topic (get-reifier-topic-xtm1.0 baseName-elem)))
     (unless baseNameString
       (error "A baseName must have exactly one baseNameString"))
 
@@ -157,8 +157,8 @@
 				:start-revision start-revision
 				:topic top
 				:charvalue baseNameString
+				:reifier reifier-topic
 				:themes themes)))
-      (set-reifier-xtm1.0 baseName-elem name)
       (map 'list #'(lambda(x)
 		     (from-variant-elem-xtm1.0 x name start-revision :xtm-id xtm-id))
 	   (xpath-child-elems-by-qname baseName-elem *xtm1.0-ns* "variant"))
@@ -262,21 +262,22 @@
        (themes (from-scope-elem-xtm1.0
                 (xpath-single-child-elem-by-qname occ-elem *xtm1.0-ns* "scope") 
                 :xtm-id xtm-id))
-	 (occurrence-value
-	  (from-resourceX-elem-xtm1.0 occ-elem)))
+       (occurrence-value
+	(from-resourceX-elem-xtm1.0 occ-elem))
+       (reifier-topic (get-reifier-topic-xtm1.0 occ-elem)))
     (unless occurrence-value
       (error "from-occurrence-elem-xtm1.0: one of resourceRef and resourceData must be set"))
     (unless instanceOf
       (format t "from-occurrence-elem-xtm1.0: type is missing -> http://psi.topicmaps.org/iso13250/model/type-instance~%")
       (setf instanceOf (get-item-by-id "type-instance" :xtm-id "core.xtm")))
-    (let ((occurrence (make-construct 'OccurrenceC
-				      :start-revision start-revision
-				      :topic top
-				      :themes themes
-				      :instance-of instanceOf
-				      :charvalue (getf occurrence-value :data)
-				      :datatype (getf occurrence-value :type))))
-      (set-reifier-xtm1.0 occ-elem occurrence))))
+    (make-construct 'OccurrenceC
+		    :start-revision start-revision
+		    :topic top
+		    :themes themes
+		    :instance-of instanceOf
+		    :charvalue (getf occurrence-value :data)
+		    :reifier reifier-topic
+		    :datatype (getf occurrence-value :type))))
 
 
 (defun from-subjectIdentity-elem-xtm1.0 (subjectIdentity-elem start-revision)
@@ -331,16 +332,14 @@
 						member-elem
 						*xtm1.0-ns*
 						"subjectIndicatorRef")))))))
-	   (reifier-uri
-	    (when (dom:get-attribute-node member-elem "id")
-	      (concatenate 'string "#" (dom:node-value (dom:get-attribute-node member-elem "id"))))))
+	   (reifier-topic (get-reifier-topic-xtm1.0 member-elem)))
 	(declare (dom:element member-elem))
 	(unless player ; if no type is given a standard type will be assigend later in from-assoc...
 	  (error "from-member-elem-xtm1.0: missing player in role"))
 	(list :instance-of type
 	      :player (first player)
 	      :item-identifiers nil
-	      :reifier-uri reifier-uri)))))
+	      :reifier reifier-topic)))))
 
 
 (defun from-topic-elem-to-stub-xtm1.0 (topic-elem start-revision 
@@ -413,41 +412,22 @@
                       #'(lambda(member-elem)
                           (from-member-elem-xtm1.0 
                            member-elem :xtm-id xtm-id))
-                      (xpath-child-elems-by-qname assoc-elem *xtm1.0-ns* "member"))))
+                      (xpath-child-elems-by-qname assoc-elem *xtm1.0-ns* "member")))
+	  (reifier-topic (get-reifier-topic-xtm1.0 assoc-elem)))
       (unless roles
 	(error "from-association-elem-xtm1.0: roles are missing in association"))
       (setf roles (set-standard-role-types roles))
       (unless type
 	(format t "from-association-elem-xtm1.0: type is missing -> http://www.topicmaps.org/xtm/1.0/core.xtm#association~%")
 	(setf type (get-item-by-id "association" :xtm-id "core.xtm")))
-      (let 
-          ((association (make-construct 'AssociationC
-                                        :start-revision start-revision
-                                        :instance-of type
-                                        :themes themes
-                                        :roles roles)))
-	(add-to-topicmap tm association)
-	(set-reifier-xtm1.0 assoc-elem association)
-	(map 'list #'(lambda(assoc-role)
-		       (map 'list #'(lambda(list-role)
-				      (when (and (eql (instance-of assoc-role)
-						      (getf list-role :instance-of))
-						 (eql (player assoc-role)
-						      (getf list-role :player))
-						 (getf list-role :reifier-uri))
-					(let ((reifier-uri (getf list-role :reifier-uri)))
-					  (when (and (stringp reifier-uri)
-						     (> (length reifier-uri) 0))
-					    (let ((psi
-						   (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri
-										   reifier-uri)))
-					      (when psi
-						(let ((reifier-topic (identified-construct psi)))
-						  (when reifier-topic
-						    (add-reifier assoc-role reifier-topic)))))))))
-			    roles))
-	     (roles association))
-	association))))
+      (add-to-topicmap tm
+		       (make-construct 'AssociationC
+				       :start-revision start-revision
+				       :instance-of type
+				       :themes themes
+				       :reifier reifier-topic
+				       :roles roles)))))
+    
 	
 
 (defun set-standard-role-types (roles)

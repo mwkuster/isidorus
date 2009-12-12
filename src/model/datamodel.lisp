@@ -1450,12 +1450,13 @@ NIL or an error is thrown, depending on error-if-nil."
   (declare (list roles))
   (let
       ((association (call-next-method)))  
-    (dolist (role-tuple roles)
+    (dolist (role-data roles)
       (make-instance 
        'RoleC 
-       :instance-of (getf role-tuple :instance-of)
-       :player (getf role-tuple :player)
-       :item-identifiers (getf role-tuple :item-identifiers)
+       :instance-of (getf role-data :instance-of)
+       :player (getf role-data :player)
+       :item-identifiers (getf role-data :item-identifiers)
+       :reifier (getf role-data :reifier)
        :parent association))))
 
 (defmethod make-construct :around ((class-symbol (eql 'AssociationC))

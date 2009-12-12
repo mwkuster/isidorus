@@ -9,12 +9,11 @@
 
 (in-package :xml-importer)
 
-(defun set-reifier (reifiable-elem reifiable-construct)
-  "Sets the reifier-topic of the passed elem to the passed construct."
+(defun get-reifier-topic(reifiable-elem)
+  "Returns the reifier topic of the reifierable-element or nil."
   (declare (dom:element reifiable-elem))
-  (declare (ReifiableConstructC reifiable-construct))
   (let ((reifier-uri (get-attribute reifiable-elem "reifier"))
-	(err "From set-reifier(): "))
+	(err "From get-reifier-topic(): "))
     (when (and (stringp reifier-uri)
 	       (> (length reifier-uri) 0))
       (let ((ii
@@ -22,10 +21,9 @@
 	(if ii
 	    (let ((reifier-topic (identified-construct ii)))
 	      (if reifier-topic
-		  (add-reifier reifiable-construct reifier-topic)
+		  reifier-topic
 		  (error "~aitem-identifier ~a not found" err reifier-uri)))
-	    (error "~aitem-identifier ~a not found" err reifier-uri)))))
-    reifiable-construct)
+	    (error "~aitem-identifier ~a not found" err reifier-uri))))))
 
 
 (defun from-identifier-elem (classsymbol elem start-revision)
@@ -35,15 +33,10 @@ that object"
   (declare (symbol classsymbol))
   (declare (dom:element elem))
   (declare (integer start-revision))
-
-;;   (make-construct classsymbol
-;;                   :uri (get-attribute elem "href")
-;;                   :start-revision start-revision))
   (let
       ((id (make-instance classsymbol
 			  :uri (get-attribute elem "href")
 			  :start-revision start-revision)))
-    ;(add-to-version-history id :start-revision start-revision)
     id))
   
          
@@ -133,7 +126,8 @@ return that set. If the input is nil, the list of themes is empty
         (instance-of
          (from-type-elem (xpath-single-child-elem-by-qname 
                           name-elem 
-                          *xtm2.0-ns* "type") :xtm-id xtm-id)))
+                          *xtm2.0-ns* "type") :xtm-id xtm-id))
+       (reifier-topic (get-reifier-topic name-elem)))
     (unless namevalue
         (error "A name must have exactly one namevalue"))
 
@@ -143,10 +137,11 @@ return that set. If the input is nil, the list of themes is empty
 				:charvalue namevalue
 				:instance-of instance-of
 				:item-identifiers item-identifiers
+				:reifier reifier-topic
 				:themes themes)))
       (loop for variant-elem across (xpath-child-elems-by-qname name-elem *xtm2.0-ns* "variant")
 	 do (from-variant-elem variant-elem name start-revision :xtm-id xtm-id))
-      (set-reifier name-elem name))))
+      name)))
 
 
 (defun from-resourceX-elem (parent-elem)
@@ -195,18 +190,19 @@ return that set. If the input is nil, the list of themes is empty
        (themes (append
 		(from-scope-elem (xpath-single-child-elem-by-qname variant-elem *xtm2.0-ns* "scope") :xtm-id xtm-id)
 		(themes name)))
-       (variant-value (from-resourceX-elem variant-elem)))
+       (variant-value (from-resourceX-elem variant-elem))
+       (reifier-topic (get-reifier-topic variant-elem)))
     (unless variant-value
       (error "VariantC: one of resourceRef and resourceData must be set"))
        
-       (let ((variant (make-construct 'VariantC
-				      :start-revision start-revision
-				      :item-identifiers item-identifiers
-				      :themes themes
-				      :charvalue (getf variant-value :data)
-				      :datatype (getf variant-value :type)
-				      :name name)))
-	 (set-reifier variant-elem variant))))
+    (make-construct 'VariantC
+		    :start-revision start-revision
+		    :item-identifiers item-identifiers
+		    :themes themes
+		    :charvalue (getf variant-value :data)
+		    :datatype (getf variant-value :type)
+		    :reifier reifier-topic
+		    :name name)))
 		           
 
 (defun from-occurrence-elem (occ-elem top start-revision &key (xtm-id *current-xtm*))
@@ -228,18 +224,19 @@ occurrence = element occurrence { reifiable,
         (from-type-elem (xpath-single-child-elem-by-qname 
                           occ-elem 
                           *xtm2.0-ns* "type") :xtm-id xtm-id))
-       (occurrence-value (from-resourceX-elem occ-elem)))
+       (occurrence-value (from-resourceX-elem occ-elem))
+       (reifier-topic (get-reifier-topic occ-elem)))
     (unless occurrence-value
       (error "OccurrenceC: one of resourceRef and resourceData must be set"))
-    (let ((occurrence (make-construct 'OccurrenceC 
-				      :start-revision start-revision
-				      :topic top
-				      :themes themes
-				      :item-identifiers item-identifiers
-				      :instance-of instance-of
-				      :charvalue (getf occurrence-value :data)
-				      :datatype (getf occurrence-value :type))))
-      (set-reifier occ-elem occurrence))))
+    (make-construct 'OccurrenceC 
+		    :start-revision start-revision
+		    :topic top
+		    :themes themes
+		    :item-identifiers item-identifiers
+		    :instance-of instance-of
+		    :charvalue (getf occurrence-value :data)
+		    :reifier reifier-topic
+		    :datatype (getf occurrence-value :type))))
     
     
 
@@ -344,21 +341,14 @@ topicRef }"
              role-elem
              *xtm2.0-ns*
              "topicRef")) :xtm-id xtm-id))
-	 (reifier-uri
-	  (let ((value (get-attribute role-elem "reifier")))
-	    (if (and (stringp value)
-		     (> (length value) 0))
-		value
-		nil))))
-;      (unless (and player instance-of)
-;        (error "Role in association not complete"))
+	 (reifier-topic (get-reifier-topic role-elem)))
       (unless player ;instance-of will be set later - if there is no one
         (error "Role in association with topicref ~a not complete" (get-topicref-uri 
             (xpath-single-child-elem-by-qname 
              role-elem
              *xtm2.0-ns*
              "topicRef"))))
-      (list :reifier-uri reifier-uri
+      (list :reifier reifier-topic
 	    :instance-of instance-of
 	    :player player
 	    :item-identifiers item-identifiers))))
@@ -375,8 +365,7 @@ topicRef }"
   (declare (TopicMapC tm))
   (elephant:ensure-transaction (:txn-nosync t) 
     (let 
-        ((err "From from-association-elem(): ")
-	 (item-identifiers 
+        ((item-identifiers 
           (make-identifiers 'ItemIdentifierC assoc-elem "itemIdentity" start-revision))
          (instance-of
           (from-type-elem 
@@ -395,40 +384,18 @@ topicRef }"
                  (from-role-elem role-elem start-revision :xtm-id xtm-id))
                (xpath-child-elems-by-qname 
                 assoc-elem
-                *xtm2.0-ns* "role"))))
+                *xtm2.0-ns* "role")))
+	 (reifier-topic (get-reifier-topic assoc-elem)))
       (setf roles (set-standard-role-types roles)); sets standard role types if there are missing some of them
-      (let ((assoc (add-to-topicmap
-		    tm 
-		    (make-construct 'AssociationC
-				    :start-revision start-revision
-				    :item-identifiers item-identifiers
-				    :instance-of instance-of
-				    :themes themes
-				    :roles roles))))
-	(map 'list #'(lambda(assoc-role)
-		       (map 'list #'(lambda(list-role)
-				      (when (and (eql (instance-of assoc-role)
-						      (getf list-role :instance-of))
-						 (eql (player assoc-role)
-						      (getf list-role :player))
-						 (getf list-role :reifier-uri))
-					(let ((reifier-uri (getf list-role :reifier-uri)))
-					  (when (and (stringp reifier-uri)
-						     (> (length reifier-uri) 0))
-					    (let ((ii
-						   (elephant:get-instance-by-value 'd:ItemIdentifierC 'd:uri
-										   reifier-uri)))
-					      (if ii
-						(let ((reifier-topic (identified-construct ii)))
-						  (if reifier-topic
-						      (add-reifier assoc-role reifier-topic)
-						      (error "~aitem-identifier ~a not found" err reifier-uri)))
-						(error "~aitem-identifier ~a not found" err reifier-uri)))))))
-			    roles))
-	     (roles assoc))
-	(set-reifier assoc-elem assoc)))))
-
-
+      (add-to-topicmap
+       tm 
+       (make-construct 'AssociationC
+		       :start-revision start-revision
+		       :item-identifiers item-identifiers
+		       :instance-of instance-of
+		       :themes themes
+		       :reifier reifier-topic
+		       :roles roles)))))
 
 (defun get-topic-elems (xtm-dom)
   (xpath-child-elems-by-qname xtm-dom
