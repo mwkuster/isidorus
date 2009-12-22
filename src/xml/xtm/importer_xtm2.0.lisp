@@ -257,9 +257,8 @@ applicable"
           (make-identifiers 'PersistentIdC topic-elem "subjectIdentifier" start-revision))
          (subjectlocators
           (make-identifiers 'SubjectLocatorC topic-elem "subjectLocator" start-revision)))
-      
-     
-      (make-construct 'TopicC :start-revision start-revision
+      (make-construct 'TopicC
+		      :start-revision start-revision
                       :item-identifiers itemidentifiers
                       :locators subjectlocators
                       :psis subjectidentifiers

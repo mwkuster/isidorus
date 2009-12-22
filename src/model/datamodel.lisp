@@ -444,7 +444,7 @@ specific keyword arguments for their purpose"))
 
 ;;;;;;;;;;;;;;
 ;;
-;; PointerrC
+;; PointerC
 
 (elephant:defpclass PointerC (TopicMapConstructC)
   ((uri :accessor uri
