@@ -360,7 +360,10 @@ test suite"
           (mark-as-deleted semantic-standard-topic :source-locator "http://blablub.egovpt.org/"
                            :revision fixtures::revision3)
           (is-true (get-item-by-psi "http://psi.egovpt.org/types/semanticstandard"
-                                    :revision (1+ fixtures::revision3))))))
+                                    :revision (1+ fixtures::revision3)))
+	  (is (= 0 (d::end-revision (d::get-most-recent-version-info semantic-standard-topic))))
+	  (is (= (d::end-revision (first (last (d::versions norwegian-curriculum-topic))))
+		 (d::end-revision (d::get-most-recent-version-info norwegian-curriculum-topic)))))))
 
 
 

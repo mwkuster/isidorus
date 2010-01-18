@@ -422,7 +422,14 @@ specific keyword arguments for their purpose"))
           new-construct))))
     
 (defmethod get-most-recent-version-info ((construct TopicMapConstructC))
-  (find 0 (versions construct) :key #'end-revision))
+  (let ((result (find 0 (versions construct) :key #'end-revision)))
+    (if result
+	result ;current version-info -> end-revision = 0
+	(let ((sorted-list (sort (versions construct)
+				 #'(lambda(x y)
+				     (> (end-revision x) (end-revision y))))))
+	  (when sorted-list
+	    (first sorted-list)))))) ;latest version-info of marked-as-deleted constructs -> highest integer
 
 (defgeneric equivalent-constructs (construct1 construct2)
   (:documentation "checks if two topic map constructs are equal according to the TMDM equality rules"))
