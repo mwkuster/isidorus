@@ -119,6 +119,7 @@
       (init-*ns-map*)
       (setf *export-tm* tm)
       (with-revision revision
+	(setf SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :utf-8)
 	(with-open-file (stream rdf-path :direction :output)
 	  (cxml:with-xml-output (cxml:make-character-stream-sink
 				 stream :canonical nil)
