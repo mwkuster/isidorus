@@ -27,6 +27,7 @@
            :start-tm-engine
 	   :shutdown-tm-engine
 	   :*json-get-prefix*
+	   :*get-rdf-prefix*
 	   :*json-commit-url*
 	   :*json-get-all-psis*
 	   :*json-get-summary-prefix*
