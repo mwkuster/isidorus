@@ -105,12 +105,14 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
                                          checkRemoveAddButtons(owner, min, max, null);
                                          var myself = this;
                                          setRemoveAddHandler(this, true, owner, min, max, function(){
-					     return new TextrowC("", regexp, owner, min, max, cssTitle, dblClickHandler);
+					     return new TextrowC("", regexp, owner, min, max, cssTitle, this.__dblClickHandler__);
 					 });
     
-                                         this.getFrame().observe("dblclick", function(event){
-					     dblClickHandler(owner, event);
-					 });
+					 if(this.__dblClickHandler__){
+					     this.getFrame().observe("dblclick", function(event){
+						     this.__dblClickHandler__(owner, event);
+						 });
+					 }
                                       },
 				     "dblClick" : function(){
 					 if(this.__dblClickHandler__) this.__dblClickHandler__(this.__owner__);
@@ -494,8 +496,8 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 								    if(min === 0) dblClickHandler = dblClickHandlerF;
 								    var _content = "";
 								    if(_contents && _contents.length > j) _content = _contents[j];
-								    var row = new TextrowC(_content, constraints[i].regexp, this.__containers__[i],
-											   min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, cssTitle, dblClickHandler);
+								    
+								    var row = new TextrowC(_content, constraints[i].regexp, this.__containers__[i], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, cssTitle, dblClickHandler);
 								    if(!_content) row.dblClick();
 								    this.__error__.insert({"before" : row.getFrame()});
 								}
@@ -1440,9 +1442,11 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      
 					      addSecondShowHandler(this);
 
-					      this.getFrame().observe("dblclick", function(event){
-						  dblClickHandler(owner, event);
-					      });
+					      if(dblClickHandler){
+						  this.getFrame().observe("dblclick", function(event){
+							  dblClickHandler(owner, event);
+						      });
+					      }
                                           }
                                           catch(err){
                                       	      alert("From NameC(): " + err);
@@ -1817,9 +1821,11 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    }
 						    makeResource(this, contents, constraint, dataType, cssTitle, {"rows" : 5, "cols" : 70});
 
-						    this.getFrame().observe("dblclick", function(event){
-							dblClickHandler(owner, event);
-						    });
+						    if(dblClickHandler){
+							this.getFrame().observe("dblclick", function(event){
+								dblClickHandler(owner, event);
+							    });
+						    }
 						}
                                                 catch(err){
 						    alert("From OccurrenceC(): " + err);
@@ -3918,7 +3924,7 @@ function setRemoveAddHandler(myself, constraint, owner, min, max, call)
 	if(disabled === false){
 	    var newElem = call();
 	    myself.append(newElem.getFrame());
-	    if((remove === true && min !== -1 && owner.__frames__.length > min) || !constraint){
+	    if((myself.remove === true && min !== -1 && owner.__frames__.length > min) || !constraint){
 		for(var i = 0; i != owner.__frames__.length; ++i){
 		    owner.__frames__[i].showRemoveButton();
 		}
