@@ -32,13 +32,13 @@
 	    (topicStubs-values (getf fragment-values :topicStubs))
 	    (associations-values (getf fragment-values :associations))
 	    (rev (get-revision))) ; creates a new revision, equal for all elements of the passed fragment
-;	    (xtm-id "json-xtm"))
-	(xml-importer:with-tm (rev xtm-id (first (getf fragment-values :tm-ids)))
-	  (loop for topicStub-values in (append topicStubs-values (list topic-values))
-	     do (json-to-stub topicStub-values rev :tm xml-importer::tm :xtm-id xtm-id))
-	  (json-merge-topic topic-values rev :tm xml-importer::tm :xtm-id xtm-id)
-	  (loop for association-values in associations-values
-	     do (json-to-association association-values rev :tm xml-importer::tm)))))))
+	(elephant:ensure-transaction (:txn-nosync nil) 
+	  (xml-importer:with-tm (rev xtm-id (first (getf fragment-values :tm-ids)))
+	    (loop for topicStub-values in (append topicStubs-values (list topic-values))
+	       do (json-to-stub topicStub-values rev :tm xml-importer::tm :xtm-id xtm-id))
+	    (json-merge-topic topic-values rev :tm xml-importer::tm :xtm-id xtm-id)
+	    (loop for association-values in associations-values
+	       do (json-to-association association-values rev :tm xml-importer::tm))))))))
 
 
 (defun json-to-association (json-decoded-list start-revision
