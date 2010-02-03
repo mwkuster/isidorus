@@ -110,7 +110,7 @@ var TextrowC = Class.create(FrameC, {"initialize" : function($super, content, re
     
 					 if(this.__dblClickHandler__){
 					     this.getFrame().observe("dblclick", function(event){
-						     this.__dblClickHandler__(owner, event);
+						     myself.__dblClickHandler__(owner, event);
 						 });
 					 }
                                       },
@@ -496,7 +496,7 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 								    if(min === 0) dblClickHandler = dblClickHandlerF;
 								    var _content = "";
 								    if(_contents && _contents.length > j) _content = _contents[j];
-								    
+
 								    var row = new TextrowC(_content, constraints[i].regexp, this.__containers__[i], min === 0 ? 1 : min, max === MMAX_INT ? -1 : max, cssTitle, dblClickHandler);
 								    if(!_content) row.dblClick();
 								    this.__error__.insert({"before" : row.getFrame()});
