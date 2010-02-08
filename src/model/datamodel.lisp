@@ -255,6 +255,93 @@
 (defgeneric get-most-recent-version-info (construct))
 
 
+;;;;;;;;;;;;;;
+;;
+;; ItemIdentifierC
+
+(elephant:defpclass ItemIdentifierC (IdentifierC) 
+  ()
+  (:index t)
+  (:documentation "Represents an item identifier"))
+
+
+;;;;;;;;;;;;;;
+;;
+;; SubjectLocator
+
+(elephant:defpclass SubjectLocatorC (IdentifierC)
+  ((identified-construct :accessor identified-construct
+                         :initarg :identified-construct
+                         :associate TopicC))
+  (:index t)
+  (:documentation "Represents a subject locator"))
+
+
+;;;;;;;;;;;;;;
+;;
+;; IdentifierC
+
+(elephant:defpclass IdentifierC (PointerC)
+  ()
+  (:documentation "Abstract base class for ItemIdentifierC and
+  PersistentIdC, primarily in view of the equality rules"))
+
+
+;;;;;;;;;;;;;;
+;;
+;; PointerC
+
+(elephant:defpclass PointerC (TopicMapConstructC)
+  ((uri :accessor uri
+        :initarg :uri
+        :type string
+        :initform (error "The uri must be set for a pointer")
+        :index t)
+   (identified-construct :accessor identified-construct
+                         :initarg :identified-construct
+                         :associate ReifiableConstructC))
+  (:documentation "Abstract base class for all types of pointers and identifiers"))
+
+(defmethod delete-construct :before ((construct PointerC))
+  (delete-1-n-association construct 'identified-construct))
+
+(defmethod find-all-equivalent ((construct PointerC))
+  (delete construct
+          (elephant:get-instances-by-value (class-of construct)
+                                           'uri
+                                           (uri construct))
+          :key #'internal-id))
+(defgeneric uri-p (construct)
+  (:documentation "Check if the slot uri is bound in an identifier and not nil")
+  (:method ((identifier PointerC)) (slot-predicate identifier 'uri)))
+
+(defgeneric identified-construct-p (construct)
+  (:documentation "Check if the slot identified-construct is bound in an identifier and not nil")
+  (:method ((identifier PointerC)) (slot-predicate identifier 'identified-construct)))
+
+(defmethod print-object ((identifier PointerC) stream)
+  (format stream 
+          "~a(href: ~a; Construct: ~a)"
+          (class-name (class-of identifier))
+          (if (uri-p identifier)
+              (uri identifier)
+              "URI UNDEFINED")
+          (if (identified-construct-p identifier)
+              (identified-construct identifier) 
+              "SLOT UNBOUND")))
+
+(defmethod equivalent-constructs ((identifier1 PointerC) (identifier2 PointerC))
+  (string= (uri identifier1) (uri identifier2)))
+
+(defmethod initialize-instance :around ((identifier PointerC) &key
+                                        (start-revision (error "Start revision must be present") )
+                                        (end-revision 0))
+  (call-next-method)
+  (add-to-version-history identifier
+                          :start-revision start-revision
+                          :end-revision end-revision)
+  identifier)
+
 
 ;;;;;;;;;;;;;;
 ;;
@@ -448,110 +535,6 @@ specific keyword arguments for their purpose"))
   (slot-value construct (find-symbol "OID" 'elephant)))
 
 
-
-;;;;;;;;;;;;;;
-;;
-;; PointerC
-
-(elephant:defpclass PointerC (TopicMapConstructC)
-  ((uri :accessor uri
-        :initarg :uri
-        :type string
-        :initform (error "The uri must be set for a pointer")
-        :index t)
-   (identified-construct :accessor identified-construct
-                         :initarg :identified-construct
-                         :associate ReifiableConstructC))
-  (:documentation "Abstract base class for all types of pointers and identifiers"))
-
-(defmethod delete-construct :before ((construct PointerC))
-  (delete-1-n-association construct 'identified-construct))
-
-(defmethod find-all-equivalent ((construct PointerC))
-  (delete construct
-          (elephant:get-instances-by-value (class-of construct)
-                                           'uri
-                                           (uri construct))
-          :key #'internal-id))
-(defgeneric uri-p (construct)
-  (:documentation "Check if the slot uri is bound in an identifier and not nil")
-  (:method ((identifier PointerC)) (slot-predicate identifier 'uri)))
-
-(defgeneric identified-construct-p (construct)
-  (:documentation "Check if the slot identified-construct is bound in an identifier and not nil")
-  (:method ((identifier PointerC)) (slot-predicate identifier 'identified-construct)))
-
-(defmethod print-object ((identifier PointerC) stream)
-  (format stream 
-          "~a(href: ~a; Construct: ~a)"
-          (class-name (class-of identifier))
-          (if (uri-p identifier)
-              (uri identifier)
-              "URI UNDEFINED")
-          (if (identified-construct-p identifier)
-              (identified-construct identifier) 
-              "SLOT UNBOUND")))
-
-(defmethod equivalent-constructs ((identifier1 PointerC) (identifier2 PointerC))
-  (string= (uri identifier1) (uri identifier2)))
-
-(defmethod initialize-instance :around ((identifier PointerC) &key
-                                        (start-revision (error "Start revision must be present") )
-                                        (end-revision 0))
-  (call-next-method)
-  (add-to-version-history identifier
-                          :start-revision start-revision
-                          :end-revision end-revision)
-  identifier)
-
-;;;;;;;;;;;;;;
-;;
-;; IdentifierC
-
-(elephant:defpclass IdentifierC (PointerC)
-  ()
-  (:documentation "Abstract base class for ItemIdentifierC and
-  PersistentIdC, primarily in view of the equality rules"))
-
-
-;;;;;;;;;;;;;;
-;;
-;; ItemIdentifierC
-
-(elephant:defpclass ItemIdentifierC (IdentifierC) 
-  ()
-  (:index t)
-  (:documentation "Represents an item identifier"))
-
-
-;;;;;;;;;;;;;;
-;;
-;; PSI
-
-(elephant:defpclass PersistentIdC (IdentifierC) 
-  ((identified-construct :accessor identified-construct
-                         :initarg :identified-construct
-                         :associate TopicC))
-  (:index t)
-  (:documentation "Represents a PSI"))
-
-
-
-;;(defmethod print-object ((psi PersistentIdC) stream)
-;;  (format stream "PSI(URI: ~a; TopicId: ~a)" (uri psi) (topicid (identified-construct psi))))
-
-
-;;;;;;;;;;;;;;
-;;
-;; SubjectLocator
-
-(elephant:defpclass SubjectLocatorC (IdentifierC)
-  ((identified-construct :accessor identified-construct
-                         :initarg :identified-construct
-                         :associate TopicC))
-  (:index t)
-  (:documentation "Represents a subject locator"))
-
 ;;;;;;;;;;;;;;
 ;;
 ;; TopicIdentificationC
@@ -599,6 +582,19 @@ specific keyword arguments for their purpose"))
   "checks if a xtm-id has been used before"
   (elephant:get-instance-by-value 'TopicIdentificationC
                                   'xtm-id xtm-id))
+
+
+;;;;;;;;;;;;;;
+;;
+;; PSI
+
+(elephant:defpclass PersistentIdC (IdentifierC) 
+  ((identified-construct :accessor identified-construct
+                         :initarg :identified-construct
+                         :associate TopicC))
+  (:index t)
+  (:documentation "Represents a PSI"))
+
 
 ;;;;;;;;;;;;;;
 ;;
