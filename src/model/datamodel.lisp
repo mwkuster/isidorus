@@ -1360,7 +1360,7 @@ NIL or an error is thrown, depending on error-if-nil."
                   (if (= revision 0)
                       found-topic 
                       (find-item-by-revision found-topic revision)))))
-            (make-instance 'TopicC :from-oid (subseq topicid 1)))))
+            (elephant::controller-recreate-instance elephant:*store-controller* (subseq topicid 1)))))
     (if (and error-if-nil (not result))
         (error (format nil "no such item (id: ~a, tm: ~a, rev: ~a)" topicid xtm-id revision))
         result)))
