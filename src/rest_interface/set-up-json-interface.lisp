@@ -331,15 +331,15 @@
 (defun return-overview (&optional param)
   "Returns a json-object representing a topic map overview as a tree(s)"
   (declare (ignorable param))
-  (handler-case (let ((json-string
-		       (with-reader-lock
-			 (json-tmcl::tree-view-to-json-string (json-tmcl::make-tree-view)))))
-		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-		  json-string)
-    (Condition (err) (progn
-		       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-		       (setf (hunchentoot:content-type*) "text")
-		       (format nil "Condition: \"~a\"" err)))))
+  (with-reader-lock
+    (handler-case (let ((json-string
+			 (json-tmcl::tree-view-to-json-string (json-tmcl::make-tree-view))))
+		    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+		    json-string)
+      (Condition (err) (progn
+			 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+			 (setf (hunchentoot:content-type*) "text")
+			 (format nil "Condition: \"~a\"" err))))))
 
 
 ;; =============================================================================
