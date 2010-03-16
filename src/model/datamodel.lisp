@@ -101,6 +101,7 @@
 	   :variants
 	   :xor
            :create-latest-fragment-of-topic
+	   :get-latest-fragment-of-topic
 	   :reified
 	   :reifier
 	   :add-reifier

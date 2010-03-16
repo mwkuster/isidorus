@@ -71,14 +71,20 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (setf atom:*base-url* (format nil "http://~a:~a" host-name port))
-  (elephant:open-store  
-   (xml-importer:get-store-spec repository-path))
+  (unless elephant:*store-controller*
+    (elephant:open-store  
+     (xml-importer:get-store-spec repository-path)))
   (load conffile)
   (publish-feed atom:*tm-feed*)
   (set-up-json-interface)
   (setf *server-acceptor* (make-instance 'hunchentoot:acceptor :address host-name :port port))
   (setf hunchentoot:*lisp-errors-log-level* :info)
   (setf hunchentoot:*message-log-pathname* "./hunchentoot-errors.log")
+  (map 'list #'(lambda(top)
+		 (let ((psis-of-top (psis top)))
+		   (when psis-of-top
+		     (create-latest-fragment-of-topic (uri (first psis-of-top))))))
+       (elephant:get-instances-by-class 'd:TopicC))
   (hunchentoot:start *server-acceptor*))
 
 (defun shutdown-tm-engine ()

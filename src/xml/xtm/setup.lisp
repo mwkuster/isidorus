@@ -50,6 +50,6 @@
     (elephant:open-store  
      (get-store-spec repository-path)))
   (init-isidorus)
-  (import-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id :xtm-format xtm-format)
-  (when elephant:*store-controller*
-    (elephant:close-store)))
+  (import-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id :xtm-format xtm-format))
+;  (when elephant:*store-controller*
+;    (elephant:close-store)))

@@ -277,7 +277,7 @@ locator and an internally generated id (ideally a uuid)"))
 
 
 (defun create-latest-fragment-of-topic (topic-psi)
-  "returns the latest fragment of the passed topic-psi"
+  "Returns the latest fragment of the passed topic-psi"
   (declare (string topic-psi))
   (let ((topic
 	 (get-item-by-psi topic-psi)))
@@ -300,3 +300,17 @@ locator and an internally generated id (ideally a uuid)"))
 			     :associations (find-associations-for-topic topic)
 			     :referenced-topics (find-referenced-topics topic)
 			     :topic topic)))))))
+
+
+(defun get-latest-fragment-of-topic (topic-psi)
+  "Returns the latest existing fragment of the passed topic-psi."
+  (declare (string topic-psi))
+  (let ((topic
+	 (get-item-by-psi topic-psi)))
+    (when topic
+      (let ((existing-fragments
+	     (elephant:get-instances-by-value 'FragmentC 'topic topic)))
+	(when existing-fragments
+	  (first (sort existing-fragments
+		       #'(lambda(frg-1 frg-2)
+			   (> (revision frg-1) (revision frg-2))))))))))

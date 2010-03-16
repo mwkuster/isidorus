@@ -20,9 +20,9 @@
   (xml-importer:init-isidorus)
   (init-rdf-module)
   (rdf-importer rdf-xml-path repository-path :tm-id tm-id
-		:document-id document-id)
-  (when elephant:*store-controller*
-    (elephant:close-store)))
+		:document-id document-id))
+;  (when elephant:*store-controller*
+;    (elephant:close-store)))
 
 
 (defun rdf-importer (rdf-xml-path repository-path 
@@ -46,7 +46,7 @@
     (format t "#Objects in the store: Topics: ~a, Associations: ~a~%"
 	    (length (elephant:get-instances-by-class 'TopicC))
 	    (length (elephant:get-instances-by-class 'AssociationC)))
-    (elephant:close-store)
+;    (elephant:close-store)
     (setf *_n-map* nil)))
 
 

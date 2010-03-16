@@ -226,8 +226,8 @@
 	(let ((identifier (string-replace psi "%23" "#")))
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 	  (let ((fragment
-		 (with-writer-lock
-		   (create-latest-fragment-of-topic identifier))))
+		 (with-reader-lock
+		   (get-latest-fragment-of-topic identifier))))
 	    (if fragment
 		(handler-case (with-reader-lock
 				(to-json-string fragment))
@@ -251,8 +251,8 @@
 	(let ((identifier (string-replace psi "%23" "#")))
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 	  (let ((fragment
-		 (with-writer-lock
-		   (create-latest-fragment-of-topic identifier))))
+		 (with-reader-lock
+		   (get-latest-fragment-of-topic identifier))))
 	    (if fragment
 		(handler-case (with-reader-lock
 				(rdf-exporter:to-rdf-string fragment))
