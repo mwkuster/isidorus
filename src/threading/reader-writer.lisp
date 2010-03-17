@@ -65,5 +65,5 @@
      (do
       ((remaining-readers (current-readers) (current-readers)))
       ((null remaining-readers))
-       (sleep 0.5))
+       (sleep 0.05))
      ,@body))
