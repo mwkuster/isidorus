@@ -209,6 +209,7 @@ function addTopicAsPlayer(associationsConstraints, topicInstanceOfs){
 		for(var k = 0; k !== rpcs[j].playerType.length; ++k){
 		    for(var l = 0; l !== rpcs[j].playerType[k].length; ++l){
 			if(instanceOfsPsis.indexOf(rpcs[j].playerType[k][l]) !== -1){
+			    if(!rpcs[j].players) rpcs[j].players = new Array();
 			    rpcs[j].players.push(new Array(CURRENT_TOPIC));
 			    break;
 			}
@@ -224,6 +225,7 @@ function addTopicAsPlayer(associationsConstraints, topicInstanceOfs){
 		for(var k = 0; k !== orcs[j].playerType.length; ++k){
 		    for(var l = 0; l !== orcs[j].playerType[k].length; ++l){
 			if(instanceOfsPsis.indexOf(orcs[j].playerType[k][l]) !== -1){
+			    if(!orcs[j].players) orcs[j].players = new Array();
 			    orcs[j].players.push(new Array(CURRENT_TOPIC));
 			    break;
 			}
@@ -232,6 +234,7 @@ function addTopicAsPlayer(associationsConstraints, topicInstanceOfs){
 		for(var k = 0; k !== orcs[j].otherPlayerType.length; ++k){
 		    for(var l = 0; l !== orcs[j].otherPlayerType[k].length; ++l){
 			if(instanceOfsPsis.indexOf(orcs[j].otherPlayerType[k][l]) !== -1){
+			    if (!orcs[j].otherPlayers) orcs[j].otherPlayers = new Array();
 			    orcs[j].otherPlayers.push(new Array(CURRENT_TOPIC));
 			    break;
 			}
