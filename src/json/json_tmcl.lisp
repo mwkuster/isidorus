@@ -1275,15 +1275,43 @@
 			    (remove-if #'(lambda(x) (when (eql topic-instance x)
 						      t))
 				       (get-direct-subtypes-of-topic topic-instance)))))))
-      (list :topic topic-instance
-	    :is-type is-type
-	    :is-instance is-instance
-	    :instances (map 'list #'(lambda(x)
-				      (make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
-			    isas-of-this)
-	    :subtypes (map 'list #'(lambda(x)
-				      (make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
-			    akos-of-this)))))
+      (let ((cleaned-isas ;;all constraint topics are removed
+	     (remove-if #'null (map 'list #'(lambda(top-entry)
+					      (when (find-if #'(lambda(psi)
+								   (unless (or (string= (uri psi) *constraint-psi*)
+									       (string= (uri psi) *occurrencetype-psi*)
+									       (string= (uri psi) *nametype-psi*)
+									       (string= (uri psi) *associationtype-psi*)
+									       (string= (uri psi) *roletype-psi*)
+									       (string= (uri psi) *scopetype-psi*)
+									       (string= (uri psi) *schema-psi*))
+								     top-entry))
+							       (psis (getf top-entry :topic)))
+						top-entry))
+				    isas-of-this)))
+	    (cleaned-akos ;;all constraint topics are removed
+	     (remove-if #'null (map 'list #'(lambda(top-entry)
+					      (when (find-if #'(lambda(psi)
+								   (unless (or (string= (uri psi) *constraint-psi*)
+									       (string= (uri psi) *occurrencetype-psi*)
+									       (string= (uri psi) *nametype-psi*)
+									       (string= (uri psi) *associationtype-psi*)
+									       (string= (uri psi) *roletype-psi*)
+									       (string= (uri psi) *scopetype-psi*)
+									       (string= (uri psi) *schema-psi*))
+								     top-entry))
+							       (psis (getf top-entry :topic)))
+						top-entry))
+				    akos-of-this))))
+	(list :topic topic-instance
+	      :is-type is-type
+	      :is-instance is-instance
+	      :instances (map 'list #'(lambda(x)
+					(make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
+			      cleaned-isas)
+	      :subtypes (map 'list #'(lambda(x)
+				       (make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
+			     cleaned-akos))))))
 
 
 (defun get-all-tree-roots ()
