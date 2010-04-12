@@ -40,7 +40,8 @@
 	   :*ajax-user-interface-url*
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*
-	   :*ajax-javascript-url-prefix*))
+	   :*ajax-javascript-url-prefix*
+	   :*mark-as-deleted-url*))
 
 
 (in-package :rest-interface)

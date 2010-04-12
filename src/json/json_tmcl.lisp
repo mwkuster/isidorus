@@ -11,6 +11,86 @@
 
 
 ;; =============================================================================
+;; --- mark-as-deleted handler -------------------------------------------------
+;; =============================================================================
+; a test string ...
+(defvar cl-user::*js-1*
+  "{\"type\":\"Topic\",
+    \"topics\":[\"http://textgrid.org/isidorus/tmcl/service\"],
+    \"associations\":[{\"itemIdentities\":null,
+                      \"type\":[\"http://psi.topicmaps.org/tmcl/applies-to\"],
+                      \"scopes\":null,
+                      \"roles\":[{\"itemIdentities\":null,
+                                  \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
+                                  \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]},
+                                 {\"itemIdentities\":null,
+                                  \"type\":[\"http://psi.topicmaps.org/tmcl/topictype-role\"],
+                                  \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/service\"]}]}],
+    \"parent-topic\":[\"http://textgrid.org/isidorus/my-service/my-service\"],
+    \"parent-name\":{\"itemIdentities\":null,
+                     \"type\":[\"http://textgrid.org/isidorus/tmcl/service-name\"],
+                     \"scopes\":null,
+                     \"value\":\"my-service\",
+                     \"variants\":null},
+    \"names\":[{\"itemIdentities\":null,
+                \"type\":[\"http://textgrid.org/isidorus/tmcl/service-name\"],
+                \"scopes\":null,
+                \"value\":\"my-service\",
+                \"variants\":null}],
+    \"variants\":[{\"itemIdentities\":null,
+                   \"scopes\":[[\"http://textgrid.org/isidorus/tmcl/display\"]],
+                   \"resourceData\":{\"datatype\":\"http://www.w3.org/2001/XMLSchema#string\",
+                                     \"value\":\"http://textgrid.org/isidorus/tmcl/service\"},
+                   \"resourceRef\":null},
+                  {\"itemIdentities\":null,
+                   \"scopes\":[[\"http://textgrid.org/isidorus/tmcl/is-ref\"]],
+                   \"resourceData\":null,
+                   \"resourceRef\":\"http://any-ref.org\"}],
+    \"occurrences\":[{\"itemIdentities\":null,
+                      \"type\":[\"http://textgrid.org/isidorus/tmcl/service-key\"],
+                      \"scopes\":null,
+                      \"resourceData\":{\"datatype\":\"http://www.w3.org/2001/XMLSchema#string\",
+                                        \"value\":\"service-key\"}}],
+    \"parent-association\":{\"itemIdentities\":null,
+                            \"type\":[\"http://psi.topicmaps.org/tmcl/applies-to\"],
+                            \"scopes\":null,
+                            \"roles\":[{\"itemIdentities\":null,
+                                        \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
+                                        \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]},
+                                       {\"itemIdentities\":null,
+                                        \"type\":[\"http://psi.topicmaps.org/tmcl/topictype-role\"],
+                                        \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/service\"]}]},
+    \"roles\":[{\"itemIdentities\":null,
+                \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
+                \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]}]}")
+
+
+(defun mark-as-deleted-from-json (json-data)
+  (declare (string json-data))
+  
+;{\"type\":<\"Topic\" | \"Occurrence\" | \"Name\"
+;           \"Association\" | \"Role\" | \"Variant\" >,
+; \"topics\": <one psi per topic of the topic that have to be deleted>,
+; \"associations\": <a list of associations that should be deleted in the
+;                   specified json format>,
+; \"parent-topic\": <one psi of the parent topic the deleted
+;                    objects are contained in or null if the
+;                    deleted object is the topic itself>,
+; \"parent-name\": <the owner parent of the deleted variants>,
+; \"names\": <a list of names that have to be deleted>,
+; \"variants\": <a list of variants that have to be deleted>,
+; \"occurrences\": <a list of occurrences that have to be deleted>,
+; \"parent-association\": <one association in the specified json
+;                          format, that is the parent of the passed
+;                          role>
+; \"roles\": <a list of roles in the specified json format>}
+  (let ((values (json:decode-json-from-string json-data)))
+    values
+    ))
+
+
+
+;; =============================================================================
 ;; --- all fragment constraints ------------------------------------------------
 ;; =============================================================================
 (defun get-constraints-of-fragment(topic-psis &key (treat-as 'type))

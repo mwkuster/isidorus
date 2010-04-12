@@ -26,6 +26,7 @@
 (defparameter *ajax-user-interface-file-path* "ajax/isidorus.html") ;the file path to the HTML file implements the user interface
 (defparameter *ajax-javascript-directory-path* "ajax/javascripts") ;the directory which contains all necessary javascript files
 (defparameter *ajax-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
+(defparameter *mark-as-deleted-url* "/mark-as-deleted") ; the url suffix that calls the mark-as-deleted handler
 
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
 			      (get-rdf-prefix *get-rdf-prefix*)
@@ -43,7 +44,8 @@
 			      (ajax-user-interface-css-prefix *ajax-user-interface-css-prefix*)
 			      (ajax-user-interface-css-directory-path *ajax-user-interface-css-directory-path*)
 			      (ajax-javascripts-directory-path *ajax-javascript-directory-path*)
-			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*))
+			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*)
+			      (mark-as-deleted-url *mark-as-deleted-url*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
 
@@ -111,6 +113,9 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-summary-url #'return-topic-summaries)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted)
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -341,6 +346,31 @@
 			 (setf (hunchentoot:content-type*) "text")
 			 (format nil "Condition: \"~a\"" err))))))
 
+
+(defun mark-as-deleted-handler (&optional param)
+  "Marks the corresponding elem as deleted.
+   {\"type\":<\"'TopicC\" | \"'OccurrenceC\" | \"'NameC\"
+              \"'AssociationC\" | \"'RoleC\" | \"VariantC\" >,
+    \"object\":<specified json-object: name or occurrence,
+                if the deleted object is a topic this field
+                has to be set to null>,
+    \"parent-topic\":<psis or null>,
+    \"parent-name\": <specified json-object: name>}."
+  (declare (ignorable param)) ;param is currently not used
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (or (eq http-method :PUT)
+	    (eq http-method :POST))
+	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
+	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
+	    (handler-case
+		(with-writer-lock
+		  (json-tmcl::mark-as-deleted-from-json json-data))
+	      (condition (err)
+		(progn
+		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Condition: \"~a\"" err))))))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 ;; =============================================================================
 ;; --- some helper functions ---------------------------------------------------
