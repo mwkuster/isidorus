@@ -162,7 +162,7 @@
 					    :depends-on ("json_tmcl_constants" "json_exporter" ))
 				     (:file "json_tmcl_constants")
 				     (:file "json_tmcl"
-					    :depends-on ("json_tmcl_validation")))
+					    :depends-on ("json_tmcl_validation" "json_importer")))
 	                :depends-on ("model"
 				     "xml"))
 	       (:module "ajax"

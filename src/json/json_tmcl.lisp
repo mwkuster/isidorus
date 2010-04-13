@@ -15,8 +15,9 @@
 ;; =============================================================================
 ; a test string ...
 (defvar cl-user::*js-1*
-  "{\"type\":\"Topic\",
-    \"topics\":[\"http://textgrid.org/isidorus/tmcl/service\"],
+  "{\"type\":\"Association\",
+    \"topics\":[\"http://textgrid.org/isidorus/tmcl/service\",
+                \"http://textgrid.org/isidorus/tmcl/parameter\"],
     \"associations\":[{\"itemIdentities\":null,
                       \"type\":[\"http://psi.topicmaps.org/tmcl/applies-to\"],
                       \"scopes\":null,
@@ -24,7 +25,7 @@
                                   \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
                                   \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]},
                                  {\"itemIdentities\":null,
-                                  \"type\":[\"http://psi.topicmaps.org/tmcl/topictype-role\"],
+                                  \"type\":[\"http://psi.topicmaps.org/tmcl/topic-type-role\"],
                                   \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/service\"]}]}],
     \"parent-topic\":[\"http://textgrid.org/isidorus/my-service/my-service\"],
     \"parent-name\":{\"itemIdentities\":null,
@@ -85,9 +86,109 @@
 ;                          role>
 ; \"roles\": <a list of roles in the specified json format>}
   (let ((values (json:decode-json-from-string json-data)))
-    values
-    ))
+    (let ((type nil)
+	  (topics nil)
+	  (associations nil)
+	  (parent-topic nil)
+	  (parent-name nil)
+	  (names nil)
+	  (variants nil)
+	  (occurrences nil)
+	  (parent-association nil)
+	  (roles nil)
+	  (rev (get-revision)))
+      (loop for entry in values
+	 when (consp entry)
+	 do (let ((st (car entry))
+		  (nd (cdr entry)))
+	      (cond ((eql st :type) (setf type nd))
+		    ((eql st :topics) (setf topics nd))
+		    ((eql st :associations) (setf associations nd))
+		    ((eql st :parent-topic) (setf parent-topic nd))
+		    ((eql st :parent-name) (setf parent-name nd))
+		    ((eql st :names) (setf names nd))
+		    ((eql st :variants) (setf variants nd))
+		    ((eql st :occurrences) (setf occurrences nd))
+		    ((eql st :parent-association) (setf parent-association nd))
+		    ((eql st :roles) (setf roles nd)))))
+      (cond ((string= type "Topic")
+	     (delete-topics-from-json topics rev))
+	    ((string= type "Association")
+	     (delete-associations-from-json associations rev))
+	    ((string= type "Occurrence")
+	     nil)
+	    ((string= type "Name")
+	     nil)
+	    ((string= type "Variant")
+	     nil)
+	    ((string= type "Role")
+	     nil)
+	    (t
+	     (error "From mark-as-deleted-from-json(): the type ~a is not defined"
+		    type))))))
 
+
+
+(defun find-association-from-json (json-plist)
+  (declare (list json-plist))
+  (let ((type-assocs
+	 (elephant:get-instances-by-value
+	  'd:AssociationC 'd:instance-of
+	  (d:get-item-by-psi (first (getf json-plist :type)))))
+	(scopes nil)
+	(err "From find-association-from-json(): "))
+    (loop for scope-entry in (getf json-plist :scopes)
+       do (let ((top (d:get-item-by-psi (first scope-entry))))
+	    (unless top
+	      (error "~a ~a not found"
+		     err (first scope-entry)))
+	    (pushnew top scopes)))
+    (let ((scope-assocs
+	   (loop for assoc in type-assocs
+	      when (not (set-exclusive-or scopes (themes assoc)))
+	      collect assoc)))
+      (loop for assoc in scope-assocs
+	 when (let ((found-roles
+		     (loop for j-role in (getf json-plist :roles)
+			when (let ((j-player (when (getf j-role :topicRef)
+					       (d:get-item-by-psi (first (getf j-role :topicRef)))))
+				   (j-type (when (getf j-role :type)
+					     (d:get-item-by-psi (first (getf j-role :type))))))
+			       (find-if #'(lambda(role)
+					    (and (eql (instance-of role) j-type)
+						 (eql (player role) j-player)))
+					(roles assoc)))
+			collect j-role)))
+		(= (length (roles assoc)) (length (getf json-plist :roles))
+		   (length found-roles)))
+	 return assoc))))
+
+
+(defun delete-associations-from-json (associations revision)
+  (declare (list associations) (integer revision))
+  (dolist (j-assoc associations)
+    (let ((plist (json-importer::get-association-values-from-json-list j-assoc))
+	  (err "From delete-association-from-json(): "))
+      (let ((assoc (find-association-from-json plist)))
+	(unless assoc
+	  (error "~a ~a not found" err plist))
+	(mark-as-deleted assoc :revision revision)))))
+  
+
+(defun delete-topics-from-json (topics revision)
+  (declare (list topics) (integer revision))
+  (let ((psis nil))
+    (dolist (uri topics)
+      (let ((psi (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri uri)))
+	(unless psi
+	  (error "From delete-topic-from-json(): PSI ~a not found" uri))
+	(pushnew psi psis)))
+    (let ((tops
+	   (remove-duplicates
+	    (map 'list #'d:identified-construct psis))))
+      (dolist (top tops)
+	(let ((psi (uri (first (psis top)))))
+	  (mark-as-deleted top :source-locator psi :revision revision))))))
 
 
 ;; =============================================================================
