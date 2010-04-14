@@ -13,78 +13,9 @@
 ;; =============================================================================
 ;; --- mark-as-deleted handler -------------------------------------------------
 ;; =============================================================================
-; a test string ...
-(defvar cl-user::*js-1*
-  "{\"type\":\"Association\",
-    \"topics\":[\"http://textgrid.org/isidorus/tmcl/service\",
-                \"http://textgrid.org/isidorus/tmcl/parameter\"],
-    \"associations\":[{\"itemIdentities\":null,
-                      \"type\":[\"http://psi.topicmaps.org/tmcl/applies-to\"],
-                      \"scopes\":null,
-                      \"roles\":[{\"itemIdentities\":null,
-                                  \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
-                                  \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]},
-                                 {\"itemIdentities\":null,
-                                  \"type\":[\"http://psi.topicmaps.org/tmcl/topic-type-role\"],
-                                  \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/service\"]}]}],
-    \"parent-topic\":[\"http://textgrid.org/isidorus/my-service/my-service\"],
-    \"parent-name\":{\"itemIdentities\":null,
-                     \"type\":[\"http://textgrid.org/isidorus/tmcl/service-name\"],
-                     \"scopes\":null,
-                     \"value\":\"my-service\",
-                     \"variants\":null},
-    \"names\":[{\"itemIdentities\":null,
-                \"type\":[\"http://textgrid.org/isidorus/tmcl/service-name\"],
-                \"scopes\":null,
-                \"value\":\"my-service\",
-                \"variants\":null}],
-    \"variants\":[{\"itemIdentities\":null,
-                   \"scopes\":[[\"http://textgrid.org/isidorus/tmcl/display\"]],
-                   \"resourceData\":{\"datatype\":\"http://www.w3.org/2001/XMLSchema#string\",
-                                     \"value\":\"http://textgrid.org/isidorus/tmcl/service\"},
-                   \"resourceRef\":null},
-                  {\"itemIdentities\":null,
-                   \"scopes\":[[\"http://textgrid.org/isidorus/tmcl/is-ref\"]],
-                   \"resourceData\":null,
-                   \"resourceRef\":\"http://any-ref.org\"}],
-    \"occurrences\":[{\"itemIdentities\":null,
-                      \"type\":[\"http://textgrid.org/isidorus/tmcl/service-key\"],
-                      \"scopes\":null,
-                      \"resourceData\":{\"datatype\":\"http://www.w3.org/2001/XMLSchema#string\",
-                                        \"value\":\"service-key\"}}],
-    \"parent-association\":{\"itemIdentities\":null,
-                            \"type\":[\"http://psi.topicmaps.org/tmcl/applies-to\"],
-                            \"scopes\":null,
-                            \"roles\":[{\"itemIdentities\":null,
-                                        \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
-                                        \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]},
-                                       {\"itemIdentities\":null,
-                                        \"type\":[\"http://psi.topicmaps.org/tmcl/topictype-role\"],
-                                        \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/service\"]}]},
-    \"roles\":[{\"itemIdentities\":null,
-                \"type\":[\"http://psi.topicmaps.org/tmcl/constraint-role\"],
-                \"topicRef\":[\"http://textgrid.org/isidorus/tmcl/exc\"]}]}")
-
-
 (defun mark-as-deleted-from-json (json-data)
+  "Marks an object that is specified by the given JSON data as deleted."
   (declare (string json-data))
-  
-;{\"type\":<\"Topic\" | \"Occurrence\" | \"Name\"
-;           \"Association\" | \"Role\" | \"Variant\" >,
-; \"topics\": <one psi per topic of the topic that have to be deleted>,
-; \"associations\": <a list of associations that should be deleted in the
-;                   specified json format>,
-; \"parent-topic\": <one psi of the parent topic the deleted
-;                    objects are contained in or null if the
-;                    deleted object is the topic itself>,
-; \"parent-name\": <the owner parent of the deleted variants>,
-; \"names\": <a list of names that have to be deleted>,
-; \"variants\": <a list of variants that have to be deleted>,
-; \"occurrences\": <a list of occurrences that have to be deleted>,
-; \"parent-association\": <one association in the specified json
-;                          format, that is the parent of the passed
-;                          role>
-; \"roles\": <a list of roles in the specified json format>}
   (let ((values (json:decode-json-from-string json-data)))
     (let ((type nil)
 	  (topics nil)
@@ -116,17 +47,203 @@
 	    ((string= type "Association")
 	     (delete-associations-from-json associations rev))
 	    ((string= type "Occurrence")
-	     nil)
+	     (delete-occurrences-from-json occurrences parent-topic rev))
 	    ((string= type "Name")
-	     nil)
+	     (delete-names-from-json names parent-topic rev))
 	    ((string= type "Variant")
-	     nil)
+	     (delete-variants-from-json variants parent-topic parent-name rev))
 	    ((string= type "Role")
-	     nil)
+	     (delete-roles-from-json roles parent-association rev))
 	    (t
 	     (error "From mark-as-deleted-from-json(): the type ~a is not defined"
 		    type))))))
 
+
+(defun find-role-from-json (parent-association json-plist)
+  (declare (AssociationC parent-association) (list json-plist))
+  (let ((found-role
+	 (find-if
+	  #'(lambda(role)
+	      (let ((type (when (getf json-plist :type)
+			    (d:get-item-by-psi (first (getf json-plist :type)))))
+		    (player (when (getf json-plist :topicRef)
+			      (d:get-item-by-psi
+			       (first (getf json-plist :topicRef))))))
+		(and (eql type (d:instance-of role))
+		     (eql player (d:player role)))))
+	  (d:roles parent-association))))
+    found-role))
+
+
+(defun delete-roles-from-json (roles parent-association revision)
+  (declare (list roles parent-association) (integer revision))
+  (let ((err "From delete-roles-from-association(): ")
+	(parent-assoc
+	 (find-association-from-json
+	  (json-importer::get-association-values-from-json-list
+	   parent-association))))
+    (unless parent-assoc
+      (error "~a~a not found" err parent-association))
+    (dolist (j-role roles)
+      (let ((plist (json-importer::get-role-values-from-json-list j-role)))
+	(let ((role (find-role-from-json parent-assoc plist)))
+	  (unless role
+	    (error "~a~a not found" err plist))
+	  (format t "~a~%" role)
+	  (mark-as-deleted role :revision revision))))))
+
+
+(defun find-variant-from-json (parent-name json-plist)
+  (declare (NameC parent-name) (list json-plist))
+  (let ((err "From find-variant-from-json(): "))
+    (let ((found-var
+	   (find-if
+	    #'(lambda(var)
+		(let ((datatype (cond ((getf json-plist :datatype)
+				       (getf json-plist :datatype))
+				      ((getf json-plist :resourceRef)
+				       constants:*xml-uri*)
+				      ((getf json-plist :resourceData)
+				       (let ((val
+					      (getf
+					       (getf json-plist :resourceData)
+					       :datatype)))
+					 (if val val constants:*xml-string*)))
+				      (t
+				       constants:*xml-string*)))
+		      (charvalue (cond ((getf json-plist :resourceRef)
+					(getf json-plist :resourceRef))
+				       ((getf json-plist :resourceData)
+					(getf (getf json-plist :resourceData)
+					      :value))
+				       (t
+					"")))
+		      (scopes nil))
+		  (loop for scope-entry in (getf json-plist :scopes)
+		     do (let ((top (d:get-item-by-psi (first scope-entry))))
+			  (unless top
+			    (error "~a ~a not found" err (first scope-entry)))
+			  (pushnew top scopes)))
+		  (and (not (set-exclusive-or scopes (d:themes var)))
+		       (string= datatype (d:datatype var))
+		       (string= charvalue (d:charvalue var)))))
+	    (d:variants parent-name :revision 0))))
+      found-var)))
+
+
+(defun delete-variants-from-json (variants parent-psi parent-name revision)
+  (declare (string parent-psi) (list variants parent-name))
+  (let ((err "From delete-variants-from-json(): ")
+	(parent-topic (d:get-item-by-psi parent-psi)))
+    (unless parent-topic
+      (error "~a~a not found" err parent-psi))
+    (let ((v-name
+	   (find-name-from-json
+	    parent-topic
+	    (json-importer::get-name-values-from-json-list parent-name))))
+      (unless v-name
+	(error "~a~a not found" err parent-name))
+      (dolist (j-variant variants)
+	(let ((plist
+	       (json-importer::get-variant-values-from-json-list j-variant)))
+	  (let ((variant (find-variant-from-json v-name plist)))
+	    (unless variant
+	      (error "~a~a not found" err plist))
+	    (mark-as-deleted variant :revision revision)))))))
+
+
+(defun find-name-from-json(parent-topic json-plist)
+  (declare (TopicC parent-topic) (list json-plist))
+  (let ((err "From find-name-from-json(): "))
+    (let ((found-name
+	   (find-if
+	    #'(lambda(name)
+		(let ((type (when (getf json-plist :type)
+			      (d:get-item-by-psi (first (getf json-plist :type)))))
+		      (charvalue (if (getf json-plist :value)
+				     (getf json-plist :value)
+				     ""))
+		      (scopes nil))
+		  (loop for scope-entry in (getf json-plist :scopes)
+		     do (let ((top (d:get-item-by-psi (first scope-entry))))
+			  (unless top
+			    (error "~a ~a not found" err (first scope-entry)))
+			  (pushnew top scopes)))
+		  (and (eql type (d:instance-of name))
+		       (not (set-exclusive-or scopes (d:themes name)))
+		       (string= charvalue (d:charvalue name)))))
+	    (names parent-topic :revision 0))))
+      found-name)))
+
+
+(defun delete-names-from-json (names parent-psi revision)
+  (declare (list names) (string parent-psi) (integer revision))
+  (let ((parent-topic (d:get-item-by-psi parent-psi))
+	(err "From delete-name-from-json(): "))
+    (unless parent-topic
+      (error "~a~a not found"
+	     err parent-psi))
+    (dolist (j-name names)
+      (let ((plist (json-importer::get-name-values-from-json-list j-name)))
+	(let ((name (find-name-from-json parent-topic plist)))
+	  (unless name
+	    (error "~a~a not found" err plist))
+	  (mark-as-deleted name :revision revision))))))
+
+
+(defun find-occurrence-from-json(parent-topic json-plist)
+  (declare (TopicC parent-topic) (list json-plist))
+  (let ((err "From find-occurrence-from-json(): "))
+    (let ((found-occ
+	   (find-if
+	    #'(lambda(occ)
+		(let ((type (when (getf json-plist :type)
+			      (d:get-item-by-psi (first (getf json-plist :type)))))
+		      (datatype (cond ((getf json-plist :datatype)
+				       (getf json-plist :datatype))
+				      ((getf json-plist :resourceRef)
+				       constants:*xml-uri*)
+				      ((getf json-plist :resourceData)
+				       (let ((val
+					      (getf
+					       (getf json-plist :resourceData)
+					       :datatype)))
+					 (if val val constants:*xml-string*)))
+				      (t
+				       constants:*xml-string*)))
+		      (charvalue (cond ((getf json-plist :resourceRef)
+					(getf json-plist :resourceRef))
+				       ((getf json-plist :resourceData)
+					(getf (getf json-plist :resourceData)
+					      :value))
+				       (t
+					"")))
+		      (scopes nil))
+		  (loop for scope-entry in (getf json-plist :scopes)
+		     do (let ((top (d:get-item-by-psi (first scope-entry))))
+			  (unless top
+			    (error "~a ~a not found" err (first scope-entry)))
+			  (pushnew top scopes)))
+		  (and (eql type (d:instance-of occ))
+		       (not (set-exclusive-or scopes (d:themes occ)))
+		       (string= datatype (d:datatype occ))
+		       (string= charvalue (d:charvalue occ)))))
+	    (occurrences parent-topic :revision 0))))
+      found-occ)))
+
+
+(defun delete-occurrences-from-json(occurrences parent-psi revision)
+  (declare (list occurrences) (string parent-psi) (integer revision))
+  (let ((parent-topic (d:get-item-by-psi parent-psi))
+	(err "From delete-occurrence-from-json(): "))
+    (unless parent-topic
+      (error "~a~a not found" err parent-psi))
+    (dolist (j-occ occurrences)
+      (let ((plist (json-importer::get-occurrence-values-from-json-list j-occ)))
+	(let ((occ (find-occurrence-from-json parent-topic plist)))
+	  (unless occ
+	    (error "~a~a not found" err plist))
+	  (mark-as-deleted occ :revision revision))))))
 
 
 (defun find-association-from-json (json-plist)
@@ -140,8 +257,7 @@
     (loop for scope-entry in (getf json-plist :scopes)
        do (let ((top (d:get-item-by-psi (first scope-entry))))
 	    (unless top
-	      (error "~a ~a not found"
-		     err (first scope-entry)))
+	      (error "~a ~a not found" err (first scope-entry)))
 	    (pushnew top scopes)))
     (let ((scope-assocs
 	   (loop for assoc in type-assocs
