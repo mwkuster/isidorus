@@ -4,7 +4,7 @@
 //+  *Part 2: XTM - data model
 //+  *Part 3: Object summaries
 //+  *Part 4: TMCL - data model
-//+  *Part 5: Server-side RESTful interface
+//+  *Part 5: Object notation for marking objects as deleted
 //+-----------------------------------------------------------------------------
 
 //+-----------------------------------------------------------------------------
@@ -173,16 +173,36 @@ AssociationsConstraints "\"associationsConstraints\":" (("[" AConstraints+ "]") 
 
 // Contains the entire TMCL information
 FragmentConstraint ="{" TopicConstraints "," AssociationsConstraints "}"
+
+
 //+-----------------------------------------------------------------------------
-//+ Part 5: Server-side RESTful interface
+//+ Part 5: Object notation for marking objects as deleted
+//+    type: the type of the deleted object, e.g. Topic for TopicC
+//+    topics: a list of PSIs, where every single PSI represents a topic that
+//+            has to be deleted
+//+    associations: a list of associations that have to be deleted
+//+    parent-topic: a single PSI of the name's, occurrence's or variant's owner
+//+                  topic
+//+    parent-name: the parent name of the variants that have to be deleted
+//+                 (in this case the parent-topic is the topic of the name)
+//+    names: a list of the deletable names
+//+    variants: a list of deletable names
+//+    occurrences: a list of the deletable occurrences
+//+    parent-association: the parent association of the deletable roles
+//+    roles: a list of the deltable roles
 //+-----------------------------------------------------------------------------
-"/json/get/(.+)$" returns a Fragment after a HTTP-GET
-"/json/commit/?$" processes a Fragment as HTTP-POST or HTTP-PUT
-"/json/psis/?$" returns a PsiSummary after a HTTP-GET
-"/json/summary/?$" returns a TopicSummaries after A HTTP-GET
-"/json/tmcl/types/?$" returns a PsiSummary after A HTTP-GET with all types
-"/json/tmcl/instances/?$" returns a PsiSummary after a HTTP-GET with all instances
-"/json/topicstubs/(.+)$" returns a topicStub after a HTTP-GET
-"/json/tmcl/type/?$" returns a FragmentConstraint after a HTTP-POST/HTTP-PUT
-"/json/tmcl/instance/?$" returns a FragmentConstraint after a HTTP-POST/HTTP-PUT
-"/json/tmcl/overview/?$" returns a TreeView after a HTTP-GET
+DeleteType = "\"type\":" ("Topic" | "Occurrence" | "Name" | "Association" | "Role" | "Variant")
+DeleteTopics = "\"topics\":" List
+DeleteAssociations = "\"associations\":" Associations
+DeleteParentTopic = "\"parent-topic\":" String
+DeleteParentName = "\"parent-name\":" Name
+DeleteNames = "\"names\":" Names
+DeleteVariants = "\"variants\":" Variants
+DeleteOccurrences = "\"occurrences\":" Occurrences
+DeleteParentAssociation = "\"parent-association\":" Association
+DeleteRoles = "\"roles\":" Roles
+
+DeleteObject = "{" DeleteType "," DeleteTopics "," DeleteAssociations ","
+               DeleteParentTopic "," DeleteParentName "," DeleteNames ","
+               DeleteVariants "," DeleteOccurrences "," DeleteParentAssociation
+               "," DeleteRoles "}"
