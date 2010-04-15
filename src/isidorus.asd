@@ -156,7 +156,8 @@
 				     "json"
 				     "threading"))
 	       (:module "json"
-	                :components ((:file "json_exporter")
+	                :components ((:file "json_exporter"
+					    :depends-on ("json_tmcl_constants"))
 				     (:file "json_importer")
 				     (:file "json_tmcl_validation"
 					    :depends-on ("json_tmcl_constants" "json_exporter" ))

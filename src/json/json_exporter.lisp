@@ -298,7 +298,7 @@
    (remove-if #'null (map 'list #'(lambda(psi-list)
 				    (when psi-list
 				      (map 'list #'uri psi-list)))
-			  (json-tmcl::clean-topics
+			  (clean-topics
 			   (elephant:get-instances-by-class 'TopicC))))))
 
 
