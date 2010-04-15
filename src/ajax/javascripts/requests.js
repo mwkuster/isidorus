@@ -219,6 +219,27 @@ function commitFragment(json, onSuccessHandler, onFailureHandler)
 }
 
 
+// --- Sends a POST-Message to the server. The sent message enables the server
+// --- to find the spcified object and mark it as deleted
+function commitDeletedObject(json, onSuccessHandler, onFailureHandler)
+{
+    if(!json || !onSuccessHandler) throw "From commitDeletedObject(): json and onSuccessHandler must be set!";
+    try{
+	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
+	var timeFun = setAjaxTimeout(TIMEOUT, COMMIT_URL);
+	
+	new Ajax.Request(MARK_AS_DELETED_URL, {
+	    "method" : "post",
+	    "postBody" : json,
+	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
+	    "onFailure" : createXHRHandler(onFailure, timeFun)});
+    }
+    catch(err){
+	alert("From commitDeletedObject(): " + err);
+    }
+}
+
+
 // --- Requests a JSON-Fragment for the passed psi and calls the onSuccessHandler function
 // --- after a succeeded request.
 function requestFragment(psi, onSuccessHandler, onFailureHandler)

@@ -8,7 +8,7 @@
 
 
 (defpackage :json-exporter
-  (:use :cl :json :datamodel)
+  (:use :cl :json :datamodel :json-tmcl-constants)
   (:export :to-json-string
 	   :get-all-topic-psis
 	   :to-json-string-summary
@@ -298,7 +298,8 @@
    (remove-if #'null (map 'list #'(lambda(psi-list)
 				    (when psi-list
 				      (map 'list #'uri psi-list)))
-			  (map 'list #'psis (elephant:get-instances-by-class 'TopicC))))))
+			  (json-tmcl::clean-topics
+			   (elephant:get-instances-by-class 'TopicC))))))
 
 
 (defun to-json-string-summary (topic)
@@ -351,3 +352,13 @@
 	       (subseq inner-string 0 (- (length inner-string) 1)))))
 	(concatenate 'string "[" json-string "]"))
       "null"))
+
+
+(defun clean-topics(isas-or-akos)
+  (remove-if
+   #'null
+   (map 'list
+	#'(lambda(top)
+	    (when (d:find-item-by-revision top 0)
+	      top))
+	isas-or-akos)))

@@ -375,7 +375,8 @@
 (defun return-all-tmcl-types ()
   "Returns all topics that are valid tmcl-types"
   (let ((all-topics
-	 (elephant:get-instances-by-class 'd:TopicC))
+	 (json-exporter::clean-topics
+	  (elephant:get-instances-by-class 'd:TopicC)))
 	(topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*))
 	(topictype-constraint (is-type-constrained)))
     (let ((all-types
@@ -399,7 +400,8 @@
    The validity is only oriented on the typing of topics, e.g.
    type-instance or supertype-subtype."
   (let ((all-topics
-	 (elephant:get-instances-by-class 'd:TopicC)))
+	 (json-exporter::clean-topics
+	  (elephant:get-instances-by-class 'd:TopicC))))
     (let ((valid-instances
 	   (remove-if #'null
 		      (map 'list #'(lambda(x)

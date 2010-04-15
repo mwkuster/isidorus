@@ -179,7 +179,7 @@
 (defun delete-names-from-json (names parent-psi revision)
   (declare (list names) (string parent-psi) (integer revision))
   (let ((parent-topic (d:get-item-by-psi parent-psi))
-	(err "From delete-name-from-json(): "))
+	(err "From delete-names-from-json(): "))
     (unless parent-topic
       (error "~a~a not found"
 	     err parent-psi))
@@ -235,7 +235,7 @@
 (defun delete-occurrences-from-json(occurrences parent-psi revision)
   (declare (list occurrences) (string parent-psi) (integer revision))
   (let ((parent-topic (d:get-item-by-psi parent-psi))
-	(err "From delete-occurrence-from-json(): "))
+	(err "From delete-occurrences-from-json(): "))
     (unless parent-topic
       (error "~a~a not found" err parent-psi))
     (dolist (j-occ occurrences)
@@ -284,7 +284,7 @@
   (declare (list associations) (integer revision))
   (dolist (j-assoc associations)
     (let ((plist (json-importer::get-association-values-from-json-list j-assoc))
-	  (err "From delete-association-from-json(): "))
+	  (err "From delete-associations-from-json(): "))
       (let ((assoc (find-association-from-json plist)))
 	(unless assoc
 	  (error "~a ~a not found" err plist))
@@ -297,7 +297,7 @@
     (dolist (uri topics)
       (let ((psi (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri uri)))
 	(unless psi
-	  (error "From delete-topic-from-json(): PSI ~a not found" uri))
+	  (error "From delete-topics-from-json(): PSI ~a not found" uri))
 	(pushnew psi psis)))
     (let ((tops
 	   (remove-duplicates
@@ -1573,33 +1573,9 @@
 						      t))
 				       (get-direct-subtypes-of-topic topic-instance)))))))
       (let ((cleaned-isas ;;all constraint topics are removed
-	     (remove-if #'null (map 'list #'(lambda(top-entry)
-					      (when (find-if #'(lambda(psi)
-								   (unless (or (string= (uri psi) *constraint-psi*)
-									       (string= (uri psi) *occurrencetype-psi*)
-									       (string= (uri psi) *nametype-psi*)
-									       (string= (uri psi) *associationtype-psi*)
-									       (string= (uri psi) *roletype-psi*)
-									       (string= (uri psi) *scopetype-psi*)
-									       (string= (uri psi) *schema-psi*))
-								     top-entry))
-							       (psis (getf top-entry :topic)))
-						top-entry))
-				    isas-of-this)))
+	     (clean-topic-entries isas-of-this))
 	    (cleaned-akos ;;all constraint topics are removed
-	     (remove-if #'null (map 'list #'(lambda(top-entry)
-					      (when (find-if #'(lambda(psi)
-								   (unless (or (string= (uri psi) *constraint-psi*)
-									       (string= (uri psi) *occurrencetype-psi*)
-									       (string= (uri psi) *nametype-psi*)
-									       (string= (uri psi) *associationtype-psi*)
-									       (string= (uri psi) *roletype-psi*)
-									       (string= (uri psi) *scopetype-psi*)
-									       (string= (uri psi) *schema-psi*))
-								     top-entry))
-							       (psis (getf top-entry :topic)))
-						top-entry))
-				    akos-of-this))))
+	     (clean-topic-entries akos-of-this)))
 	(list :topic topic-instance
 	      :is-type is-type
 	      :is-instance is-instance
@@ -1610,12 +1586,37 @@
 				       (make-nodes (getf x :topic) (getf x :is-type) (getf x :is-instance)))
 			     cleaned-akos))))))
 
+(defun clean-topic-entries(isas-or-akos)
+  (remove-if
+   #'null
+   (map 'list
+	#'(lambda(top-entry)
+	    (when (and (d:find-item-by-revision (getf top-entry :topic) 0)
+		       (find-if
+			#'(lambda(psi)
+			    (unless (or (string= (uri psi) *constraint-psi*)
+					(string= (uri psi) *occurrencetype-psi*)
+					(string= (uri psi) *nametype-psi*)
+					(string= (uri psi) *associationtype-psi*)
+					(string= (uri psi) *roletype-psi*)
+					(string= (uri psi) *scopetype-psi*)
+					(string= (uri psi) *schema-psi*))
+			      top-entry))
+			(psis (getf top-entry :topic))))
+	      top-entry))
+	isas-or-akos)))
+
 
 (defun get-all-tree-roots ()
   "Returns all topics that are no instanceOf and no subtype 
    of any other topic."
   (let ((all-topics
-	 (elephant:get-instances-by-class 'd:TopicC)))
+	 (remove-if #'null
+		    (map 'list
+			 #'(lambda(top)
+			     (when (d:find-item-by-revision top 0)
+			       top))
+			 (elephant:get-instances-by-class 'd:TopicC)))))
     (remove-if #'null
 	       (map 'list #'(lambda(x)
 			      (let ((isas-of-x

@@ -467,11 +467,11 @@
   "type":<"Topic" | "Occurrence" | "Name" | "Association" | "Role" | "Variant" >,
   "topics": [<psi-top-1>, <psi-top-2>, <...>],
   "associations": [<association-1>, <association-2>, <...>],
-  "parent-topic": "topic-psi",
-  "parent-name": <name>,
+  "parentTopic": "topic-psi",
+  "parentName": <name>,
   "names": [<name-1>, <name-2>, <...>],
   "variants": [<variant-1>, <variant-2>, <...>],
   "occurrences": [<occurrence-1>, <occurrence-2>, <...>],
-  "parent-association": <association>,
+  "parentAssociation": <association>,
   "roles": [<role-1>, <role-2>, <...>]
 }

@@ -22,6 +22,7 @@ var TYPE_PSIS_URL = HOST_PREF + "json/tmcl/types/";
 var INSTANCE_PSIS_URL = HOST_PREF + "json/tmcl/instances/";
 var OWN_URL = HOST_PREF + "isidorus";
 var SUMMARY_URL = HOST_PREF + "json/summary"
+    var MARK_AS_DELETED_URL = HOST_PREF + "mark-as-deleted";
 var TM_OVERVIEW = "/json/tmcl/overview/";
 var TIMEOUT = 10000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
 
@@ -89,5 +90,9 @@ var CLASSES = {"page" : function(){ return "page"; },
 	       "treeView" : function(){ return "treeView"; },
 	       "instances" : function(){ return "instances"; },
 	       "subtypes" : function(){ return "subtypes"; },
-	       "topicPsis" : function(){ return "topicPsis"; }
+	       "topicPsis" : function(){ return "topicPsis"; },
+               "removeLink" : function(){ return "removeLink"; },
+	       "removeNameRow" : function(){ return "removeOccurrenceRow"; },
+	       "removeOccurrenceRow" : function(){ return "removeNameRow"; },
+	       "removeTopicRow" : function(){ return "removeTopicRow"; }
 	      };

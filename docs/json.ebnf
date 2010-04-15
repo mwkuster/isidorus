@@ -194,12 +194,12 @@ FragmentConstraint ="{" TopicConstraints "," AssociationsConstraints "}"
 DeleteType = "\"type\":" ("Topic" | "Occurrence" | "Name" | "Association" | "Role" | "Variant")
 DeleteTopics = "\"topics\":" List
 DeleteAssociations = "\"associations\":" Associations
-DeleteParentTopic = "\"parent-topic\":" String
-DeleteParentName = "\"parent-name\":" Name
+DeleteParentTopic = "\"parentTopic\":" String
+DeleteParentName = "\"parentName\":" Name
 DeleteNames = "\"names\":" Names
 DeleteVariants = "\"variants\":" Variants
 DeleteOccurrences = "\"occurrences\":" Occurrences
-DeleteParentAssociation = "\"parent-association\":" Association
+DeleteParentAssociation = "\"parentAssociation\":" Association
 DeleteRoles = "\"roles\":" Roles
 
 DeleteObject = "{" DeleteType "," DeleteTopics "," DeleteAssociations ","

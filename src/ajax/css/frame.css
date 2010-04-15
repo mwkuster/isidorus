@@ -27,6 +27,18 @@ tr.showHiddenRows {
     background-color: #eaeaee;
 }
 
+tr.removeNameRow {
+    background-color: #eaeaee;
+}
+
+tr.removeOccurrenceRow {
+    background-color: #eaeaee;
+}
+
+tr.removeTopicRow {
+    background-color: #eaeaee;
+}
+
 li.errorMessage {
     margin-top: 1em;
     font-size: 1.2em;
@@ -137,6 +149,17 @@ textarea[readonly="readonly"] {
     border: 1px solid darkgray;
     margin-bottom: 1px;
     margin-top: 1px;
+}
+
+span.removeLink {
+    cursor: pointer;
+    font-size: 0.75em;
+    float: right;
+    margin-right: 1em;
+}
+
+span.removeLink:hover {
+    color:#ff7f00;
 }
 
 

@@ -115,7 +115,7 @@
    (create-regex-dispatcher json-get-summary-url #'return-topic-summaries)
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted)
+   (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted-handler)
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -302,7 +302,12 @@
 	   (condition () nil))))
     (handler-case (with-reader-lock
 		    (let ((topics 
-			   (elephant:get-instances-by-class 'd:TopicC)))
+			   (remove-if
+			    #'null
+			    (map 'list #'(lambda(top)
+					   (when (d:find-item-by-revision top 0)
+					     top))
+				 (elephant:get-instances-by-class 'd:TopicC)))))
 		      (let ((end
 			     (cond
 			       ((not end-idx)
@@ -371,6 +376,7 @@
 		  (setf (hunchentoot:content-type*) "text")
 		  (format nil "Condition: \"~a\"" err))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
 
 ;; =============================================================================
 ;; --- some helper functions ---------------------------------------------------

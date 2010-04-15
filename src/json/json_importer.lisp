@@ -362,7 +362,7 @@
 	       (setf tm-ids (cdr j-elem)))
 	      (t
 	       (error "json-importer:get-fragment-values-from-json-string:
-                       bad item-specifier found in json-list"))))
+                       bad item-specifier found in json-list (~a)" (car j-elem)))))
       (unless topic
 	(error "json-importer:get-fragment-values-from-json-string: the element topic must be set"))
       (unless (= (length tm-ids) 1)
