@@ -4416,6 +4416,10 @@ function makeDeleteObject(type, objectToDelete){
 		else {
 		    if(type === "Occurrence"){ objectToDelete.__value__.setValue(""); }
 		    else { objectToDelete.__value__.__frames__[0].__content__.setValue(""); }
+		    var ii = objectToDelete.__itemIdentity__;
+		    objectToDelete.__itemIdentity__ = new ItemIdentityC(null, objectToDelete);
+		    ii.append(objectToDelete.__itemIdentity__.getFrame());
+		    ii.remove();
 		}
 	    }
 	});   
