@@ -1453,7 +1453,7 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      if(contents){
 						  var myself = this;
 						  this.__table__.insert({"bottom" : makeRemoveLink(function(event){
-								  makeDeleteObject("Name", myself);
+								  makeRemoveObject("Name", myself);
 							      }, "delete Name")});
 					      }
                                           }
@@ -1858,7 +1858,7 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    if(contents){
 							var myself = this;
 							this.__table__.insert({"bottom" : makeRemoveLink(function(event){
-									makeDeleteObject("Occurrence", myself);
+									makeRemoveObject("Occurrence", myself);
 								    }, "delete Occurrence")});
 						    }
 						}
@@ -2276,7 +2276,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       if(content){
 						   var myself = this;
 						   this.__table__.insert({"bottom" : makeRemoveLink(function(event){
-								   makeDeleteObject("Topic", myself);
+								   makeRemoveObject("Topic", myself);
 							       }, "delete Topic")});}
 					   }catch(err){
 					       alert("From TopciC(): " + err);
@@ -4351,14 +4351,14 @@ function makeRemoveLink (removeHandler, textContent){
 
 
 // --- calls the given object's mark-as-deleted service
-function makeDeleteObject(type, objectToDelete){
+function makeRemoveObject(type, objectToDelete){
     if(type !== "Occurrence" && type !== "Name" && type !== "Variant"
        && type !== "Topic" && type !== "Association"){
-	throw "From makeDeleteObject(): type must be: \"Occurrence\" || \"Name\" " +
+	throw "From makeRemoveObject(): type must be: \"Occurrence\" || \"Name\" " +
 	    "|| \"Variant\" || \"Topic\" || \"Association\" but is " + type;
     }
     if (!objectToDelete){
-	throw "From makeDeleteObject(): objectToDelete must be set";
+	throw "From makeRemoveObject(): objectToDelete must be set";
     }
 
     var parentTopic = "null";
@@ -4415,7 +4415,13 @@ function makeDeleteObject(type, objectToDelete){
 		}
 		else {
 		    if(type === "Occurrence"){ objectToDelete.__value__.setValue(""); }
-		    else { objectToDelete.__value__.__frames__[0].__content__.setValue(""); }
+		    else {
+			objectToDelete.__value__.__frames__[0].__content__.setValue("");
+			var vars = objectToDelete.__variants__;
+			objectToDelete.__variants__ = new VariantContainerC(null, objectToDelete);
+			vars.append(objectToDelete.__variants__.getFrame());
+			vars.remove();
+		    }
 		    var ii = objectToDelete.__itemIdentity__;
 		    objectToDelete.__itemIdentity__ = new ItemIdentityC(null, objectToDelete);
 		    ii.append(objectToDelete.__itemIdentity__.getFrame());
