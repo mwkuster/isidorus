@@ -1448,10 +1448,14 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 						      });
 					      }
 
-					      var myself = this;
-					      this.__table__.insert({"bottom" : makeRemoveLink(function(event){
-							      makeDeleteObject("Name", myself);
-							  }, "delete Name")});
+
+					      // --- mark-as-deleted
+					      if(contents){
+						  var myself = this;
+						  this.__table__.insert({"bottom" : makeRemoveLink(function(event){
+								  makeDeleteObject("Name", myself);
+							      }, "delete Name")});
+					      }
                                           }
                                           catch(err){
                                       	      alert("From NameC(): " + err);
@@ -1496,7 +1500,9 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      this.getFrame().select("tr." + CLASSES.scopeContainer())[0].hide();
 					      this.getFrame().select("tr." + CLASSES.valueFrame())[0].hide();
 					      this.getFrame().select("tr." + CLASSES.variantContainer())[0].hide();
-					      this.getFrame().select("tr." + CLASSES.removeNameRow())[0].hide();
+					      if(this.getFrame().select("tr." + CLASSES.removeNameRow()).length > 0){
+						  this.getFrame().select("tr." + CLASSES.removeNameRow())[0].hide();
+					      }
 					      this.__isMinimized__ = true;
 					  }
 					  else {
@@ -1506,7 +1512,11 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					      this.getFrame().select("tr." + CLASSES.scopeContainer())[0].show();
 					      this.getFrame().select("tr." + CLASSES.valueFrame())[0].show();
 					      this.getFrame().select("tr." + CLASSES.variantContainer())[0].show();
-					      this.getFrame().select("tr." + CLASSES.removeNameRow())[0].show();
+					      if(this.getFrame().select("tr." + CLASSES.removeNameRow()).length > 0){
+						  if(this.__disabled__ === false){
+						      this.getFrame().select("tr." + CLASSES.removeNameRow())[0].show();
+						  }
+					      }
 					      this.__isMinimized__ = false;
 					  }
 				      },
@@ -1520,6 +1530,9 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 					  this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 					  this.getFrame().select("tr." + CLASSES.removeNameRow())[0].disable();
+					  if(this.getFrame().select("tr." + CLASSES.removeNameRow()).length > 0){
+					      this.getFrame().select("tr." + CLASSES.removeNameRow())[0].hide();
+					  }
 					  this.hideAddButton();
 					  this.__disabled__ = true;
 				      },
@@ -1532,6 +1545,9 @@ var NameC = Class.create(ContainerC, {"initialize" : function($super, contents, 
 					  this.getFrame().writeAttribute({"class" : CLASSES.nameFrame()});
 					  this.getFrame().removeAttribute("title");
 					  this.getFrame().select("tr." + CLASSES.removeNameRow())[0].enable();
+					  if(this.getFrame().select("tr." + CLASSES.removeNameRow()).length > 0){
+					      this.getFrame().select("tr." + CLASSES.removeNameRow())[0].show();
+					  }
 					  checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
 					  this.__disabled__ = false;
 				      }});
@@ -1751,91 +1767,6 @@ var NameContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 					       }});
 
 
-function makeRemoveLink (removeHandler, textContent){
-    var link = new Element("span", {"class" : CLASSES.removeLink()}).update(textContent);
-    var trClass = null;
-    switch(textContent){
-      case "delete Occurrence" : trClass = CLASSES.removeOccurrenceRow(); break;
-      case "delete Topic" : trClass = CLASSES.removeTopicRow(); break;
-      case "delete Name" : trClass = CLASSES.removeNameRow(); break;
-    }
-
-    var tr = new Element("tr", {"class" : trClass}).insert(new Element("td", {"colspan" : 3}).insert(link));
-    if(removeHandler){ link.observe("click", removeHandler); }
-    return tr;
-}
-
-
-function makeDeleteObject(type, objectToDelete){
-    if(type !== "Occurrence" && type !== "Name" && type !== "Variant"
-       && type !== "Topic" && type !== "Association"){
-	throw "From makeDeleteObject(): type must be: \"Occurrence\" || \"Name\" " +
-	    "|| \"Variant\" || \"Topic\" || \"Association\" but is " + type;
-    }
-    if (!objectToDelete){
-	throw "From makeDeleteObject(): objectToDelete must be set";
-    }
-
-    var parentTopic = "null";
-    if(type === "Occurrence" || type === "Name"){
-	var psiFrame = objectToDelete.getFrame().parentNode.parentNode.parentNode.parentNode.select("tr." + CLASSES.subjectIdentifierFrame())[0];
-	var psiFields = psiFrame.select("input");
-	for(i = 0; psiFields && i !== psiFields.length; ++i){
-	    var psiValue = psiFields[i].value;
-	    if(psiValue.strip().length !== 0){
-		parentTopic = psiValue.strip().toJSON();
-		break;
-	    }
-	}
-    }
-
-    var topics = "null";
-    if (type === "Topic"){
-	var psiFrame = objectToDelete.getFrame().select("tr." + CLASSES.subjectIdentifierFrame())[0];
-	var psiFields = psiFrame.select("input");
-	for(i = 0; psiFields && i !== psiFields.length; ++i){
-	    var psiValue = psiFields[i].value;
-	    if(psiValue.strip().length !== 0){
-		topics = new Array(psiValue.strip()).toJSON();
-		break;
-	    }
-	}
-    }
-
-    var deletedObjects = null;
-    if(type === "Topic"){ deletedObjects = topics; }
-    else { deletedObjects = "[" + objectToDelete.toJSON() + "]"; }
-
-    var jsonData = "{\"type\":\"" + type + "\"," +
-	            "\"topics\":" + topics + "," +
-	            "\"associations\":" + "null" + "," +
-                    "\"parentTopic\":" + parentTopic + "," +
-                    "\"parentName\":" + "null" + "," +
-                    "\"names\":" + (type === "Name" ? deletedObjects : "null") + "," +
-                    "\"variants\":" + "null" + "," +
-                    "\"occurrences\":" + (type === "Occurrence" ? deletedObjects : "null") + "," +
-                    "\"parentAssociation\":" + "null" + "," +
-                    "\"roles\":" + "null" + "}";
- 
-    commitDeletedObject(jsonData, function(xhr){
-	    alert("Objected deleted");
-	    if(type === "Topic"){
-		$(CLASSES.subPage()).update();
-		makeHome();
-	    }
-	    else if (type === "Occurrence" || type === "Name"){
-		if(objectToDelete.__owner__.__frames__.length > objectToDelete.__max__
-		   && objectToDelete.__owner__.__frames__.length > 1){
-		    objectToDelete.remove();
-		}
-		else {
-		    if(type === "Occurrence"){ objectToDelete.__value__.setValue(""); }
-		    else { objectToDelete.__value__.__frames__[0].__content__.setValue(""); }
-		}
-	    }
-	});
-    
-}
 
 // --- represenation of an occurrence element
 var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, contents, occurrenceTypes, constraint, uniqueConstraints, owner, min, max, cssTitle, dblClickHandler){
@@ -1921,10 +1852,15 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 								dblClickHandler(owner, event);
 							    });
 						    }
-						    var myself = this;
-						    this.__table__.insert({"bottom" : makeRemoveLink(function(event){
-								    makeDeleteObject("Occurrence", myself);
-								}, "delete Occurrence")});
+
+
+						    // --- mark-as-deleted
+						    if(contents){
+							var myself = this;
+							this.__table__.insert({"bottom" : makeRemoveLink(function(event){
+									makeDeleteObject("Occurrence", myself);
+								    }, "delete Occurrence")});
+						    }
 						}
                                                 catch(err){
 						    alert("From OccurrenceC(): " + err);
@@ -1993,7 +1929,9 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    this.getFrame().select("tr." + CLASSES.scopeContainer())[0].hide();
 						    this.getFrame().select("tr." + CLASSES.valueFrame())[0].hide();
 						    this.getFrame().select("tr." + CLASSES.datatypeFrame())[0].hide();
-						    this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].hide();
+						    if(this.getFrame().select("tr." + CLASSES.removeOccurrenceRow()).length > 0){
+							this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].hide();
+						    }
 						    this.__isMinimized__ = true;
 						}
 						else {
@@ -2003,10 +1941,12 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						    this.getFrame().select("tr." + CLASSES.scopeContainer())[0].show();
 						    this.getFrame().select("tr." + CLASSES.valueFrame())[0].show();
 						    this.getFrame().select("tr." + CLASSES.datatypeFrame())[0].show();
-						    if(this.__disabled__ === false){
-							this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].show();
+						    if(this.getFrame().select("tr." + CLASSES.removeOccurrenceRow()).length > 0){
+							if(this.__disabled__ === false){
+							    this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].show();
+							}
 						    }
-						    this.__isMinimized__ = false;
+						     this.__isMinimized__ = false;
 						}
 					    },
 					    "disable" : function(){
@@ -2019,7 +1959,9 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						this.getFrame().writeAttribute({"class" : CLASSES.disabled()});
 						this.getFrame().writeAttribute({"title" : this.__cssTitle__});
 						this.hideAddButton();
-						this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].hide();
+						if(this.getFrame().select("tr." + CLASSES.removeOccurrenceRow()).length > 0){
+						    this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].hide();
+						}
 						this.__disabled__ = true;
 					    },
 					    "enable" : function(){
@@ -2032,7 +1974,9 @@ var OccurrenceC = Class.create(ContainerC, {"initialize" : function($super, cont
 						this.getFrame().removeAttribute("style");
 						this.getFrame().removeAttribute("title");
 						checkRemoveAddButtons(this.__owner__, 1, this.__max__, this);
-						this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].show();
+						if(this.getFrame().select("tr." + CLASSES.removeOccurrenceRow()).length > 0){
+						    this.getFrame().select("tr." + CLASSES.removeOccurrenceRow())[0].show();
+						}
 						this.__disabled__ = false;
 					    }});
 			       
@@ -2328,10 +2272,12 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       this.__occurrence__ = new OccurrenceContainerC(occurrencesContent, _constraints);
 					       this.__table__.insert({"bottom" : newRow(CLASSES.occurrenceContainer(), "Occurrences", this.__occurrence__.getFrame())});
 
-					       var myself = this;
-					       this.__table__.insert({"bottom" : makeRemoveLink(function(event){
-							       makeDeleteObject("Topic", myself);
-							   }, "delete Topic")});
+					       // --- mark-as-deleted
+					       if(content){
+						   var myself = this;
+						   this.__table__.insert({"bottom" : makeRemoveLink(function(event){
+								   makeDeleteObject("Topic", myself);
+							       }, "delete Topic")});}
 					   }catch(err){
 					       alert("From TopciC(): " + err);
 					   }
@@ -2371,8 +2317,10 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 						     this.getFrame().select("tr." + CLASSES.subjectLocatorFrame())[0],
 						     this.getFrame().select("tr." + CLASSES.subjectIdentifierFrame())[0],
 						     this.getFrame().select("tr." + CLASSES.nameContainer())[0],
-						     this.getFrame().select("tr." + CLASSES.occurrenceContainer())[0],
-						     this.getFrame().select("tr." + CLASSES.removeTopicRow())[0]);
+						     this.getFrame().select("tr." + CLASSES.occurrenceContainer())[0]);
+					   if(this.getFrame().select("tr." + CLASSES.removeTopicRow()).length > 0){
+					       rows.push(this.getFrame().select("tr." + CLASSES.removeTopicRow())[0]);
+					   }
 					   for(var i = 0; i != rows.length; ++i){
 					       if(this.__minimized__ === false) rows[i].hide();
 					       else rows[i].show();
@@ -4382,4 +4330,93 @@ function makeTypes(myself, typeContent, xtypescopes)
     var tr = newRow(CLASSES.typeFrame(), "Type", new SelectrowC(types, myself.__type__, 1, 1).getFrame());
     myself.__table__.insert({"bottom" : tr});
     return types;
+}
+
+
+// --- Returns a span that works like a button and calls the removeHandler
+// --- by a click event
+function makeRemoveLink (removeHandler, textContent){
+    var link = new Element("span", {"class" : CLASSES.removeLink()}).update(textContent);
+    var trClass = null;
+    switch(textContent){
+      case "delete Occurrence" : trClass = CLASSES.removeOccurrenceRow(); break;
+      case "delete Topic" : trClass = CLASSES.removeTopicRow(); break;
+      case "delete Name" : trClass = CLASSES.removeNameRow(); break;
+    }
+
+    var tr = new Element("tr", {"class" : trClass}).insert(new Element("td", {"colspan" : 3}).insert(link));
+    if(removeHandler){ link.observe("click", removeHandler); }
+    return tr;
+}
+
+
+// --- calls the given object's mark-as-deleted service
+function makeDeleteObject(type, objectToDelete){
+    if(type !== "Occurrence" && type !== "Name" && type !== "Variant"
+       && type !== "Topic" && type !== "Association"){
+	throw "From makeDeleteObject(): type must be: \"Occurrence\" || \"Name\" " +
+	    "|| \"Variant\" || \"Topic\" || \"Association\" but is " + type;
+    }
+    if (!objectToDelete){
+	throw "From makeDeleteObject(): objectToDelete must be set";
+    }
+
+    var parentTopic = "null";
+    if(type === "Occurrence" || type === "Name"){
+	var psiFrame = objectToDelete.getFrame().parentNode.parentNode.parentNode.parentNode.select("tr." + CLASSES.subjectIdentifierFrame())[0];
+	var psiFields = psiFrame.select("input");
+	for(i = 0; psiFields && i !== psiFields.length; ++i){
+	    var psiValue = psiFields[i].value;
+	    if(psiValue.strip().length !== 0){
+		parentTopic = psiValue.strip().toJSON();
+		break;
+	    }
+	}
+    }
+
+    var topics = "null";
+    if (type === "Topic"){
+	var psiFrame = objectToDelete.getFrame().select("tr." + CLASSES.subjectIdentifierFrame())[0];
+	var psiFields = psiFrame.select("input");
+	for(i = 0; psiFields && i !== psiFields.length; ++i){
+	    var psiValue = psiFields[i].value;
+	    if(psiValue.strip().length !== 0){
+		topics = new Array(psiValue.strip()).toJSON();
+		break;
+	    }
+	}
+    }
+
+    var deletedObjects = null;
+    if(type === "Topic"){ deletedObjects = topics; }
+    else { deletedObjects = "[" + objectToDelete.toJSON() + "]"; }
+
+    var jsonData = "{\"type\":\"" + type + "\"," +
+	            "\"topics\":" + topics + "," +
+	            "\"associations\":" + "null" + "," +
+                    "\"parentTopic\":" + parentTopic + "," +
+                    "\"parentName\":" + "null" + "," +
+                    "\"names\":" + (type === "Name" ? deletedObjects : "null") + "," +
+                    "\"variants\":" + "null" + "," +
+                    "\"occurrences\":" + (type === "Occurrence" ? deletedObjects : "null") + "," +
+                    "\"parentAssociation\":" + "null" + "," +
+                    "\"roles\":" + "null" + "}";
+ 
+    commitDeletedObject(jsonData, function(xhr){
+	    alert("Objected deleted");
+	    if(type === "Topic"){
+		$(CLASSES.subPage()).update();
+		makeHome();
+	    }
+	    else if (type === "Occurrence" || type === "Name"){
+		if(objectToDelete.__owner__.__frames__.length > objectToDelete.__max__
+		   && objectToDelete.__owner__.__frames__.length > 1){
+		    objectToDelete.remove();
+		}
+		else {
+		    if(type === "Occurrence"){ objectToDelete.__value__.setValue(""); }
+		    else { objectToDelete.__value__.__frames__[0].__content__.setValue(""); }
+		}
+	    }
+	});   
 }
