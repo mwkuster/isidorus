@@ -495,13 +495,14 @@ specific keyword arguments for their purpose"))
        (existing-construct (first (find-all-equivalent new-construct))))
     (if existing-construct
         (progn
-                                        ;change over new item identifiers to the old construct
-          (when  (copy-item-identifiers
-                  new-construct existing-construct)
-                 ;an existing construct other than a topic (which is handled
-                 ;separatedly below) has changed only if it has received a new
-                 ;item identifier
-            (add-to-version-history existing-construct :start-revision start-revision))
+          ;change over new item identifiers to the old construct
+	  ;the version-history is also changed if the construct was
+          ;marked-as-deleted before
+	  (when (or (copy-item-identifiers new-construct existing-construct)
+		    (not (find-most-recent-revision existing-construct)))
+	    (add-to-version-history existing-construct
+				    :start-revision start-revision))
+
           (delete-construct new-construct)
           existing-construct)
         (progn

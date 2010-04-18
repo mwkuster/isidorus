@@ -38,7 +38,7 @@
 		   (first psi-uris)))))
 	  (elephant:ensure-transaction (:txn-nosync nil) 
 	    (xml-importer:with-tm (rev xtm-id (first (getf fragment-values :tm-ids)))
-	      (loop for topicStub-values in (append topicStubs-values (list topic-values))
+	      (loop for topicStub-values in topicStubs-values
 		 do (json-to-stub topicStub-values rev :tm xml-importer::tm :xtm-id xtm-id))
 	      (json-merge-topic topic-values rev :tm xml-importer::tm :xtm-id xtm-id)
 	      (loop for association-values in associations-values
@@ -103,31 +103,29 @@
    elements from the json-decoded-list"
   (when json-decoded-list
     (elephant:ensure-transaction (:txn-nosync t) 
-      (let ((top
-	     (d:get-item-by-id
-	      (getf json-decoded-list :id)
-	      :revision start-revision
-	      :xtm-id xtm-id)))
+;      (let ((top
+;	     (d:get-item-by-id
+;	      (getf json-decoded-list :id)
+;	      :revision start-revision
+;	      :xtm-id xtm-id)))
+      (let ((top (json-to-stub json-decoded-list start-revision
+			       :tm tm :xtm-id xtm-id)))
 	(declare (list json-decoded-list))
 	(declare (integer start-revision))
 	(declare (TopicMapC tm))
 	(unless top
 	  (error "topic ~a could not be found" (getf json-decoded-list :id)))
-
 	(let ((instanceof-topics
 	       (remove-duplicates
 		(map 'list
 		     #'psis-to-topic
 		     (getf json-decoded-list :instanceOfs)))))
-
 	  (loop for name-values in (getf json-decoded-list :names)
 	     do (json-to-name name-values top start-revision))
-
 	  (loop for occurrence-values in (getf json-decoded-list :occurrences)
 	     do (json-to-occurrence occurrence-values top start-revision))
 	  (dolist (instanceOf-top instanceof-topics)
 	    (json-create-instanceOf-association instanceOf-top top start-revision :tm tm))
-;	  (add-to-topicmap tm top) ; will be done in "json-to-stub"
 	  top)))))
 
 
@@ -246,10 +244,8 @@
 	   (psis-to-topic (getf json-decoded-list :type))))
       (declare (list json-decoded-list))
       (declare (TopicC top))
-  
       (unless namevalue
         (error "A name must have exactly one namevalue"))
-
       (let ((name (make-construct 'NameC 
 				  :start-revision start-revision
 				  :topic top
