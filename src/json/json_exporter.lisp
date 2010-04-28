@@ -298,8 +298,10 @@
    (remove-if #'null (map 'list #'(lambda(psi-list)
 				    (when psi-list
 				      (map 'list #'uri psi-list)))
-			  (clean-topics
-			   (elephant:get-instances-by-class 'TopicC))))))
+			  (map 'list
+			       #'d:psis
+			       (clean-topics
+				(elephant:get-instances-by-class 'TopicC)))))))
 
 
 (defun to-json-string-summary (topic)
