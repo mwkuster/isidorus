@@ -242,8 +242,8 @@
 	   (json-to-scope (getf json-decoded-list :scopes)))
 	  (instance-of
 	   (psis-to-topic (getf json-decoded-list :type))))
-      (declare (list json-decoded-list))
-      (declare (TopicC top))
+      ;(declare (list json-decoded-list)) causes problems with sbcl 1.0.34.0.debian
+      ;(declare (TopicC top))
       (unless namevalue
         (error "A name must have exactly one namevalue"))
       (let ((name (make-construct 'NameC 
