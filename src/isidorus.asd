@@ -12,6 +12,9 @@
   (:use :asdf :cl))
 (in-package :isidorus-system)
 
+(defvar *old-external-format* sb-impl::*default-external-format*)
+(setf sb-impl::*default-external-format* :UTF-8)
+
 (asdf:defsystem "isidorus"
   :description "The future ingenious, self-evaluating Lisp TM engine"
   :version "0.1"
@@ -200,6 +203,9 @@
 	       :hunchentoot
                :uuid
 	       :cl-json))
+
+
+(setf sb-impl::*default-external-format* *old-external-format*)
 
 ;;
 ;; For the package pathnames, create a link from  ~/.sbcl/systems
