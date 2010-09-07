@@ -11,7 +11,7 @@
 
 
 // --- Some constants fot the http connections via the XMLHttpRequest-Object
-var HOST_PREF = "http://localhost:8000/"; /*"192.168.178.23:8000/"; // of the form "http://(.+)/"*/
+var HOST_PREF = getHostPref();
 var GET_PREFIX = HOST_PREF + "json/get/";
 var GET_STUB_PREFIX = HOST_PREF + "json/topicstubs/";
 var TMCL_TYPE_URL = HOST_PREF + "json/tmcl/type/";
@@ -22,9 +22,9 @@ var TYPE_PSIS_URL = HOST_PREF + "json/tmcl/types/";
 var INSTANCE_PSIS_URL = HOST_PREF + "json/tmcl/instances/";
 var OWN_URL = HOST_PREF + "isidorus";
 var SUMMARY_URL = HOST_PREF + "json/summary";
-    var MARK_AS_DELETED_URL = HOST_PREF + "mark-as-deleted";
+var MARK_AS_DELETED_URL = HOST_PREF + "mark-as-deleted";
 var TM_OVERVIEW = HOST_PREF + "json/tmcl/overview/";
-var TIMEOUT = 10000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
+var TIMEOUT = 20000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
 
 
 
@@ -96,3 +96,19 @@ var CLASSES = {"page" : function(){ return "page"; },
 	       "removeOccurrenceRow" : function(){ return "removeNameRow"; },
 	       "removeTopicRow" : function(){ return "removeTopicRow"; }
 	      };
+
+
+// --- returns the current host prefix as string, so the user/admin needn't
+// --- setting it manually
+function getHostPref(){
+    var splitter = "/";
+    var splitterRate = 3;
+    var fullUrl = window.location.href;
+    var urlFragments = fullUrl.split("/");
+    var hostPref = "";
+    for(var i = 0; i !== splitterRate; ++i){
+	hostPref += urlFragments[i];
+	hostPref += "/";
+    }
+    return hostPref;
+}
