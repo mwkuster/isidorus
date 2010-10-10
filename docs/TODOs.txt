@@ -18,14 +18,11 @@ A (most likely incomplete) list of ToDos we are aware of:
        for the concrete name of the import and another one for the
        logical name of the TM
      
-* reifier: the one missing link to 100% import compatibility...
-
 * admin interface for the 
 
     * configuration of the sytem: import and export of feeds
       etc. incl. consolidation of the present feed configuration
 
-    * creation and display of topics and associations
 
 * TMCL: implement a constraint language --- but the one under ISO
      FCD ballot, see http://www.itscj.ipsj.or.jp/sc34/open/1053.pdf or

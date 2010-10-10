@@ -150,6 +150,8 @@
 					    :depends-on ("fixtures"))
 				     (:file "rdf_exporter_test"
 					    :depends-on ("fixtures"))
+				     (:file "datamodel_test"
+					    :depends-on ("fixtures"))
 				     (:file "reification_test"
 					    :depends-on ("fixtures" "unittests-constants")))
 			:depends-on ("atom"
@@ -203,7 +205,6 @@
 	       :hunchentoot
                :uuid
 	       :cl-json))
-
 
 (setf sb-impl::*default-external-format* *old-external-format*)
 

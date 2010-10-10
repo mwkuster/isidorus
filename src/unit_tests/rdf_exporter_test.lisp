@@ -349,14 +349,14 @@
 			'string "id_"
 			(write-to-string
 			 (elephant::oid
-			  (d:topic
+			  (d:parent
 			   (elephant:get-instance-by-value
 			    'd:OccurrenceC 'd:charvalue "28.08.1749"))))))
 	      (died-id (concatenate
 			'string "id_"
 			(write-to-string
 			 (elephant::oid
-			  (d:topic
+			  (d:parent
 			   (elephant:get-instance-by-value
 			    'd:OccurrenceC 'd:charvalue "22.03.1832")))))))
 	  (is-true (property-p me *sw-arc* "born" :nodeID born-id))
@@ -395,7 +395,7 @@
 		'string "id_"
 		(write-to-string
 		 (elephant::oid
-		  (d:topic
+		  (d:parent
 		   (elephant:get-instance-by-value
 		    'd:OccurrenceC 'd:charvalue "31.12.1782")))))))
 	  (is-true (property-p me *sw-arc* "dateRange"
@@ -423,7 +423,7 @@
 		'string "id_"
 		(write-to-string
 		 (elephant::oid
-		  (d:topic
+		  (d:parent
 		   (elephant:get-instance-by-value
 		    'd:OccurrenceC 'd:charvalue "01.01.1772")))))))
 	  (is-true (property-p me *sw-arc* "dateRange"
@@ -431,7 +431,7 @@
 
 
 (test test-zauberlehrling
-  "Tests the resoruce zauberlehrling."
+  "Tests the resource zauberlehrling."
   (with-fixture rdf-exporter-test-db ()
     (let ((zauberlehrlings (get-resources-by-uri
 			   "http://some.where/poem/Der_Zauberlehrling")))
@@ -465,7 +465,7 @@
 		'string "id_"
 		(write-to-string
 		 (elephant::oid
-		  (d:topic
+		  (d:parent
 		   (elephant:get-instance-by-value
 		    'd:OccurrenceC 'd:charvalue "01.01.1797")))))))
 	  (is-true (property-p me *sw-arc* "dateRange"
@@ -600,7 +600,7 @@
 		    'string "id_"
 		    (write-to-string
 		     (elephant::oid
-		      (d:topic
+		      (d:parent
 		       (elephant:get-instance-by-value 'd:OccurrenceC
 						       'd:charvalue
 						       "28.08.1749")))))))
@@ -627,7 +627,7 @@
 		    'string "id_"
 		    (write-to-string
 		     (elephant::oid
-		      (d:topic
+		      (d:parent
 		       (elephant:get-instance-by-value 'd:OccurrenceC
 						       'd:charvalue
 						       "22.03.1832")))))))
@@ -654,7 +654,7 @@
 		  'string "id_"
 		  (write-to-string
 		   (elephant::oid
-		    (d:topic
+		    (d:parent
 		     (elephant:get-instance-by-value 'd:OccurrenceC
 						     'd:charvalue
 						     "01.01.1797")))))))
@@ -675,7 +675,7 @@
 		  'string "id_"
 		  (write-to-string
 		   (elephant::oid
-		    (d:topic
+		    (d:parent
 		     (elephant:get-instance-by-value 'd:OccurrenceC
 						     'd:charvalue
 						     "01.01.1782")))))))
@@ -696,7 +696,7 @@
 		  'string "id_"
 		  (write-to-string
 		   (elephant::oid
-		    (d:topic
+		    (d:parent
 		     (elephant:get-instance-by-value 'd:OccurrenceC
 						     'd:charvalue
 						     "01.01.1772")))))))
@@ -717,7 +717,7 @@
 			'string "id_"
 			(write-to-string
 			 (elephant::oid
-			  (d:topic
+			  (d:parent
 			   (elephant:get-instance-by-value
 			    'd:OccurrenceC 'd:charvalue
 			    "http://de.wikipedia.org/wiki/Schiller")))))))
@@ -872,7 +872,7 @@
 			      'string "id_"
 			      (write-to-string
 			       (elephant::oid
-				(d:topic
+				(d:parent
 				 (elephant:get-instance-by-value
 				  'd:OccurrenceC 'd:charvalue
 				  "http://de.wikipedia.org/wiki/Schiller")))))))

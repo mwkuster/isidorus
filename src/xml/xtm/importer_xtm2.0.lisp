@@ -9,7 +9,7 @@
 
 (in-package :xml-importer)
 
-(defun get-reifier-topic(reifiable-elem)
+(defun get-reifier-topic(reifiable-elem start-revision)
   "Returns the reifier topic of the reifierable-element or nil."
   (declare (dom:element reifiable-elem))
   (let ((reifier-uri (get-attribute reifiable-elem "reifier"))
@@ -19,7 +19,7 @@
       (let ((ii
 	     (elephant:get-instance-by-value 'd:ItemIdentifierC 'd:uri reifier-uri)))
 	(if ii
-	    (let ((reifier-topic (identified-construct ii)))
+	    (let ((reifier-topic (identified-construct ii :revision start-revision)))
 	      (if reifier-topic
 		  reifier-topic
 		  (error "~aitem-identifier ~a not found" err reifier-uri)))
@@ -34,7 +34,7 @@ that object"
   (declare (dom:element elem))
   (declare (integer start-revision))
   (let
-      ((id (make-instance classsymbol
+      ((id (make-construct classsymbol
 			  :uri (get-attribute elem "href")
 			  :start-revision start-revision)))
     id))
@@ -49,7 +49,7 @@ that object"
         *xtm2.0-ns* elem-name)))
 
 
-(defun from-type-elem (type-elem &key (xtm-id *current-xtm*))
+(defun from-type-elem (type-elem start-revision &key (xtm-id *current-xtm*))
   "Returns the topic that reifies this type or nil if no element is
 input"
   ; type = element type { topicRef }
@@ -62,7 +62,7 @@ input"
             (xpath-single-child-elem-by-qname 
              type-elem 
              *xtm2.0-ns* "topicRef")))
-         (top (get-item-by-id topicid :xtm-id xtm-id)))
+         (top (get-item-by-id topicid :xtm-id xtm-id :revision start-revision)))
       (declare (dom:element type-elem))
       (unless top
         (error (make-condition 'missing-reference-error
@@ -70,7 +70,7 @@ input"
       top)))
 
 
-(defun from-scope-elem (scope-elem &key (xtm-id *current-xtm*))
+(defun from-scope-elem (scope-elem start-revision &key (xtm-id *current-xtm*))
   "Generate set of themes (= topics) from this scope element and
 return that set. If the input is nil, the list of themes is empty
  scope = element scope { topicRef+ }"
@@ -89,15 +89,14 @@ return that set. If the input is nil, the list of themes is empty
                (lambda (topicid)
                  (let
                      ((top
-                       (get-item-by-id
-                        topicid :xtm-id xtm-id)))
+                       (get-item-by-id topicid :xtm-id xtm-id 
+				       :revision start-revision)))
                    (if top
                        top
                        (error (make-condition 'missing-reference-error
                                :message (format nil "from-scope-elem: could not resolve reference ~a" topicid))))))
                topicrefs)))
       (declare (dom:element scope-elem))
-      
       (unless (>= (length tops) 1)
         (error "need at least one topic in a scope"))
       tops)))
@@ -121,19 +120,18 @@ return that set. If the input is nil, the list of themes is empty
        (themes
         (from-scope-elem 
          (xpath-single-child-elem-by-qname 
-          name-elem 
-          *xtm2.0-ns* "scope") :xtm-id xtm-id))      
+          name-elem  *xtm2.0-ns* "scope")
+	 start-revision :xtm-id xtm-id))      
         (instance-of
          (from-type-elem (xpath-single-child-elem-by-qname 
                           name-elem 
-                          *xtm2.0-ns* "type") :xtm-id xtm-id))
-       (reifier-topic (get-reifier-topic name-elem)))
+                          *xtm2.0-ns* "type") start-revision :xtm-id xtm-id))
+       (reifier-topic (get-reifier-topic name-elem start-revision)))
     (unless namevalue
         (error "A name must have exactly one namevalue"))
-
     (let ((name (make-construct 'NameC 
 				:start-revision start-revision
-				:topic top
+				:parent top
 				:charvalue namevalue
 				:instance-of instance-of
 				:item-identifiers item-identifiers
@@ -188,13 +186,13 @@ return that set. If the input is nil, the list of themes is empty
       ((item-identifiers (make-identifiers 'ItemIdentifierC variant-elem "itemIdentity" start-revision))
        ;;all themes of the parent name element are inherited to the variant elements
        (themes (append
-		(from-scope-elem (xpath-single-child-elem-by-qname variant-elem *xtm2.0-ns* "scope") :xtm-id xtm-id)
-		(themes name)))
+		(from-scope-elem (xpath-single-child-elem-by-qname variant-elem *xtm2.0-ns* "scope")
+				 start-revision :xtm-id xtm-id)
+		(themes name :revision start-revision)))
        (variant-value (from-resourceX-elem variant-elem))
-       (reifier-topic (get-reifier-topic variant-elem)))
+       (reifier-topic (get-reifier-topic variant-elem start-revision)))
     (unless variant-value
       (error "VariantC: one of resourceRef and resourceData must be set"))
-       
     (make-construct 'VariantC
 		    :start-revision start-revision
 		    :item-identifiers item-identifiers
@@ -202,7 +200,7 @@ return that set. If the input is nil, the list of themes is empty
 		    :charvalue (getf variant-value :data)
 		    :datatype (getf variant-value :type)
 		    :reifier reifier-topic
-		    :name name)))
+		    :parent name)))
 		           
 
 (defun from-occurrence-elem (occ-elem top start-revision &key (xtm-id *current-xtm*))
@@ -212,25 +210,23 @@ occurrence = element occurrence { reifiable,
   (declare (dom:element occ-elem))
   (declare (TopicC top))
   (declare (integer start-revision))
-
   (let
       ((themes
         (from-scope-elem (xpath-single-child-elem-by-qname 
-                          occ-elem 
-                          *xtm2.0-ns* "scope")))
+                          occ-elem  *xtm2.0-ns* "scope") start-revision :xtm-id xtm-id))
        (item-identifiers
         (make-identifiers 'ItemIdentifierC occ-elem "itemIdentity" start-revision))
        (instance-of 
         (from-type-elem (xpath-single-child-elem-by-qname 
                           occ-elem 
-                          *xtm2.0-ns* "type") :xtm-id xtm-id))
+                          *xtm2.0-ns* "type") start-revision :xtm-id xtm-id))
        (occurrence-value (from-resourceX-elem occ-elem))
-       (reifier-topic (get-reifier-topic occ-elem)))
+       (reifier-topic (get-reifier-topic occ-elem start-revision)))
     (unless occurrence-value
       (error "OccurrenceC: one of resourceRef and resourceData must be set"))
     (make-construct 'OccurrenceC 
 		    :start-revision start-revision
-		    :topic top
+		    :parent top
 		    :themes themes
 		    :item-identifiers item-identifiers
 		    :instance-of instance-of
@@ -248,7 +244,6 @@ subject locators. Merges new topic stubs with existing stubs if
 applicable"
   (declare (dom:element topic-elem))
   (declare (integer start-revision))
-  ;(declare (optimize (debug 3)))
   (elephant:ensure-transaction (:txn-nosync t) 
     (let 
         ((itemidentifiers
@@ -256,32 +251,30 @@ applicable"
          (subjectidentifiers
           (make-identifiers 'PersistentIdC topic-elem "subjectIdentifier" start-revision))
          (subjectlocators
-          (make-identifiers 'SubjectLocatorC topic-elem "subjectLocator" start-revision)))
+          (make-identifiers 'SubjectLocatorC topic-elem "subjectLocator" start-revision))
+	 (topic-ids (when (get-attribute topic-elem "id")
+		      (list (make-construct 'TopicIdentificationC
+					    :uri (get-attribute topic-elem "id")
+					    :xtm-id xtm-id)))))
       (make-construct 'TopicC
 		      :start-revision start-revision
                       :item-identifiers itemidentifiers
                       :locators subjectlocators
                       :psis subjectidentifiers
-                      :topicid (get-attribute topic-elem "id")
-                      :xtm-id xtm-id))))
+                      :topic-identifiers topic-ids))))
           
 
 (defun merge-topic-elem (topic-elem start-revision
-                         &key 
-                         tm
-                         (xtm-id *current-xtm*))
+                         &key tm (xtm-id *current-xtm*))
   "Adds further elements (names, occurrences) and instanceOf
 associations to the topic"
-  ;TODO: solve merging through reifying
   (declare (dom:element topic-elem))
   (declare (integer start-revision))
   (declare (TopicMapC tm))
-  ;(format t "xtm-id: ~a current-xtm: ~a revision: ~a~&" xtm-id *current-xtm* start-revision)
   (elephant:ensure-transaction (:txn-nosync t) 
     (let
         ((top  ;retrieve the already existing topic stub
-          (get-item-by-id
-           (get-attribute topic-elem "id") 
+          (get-item-by-id (get-attribute topic-elem "id") 
            :xtm-id xtm-id :revision start-revision)))
       (let
 	  ((instanceof-topicrefs
@@ -292,7 +285,8 @@ associations to the topic"
                 '((*xtm2.0-ns* "instanceOf")
                   (*xtm2.0-ns* "topicRef"))))))
       (unless top
-        (error "topic ~a could not be found" (get-attribute topic-elem "id")))
+	(error "topic ~a could not be found (xtm-id: ~a, revision: ~a)"
+	       (get-attribute topic-elem "id") xtm-id start-revision))
       (map 'list
        (lambda
 	   (name-elem)
@@ -313,7 +307,7 @@ associations to the topic"
         (create-instanceof-association topicref top start-revision
                                        :tm tm
                                        :xtm-id xtm-id))
-      (add-to-topicmap tm top)
+      (add-to-tm tm top)
       top))))
 
 
@@ -330,24 +324,22 @@ topicRef }"
          (instance-of
           (from-type-elem 
            (xpath-single-child-elem-by-qname
-            role-elem
-            *xtm2.0-ns*
-            "type") :xtm-id xtm-id))
+            role-elem *xtm2.0-ns* "type")
+	   start-revision :xtm-id xtm-id))
          (player
-          (get-item-by-id
-           (get-topicref-uri 
-            (xpath-single-child-elem-by-qname 
-             role-elem
-             *xtm2.0-ns*
-             "topicRef")) :xtm-id xtm-id))
-	 (reifier-topic (get-reifier-topic role-elem)))
+          (get-item-by-id (get-topicref-uri 
+			   (xpath-single-child-elem-by-qname 
+			    role-elem *xtm2.0-ns* "topicRef"))
+			  :xtm-id xtm-id :revision start-revision))
+	 (reifier-topic (get-reifier-topic role-elem start-revision)))
       (unless player ;instance-of will be set later - if there is no one
         (error "Role in association with topicref ~a not complete" (get-topicref-uri 
             (xpath-single-child-elem-by-qname 
              role-elem
              *xtm2.0-ns*
              "topicRef"))))
-      (list :reifier reifier-topic
+      (list :start-revision start-revision
+	    :reifier reifier-topic
 	    :instance-of instance-of
 	    :player player
 	    :item-identifiers item-identifiers))))
@@ -363,19 +355,18 @@ topicRef }"
   (declare (integer start-revision))
   (declare (TopicMapC tm))
   (elephant:ensure-transaction (:txn-nosync t) 
-    (let 
-        ((item-identifiers 
+    (let
+        ((item-identifiers
           (make-identifiers 'ItemIdentifierC assoc-elem "itemIdentity" start-revision))
          (instance-of
           (from-type-elem 
            (xpath-single-child-elem-by-qname 
-            assoc-elem 
-            *xtm2.0-ns* "type") :xtm-id xtm-id))
+            assoc-elem *xtm2.0-ns* "type") 
+	   start-revision :xtm-id xtm-id))
          (themes
           (from-scope-elem 
-           (xpath-single-child-elem-by-qname 
-            assoc-elem 
-            *xtm2.0-ns* "scope")))
+           (xpath-single-child-elem-by-qname assoc-elem *xtm2.0-ns* "scope")
+	   start-revision :xtm-id xtm-id))
          (roles ;a list of tuples
           (map 'list 
                (lambda 
@@ -384,9 +375,9 @@ topicRef }"
                (xpath-child-elems-by-qname 
                 assoc-elem
                 *xtm2.0-ns* "role")))
-	 (reifier-topic (get-reifier-topic assoc-elem)))
-      (setf roles (set-standard-role-types roles)); sets standard role types if there are missing some of them
-      (add-to-topicmap
+	 (reifier-topic (get-reifier-topic assoc-elem start-revision)))
+      (setf roles (set-standard-role-types roles start-revision)); sets standard role types if there are missing some of them
+      (add-to-tm
        tm 
        (make-construct 'AssociationC
 		       :start-revision start-revision
@@ -415,7 +406,7 @@ topicRef }"
     (let
         ((topic-vector (get-topic-elems xtm-dom)))
       (loop for top-elem across topic-vector do
-           (add-to-topicmap 
+           (add-to-tm 
             tm  
             (from-topic-elem-to-stub top-elem revision 
                                      :xtm-id xtm-id))))))

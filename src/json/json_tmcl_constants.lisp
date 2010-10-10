@@ -53,9 +53,6 @@
 
 (in-package :json-tmcl-constants)
 
-
-(defparameter *schema-psi* "http://psi.topicmaps.org/tmcl/schema")
-(defparameter *constraint-psi* "http://psi.topicmaps.org/tmcl/constraint")
 (defparameter *topictype-psi* "http://psi.topicmaps.org/tmcl/topic-type")
 (defparameter *topictype-constraint-psi* "http://psi.topicmaps.org/tmcl/topic-type-constraint")
 (defparameter *associationtype-psi* "http://psi.topicmaps.org/tmcl/association-type")
@@ -95,3 +92,5 @@
 (defparameter *associationtype-role-psi* "http://psi.topicmaps.org/tmcl/association-type-role")
 (defparameter *associationrole-constraint-psi* "http://psi.topicmaps.org/tmcl/association-role-constraint")
 (defparameter *roletype-role-psi* "http://psi.topicmaps.org/tmcl/role-type-role")
+(defparameter *schema-psi* "http://psi.topicmaps.org/tmcl/schema")
+(defparameter *constraint-psi* "http://psi.topicmaps.org/tmcl/constraint")

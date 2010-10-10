@@ -14,7 +14,8 @@
 (test test-std-topics-xtm1.0
   (with-fixture refill-test-db ()
     (export-xtm *out-xtm1.0-file* :xtm-format '1.0)
-    (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
+    (let ((document (dom:document-element
+		     (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (topic-counter 0))
       (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
@@ -22,47 +23,74 @@
 						  (xpath-single-child-elem-by-qname
 						   topic *xtm1.0-ns* "subjectIdentity")
 						  *xtm1.0-ns* "subjectIndicatorRef")
-	       do (let ((href (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")))
+	       do (let ((href (dom:get-attribute-ns subjectIndicatorRef
+						    *xtm1.0-xlink* "href")))
 		    (cond
 		      ((string= core-topic-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-association-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-occurrence-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-class-instance-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-class-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-superclass-subclass-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-superclass-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-subclass-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-sort-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-display-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-type-instance-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-type-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))
+		       (format t "name: ~A~%" 
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))
 		      ((string= core-instance-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm1.0-ns* "name")))))))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm1.0-ns*
+								 "name")))))))
       (is (= topic-counter 13)))))
 
 
@@ -362,12 +390,10 @@
 		    when (string= (uri item) psi)
 		    return (identified-construct item)))
 	   (t100-start-revision (d::start-revision (first (d::versions t100)))))
-
       (d:get-fragments t100-start-revision)
       (let ((t100-fragment (loop for item in (elephant:get-instances-by-class 'FragmentC)
 			      when (eq (topic item) t100)
 			      return item)))
-
 	(with-open-file (stream *out-xtm1.0-file* :direction :output)
 	  (write-string (export-xtm-fragment t100-fragment :xtm-format '1.0) stream))))
 
@@ -415,7 +441,9 @@
   (with-fixture merge-test-db ()
     (handler-case (delete-file *out-xtm1.0-file*)(error () )) ;deletes file - if exist
     (export-xtm *out-xtm1.0-file* :revision fixtures::revision1 :xtm-format '1.0)
-    (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
+    (let ((document
+	   (dom:document-element
+	    (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (t100-occurrences-resourceData (list "The ISO 19115 standard ..." "2003-01-01"))) ;local value->no type
       (check-document-structure document 47 7 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
@@ -974,8 +1002,7 @@
 					       (xpath-child-elems-by-qname name *xtm1.0-ns* "variant")))
 					  (is (= (length variant-nodes) 1))
 					  (elt variant-nodes 0))))
-				   (check-variant-xtm1.0 document variant-node (list t50a-psi core-sort-psi)
-							 t101-variant-name nil)))))
+				   (check-variant-xtm1.0 document variant-node (list t50a-psi core-sort-psi) t101-variant-name nil)))))
 		       (check-single-instanceOf document topic t3a-psi :xtm-format '1.0)
 		       (loop for occurrence across (xpath-child-elems-by-qname topic *xtm1.0-ns* "occurrence")
 			  do (let ((instanceOf
@@ -1090,27 +1117,27 @@
 (test test-fragments-xtm1.0-versions
   (with-fixture merge-test-db ()
     (handler-case (delete-file *out-xtm1.0-file*)(error () )) ;deletes file - if exist
-
-    (let ((new-t100 (loop for item in (elephant:get-instances-by-class 'PersistentIdC)
-		       when (string= (uri item) new-t100-psi)
-		       return (identified-construct item))))
-
+    (let ((new-t100
+	   (loop for item in (elephant:get-instances-by-class 'd:PersistentIdC)
+	      when (string= (uri item) new-t100-psi)
+	      return (identified-construct item :revision fixtures::revision3))))
       (d:get-fragments fixtures::revision3)
-      (let ((fragment (loop for item in (elephant:get-instances-by-class 'FragmentC)
+      (let ((fragment (loop for item in (elephant:get-instances-by-class 'd:FragmentC)
 			 when (eq (topic item) new-t100)
 			 return item)))
-
 	(with-open-file (stream *out-xtm1.0-file* :direction :output)
 	  (write-string (export-xtm-fragment fragment :xtm-format '1.0) stream))))
-
-    (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder)))))
+    (let ((document
+	   (dom:document-element
+	    (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 6 0 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
 						   topic *xtm1.0-ns* "subjectIdentity")
 						  *xtm1.0-ns* "subjectIndicatorRef")
-	       do (let ((href (dom:get-attribute-ns subjectIndicatorRef *xtm1.0-xlink* "href")))
+	       do (let ((href (dom:get-attribute-ns subjectIndicatorRef
+						    *xtm1.0-xlink* "href")))
 		    (cond
 		      ((string= href core-sort-psi)
 		       (check-topic-id topic))
@@ -1125,28 +1152,35 @@
 		      ((string= href new-t100-psi)
 		       (check-topic-id topic)
 		       (check-single-instanceOf document topic t3-psi :xtm-format '1.0)
-		       (loop for occurrence across (xpath-child-elems-by-qname topic *xtm1.0-ns* "occurrence")
+		       (loop for occurrence across (xpath-child-elems-by-qname
+						    topic *xtm1.0-ns* "occurrence")
 			  do (let ((resourceRef
 				    (let ((resourceRef-nodes
-					   (xpath-child-elems-by-qname occurrence *xtm1.0-ns* "resourceRef")))
+					   (xpath-child-elems-by-qname
+					    occurrence *xtm1.0-ns* "resourceRef")))
 				      (is (= (length resourceRef-nodes) 1))
-				      (dom:get-attribute-ns (elt resourceRef-nodes 0) *xtm1.0-xlink* "href")))
+				      (dom:get-attribute-ns (elt resourceRef-nodes 0)
+							    *xtm1.0-xlink* "href")))
 				   (instanceOf
 				    (let ((instanceOf-nodes
-					   (xpath-child-elems-by-qname occurrence *xtm1.0-ns* "instanceOf")))
+					   (xpath-child-elems-by-qname
+					    occurrence *xtm1.0-ns* "instanceOf")))
 				      (is (= (length instanceOf-nodes) 1))
 				      (let ((topicRef-nodes
 					     (xpath-child-elems-by-qname
-					      (elt instanceOf-nodes 0) *xtm1.0-ns* "topicRef")))
+					      (elt instanceOf-nodes 0) *xtm1.0-ns*
+					      "topicRef")))
 					(is (= (length topicRef-nodes) 1))
 					(get-subjectIndicatorRef-by-ref
 					 document
 					 (dom:get-attribute-ns
 					  (elt topicRef-nodes 0) *xtm1.0-xlink* "href"))))))
 			       (cond
-				 ((string= resourceRef (first new-t100-occurrence-resourceRef-merge-2))
+				 ((string= resourceRef
+					   (first new-t100-occurrence-resourceRef-merge-2))
 				  (is (string= instanceOf t55-psi)))
-				 ((string= resourceRef (second new-t100-occurrence-resourceRef-merge-2))
+				 ((string= resourceRef
+					   (second new-t100-occurrence-resourceRef-merge-2))
 				  (is (string= instanceOf t55-psi)))
 				 (t
 				  (is-true

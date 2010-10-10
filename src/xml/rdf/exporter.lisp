@@ -60,7 +60,7 @@
 
 
 (defun init-*ns-map* ()
-  "Initializes the variable *ns-map* woith some prefixes and corresponding
+  "Initializes the variable *ns-map* with some prefixes and corresponding
    namepsaces. So the predifend namespaces are not contain ed twice."
   (setf *ns-map* (list
 		  (list :prefix "isi"
@@ -75,8 +75,8 @@
 
 (defmacro with-property (construct &body body)
   "Generates a property element with a corresponding namespace
-   and tag name before executing the body. This macro is for usin
-   in occurrences and association that are mapped to RDF properties."
+   and tag name before executing the body. This macro is for using
+   in occurrences and associations that are mapped to RDF properties."
   `(let ((ns-list
 	  (separate-uri (rdf-li-or-uri
 			 (uri (first (psis (instance-of ,construct))))))))
@@ -216,7 +216,7 @@
   (declare (TopicC topic))
   (if (psis topic)
       (cxml:attribute "rdf:resource"
-		      (if (reified topic)
+		      (if (reified-construct topic)
 			  (let ((psi (get-reifier-psi topic)))
 			    (if psi
 				(concatenate 'string "#" (get-reifier-uri topic))
@@ -306,7 +306,7 @@
       (make-isi-type *tm2rdf-name-type-uri*)
       (export-reifier-as-mapping construct)
       (map 'list #'to-rdf-elem (item-identifiers construct))
-      (when (slot-boundp construct 'instance-of)
+      (when (instance-of construct)
 	(cxml:with-element "isi:nametype"
 	  (make-topic-reference (instance-of construct))))
       (scopes-to-rdf-elems construct)
@@ -592,7 +592,7 @@
 	  (t-occs (occurrences construct))
 	  (t-assocs (list-rdf-mapped-associations construct)))
       (if psi
-	  (if (reified construct)
+	  (if (reified-construct construct)
 	      (let ((reifier-uri (get-reifier-uri construct)))
 		(if reifier-uri
 		    (cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
@@ -627,7 +627,7 @@
 	  (ii (item-identifiers construct))
 	  (sl (locators construct)))
       (if psi
-	  (if (reified construct)
+	  (if (reified-construct construct)
 	      (let ((reifier-uri (get-reifier-uri construct)))
 		(if reifier-uri
 		    (cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))

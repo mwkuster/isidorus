@@ -23,32 +23,38 @@
 (defun json-to-elem(json-string &key (xtm-id *json-xtm*))
   "creates all objects (topics, topic stubs, associations)
    of the passed json-decoded-list (=fragment)"
+  (declare (type (or string null) json-string xtm-id))
   (when json-string
     (let ((fragment-values
 	   (get-fragment-values-from-json-list
 	    (json:decode-json-from-string json-string))))
-      (declare (string json-string))
       (let ((topic-values (getf fragment-values :topic))
 	    (topicStubs-values (getf fragment-values :topicStubs))
 	    (associations-values (getf fragment-values :associations))
-	    (rev (get-revision))) ; creates a new revision, equal for all elements of the passed fragment
+	    (rev (get-revision)) ; creates a new revision, equal for all elements of the passed fragment
+	    (tm-ids (getf fragment-values :tm-ids)))
+	(unless tm-ids
+	  (error "From json-to-elem(): tm-ids must be set"))
 	(let ((psi-of-topic
 	       (let ((psi-uris (getf topic-values :subjectIdentifiers)))
 		 (when psi-uris
 		   (first psi-uris)))))
 	  (elephant:ensure-transaction (:txn-nosync nil) 
-	    (xml-importer:with-tm (rev xtm-id (first (getf fragment-values :tm-ids)))
-	      (loop for topicStub-values in topicStubs-values
-		 do (json-to-stub topicStub-values rev :tm xml-importer::tm :xtm-id xtm-id))
+	    (xml-importer:with-tm (rev xtm-id (first tm-ids))
+	      (loop for topicStub-values in
+		   (append topicStubs-values (list topic-values))
+		 do (json-to-stub topicStub-values rev :tm xml-importer::tm
+				  :xtm-id xtm-id))
 	      (json-merge-topic topic-values rev :tm xml-importer::tm :xtm-id xtm-id)
 	      (loop for association-values in associations-values
-		 do (json-to-association association-values rev :tm xml-importer::tm)))
-	    (when psi-of-topic
-	      (create-latest-fragment-of-topic psi-of-topic))))))))
+		 do (json-to-association association-values rev
+					 :tm xml-importer::tm))))
+	  (when psi-of-topic
+	    (create-latest-fragment-of-topic psi-of-topic)))))))
 
 
 (defun json-to-association (json-decoded-list start-revision
-			    &key tm )
+			    &key tm)
   "creates an association element of the passed json-decoded-list"
   (elephant:ensure-transaction (:txn-nosync t) 
     (let 
@@ -57,9 +63,9 @@
 			 (make-identifier 'ItemIdentifierC uri start-revision))
 	       (getf json-decoded-list :itemIdentities)))
          (instance-of
-          (psis-to-topic (getf json-decoded-list :type)))
+          (psis-to-topic (getf json-decoded-list :type) :revision start-revision))
          (themes
-          (json-to-scope (getf json-decoded-list :scopes)))
+          (json-to-scope (getf json-decoded-list :scopes) start-revision))
          (roles 
           (map 'list #'(lambda(role-values)
 			 (json-to-role role-values start-revision))
@@ -67,14 +73,14 @@
       (declare (list json-decoded-list))
       (declare (integer start-revision))
       (declare (TopicMapC tm))
-      (setf roles (xml-importer::set-standard-role-types roles))
-      (add-to-topicmap tm 
-		       (make-construct 'AssociationC
-				       :start-revision start-revision
-				       :item-identifiers item-identifiers
-				       :instance-of instance-of
-				       :themes themes
-				       :roles roles)))))
+      (setf roles (xml-importer::set-standard-role-types roles start-revision))
+      (add-to-tm tm 
+		 (make-construct 'AssociationC
+				 :start-revision start-revision
+				 :item-identifiers item-identifiers
+				 :instance-of instance-of
+				 :themes themes
+				 :roles roles)))))
     
 
 (defun json-to-role (json-decoded-list start-revision)
@@ -87,14 +93,19 @@
 			 (make-identifier 'ItemIdentifierC uri start-revision))
 	       (getf json-decoded-list :itemIdentities)))
          (instance-of
-          (psis-to-topic (getf json-decoded-list :type)))
+          (psis-to-topic (getf json-decoded-list :type) :revision start-revision))
          (player
-	  (psis-to-topic (getf json-decoded-list :topicRef))))
+	  (psis-to-topic (getf json-decoded-list :topicRef)
+			 :revision start-revision)))
       (declare (list json-decoded-list))
       (declare (integer start-revision))
       (unless player
-        (error "Role in association with topicref ~a not complete" (getf json-decoded-list :topicRef)))
-      (list :instance-of instance-of :player player :item-identifiers item-identifiers)))))
+        (error "Role in association with topicref ~a not complete"
+	       (getf json-decoded-list :topicRef)))
+      (list :instance-of instance-of
+	    :player player
+	    :item-identifiers item-identifiers
+	    :start-revision start-revision)))))
 
 
 (defun json-merge-topic (json-decoded-list start-revision
@@ -103,13 +114,11 @@
    elements from the json-decoded-list"
   (when json-decoded-list
     (elephant:ensure-transaction (:txn-nosync t) 
-;      (let ((top
-;	     (d:get-item-by-id
-;	      (getf json-decoded-list :id)
-;	      :revision start-revision
-;	      :xtm-id xtm-id)))
-      (let ((top (json-to-stub json-decoded-list start-revision
-			       :tm tm :xtm-id xtm-id)))
+      (let ((top
+	     (d:get-item-by-id
+	      (getf json-decoded-list :id)
+	      :revision start-revision
+	      :xtm-id xtm-id)))
 	(declare (list json-decoded-list))
 	(declare (integer start-revision))
 	(declare (TopicMapC tm))
@@ -118,14 +127,19 @@
 	(let ((instanceof-topics
 	       (remove-duplicates
 		(map 'list
-		     #'psis-to-topic
+		     #'(lambda(psis)
+			 (psis-to-topic psis :revision start-revision))
 		     (getf json-decoded-list :instanceOfs)))))
+
 	  (loop for name-values in (getf json-decoded-list :names)
 	     do (json-to-name name-values top start-revision))
+
 	  (loop for occurrence-values in (getf json-decoded-list :occurrences)
 	     do (json-to-occurrence occurrence-values top start-revision))
 	  (dolist (instanceOf-top instanceof-topics)
-	    (json-create-instanceOf-association instanceOf-top top start-revision :tm tm))
+	    (json-create-instanceOf-association instanceOf-top top start-revision
+						:tm tm))
+          ;(add-to-tm tm top) ; will be done in "json-to-stub"
 	  top)))))
 
 
@@ -144,7 +158,13 @@
 	    (subject-locators
 	     (map 'list #'(lambda(uri)
 			    (make-identifier 'SubjectLocatorC uri start-revision))
-		  (getf json-decoded-list :subjectLocators))))
+		  (getf json-decoded-list :subjectLocators)))
+	    (topic-ids
+	     (when (getf json-decoded-list :id)
+	       (list
+		(make-construct 'TopicIdentificationC
+				:uri (getf json-decoded-list :id)
+				:xtm-id xtm-id)))))
 	;; all topic stubs has to be added top a topicmap object in this method
 	;; becuase the only one topic that is handled in "json-merge-topic"
 	;; is the main topic of the fragment
@@ -153,9 +173,8 @@
 				       :item-identifiers item-identifiers
 				       :locators subject-locators
 				       :psis subject-identifiers
-				       :topicid (getf json-decoded-list :id)
-				       :xtm-id xtm-id)))
-	  (add-to-topicmap tm top)
+				       :topic-identifiers topic-ids)))
+	  (add-to-tm tm top)
 	  top)))))
 	
 
@@ -164,13 +183,13 @@
   (when json-decoded-list
     (let
       ((themes
-        (json-to-scope (getf json-decoded-list :scopes)))
+        (json-to-scope (getf json-decoded-list :scopes) start-revision))
        (item-identifiers
 	(map 'list #'(lambda(uri)
 		       (make-identifier 'ItemIdentifierC uri start-revision))
 	     (getf json-decoded-list :itemIdentities)))
        (instance-of 
-        (psis-to-topic (getf json-decoded-list :type)))
+        (psis-to-topic (getf json-decoded-list :type) :revision start-revision))
        (occurrence-value
 	(json-to-resourceX json-decoded-list)))
       
@@ -178,7 +197,7 @@
 	(error "OccurrenceC: one of resourceRef and resourceData must be set"))
       (make-construct 'OccurrenceC 
 		      :start-revision start-revision
-		      :topic top
+		      :parent top
 		      :themes themes
 		      :item-identifiers item-identifiers
 		      :instance-of instance-of
@@ -192,27 +211,30 @@
   (declare (symbol classsymbol))
   (declare (string uri))
   (declare (integer start-revision))
-  (let ((id (make-instance classsymbol
-			   :uri uri
-			   :start-revision start-revision)))
-    id))
+  (make-construct classsymbol
+		  :uri uri
+		  :start-revision start-revision))
 
 
-(defun json-to-scope (json-decoded-list)
+(defun json-to-scope (json-decoded-list start-revision)
   "Generate set of themes (= topics) from this scope element and
    return that set. If the input is nil, the list of themes is empty"
   (when json-decoded-list
     (let ((tops
-	   (map 'list #'psis-to-topic json-decoded-list)))
+	   (map 'list #'(lambda(psis)
+			  (psis-to-topic psis :revision start-revision))
+		json-decoded-list)))
       (declare (list json-decoded-list))
       (unless (>= (length tops) 1)
         (error "need at least one topic in a scope"))
       tops)))
 
 
-(defun psis-to-topic(psis)
+(defun psis-to-topic(psis &key (revision *TM-REVISION*))
   "searches for a topic of the passed psis-list describing
    exactly one topic"
+  (declare (list psis)
+	   (type (or integer null) revision))
   (when psis
     (let ((top
 	   (let ((psi
@@ -221,9 +243,8 @@
 			   'd:PersistentIdC 'd:uri uri)
 		     return (elephant:get-instance-by-value
 			     'd:PersistentIdC 'd:uri uri))))
-	         (format t "psi: ~a~%" psi)
 	     (when psi
-	       (d:identified-construct psi)))))
+	       (d:identified-construct psi :revision revision)))))
       (unless top
 	(error (make-condition 'missing-reference-error
 			       :message (format nil "psis-to-topic: could not resolve reference ~a" psis))))
@@ -239,23 +260,20 @@
 		(getf json-decoded-list :itemIdentities)))
 	  (namevalue (getf json-decoded-list :value))
 	  (themes
-	   (json-to-scope (getf json-decoded-list :scopes)))
+	   (json-to-scope (getf json-decoded-list :scopes) start-revision))
 	  (instance-of
-	   (psis-to-topic (getf json-decoded-list :type))))
-      ;(declare (list json-decoded-list)) causes problems with sbcl 1.0.34.0.debian
-      ;(declare (TopicC top))
+	   (psis-to-topic (getf json-decoded-list :type) :revision start-revision)))
       (unless namevalue
         (error "A name must have exactly one namevalue"))
       (let ((name (make-construct 'NameC 
 				  :start-revision start-revision
-				  :topic top
+				  :parent top
 				  :charvalue namevalue
 				  :instance-of instance-of
 				  :item-identifiers item-identifiers
 				  :themes themes)))
 	(loop for variant in (getf json-decoded-list :variants)
 	   do (json-to-variant variant name start-revision))
-	;(json-to-variant (getf json-decoded-list :variants) name start-revision)
 	name))))
 
 
@@ -267,19 +285,20 @@
 			  (make-identifier 'ItemIdentifierC uri start-revision))
 		(getf json-decoded-list :itemIdentities)))
 	  (themes
-	   (remove-duplicates (append (d:themes name)
-				      (json-to-scope (getf json-decoded-list :scopes)))))
+	   (remove-duplicates
+	    (append (d:themes name)
+		    (json-to-scope (getf json-decoded-list :scopes)
+				   start-revision))))
 	  (variant-value
 	   (json-to-resourceX json-decoded-list)))
       (declare (list json-decoded-list))
-      ;(declare (NameC name))
       (make-construct 'VariantC
 		      :start-revision start-revision
 		      :item-identifiers item-identifiers
 		      :themes themes
 		      :charvalue (getf variant-value :data)
 		      :datatype (getf variant-value :type)
-		      :name name))))
+		      :parent name))))
 
 
 (defun json-to-resourceX(json-decoded-list)
@@ -309,23 +328,19 @@
   from all the others in that it is not modelled one to one, but
   following the suggestion of the XTM 2.0 spec (4.9) and the
   TMDM (7.2) as an association"
-
-  (declare (TopicC supertype))
-  (declare (TopicC player2-obj))
-  (declare (TopicMapC tm))
+  (declare (TopicC supertype player2-obj)
+	   (TopicMapC tm))
   (let
       ((associationtype 
-        (get-item-by-psi constants:*type-instance-psi*))
+        (get-item-by-psi constants:*type-instance-psi* :revision start-revision))
        (roletype1
-        (get-item-by-psi constants:*type-psi*))
+        (get-item-by-psi constants:*type-psi* :revision start-revision))
        (roletype2
-        (get-item-by-psi constants:*instance-psi*))
+        (get-item-by-psi constants:*instance-psi* :revision start-revision))
        (player1 supertype))
-
     (unless (and associationtype roletype1 roletype2)
       (error "Error in the creation of an instanceof association: core topics are missing"))
-
-    (add-to-topicmap 
+    (add-to-tm 
      tm
      (make-construct 
       'AssociationC
@@ -333,8 +348,12 @@
       :themes nil
       :start-revision start-revision
       :instance-of associationtype
-      :roles (list (list :instance-of roletype1 :player player1)
-                   (list :instance-of roletype2 :player player2-obj))))))
+      :roles (list (list :instance-of roletype1
+			 :player player1
+			 :start-revision start-revision)
+                   (list :instance-of roletype2
+			 :player player2-obj
+			 :start-revision start-revision))))))
 
 
 (defun get-fragment-values-from-json-list(json-decoded-list)
@@ -358,7 +377,7 @@
 	       (setf tm-ids (cdr j-elem)))
 	      (t
 	       (error "json-importer:get-fragment-values-from-json-string:
-                       bad item-specifier found in json-list (~a)" (car j-elem)))))
+                       bad item-specifier found in json-list"))))
       (unless topic
 	(error "json-importer:get-fragment-values-from-json-string: the element topic must be set"))
       (unless (= (length tm-ids) 1)

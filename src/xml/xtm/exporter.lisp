@@ -10,25 +10,34 @@
 (in-package :exporter)
 
 
-;; (defun instanceofs-to-elem (ios)
-;;   (when ios
-;;       (map 'list (lambda (io) (cxml:with-element "t:instanceOf" (ref-to-elem io))) ios)))
-
-
-(defun list-extern-associations ()
+(defun list-extern-associations (&key (revision *TM-REVISION*))
   "gets all instances of AssociationC - which does not realize an instanceOf relationship in the db"
   (let ((instance-topic 
 	 (identified-construct
-	  (elephant:get-instance-by-value 'PersistentIdC 'uri "http://psi.topicmaps.org/iso13250/model/instance")))
+	  (elephant:get-instance-by-value 'PersistentIdC 'uri *instance-psi*)))
 	(type-topic 
 	 (identified-construct 
-	  (elephant:get-instance-by-value 'PersistentIdC 'uri "http://psi.topicmaps.org/iso13250/model/type"))))
-    (loop for item in (elephant:get-instances-by-class 'AssociationC)
-       when (not (and (or (eq instance-topic (instance-of (first (roles item))))
-			  (eq instance-topic (instance-of (second (roles item)))))
-		      (or (eq type-topic (instance-of (first (roles item))))
-			  (eq type-topic (instance-of (second (roles item)))))))
+	  (elephant:get-instance-by-value 'PersistentIdC 'uri *type-psi*))))
+    (loop for item in (d:get-all-associations revision) 
+       when (and (= (length (roles item :revision revision)) 2)
+		 (not (and (or (eq instance-topic
+				   (instance-of (first (roles item
+							      :revision revision))
+						:revision revision))
+			       (eq instance-topic
+				   (instance-of (second (roles item
+							       :revision revision))
+						:revision revision)))
+			   (or (eq type-topic
+				   (instance-of (first (roles item
+							      :revision revision))
+						:revision revision))
+			       (eq type-topic 
+				   (instance-of (second (roles item
+							       :revision revision))
+						:revision revision))))))
        collect item)))
+
 
 (defmacro with-xtm2.0 (&body body)
   "helper macro to build the Topic Map element"
@@ -47,6 +56,7 @@
              "t:topicMap" :empty
              ,@body))))
 
+
 (defmacro export-to-elem (tm to-elem)
   `(setf *export-tm* ,tm)
   `(format t "*export-tm*: ~a" *export-tm*)
@@ -57,12 +67,13 @@
          (map 'list 
               #'(lambda(top)
                   (d:find-item-by-revision top revision))
-              (if ,tm
-                  (union
-                    (d:topics ,tm) (d:associations ,tm))
-                  (union
-                   (elephant:get-instances-by-class 'd:TopicC)
-                   (list-extern-associations)))))))
+	      (if ,tm
+		  (union
+		   (d:topics ,tm) (d:associations ,tm))
+		  (union
+		   (elephant:get-instances-by-class 'd:TopicC)
+		   (list-extern-associations :revision revision)))))))
+
 
 (defun export-xtm (xtm-path &key 
                    tm-id
@@ -80,9 +91,11 @@
 	  (cxml:with-xml-output (cxml:make-character-stream-sink stream :canonical nil)
 	    (if (eq xtm-format '2.0)
 		(with-xtm2.0
-                  (export-to-elem tm #'to-elem))
+		  (export-to-elem tm #'(lambda(elem)
+					 (to-elem elem revision))))
 		(with-xtm1.0
-                  (export-to-elem tm #'to-elem-xtm1.0)))))))))
+		  (export-to-elem tm #'(lambda(elem)
+					 (to-elem-xtm1.0 elem revision)))))))))))
 
 
 (defun export-xtm-to-string (&key 
@@ -97,9 +110,11 @@
 	(cxml:with-xml-output (cxml:make-string-sink :canonical nil)
 	  (if (eq xtm-format '2.0)
 	      (with-xtm2.0
-		(export-to-elem tm #'to-elem))
+		(export-to-elem tm #'(lambda(elem)
+				       (to-elem elem revision))))
 	      (with-xtm1.0
-		(export-to-elem tm #'to-elem-xtm1.0))))))))
+		(export-to-elem tm #'(lambda(elem)
+				       (to-elem-xtm1.0 elem revision))))))))))
 
 
 (defun export-xtm-fragment (fragment &key (xtm-format '2.0))
@@ -109,7 +124,6 @@
       (cxml:with-xml-output  (cxml:make-string-sink :canonical nil)
 	(if (eq xtm-format '2.0)
 	    (with-xtm2.0
-              (to-elem fragment))
+              (to-elem fragment (revision fragment)))
 	    (with-xtm1.0
-              (to-elem-xtm1.0 fragment)))))))
-	  
+              (to-elem-xtm1.0 fragment (revision fragment))))))))

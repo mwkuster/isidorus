@@ -23,7 +23,9 @@
 		*instance-psi*
                 *XTM2.0-NS*
 		*XTM1.0-NS*
-		*XTM1.0-XLINK*)
+		*XTM1.0-XLINK*
+		*XML-STRING*
+		*XML-URI*)
   (:import-from :xml-constants
 		*core_psis.xtm*)
   (:import-from :xml-tools
@@ -94,32 +96,30 @@
       (error "cannot handle topicrefs that don't start with #"))
     (subseq topicref 1)))
 
-(defun get-topicid-by-psi (uri &key (xtm-id d:*current-xtm*))
+(defun get-topicid-by-psi (uri &key (xtm-id d:*current-xtm*) (revision *TM-REVISION*))
   (when uri
     (loop for item in 
          (topic-identifiers
-          (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri uri)))
+          (identified-construct (elephant:get-instance-by-value 'PersistentIdC 'uri uri)) :revision revision)
        when (string= xtm-id (xtm-id item))
        return (uri item))))
 
+
 (defmacro with-tm ((revision xtm-id tm-id) &body body)
   "creates a topic map object called tm and puts it into the local scope"
-  `(let
-      ((ii (make-instance 'ItemIdentifierC 
-                          :uri ,tm-id
-                          :start-revision ,revision)))
-     ;(add-to-version-history ii :start-revision ,revision)
-     (let
-         ((tm 
-           (make-construct 'TopicMapC 
-                           :start-revision ,revision
-                           :xtm-id ,xtm-id
-                           :item-identifiers (list ii))))
+  `(let ((ii (make-construct 'ItemIdentifierC 
+			     :uri ,tm-id
+			     :start-revision ,revision)))
+     (let ((tm 
+	    (make-construct 'TopicMapC 
+			    :start-revision ,revision
+			    :xtm-id ,xtm-id
+			    :item-identifiers (list ii))))
        (declare (ItemIdentifierC ii))
        (declare (TopicMapC tm))
-       
        ,@body)))
-           
+
+
 (defun init-isidorus (&optional (revision (get-revision)))
   "Initiatlize the database with the stubs of the core topics + PSIs
 defined in the XTM 1.0 spec. This includes a topic that represents the
@@ -136,7 +136,7 @@ core TM"
 	     (let
 		 ((top
 		   (from-topic-elem-to-stub top-elem revision :xtm-id "core.xtm")))
-	       (add-to-topicmap tm top)))))))
+	       (add-to-tm tm top)))))))
 
 ;TODO: replace the two importers with this macro
 (defmacro importer-mac
@@ -172,25 +172,23 @@ core TM"
   (declare (TopicMapC tm))
   (let
       ((associationtype 
-        (get-item-by-psi *type-instance-psi*))
+        (get-item-by-psi *type-instance-psi* :revision start-revision))
        (roletype1
-        (get-item-by-psi *type-psi*))
+        (get-item-by-psi *type-psi* :revision start-revision))
        (roletype2
-        (get-item-by-psi *instance-psi*))
+        (get-item-by-psi *instance-psi* :revision start-revision))
        (player1
 	(get-item-by-id topicid-of-supertype 
 			:xtm-id xtm-id 
 			:revision start-revision)))
-
     (unless (and associationtype roletype1 roletype2)
       (error "Error in the creation of an instanceof association: core topics are missing"))
-
     (unless player1 
       (error
        (make-condition 'missing-reference-error
                        :message "could not find type topic (first player)"
                        :reference topicid-of-supertype)))
-    (add-to-topicmap 
+    (add-to-tm 
      tm
      (make-construct 
       'AssociationC
@@ -198,5 +196,9 @@ core TM"
       :themes nil
       :start-revision start-revision
       :instance-of associationtype
-      :roles (list (list :instance-of roletype1 :player player1)
-                   (list :instance-of roletype2 :player player2-obj))))))
+      :roles (list (list :start-revision start-revision
+			 :instance-of roletype1
+			 :player player1)
+                   (list :start-revision start-revision
+			 :instance-of roletype2
+			 :player player2-obj))))))

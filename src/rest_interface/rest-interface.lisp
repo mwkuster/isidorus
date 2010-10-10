@@ -40,8 +40,7 @@
 	   :*ajax-user-interface-url*
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*
-	   :*ajax-javascript-url-prefix*
-	   :*mark-as-deleted-url*))
+	   :*ajax-javascript-url-prefix*))
 
 
 (in-package :rest-interface)
@@ -63,7 +62,8 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 (defvar *server-acceptor* nil)
 
 
-(defun start-tm-engine (repository-path &key (conffile "atom/conf.lisp") (host-name "localhost") (port 8000))
+(defun start-tm-engine (repository-path &key (conffile "atom/conf.lisp")
+			(host-name "localhost") (port 8000))
   "Start the Topic Map Engine on a given port, assuming a given
    hostname. Use the repository under repository-path"
   (when *server-acceptor*

@@ -4,11 +4,21 @@ docs/TODOs.txt svneol=native#text/plain
 docs/collection_feed.png -text svneol=unset#image/png
 docs/fragments_feed.png -text svneol=unset#image/png
 docs/install_isidorus.txt svneol=native#text/plain
-docs/isidorus_classes.pdf -text svneol=unset#application/pdf
+docs/isidorus_data_model.pdf -text svneol=unset#unset
+docs/isidorus_data_model.vsd -text
 docs/json.ebnf -text
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
 docs/xtm_json.txt -text
+playground/call-next-method.lisp -text
+playground/call-next-method_multiple-inheritance.lisp -text
+playground/ii_versioned_association.lisp -text
+playground/isidorus_test.sh -text
+playground/system_crash.lisp -text
+playground/threading_debugging.lisp -text
+playground/url_test.html -text
+playground/url_test.js -text
+playground/versioned-pointer.lisp -text
 src/ajax/css/frame.css -text
 src/ajax/css/main.css -text
 src/ajax/css/navi.css -text
@@ -46,6 +56,7 @@ src/rest_interface/set-up-json-interface.lisp -text
 src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text
 src/unit_tests/dangling_topicref.xtm -text
+src/unit_tests/datamodel_test.lisp -text
 src/unit_tests/duplicate_identifier.xtm -text
 src/unit_tests/full_mapping.rdf -text
 src/unit_tests/inconsistent.xtm -text

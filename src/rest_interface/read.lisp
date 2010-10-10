@@ -67,7 +67,7 @@ successful. Throws an error otherwise"
               (source-locator  (source-locator-prefix feed)))
            ;check if xtm-id has already been imported or if the entry is older
            ;than the snapshot feed. If so, don't do it again
-           (unless (or (xtm-id-p xtm-id) (string> (atom:updated entry) (atom:updated imported-snapshot-entry)))
+           (unless (or (string> (atom:updated entry) (atom:updated imported-snapshot-entry)))
              (when top
 	       (mark-as-deleted top :source-locator source-locator :revision revision))
 	     ;(format t "Fragment feed: ~a~&" (link entry))
@@ -98,10 +98,11 @@ successful. Throws an error otherwise"
     (find most-recent-update entry-list :key #'updated :test #'string=)))
 
 (defun most-recent-imported-snapshot (all-snapshot-entries)
-  (let
-      ((all-imported-entries
-	(remove-if-not #'xtm-id-p all-snapshot-entries :key #'atom:id)))
-    (most-recent-entry all-imported-entries)))
+;  (let
+;      ((all-imported-entries
+;	(remove-if-not #'xtm-id-p all-snapshot-entries :key #'atom:id)))
+;  (most-recent-entry all-imported-entries))
+  (most-recent-entry all-snapshot-entries))
 
 (defun import-snapshots-feed (snapshot-feed-url &key tm-id)
   "checks if we already imported any of this feed's snapshots. If not,

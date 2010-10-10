@@ -26,7 +26,6 @@
 (defparameter *ajax-user-interface-file-path* "ajax/isidorus.html") ;the file path to the HTML file implements the user interface
 (defparameter *ajax-javascript-directory-path* "ajax/javascripts") ;the directory which contains all necessary javascript files
 (defparameter *ajax-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
-(defparameter *mark-as-deleted-url* "/mark-as-deleted") ; the url suffix that calls the mark-as-deleted handler
 
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
 			      (get-rdf-prefix *get-rdf-prefix*)
@@ -44,8 +43,7 @@
 			      (ajax-user-interface-css-prefix *ajax-user-interface-css-prefix*)
 			      (ajax-user-interface-css-directory-path *ajax-user-interface-css-directory-path*)
 			      (ajax-javascripts-directory-path *ajax-javascript-directory-path*)
-			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*)
-			      (mark-as-deleted-url *mark-as-deleted-url*))
+			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
 
@@ -113,9 +111,6 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-summary-url #'return-topic-summaries)
-   hunchentoot:*dispatch-table*)
-  (push
-   (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted-handler)
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -127,7 +122,7 @@
   (declare (ignorable param))
   (handler-case (let ((topic-types 
 		         (with-reader-lock
-			   (json-tmcl::return-all-tmcl-types))))
+			   (json-tmcl::return-all-tmcl-types :revision 0))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  (json:encode-json-to-string
 		   (map 'list #'(lambda(y)
@@ -138,6 +133,7 @@
 		       (setf (hunchentoot:content-type*) "text")
 		       (format nil "Condition: \"~a\"" err)))))
 
+
 (defun return-all-tmcl-instances(&optional param)
   "Returns all topic-psis that are valid instances of any topic type.
    The validity is only oriented on the typing of topics, e.g.
@@ -145,7 +141,7 @@
   (declare (ignorable param))
   (handler-case (let ((topic-instances 
 		         (with-reader-lock
-			   (json-tmcl::return-all-tmcl-instances))))
+			   (json-tmcl::return-all-tmcl-instances :revision 0))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  (json:encode-json-to-string
 		   (map 'list #'(lambda(y)
@@ -164,8 +160,9 @@
   (let ((topic (d:get-item-by-psi psi)))
     (if topic
 	(let ((topic-json
-	       (handler-case (with-reader-lock
-			       (json-exporter::to-json-topicStub-string topic))
+	       (handler-case
+		   (with-reader-lock
+		     (json-exporter::to-json-topicStub-string topic :revision 0))
 		 (condition (err) (progn
 				    (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 				    (setf (hunchentoot:content-type*) "text")
@@ -184,25 +181,34 @@
   (let ((http-method (hunchentoot:request-method*)))
     (if (or (eq http-method :POST)
 	    (eq http-method :PUT))
-	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
-	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
-	    (handler-case (let ((psis
-				 (json:decode-json-from-string json-data)))			    
-			    (let ((tmcl
-				   (with-reader-lock
-				     (json-tmcl:get-constraints-of-fragment psis :treat-as treat-as))))
-			      (if tmcl
-				  (progn
-				    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-				    tmcl)
-				  (progn
-				    (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-				    (setf (hunchentoot:content-type*) "text")
-				    (format nil "Topic \"~a\" not found." psis)))))
-	      (condition (err) (progn
-				 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-				 (setf (hunchentoot:content-type*) "text")
-				 (format nil "Condition: \"~a\"" err))))))
+	(let ((external-format
+	       (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
+	  (let ((json-data
+		 (hunchentoot:raw-post-data :external-format external-format
+					    :force-text t)))
+	    (handler-case
+		(let ((psis
+		       (json:decode-json-from-string json-data)))
+		  (let ((tmcl
+			 (with-reader-lock
+			   (json-tmcl:get-constraints-of-fragment
+			    psis :treat-as treat-as :revision 0))))
+		    (if tmcl
+			(progn
+			  (setf (hunchentoot:content-type*)
+				"application/json") ;RFC 4627
+			  tmcl)
+			(progn
+			  (setf (hunchentoot:return-code*)
+				hunchentoot:+http-not-found+)
+			  (setf (hunchentoot:content-type*) "text")
+			  (format nil "Topic \"~a\" not found." psis)))))
+	      (condition (err)
+		(progn
+		  (setf (hunchentoot:return-code*)
+			hunchentoot:+http-internal-server-error+)
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Condition: \"~a\"" err))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
@@ -215,7 +221,7 @@
 	(progn
 	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 	  (handler-case (with-reader-lock
-			  (get-all-topic-psis))
+			  (get-all-topic-psis :revision 0))
 	    (condition (err) (progn
 			       (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 			       (setf (hunchentoot:content-type*) "text")
@@ -235,7 +241,7 @@
 		   (get-latest-fragment-of-topic identifier))))
 	    (if fragment
 		(handler-case (with-reader-lock
-				(to-json-string fragment))
+				(to-json-string fragment :revision 0))
 		  (condition (err)
 		    (progn
 		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
@@ -302,12 +308,7 @@
 	   (condition () nil))))
     (handler-case (with-reader-lock
 		    (let ((topics 
-			   (remove-if
-			    #'null
-			    (map 'list #'(lambda(top)
-					   (when (d:find-item-by-revision top 0)
-					     top))
-				 (elephant:get-instances-by-class 'd:TopicC)))))
+			   (elephant:get-instances-by-class 'd:TopicC)))
 		      (let ((end
 			     (cond
 			       ((not end-idx)
@@ -342,40 +343,17 @@
   "Returns a json-object representing a topic map overview as a tree(s)"
   (declare (ignorable param))
   (with-reader-lock
-    (handler-case (let ((json-string
-			 (json-tmcl::tree-view-to-json-string (json-tmcl::make-tree-view))))
-		    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-		    json-string)
-      (Condition (err) (progn
-			 (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-			 (setf (hunchentoot:content-type*) "text")
-			 (format nil "Condition: \"~a\"" err))))))
-
-
-(defun mark-as-deleted-handler (&optional param)
-  "Marks the corresponding elem as deleted.
-   {\"type\":<\"'TopicC\" | \"'OccurrenceC\" | \"'NameC\"
-              \"'AssociationC\" | \"'RoleC\" | \"VariantC\" >,
-    \"object\":<specified json-object: name or occurrence,
-                if the deleted object is a topic this field
-                has to be set to null>,
-    \"parent-topic\":<psis or null>,
-    \"parent-name\": <specified json-object: name>}."
-  (declare (ignorable param)) ;param is currently not used
-  (let ((http-method (hunchentoot:request-method*)))
-    (if (or (eq http-method :PUT)
-	    (eq http-method :POST))
-	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
-	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
-	    (handler-case
-		(with-writer-lock
-		  (json-tmcl::mark-as-deleted-from-json json-data))
-	      (condition (err)
-		(progn
-		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-		  (setf (hunchentoot:content-type*) "text")
-		  (format nil "Condition: \"~a\"" err))))))
-	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+      (handler-case
+	  (let ((json-string
+		 (json-tmcl::tree-view-to-json-string
+		  (json-tmcl::make-tree-view :revision 0))))
+	    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	    json-string)
+	(Condition (err)
+	  (progn
+	    (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+	    (setf (hunchentoot:content-type*) "text")
+	    (format nil "Condition: \"~a\"" err))))))
 
 
 ;; =============================================================================
@@ -386,18 +364,22 @@
    concatenated of the url-prefix and the relative path of all all files in the
    passed directory and its subdirectories"
   (let ((start-position-of-relative-path
-	 (- (length (write-to-string (com.gigamonkeys.pathnames:file-exists-p path-to-files-directory))) 2)))
+	 (- (length (write-to-string (com.gigamonkeys.pathnames:file-exists-p
+				      path-to-files-directory))) 2)))
     (let ((files-and-urls nil))
-      (com.gigamonkeys.pathnames:walk-directory path-to-files-directory
-						#'(lambda(current-path)
-						    (let ((current-path-string
-							   (write-to-string current-path)))
-						      (let ((last-position-of-current-path
-							     (- (length current-path-string) 1)))
-							(let ((current-url
-							       (concatenate 'string url-prefix
-									    (subseq current-path-string start-position-of-relative-path last-position-of-current-path))))
-							  (push (list :path current-path :url current-url) files-and-urls))))))
+      (com.gigamonkeys.pathnames:walk-directory
+       path-to-files-directory
+       #'(lambda(current-path)
+	   (let ((current-path-string
+		  (write-to-string current-path)))
+	     (let ((last-position-of-current-path
+		    (- (length current-path-string) 1)))
+	       (let ((current-url
+		      (concatenate
+		       'string url-prefix
+		       (subseq current-path-string start-position-of-relative-path
+			       last-position-of-current-path))))
+		 (push (list :path current-path :url current-url) files-and-urls))))))
       files-and-urls)))
 
 

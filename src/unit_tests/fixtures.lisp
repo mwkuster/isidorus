@@ -37,7 +37,8 @@
            :*XTM-MERGE1-TM*
            :*XTM-MERGE2-TM*
 	   :rdf-init-db
-	   :rdf-test-db))
+	   :rdf-test-db
+	   :with-empty-db))
 
 (in-package :fixtures)
 
@@ -93,14 +94,14 @@
   (tear-down-test-db))
 
 (def-fixture initialized-test-db (&optional (xtm *NOTIFICATIONBASE-TM*))
-  (let
-      ((revision (get-revision)))
+  (let ((revision (get-revision)))
     (declare (ignorable revision))
+    (setf *TM-REVISION* revision)
     (setf *XTM-TM* xtm)
     (set-up-test-db revision)
-    (let
-        ((tm 
-          (get-item-by-item-identifier "http://www.isidor.us/unittests/testtm" :revision (d:get-revision))))
+    (let ((tm 
+	   (get-item-by-item-identifier "http://www.isidor.us/unittests/testtm"
+					:revision revision)))
       (declare (ignorable tm))
       (&body)
       (tear-down-test-db))))
@@ -211,3 +212,10 @@
     (handler-case (delete-file exported-file-path)
       (error () )) ;do nothing
     (tear-down-test-db)))
+
+
+(def-fixture with-empty-db (dir)
+  (clean-out-db dir)
+  (elephant:open-store (xml-importer:get-store-spec dir))
+  (&body)
+  (tear-down-test-db))

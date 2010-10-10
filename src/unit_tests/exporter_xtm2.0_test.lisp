@@ -51,7 +51,8 @@
 	   :test-exporter-xtm2.0-versions-1 :test-exporter-xtm2.0-versions-2
 	   :test-exporter-xtm2.0-versions-3 :test-fragments-versions
 	   :test-exporter-xtm1.0-versions-1 :test-exporter-xtm1.0-versions-2
-	   :test-exporter-xtm1.0-versions-3 :test-fragments-xtm1.0-versions))
+	   :test-exporter-xtm1.0-versions-3 :test-fragments-xtm1.0-versions
+	   :exporter-tests))
 
 (in-package :exporter-test)
 (def-suite exporter-tests)
@@ -69,7 +70,8 @@
     (error () )) ;do nothing
   (handler-case (delete-file *out-xtm1.0-file*)
     (error () )) ;do nothing
-  (setup-repository *sample_objects_2_0.xtm* "data_base" :xtm-id "test-tm")
+  (setup-repository *sample_objects_2_0.xtm* "data_base" :xtm-id "test-tm"
+		    :tm-id "http://isidorus.org/test-tm")
   (elephant:open-store (get-store-spec "data_base")))
 
 
@@ -551,52 +553,82 @@
 (test test-std-topics
   (with-fixture refill-test-db ()
     (export-xtm *out-xtm2.0-file*)
-    (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder))))
+    (let ((document (dom:document-element
+		     (cxml:parse-file *out-xtm2.0-file*
+				      (cxml-dom:make-dom-builder))))
 	  (topic-counter 0))
       (check-document-structure document 38 2)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
-	 do (loop for subjectIdentifier across (xpath-child-elems-by-qname topic *xtm2.0-ns* "subjectIdentifier")
-	       do (let ((href (dom:node-value (dom:get-attribute-node subjectIdentifier "href"))))	
+	 do (loop for subjectIdentifier across
+		 (xpath-child-elems-by-qname topic *xtm2.0-ns* "subjectIdentifier")
+	       do (let ((href (dom:node-value
+			       (dom:get-attribute-node subjectIdentifier "href"))))
 		    (cond
 		      ((string= core-topic-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-association-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-occurrence-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-class-instance-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-class-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-superclass-subclass-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-superclass-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-subclass-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-sort-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-display-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns* 
+								 "name")))
 		      ((string= core-type-instance-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-type-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))
 		      ((string= core-instance-psi href)
 		       (incf topic-counter)
-		       (format t "name: ~A~%" (xpath-single-child-elem-by-qname topic *xtm2.0-ns* "name")))))))
+		       (format t "name: ~A~%"
+			       (xpath-single-child-elem-by-qname topic *xtm2.0-ns*
+								 "name")))))))
       (is (= topic-counter 13)))))
 
 

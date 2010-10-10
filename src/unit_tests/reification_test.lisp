@@ -58,7 +58,7 @@
 
 
 (test test-merge-reifier-topics
-  "Tests the function merge-reifier-topics."
+  "Tests the function merge-constructs."
   (let ((db-dir "data_base")
 	(revision-1 100)
 	(revision-2 200))
@@ -147,7 +147,7 @@
 				       :start-revision revision-1)))
 	(let ((name-1-1 (make-construct 'NameC
 					:item-identifiers nil
-					:topic topic-1
+					:parent topic-1
 					:themes (list scope-1)
 					:instance-of name-type
 					:charvalue "name-1-1"
@@ -156,7 +156,7 @@
 					:item-identifiers (list (make-instance 'ItemIdentifierC
 									       :uri "name-2-1-ii-1"
 									       :start-revision revision-1))
-					:topic topic-2
+					:parent topic-2
 					:themes (list scope-2)
 					:instance-of nil
 					:charvalue "name-2-1"
@@ -165,7 +165,7 @@
 					      :item-identifiers (list (make-instance 'ItemIdentifierC
 										     :uri "occurrence-1-1-ii-1"
 										     :start-revision revision-1))
-					      :topic topic-2
+					      :parent topic-2
 					      :themes (list scope-1 scope-2)
 					      :instance-of occurrence-type
 					      :charvalue "occurrence-2-1"
@@ -173,7 +173,7 @@
 					      :start-revision revision-2))
 	      (occurrence-2-2 (make-construct 'OccurrenceC
 					      :item-identifiers nil
-					      :topic topic-2
+					      :parent topic-2
 					      :themes nil
 					      :instance-of occurrence-type
 					      :charvalue "occurrence-2-2"
@@ -181,7 +181,7 @@
 					      :start-revision revision-2))
 	      (test-name (make-construct 'NameC
 					 :item-identifiers nil
-					 :topic scope-2
+					 :parent scope-2
 					 :themes (list scope-1 topic-2)
 					 :instance-of topic-2
 					 :charvalue "test-name"
@@ -194,19 +194,21 @@
 				     (list 
 				      (list :instance-of role-type
 					    :player topic-1
+					    :start-revision revision-2
 					    :item-identifiers
 					    (list (make-instance 'ItemIdentifierC
 								 :uri "role-1"
-								 :start-revision revision-1)))
+								 :start-revision revision-2)))
 				      (list :instance-of role-type
 					    :player topic-2
+					    :start-revision revision-2
 					    :item-identifiers
 					    (list (make-instance 'ItemIdentifierC
 								 :uri "role-2"
-								 :start-revision revision-1))))
-				     :start-revision revision-1)))
+								 :start-revision revision-2))))
+				     :start-revision revision-2)))
 	  (is (= (length (elephant:get-instances-by-class 'TopicC)) 8))
-	  (datamodel::merge-reifier-topics topic-1 topic-2)
+	  (d::merge-constructs topic-1 topic-2 :revision revision-2)
 	  (is (= (length (elephant:get-instances-by-class 'TopicC)) 7))
 	  (is (= (length (union (list ii-1-1 ii-1-2 ii-2-1 ii-2-2)
 				(item-identifiers topic-1)))
@@ -220,7 +222,7 @@
 	  (is (= (length (union (names topic-1)
 				(list name-1-1 name-2-1)))
 		 (length (list name-1-1 name-2-1))))
-	  (is (= (length (union (occurrences topic-1)
+	  (is (= (length (union (occurrences topic-1 :revision 0)
 				(list occurrence-2-1 occurrence-2-2)))
 		 (length (list occurrence-2-1 occurrence-2-2))))
 	  (is (= (length (union (d:used-as-type topic-1)
@@ -229,9 +231,9 @@
 	  (is (= (length (union (d:used-as-theme topic-1)
 				(list test-name)))
 		 (length (list test-name))))
-	  (is (eql (player (first (roles assoc))) topic-1))
-	  (is (eql (player (second (roles assoc))) topic-1))
-	  ;;TODO: check all objects and their version-infos
+	  (is (= (length (roles assoc :revision 0)) 1))
+	  (is (= (length (d::slot-p assoc 'd::roles)) 2))
+	  (is (eql (player (first (roles assoc :revision 0)) :revision 0) topic-1))
 	  (elephant:close-store))))))
 
 
@@ -282,21 +284,21 @@
       (is-true reifier-married-assoc)
       (is-true reifier-husband-role)
       (is (eql (reifier homer-occurrence) reifier-occurrence))
-      (is (eql (reified reifier-occurrence) homer-occurrence))
+      (is (eql (reified-construct reifier-occurrence) homer-occurrence))
       (is (eql (reifier homer-name) reifier-name))
-      (is (eql (reified reifier-name) homer-name))
+      (is (eql (reified-construct reifier-name) homer-name))
       (is (eql (reifier homer-variant) reifier-variant))
-      (is (eql (reified reifier-variant) homer-variant))
+      (is (eql (reified-construct reifier-variant) homer-variant))
       (is (eql (reifier married-assoc) reifier-married-assoc))
-      (is (eql (reified reifier-married-assoc) married-assoc))
+      (is (eql (reified-construct reifier-married-assoc) married-assoc))
       (is (eql (reifier husband-role) reifier-husband-role))
-      (is (eql (reified reifier-husband-role) husband-role))
+      (is (eql (reified-construct reifier-husband-role) husband-role))
       (is-true (handler-case 
 		   (progn (d::delete-construct homer-occurrence)
 			  t)
 		 (condition () nil)))
       (is-false (occurrences homer))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 11))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
       (elephant:close-store))))))
 
 
@@ -346,21 +348,21 @@
       (is-true reifier-married-assoc)
       (is-true reifier-husband-role)
       (is (eql (reifier homer-occurrence) reifier-occurrence))
-      (is (eql (reified reifier-occurrence) homer-occurrence))
+      (is (eql (reified-construct reifier-occurrence) homer-occurrence))
       (is (eql (reifier homer-name) reifier-name))
-      (is (eql (reified reifier-name) homer-name))
+      (is (eql (reified-construct reifier-name) homer-name))
       (is (eql (reifier homer-variant) reifier-variant))
-      (is (eql (reified reifier-variant) homer-variant))
+      (is (eql (reified-construct reifier-variant) homer-variant))
       (is (eql (reifier married-assoc) reifier-married-assoc))
-      (is (eql (reified reifier-married-assoc) married-assoc))
+      (is (eql (reified-construct reifier-married-assoc) married-assoc))
       (is (eql (reifier husband-role) reifier-husband-role))
-      (is (eql (reified reifier-husband-role) husband-role))
+      (is (eql (reified-construct reifier-husband-role) husband-role))
       (is-true (handler-case 
 		   (progn (d::delete-construct homer-occurrence)
 			  t)
 		 (condition () nil)))
       (is-false (occurrences homer))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 11))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
       (elephant:close-store))))))
 
 
@@ -621,9 +623,9 @@
 		       "http://test/arcs/arc4"))
 	  (is (= (length (d:used-as-type arc1)) 1))
 	  (is (eql (reifier (first (d:used-as-type arc1))) reification-1))
-	  (is (eql (reified reification-1) (first (d:used-as-type arc1))))
+	  (is (eql (reified-construct reification-1) (first (d:used-as-type arc1))))
 	  (is (eql (reifier (first (d:used-as-type arc3))) reification-2))
-	  (is (eql (reified reification-2) (first (d:used-as-type arc3))))))))
+	  (is (eql (reified-construct reification-2) (first (d:used-as-type arc3))))))))
   (elephant:close-store))
 
 
@@ -647,13 +649,13 @@
       (is-true married)
       (is (= (length (used-as-type married)) 1))
       (is-true (reifier (first (used-as-type married))))
-      (is-true (reified (reifier (first (used-as-type married)))))
+      (is-true (reified-construct (reifier (first (used-as-type married)))))
       (is (= (length (psis (reifier (first (used-as-type married))))) 1))
       (is (string= (uri (first (psis (reifier (first (used-as-type married))))))
 		   "http://test-tm#married-arc"))
       (is (= (length (occurrences bart)) 1))
       (is-true (reifier (first (occurrences bart))))
-      (is-true (reified (reifier (first (occurrences bart)))))
+      (is-true (reified-construct (reifier (first (occurrences bart)))))
       (is (string= (uri (first (psis (reifier (first (occurrences bart))))))
 		   "http://test-tm#lastName-arc"))))
   (elephant:close-store))
@@ -680,17 +682,17 @@
 	(is (= (length (variants name)) 1))
 	(let ((variant (first (variants name))))
 	  (is-true (reifier name))
-	  (is-true (reified (reifier name)))
+	  (is-true (reified-construct (reifier name)))
 	  (is (= (length (psis (reifier name))) 1))
 	  (is (string= (uri (first (psis (reifier name))))
 		       (concatenate 'string tm-id "lisa-name")))
 	  (is-true (reifier variant))
-	  (is-true (reified (reifier variant)))
+	  (is-true (reified-construct (reifier variant)))
 	  (is (= (length (psis (reifier variant))) 1))
 	  (is (string= (uri (first (psis (reifier variant))))
 		       (concatenate 'string tm-id "lisa-name-variant")))
 	  (is-true (reifier occurrence))
-	  (is-true (reified (reifier occurrence)))
+	  (is-true (reified-construct (reifier occurrence)))
 	  (is (= (length (psis (reifier occurrence))) 1))
 	  (is (string= (uri (first (psis (reifier occurrence))))
 		       (concatenate 'string tm-id "lisa-occurrence")))))))
@@ -717,7 +719,7 @@
       (is (typep (first (used-as-type friendship)) 'd:AssociationC))
       (let ((friendship-association (first (used-as-type friendship))))
 	(is-true (reifier friendship-association))
-	(is-true (reified (reifier friendship-association)))
+	(is-true (reified-construct (reifier friendship-association)))
 	(is (= (length (psis (reifier friendship-association))) 1))
 	(is (string= (uri (first (psis (reifier friendship-association))))
 		     (concatenate 'string tm-id "friendship-association")))
@@ -728,7 +730,7 @@
 			(roles friendship-association))))
 	  (is-true carl-role)
 	  (is-true (reifier carl-role))
-	  (is-true (reified (reifier carl-role)))
+	  (is-true (reified-construct (reifier carl-role)))
 	  (is (= (length (psis (reifier carl-role))) 1))
 	  (is (string= (uri (first (psis (reifier carl-role))))
 		       (concatenate 'string tm-id "friend-role")))))))

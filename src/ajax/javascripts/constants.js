@@ -28,6 +28,7 @@ var TIMEOUT = 20000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
 
 
 
+
 // --- A kind of enum for the the different pages with an attribute and a value
 var PAGES = {"home" : "home", "search" : "searchTopic", "edit" : "editTopic", "create" : "createTopic", "current" : ""};
 

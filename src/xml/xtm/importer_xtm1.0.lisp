@@ -9,7 +9,7 @@
 
 (in-package :xml-importer)
 
-(defun get-reifier-topic-xtm1.0 (reifiable-elem)
+(defun get-reifier-topic-xtm1.0 (reifiable-elem start-revision)
   "Returns a reifier topic of the reifiable-element or nil."
   (declare (dom:element reifiable-elem))
   (let ((reifier-uri
@@ -21,7 +21,7 @@
 	     (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri
 					     (concatenate 'string "#" reifier-uri))))
 	(when psi
-	  (let ((reifier-topic (identified-construct psi)))
+	  (let ((reifier-topic (identified-construct psi :revision start-revision)))
 	    (when reifier-topic
 	      reifier-topic)))))))
 
@@ -56,8 +56,8 @@
 	   (let ((data-elem (xpath-single-child-elem-by-qname parent-elem *xtm1.0-ns* "resourceData")))
 	     (declare (dom:element parent-elem))
 	     (if data-elem
-		 "http://www.w3.org/2001/XMLSchema#string"
-		 "http://www.w3.org/2001/XMLSchema#anyURI"))))
+		 *XML-STRING*
+		 *XML-URI*))))
       (unless data
 	(error "from-resourceX-elem-xtm1.0: one of resourceRef or resourceData must be set"))
       (list :data data :type type))))
@@ -68,7 +68,6 @@
    variant = element variant { parameters, variantName?, variant* }"
   (declare (dom:element variant-elem))
   (declare (CharacteristicC parent-construct)) ;;parent name or parent variant object
-  (declare (optimize (debug 3)))
   (let ((parameters 
 	 (remove-duplicates
 	  (remove-if #'null
@@ -76,17 +75,17 @@
 		      (from-parameters-elem-xtm1.0
 		       (xpath-single-child-elem-by-qname variant-elem *xtm1.0-ns* "parameters")
 		       start-revision :xtm-id xtm-id)
-		      (themes parent-construct)))))
+		      (themes parent-construct :revision start-revision)))))
 	(variantName (from-resourceX-elem-xtm1.0
 		      (xpath-single-child-elem-by-qname variant-elem *xtm1.0-ns* "variantName")))
 	(parent-name (cond
 		       ((typep parent-construct 'NameC)
 			parent-construct)
 		       ((typep parent-construct 'VariantC)
-			(name parent-construct))
+			(parent parent-construct))
 		       (t
 			(error "from-variant-elem-xtm1.0: parent-construct is neither NameC nor VariantC"))))
-	(reifier-topic (get-reifier-topic-xtm1.0 variant-elem)))
+	(reifier-topic (get-reifier-topic-xtm1.0 variant-elem start-revision)))
     (unless (and variantName parameters)
       (error "from-variant-elem-xtm1.0: parameters and variantName must be set"))
     (let ((variant (make-construct 'VariantC
@@ -95,7 +94,7 @@
 				   :charvalue (getf variantName :data)
 				   :datatype (getf variantName :type)
 				   :reifier reifier-topic
-				   :name parent-name)))
+				   :parent parent-name)))
       (let ((inner-variants
 	     (map 'list #'(lambda(x)
 			    (from-variant-elem-xtm1.0 x variant start-revision :xtm-id xtm-id))
@@ -110,15 +109,18 @@
     (let ((parameters
 	   (let ((topicRefs
 		  (map 'list #'from-topicRef-elem-xtm1.0
-		       (xpath-child-elems-by-qname parameters-elem *xtm1.0-ns* "topicRef")))
+		       (xpath-child-elems-by-qname parameters-elem *xtm1.0-ns*
+						   "topicRef")))
 		 (subjectIndicatorRefs
 		  (map 'list #'(lambda(x)
 				 (get-xlink-attribute x "href"))
-		       (xpath-child-elems-by-qname parameters-elem *xtm1.0-ns* "subjectIndicatorRef"))))
+		       (xpath-child-elems-by-qname parameters-elem *xtm1.0-ns*
+						   "subjectIndicatorRef"))))
 	     (let ((topic-list
 		    (append
 		     (map 'list #'(lambda(x)
-				    (get-item-by-id x :xtm-id xtm-id :revision start-revision))
+				    (get-item-by-id x :xtm-id xtm-id
+						    :revision start-revision))
 			  topicRefs)
 		     (map 'list #'(lambda(x)
 				    (get-item-by-psi x :revision start-revision))
@@ -146,16 +148,15 @@
   (let ((themes (when (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "scope")
 		  (from-scope-elem-xtm1.0
 		   (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "scope")
-		   :xtm-id xtm-id)))
+		   start-revision :xtm-id xtm-id)))
 	(baseNameString (xpath-fn-string
 			 (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "baseNameString")))
-	(reifier-topic (get-reifier-topic-xtm1.0 baseName-elem)))
+	(reifier-topic (get-reifier-topic-xtm1.0 baseName-elem start-revision)))
     (unless baseNameString
       (error "A baseName must have exactly one baseNameString"))
-
     (let ((name (make-construct 'NameC 
 				:start-revision start-revision
-				:topic top
+				:parent top
 				:charvalue baseNameString
 				:reifier reifier-topic
 				:themes themes)))
@@ -182,41 +183,61 @@
   (when parent-elem
     (let ((instanceOf-elems (xpath-child-elems-by-qname parent-elem *xtm1.0-ns* "instanceOf")))
       (when (> (length instanceOf-elems) 0)
-	(let ((topicRefs (map 'list #'(lambda(x)
-					(when (xpath-single-child-elem-by-qname x *xtm1.0-ns* "topicRef")
-					  (from-topicRef-elem-xtm1.0
-					   (xpath-single-child-elem-by-qname x *xtm1.0-ns* "topicRef"))))
+	(let ((topicRefs
+	       (map 'list #'(lambda(x)
+			      (when (xpath-single-child-elem-by-qname
+				     x *xtm1.0-ns* "topicRef")
+				(from-topicRef-elem-xtm1.0
+				 (xpath-single-child-elem-by-qname x *xtm1.0-ns*
+								   "topicRef"))))
 			      instanceOf-elems))
-	      (subjectIndicatorRefs (map 'list #'(lambda(x)
-						   (when (xpath-single-child-elem-by-qname
-							  x *xtm1.0-ns* "subjectIndicatorRef")
-						     (get-xlink-attribute
-						      (xpath-single-child-elem-by-qname
-						       x *xtm1.0-ns* "subjectIndicatorRef") "href")))
-					 instanceOf-elems)))
-	  (let ((ids (remove-if #'null(append
-				       (map 'list #'(lambda(x)
-						      (get-topicid-by-psi x :xtm-id xtm-id))
-					    subjectIndicatorRefs)
-				       topicRefs))))
+	      (subjectIndicatorRefs
+	       (map 'list #'(lambda(x)
+			      (when (xpath-single-child-elem-by-qname
+				     x *xtm1.0-ns* "subjectIndicatorRef")
+				(get-xlink-attribute
+				 (xpath-single-child-elem-by-qname
+				  x *xtm1.0-ns* "subjectIndicatorRef") "href")))
+		    instanceOf-elems)))
+	  (let ((ids
+		 (remove-if #'null
+			    (append
+			     (map 'list #'(lambda(x)
+					    (get-topicid-by-psi x :xtm-id xtm-id))
+				  subjectIndicatorRefs)
+			     topicRefs))))
 	    (declare (dom:element parent-elem))
 	    ids))))))
 
 
-(defun from-roleSpec-elem-xtm1.0 (roleSpec-elem &key (xtm-id *current-xtm*))
+(defun from-roleSpec-elem-xtm1.0 (roleSpec-elem start-revision
+				  &key (xtm-id *current-xtm*))
   "returns the referenced topic of the roleSpec's topicRef and subjectIndicatorRef element."
   (when roleSpec-elem
-    (let ((top-id (when (xpath-single-child-elem-by-qname roleSpec-elem *xtm1.0-ns* "topicRef")
-		    (from-topicRef-elem-xtm1.0
-		     (xpath-single-child-elem-by-qname roleSpec-elem *xtm1.0-ns* "topicRef"))))
-	  (sIRs (map 'list #'(lambda(uri)(get-topicid-by-psi uri :xtm-id xtm-id))
+    (let ((top-id
+	   (when (xpath-single-child-elem-by-qname roleSpec-elem *xtm1.0-ns*
+						   "topicRef")
+	     (from-topicRef-elem-xtm1.0
+	      (xpath-single-child-elem-by-qname roleSpec-elem *xtm1.0-ns*
+						"topicRef"))))
+	  (sIRs (map 'list #'(lambda(uri)
+			       (get-topicid-by-psi uri :xtm-id xtm-id
+						   :revision start-revision))
 		     (map 'list #'(lambda(x)
 				    (dom:get-attribute-ns x *xtm1.0-xlink* "href"))
-			  (xpath-child-elems-by-qname roleSpec-elem *xtm1.0-ns* "subjectIndicatorRef")))))
-      (let ((ref-topic (first (remove-if #'null
-					 (append
-					  (list (get-item-by-id top-id :xtm-id xtm-id))
-					  (map 'list #'(lambda(id)(get-item-by-id id :xtm-id xtm-id)) sIRs))))))
+			  (xpath-child-elems-by-qname roleSpec-elem *xtm1.0-ns*
+						      "subjectIndicatorRef")))))
+      (let ((ref-topic
+	     (first (remove-if #'null
+			       (append
+				(when top-id
+				  (list (get-item-by-id top-id :xtm-id xtm-id
+							:revision start-revision)))
+				(map 'list #'(lambda(id)
+					       (get-item-by-id
+						id :xtm-id xtm-id
+						:revision start-revision))
+				     sIRs))))))
 	(declare (dom:element roleSpec-elem))
 	(unless ref-topic
 	  (error (make-condition 'missing-reference-error
@@ -224,21 +245,26 @@
 	ref-topic))))
 
 
-(defun from-scope-elem-xtm1.0 (scope-elem &key (xtm-id *current-xtm*))
+(defun from-scope-elem-xtm1.0 (scope-elem start-revision &key (xtm-id *current-xtm*))
   "returns the topics referenced by this scope element.
    the nested elements resourceRef and subjectIndicatorRef are ignored"
   (when scope-elem
     (when (xpath-child-elems-by-qname scope-elem *xtm1.0-ns* "topicRef")
       (let ((refs 
 	     (append (map 'list #'from-topicRef-elem-xtm1.0
-			  (xpath-child-elems-by-qname scope-elem *xtm1.0-ns* "topicRef"))
+			  (xpath-child-elems-by-qname scope-elem *xtm1.0-ns*
+						      "topicRef"))
 		     (map 'list #'(lambda(uri)(get-topicid-by-psi uri :xtm-id xtm-id))
 			  (map 'list #'(lambda(x)
-					 (dom:get-attribute-ns x *xtm1.0-xlink* "href"))
-			       (xpath-child-elems-by-qname scope-elem *xtm1.0-ns* "subjectIndicatorRef"))))))
+					 (dom:get-attribute-ns x *xtm1.0-xlink*
+							       "href"))
+			       (xpath-child-elems-by-qname scope-elem *xtm1.0-ns*
+							   "subjectIndicatorRef"))))))
 	(let ((ref-topics (map 'list
 			       #'(lambda(x)
-				   (let ((ref-topic (get-item-by-id x :xtm-id xtm-id)))
+				   (let ((ref-topic
+					  (get-item-by-id x :xtm-id xtm-id
+							  :revision start-revision)))
 				     (if ref-topic
 					 ref-topic
 					 (error (make-condition 'missing-reference-error
@@ -258,21 +284,26 @@
   (declare (integer start-revision))
   (let* 
       ((instanceOf (when (get-instanceOf-refs-xtm1.0 occ-elem :xtm-id xtm-id)
-		       (get-item-by-id (first (get-instanceOf-refs-xtm1.0 occ-elem :xtm-id xtm-id)) :xtm-id xtm-id)))
+		       (get-item-by-id 
+			(first (get-instanceOf-refs-xtm1.0 occ-elem
+							   :xtm-id xtm-id))
+			:xtm-id xtm-id :revision start-revision)))
        (themes (from-scope-elem-xtm1.0
                 (xpath-single-child-elem-by-qname occ-elem *xtm1.0-ns* "scope") 
-                :xtm-id xtm-id))
+                start-revision :xtm-id xtm-id))
        (occurrence-value
 	(from-resourceX-elem-xtm1.0 occ-elem))
-       (reifier-topic (get-reifier-topic-xtm1.0 occ-elem)))
+       (reifier-topic (get-reifier-topic-xtm1.0 occ-elem start-revision)))
     (unless occurrence-value
       (error "from-occurrence-elem-xtm1.0: one of resourceRef and resourceData must be set"))
     (unless instanceOf
-      (format t "from-occurrence-elem-xtm1.0: type is missing -> http://psi.topicmaps.org/iso13250/model/type-instance~%")
-      (setf instanceOf (get-item-by-id "type-instance" :xtm-id "core.xtm")))
+      (format t "from-occurrence-elem-xtm1.0: type is missing -> ~a~%"
+	      *type-instance-psi*)
+      (setf instanceOf (get-item-by-psi *type-instance-psi*
+					:revision start-revision)))
     (make-construct 'OccurrenceC
 		    :start-revision start-revision
-		    :topic top
+		    :parent top
 		    :themes themes
 		    :instance-of instanceOf
 		    :charvalue (getf occurrence-value :data)
@@ -283,60 +314,75 @@
 (defun from-subjectIdentity-elem-xtm1.0 (subjectIdentity-elem start-revision)
   "creates PersistentIdC's from the element subjectIdentity"
   (when subjectIdentity-elem
-    (let ((psi-refs (map 'list #'(lambda(x)
-				   (get-xlink-attribute x "href"))
-			 (xpath-child-elems-by-qname subjectIdentity-elem *xtm1.0-ns* "subjectIndicatorRef")))
-	  (locator-refs (map 'list #'(lambda(x)
-				       (get-xlink-attribute x "href"))
-			     (xpath-child-elems-by-qname subjectIdentity-elem *xtm1.0-ns* "resourceRef"))))
-
-      (let ((psis (map 'list #'(lambda(uri)
-				 (let ((id (make-instance 'PersistentIdC
-							  :uri uri
-							  :start-revision start-revision)))
-				   ;(add-to-version-history id :start-revision start-revision)
-				   id))
-		       psi-refs))
-	    (locators (map 'list #'(lambda(uri)
-				     (let ((loc (make-instance 'SubjectLocatorC
-							       :uri uri
-							       :start-revision start-revision)))
-				       ;(add-to-version-history loc :start-revision start-revision)
-				       loc))
+    (let ((psi-refs
+	   (map 'list #'(lambda(x)
+			  (get-xlink-attribute x "href"))
+		(xpath-child-elems-by-qname subjectIdentity-elem *xtm1.0-ns*
+					    "subjectIndicatorRef")))
+	  (locator-refs
+	   (map 'list #'(lambda(x)
+			  (get-xlink-attribute x "href"))
+		(xpath-child-elems-by-qname subjectIdentity-elem *xtm1.0-ns*
+					    "resourceRef"))))
+      (let ((psis
+	     (map 'list #'(lambda(uri)
+			    (let ((id
+				   (make-construct 'PersistentIdC
+						   :uri uri
+						   :start-revision start-revision)))
+			      id))
+		  psi-refs))
+	    (locators (map 'list 
+			   #'(lambda(uri)
+			       (let ((loc
+				      (make-construct 'SubjectLocatorC
+						      :uri uri
+						      :start-revision start-revision)))
+				 loc))
 			   locator-refs)))
 	(declare (dom:element subjectIdentity-elem))
 	(declare (integer start-revision))
 	(list :psis psis :locators locators)))))
 
 
-(defun from-member-elem-xtm1.0 (member-elem &key (xtm-id *current-xtm*))
+(defun from-member-elem-xtm1.0 (member-elem start-revision
+				&key (xtm-id *current-xtm*))
   "returns a list with the role- type, player and itemIdentities"
   (when member-elem
     (elephant:ensure-transaction (:txn-nosync t)
-      (let 
-          ((type (from-rolespec-elem-xtm1.0 (xpath-single-child-elem-by-qname member-elem *xtm1.0-ns* "roleSpec") :xtm-id xtm-id))
-           (player (remove-if #'null 
-                              (append
-                               (list (get-item-by-id (from-topicRef-elem-xtm1.0
-                                                      (xpath-single-child-elem-by-qname
-                                                       member-elem
-                                                       *xtm1.0-ns*
-                                                       "topicRef"))
-						      :xtm-id xtm-id))
-				(map 'list #'(lambda(topicid)
-					       (get-item-by-id topicid :xtm-id xtm-id))
-				     (map 'list #'(lambda(uri)(get-topicid-by-psi uri :xtm-id xtm-id))
-					  (map 'list #'(lambda(x)
-							 (get-xlink-attribute x "href"))
-					       (xpath-child-elems-by-qname
-						member-elem
-						*xtm1.0-ns*
-						"subjectIndicatorRef")))))))
-	   (reifier-topic (get-reifier-topic-xtm1.0 member-elem)))
+      (let ((type (from-roleSpec-elem-xtm1.0 
+		   (xpath-single-child-elem-by-qname member-elem *xtm1.0-ns*
+						     "roleSpec")
+		   start-revision :xtm-id xtm-id))
+           (player
+	    (let ((topicRef
+		   (from-topicRef-elem-xtm1.0 (xpath-single-child-elem-by-qname
+					       member-elem *xtm1.0-ns* "topicRef")))
+		  (sIRs (xpath-child-elems-by-qname
+			 member-elem *xtm1.0-ns* "subjectIndicatorRef")))
+	      (remove-if
+	       #'null 
+	       (append
+		(when topicRef
+		  (list (get-item-by-id topicRef
+					:xtm-id xtm-id
+					:revision start-revision)))
+		(map 'list #'(lambda(topicid)
+			       (get-item-by-id
+				topicid 
+				:xtm-id xtm-id
+				:revision start-revision))
+		     (map 'list #'(lambda(uri)
+				    (get-topicid-by-psi uri :xtm-id xtm-id))
+			  (map 'list #'(lambda(x)
+					 (get-xlink-attribute x "href"))
+			       sIRs)))))))
+	    (reifier-topic (get-reifier-topic-xtm1.0 member-elem start-revision)))
 	(declare (dom:element member-elem))
 	(unless player ; if no type is given a standard type will be assigend later in from-assoc...
 	  (error "from-member-elem-xtm1.0: missing player in role"))
-	(list :instance-of type
+	(list :start-revision start-revision
+	      :instance-of type
 	      :player (first player)
 	      :item-identifiers nil
 	      :reifier reifier-topic)))))
@@ -347,19 +393,22 @@
                                        (xtm-id *current-xtm*))
   "creates a TopicC instance with a start-revision, all psis, the topicid and the xtm-id"
   (declare (dom:element topic-elem))
-  (declare (integer start-revision))  
-  ;(declare (optimize (debug 3)))
+  (declare (integer start-revision))
   (elephant:ensure-transaction (:txn-nosync t) 
-    (let ((identifiers (from-subjectIdentity-elem-xtm1.0 (xpath-single-child-elem-by-qname
-							  topic-elem
-							  *xtm1.0-ns*
-							  "subjectIdentity")
-							 start-revision)))
+    (let ((identifiers (from-subjectIdentity-elem-xtm1.0
+			(xpath-single-child-elem-by-qname
+			 topic-elem
+			 *xtm1.0-ns*
+			 "subjectIdentity")
+			start-revision))
+	  (topic-identifiers
+	   (list (make-construct 'TopicIdentificationC
+				 :uri (get-topic-id-xtm1.0 topic-elem)
+				 :xtm-id xtm-id))))
       (make-construct 'TopicC :start-revision start-revision
                       :psis (getf identifiers :psis)
 		      :locators (getf identifiers :locators)
-                      :topicid (get-topic-id-xtm1.0 topic-elem)
-		      :xtm-id xtm-id))))
+                      :topic-identifiers topic-identifiers))))
 
 
 (defun merge-topic-elem-xtm1.0 (topic-elem start-revision 
@@ -372,16 +421,20 @@
   (declare (integer start-revision))
   (declare (TopicMapC tm))
   (elephant:ensure-transaction (:txn-nosync t)
-    (let 
-        ((top
-          (get-item-by-id
-           (get-topic-id-xtm1.0 topic-elem) 
-           :xtm-id xtm-id :revision start-revision))
-         (instanceOf-topicRefs (remove-if #'null (get-instanceOf-refs-xtm1.0 topic-elem :xtm-id xtm-id)))
-         (baseName-elems (xpath-child-elems-by-qname topic-elem *xtm1.0-ns* "baseName"))
-         (occ-elems (xpath-child-elems-by-qname topic-elem *xtm1.0-ns* "occurrence")))
+    (let ((top
+	   (get-item-by-id
+	    (get-topic-id-xtm1.0 topic-elem) 
+	    :xtm-id xtm-id :revision start-revision))
+	  (instanceOf-topicRefs
+	   (remove-if #'null (get-instanceOf-refs-xtm1.0 topic-elem
+							 :xtm-id xtm-id)))
+	  (baseName-elems
+	   (xpath-child-elems-by-qname topic-elem *xtm1.0-ns* "baseName"))
+	  (occ-elems (xpath-child-elems-by-qname topic-elem *xtm1.0-ns* "occurrence")))
       (unless top
-	(error "topic ~a could not be found" (get-attribute topic-elem "id")))
+	(error (make-condition 'missing-reference-error
+			       :message (format nil "topic ~a could not be found"
+						(get-attribute topic-elem "id")))))
       ;;names
       (map 'list #'(lambda(x)
 		     (from-baseName-elem-xtm1.0 x top start-revision :xtm-id xtm-id))
@@ -392,45 +445,49 @@
 	   occ-elems)
       ;;instanceOf
       (dolist (instanceOf-topicRef instanceOf-topicRefs)
-	(create-instanceof-association instanceOf-topicRef top start-revision :xtm-id xtm-id
-                                       :tm tm))
-      (add-to-topicmap tm top))))
+	(create-instanceof-association instanceOf-topicRef top start-revision
+				       :xtm-id xtm-id :tm tm))
+      (add-to-tm tm top))))
 
 
-(defun from-association-elem-xtm1.0 (assoc-elem start-revision &key tm (xtm-id *current-xtm*))
+(defun from-association-elem-xtm1.0 (assoc-elem start-revision
+				     &key tm (xtm-id *current-xtm*))
   (declare (dom:element assoc-elem))
   (declare (integer start-revision))
   (declare (TopicMapC tm))
   (elephant:ensure-transaction (:txn-nosync t)
     (let ((type (when (get-instanceOf-refs-xtm1.0 assoc-elem :xtm-id xtm-id)
-		  (get-item-by-id (first (get-instanceOf-refs-xtm1.0 assoc-elem :xtm-id xtm-id)) :xtm-id xtm-id)))
+		  (get-item-by-id (first (get-instanceOf-refs-xtm1.0 assoc-elem
+								     :xtm-id xtm-id))
+				  :xtm-id xtm-id
+				  :revision start-revision)))
 	  (themes 
            (from-scope-elem-xtm1.0 
             (xpath-single-child-elem-by-qname assoc-elem *xtm1.0-ns* "scope") 
-            :xtm-id xtm-id))
+            start-revision :xtm-id xtm-id))
 	  (roles (map 'list 
                       #'(lambda(member-elem)
-                          (from-member-elem-xtm1.0 
-                           member-elem :xtm-id xtm-id))
+                          (from-member-elem-xtm1.0 member-elem start-revision 
+						   :xtm-id xtm-id))
                       (xpath-child-elems-by-qname assoc-elem *xtm1.0-ns* "member")))
-	  (reifier-topic (get-reifier-topic-xtm1.0 assoc-elem)))
+	  (reifier-topic (get-reifier-topic-xtm1.0 assoc-elem start-revision)))
       (unless roles
 	(error "from-association-elem-xtm1.0: roles are missing in association"))
-      (setf roles (set-standard-role-types roles))
+      (setf roles (set-standard-role-types roles start-revision))
       (unless type
 	(format t "from-association-elem-xtm1.0: type is missing -> http://www.topicmaps.org/xtm/1.0/core.xtm#association~%")
-	(setf type (get-item-by-id "association" :xtm-id "core.xtm")))
-      (add-to-topicmap tm
-		       (make-construct 'AssociationC
-				       :start-revision start-revision
-				       :instance-of type
-				       :themes themes
-				       :reifier reifier-topic
-				       :roles roles)))))
-    
-	
+	(setf type (get-item-by-id "association" :xtm-id "core.xtm"
+				   :revision start-revision)))
+      (add-to-tm tm
+		 (make-construct 'AssociationC
+				 :start-revision start-revision
+				 :instance-of type
+				 :themes themes
+				 :reifier reifier-topic
+				 :roles roles)))))
 
-(defun set-standard-role-types (roles)
+
+(defun set-standard-role-types (roles start-revision)
   "sets the missing role types of the passed roles to the default types."
   (when roles
     (let ((empty-roles (loop for role in roles
@@ -440,22 +497,25 @@
 	(let ((is-type (loop for role in roles
 			  when (and (getf role :instance-of)
 				    (loop for psi in (psis (getf role :instance-of))
-				       when (string= (uri psi)
-						     "http://psi.topicmaps.org/iso13250/model/type")
+				       when (string= (uri psi) *type-psi*)
 				       return t))
 			  return t)))
 	  (declare (list roles))
 	  (when (not is-type)
 	    (loop for role in roles
 	       when (not (getf role :instance-of))
-	       do (setf (getf role :instance-of) (get-item-by-id "type" :xtm-id "core.xtm"))
-		  (format t "set-standard-role-types: role type is missing -> http://psi.topicmaps.org/iso13250/model/type~%")
+	       do (setf (getf role :instance-of)
+			(get-item-by-psi *type-psi* :revision start-revision))
+		  (format t "set-standard-role-types: role type is missing -> ~a~%"
+			  *type-psi*)
 		 (return t)))
 	  (when (or (> (length empty-roles) 1) (and empty-roles (not is-type)))
 	    (loop for role in roles
 	       when (not (getf role :instance-of))
-	       do (setf (getf role :instance-of) (get-item-by-id "instance" :xtm-id "core.xtm"))
-		  (format t "set-standard-role-types: role type is missing -> http://psi.topicmaps.org/iso13250/model/instance~%"))))))
+	       do (setf (getf role :instance-of)
+			(get-item-by-psi *instance-psi* :revision start-revision))
+		  (format t "set-standard-role-types: role type is missing -> ~a~%"
+			  *instance-psi*))))))
     roles))
 
 

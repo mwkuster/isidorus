@@ -22,9 +22,9 @@
    importer for the XTM version. Does *not* close the store afterwards"
   (declare ((or pathname string) xtm-path))
   (declare ((or pathname string) repository-path))
-  (let
-      ((xtm-dom (dom:document-element (cxml:parse-file
-				       (truename xtm-path) (cxml-dom:make-dom-builder)))))
+  (let ((xtm-dom (dom:document-element
+		  (cxml:parse-file
+		   (truename xtm-path) (cxml-dom:make-dom-builder)))))
     (unless elephant:*store-controller*
       (elephant:open-store  
        (get-store-spec repository-path)))
@@ -40,7 +40,7 @@
 
 (defun setup-repository (xtm-path repository-path 
                          &key
-                         tm-id
+                         (tm-id (error "you must provide a stable identifier (PSI-style) for this TM"))
                          (xtm-id (get-uuid))
                          (xtm-format '2.0))
   "Initializes a repository and imports a XTM file into it"
@@ -50,6 +50,6 @@
     (elephant:open-store  
      (get-store-spec repository-path)))
   (init-isidorus)
-  (import-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id :xtm-format xtm-format))
-;  (when elephant:*store-controller*
-;    (elephant:close-store)))
+  (import-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id :xtm-format xtm-format)
+  (when elephant:*store-controller*
+    (elephant:close-store)))

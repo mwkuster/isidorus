@@ -58,7 +58,7 @@
                     (atom:subfeeds atom:*tm-feed*)
                     :test #'string=
                     :key #'atom:id))
-             (datetime-revision3 
+	     (datetime-revision3 
               (atom::datetime-in-iso-format fixtures::revision3))
              (datetime-revision1
               (atom::datetime-in-iso-format fixtures::revision1))
@@ -66,7 +66,7 @@
               (format nil "<a:feed xmlns:a=\"http://www.w3.org/2005/Atom\" xmlns:e=\"http://www.egovpt.org/sdshare/\"><a:title>Topicmaps on psi.egovpt.org</a:title><a:id>http://london.ztt.fh-worms.de:8000/feeds</a:id><a:author><a:name>Isidor</a:name></a:author><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds\" rel=\"self\"></a:link><a:updated>~a</a:updated><a:entry xmlns:a=\"http://www.w3.org/2005/Atom\" xmlns:e=\"http://www.egovpt.org/sdshare/\"><a:title>Data behind the portal of the city of Worms</a:title><a:id>http://psi.egovpt.org/tm/worms/entry</a:id><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms\" rel=\"alternate\"></a:link><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms\" rel=\"alternate\" type=\"application/atom+xml\"></a:link><a:author><a:name>Isidor</a:name></a:author><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms\" rel=\"http://www.egovpt.org/sdshare/collectionfeed\" type=\"application/atom+xml\"></a:link><a:updated>~a</a:updated></a:entry><a:entry xmlns:a=\"http://www.w3.org/2005/Atom\" xmlns:e=\"http://www.egovpt.org/sdshare/\"><a:title>eGov Reference Ontology</a:title><a:id>http://psi.egovpt.org/tm/egov-ontology/entry</a:id><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/egov-ontology\" rel=\"alternate\"></a:link><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/egov-ontology\" rel=\"alternate\" type=\"application/atom+xml\"></a:link><a:author><a:name>Isidor</a:name></a:author><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/egov-ontology\" rel=\"http://www.egovpt.org/sdshare/collectionfeed\" type=\"application/atom+xml\"></a:link><a:updated>~a</a:updated></a:entry></a:feed>" datetime-revision3 datetime-revision3 datetime-revision1))
              (worms-feed-string
               (format nil "<a:feed xmlns:a=\"http://www.w3.org/2005/Atom\" xmlns:e=\"http://www.egovpt.org/sdshare/\"><a:title>Data behind the portal of the city of Worms</a:title><a:id>http://london.ztt.fh-worms.de:8000/feeds/worms</a:id><a:author><a:name>Isidor</a:name></a:author><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms\" rel=\"self\"></a:link><e:dependency>http://london.ztt.fh-worms.de:8000/feeds/egov-ontology</e:dependency><a:updated>~a</a:updated><a:entry xmlns:a=\"http://www.w3.org/2005/Atom\" xmlns:e=\"http://www.egovpt.org/sdshare/\"><a:title>Snapshots of the Worms data</a:title><a:id>http://psi.egovpt.org/tm/worms/snapshots/entry</a:id><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms/snapshots\" rel=\"alternate\"></a:link><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms/snapshots\" rel=\"http://www.egovpt.org/sdshare/snapshotsfeed\" type=\"application/atom+xml\"></a:link><a:updated>~a</a:updated></a:entry><a:entry xmlns:a=\"http://www.w3.org/2005/Atom\" xmlns:e=\"http://www.egovpt.org/sdshare/\"><a:title>A list of all change fragments for the Worms data</a:title><a:id>http://psi.egovpt.org/tm/worms/fragments/entry</a:id><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms/fragments\" rel=\"alternate\"></a:link><a:link href=\"http://london.ztt.fh-worms.de:8000/feeds/worms/fragments\" rel=\"http://www.egovpt.org/sdshare/fragmentsfeed\" type=\"application/atom+xml\"></a:link><a:updated>~a</a:updated></a:entry></a:feed>" datetime-revision3 datetime-revision3 datetime-revision3)))
-          (is 
+	  (is 
            (string= 
             collection-feed-string
             (cxml:with-xml-output 
@@ -103,9 +103,13 @@
               (find 'atom::snapshots-feed
                     (atom:subfeeds worms-feed)
                     :key #'type-of)))
+	  
+	  (format t "~a~%~%~a~%" fragments-feed (map 'list #'atom::psi (atom:entries fragments-feed)))
           (is (= 11 (length (atom:entries fragments-feed))))
-          (is (string= "http://london.ztt.fh-worms.de:8000/feeds/worms/fragments" (link fragments-feed)))
-          (is (string= "http://london.ztt.fh-worms.de:8000/feeds/worms/snapshots" (link snapshots-feed)))
+          (is (string= "http://london.ztt.fh-worms.de:8000/feeds/worms/fragments"
+		       (link fragments-feed)))
+          (is (string= "http://london.ztt.fh-worms.de:8000/feeds/worms/snapshots"
+		       (link snapshots-feed)))
 
           (format t "~a" (cxml:with-xml-output 
                              (cxml:make-string-sink :canonical t)

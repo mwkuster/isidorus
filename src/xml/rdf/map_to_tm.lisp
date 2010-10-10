@@ -57,42 +57,51 @@
   (let ((type-topic (get-item-by-psi type-psi
 				     :revision start-revision)))
     (when type-topic
-      (when (and (not (player-in-roles type-topic))
-		 (not (used-as-type type-topic))
-		 (not (used-as-theme type-topic)))
+      (when (and (not (player-in-roles type-topic :revision start-revision))
+		 (not (used-as-type type-topic :revision start-revision))
+		 (not (used-as-theme type-topic :revision start-revision)))
 	(d::delete-construct type-topic)))))
 
 
-(defun delete-instance-of-association(instance-topic type-topic)
+(defun delete-instance-of-association(instance-topic type-topic start-revision)
   "Deletes a type-instance associaiton that corresponds with the passed
    parameters."
   (when (and instance-topic type-topic)
-    (let ((instance (get-item-by-psi *instance-psi*))
-	  (type-instance (get-item-by-psi *type-instance-psi*))
-	  (type (get-item-by-psi *type-psi*)))
-      (declare (TopicC instance-topic type-topic))
+    (let ((instance (get-item-by-psi *instance-psi* :revision start-revision))
+	  (type-instance (get-item-by-psi *type-instance-psi*
+					  :revision start-revision))
+	  (type (get-item-by-psi *type-psi* :revision start-revision)))
+      (declare (TopicC instance-topic type-topic)
+	       (integer start-revision))
       (let ((assocs (remove-if 
 		     #'null 
 		     (map 'list
 			  #'(lambda(role)
-			      (when (and (eql (instance-of role) instance)
-					 (eql (instance-of (parent role))
-					      type-instance))
-				(parent role)))
-			  (player-in-roles instance-topic)))))
+			      (when (and
+				     (eql (instance-of role :revision start-revision)
+					  instance)
+				     (eql (instance-of
+					   (parent role :revision start-revision)
+					   :revision start-revision)
+					  type-instance))
+				(parent role :revision start-revision)))
+			  (player-in-roles instance-topic :revision start-revision)))))
 	(map 'list #'(lambda(assoc)
-		       (when (find-if #'(lambda(role)
-					  (and (eql (instance-of role) type)
-					       (eql (player role) type-topic)))
-				    (roles assoc))
+		       (when (find-if
+			      #'(lambda(role)
+				  (and (eql (instance-of role :revision start-revision)
+					    type)
+				       (eql (player role :revision start-revision)
+					    type-topic)))
+			      (roles assoc :revision start-revision))
 			 (d::delete-construct assoc)))
 	     assocs)
 	nil))))
 
 
-(defun delete-related-associations (top)
+(defun delete-related-associations (top start-revision)
   "Deletes all associaitons related to the passed topic."
-  (dolist (assoc-role (player-in-roles top))
+  (dolist (assoc-role (player-in-roles top :revision start-revision))
     (d::delete-construct (parent assoc-role)))
   top)
 			 
@@ -141,11 +150,12 @@
 	(when (= 0 (length role-players))
 	  (error "~aexpect one player but found: ~a"
 		 err-pref (length role-players)))
-	(delete-related-associations role-top)
+	(delete-related-associations role-top start-revision)
 	(d::delete-construct role-top)
 	(list :instance-of (first types)
 	      :player (first role-players)
 	      :item-identifiers ids
+	      :start-revision start-revision
 	      :reifiers reifiers)))))
 
 
@@ -185,10 +195,10 @@
 	(when (= 0 (length assoc-roles))
 	  (error "~aexpect at least one role but found: ~a"
 		 err-pref (length assoc-roles)))
-	(delete-related-associations assoc-top)
+	(delete-related-associations assoc-top start-revision)
 	(d::delete-construct assoc-top)
 	(with-tm (start-revision document-id tm-id)
-	  (add-to-topicmap
+	  (add-to-tm
 	   xml-importer::tm
 	   (let ((association
 		  (make-construct 'AssociationC
@@ -208,10 +218,11 @@
 					    assoc-roles)))
 			      (when found-item
 				(dolist (reifier-topic (getf found-item :reifiers))
-				  (add-reifier association-role reifier-topic)))))
-		  (roles association))
+				  (add-reifier association-role reifier-topic
+					       :revision start-revision)))))
+		  (roles association :revision start-revision))
 	     (dolist (reifier-topic reifier-topics)
-	       (add-reifier association reifier-topic))
+	       (add-reifier association reifier-topic :revision start-revision))
 	     association)))))))
 
 
@@ -229,9 +240,9 @@
 	(new-item-ids (map-isi-identifiers top start-revision))
 	(occurrence-topics (get-isi-occurrences top start-revision))
 	(name-topics (get-isi-names top start-revision)))
-    (bound-subject-identifiers top new-psis)
-    (bound-subject-locators top new-locators)
-    (bound-item-identifiers top new-item-ids)
+    (bound-subject-identifiers top new-psis start-revision)
+    (bound-subject-locators top new-locators start-revision)
+    (bound-item-identifiers top new-item-ids start-revision)
     (map 'list #'(lambda(occurrence-topic)
 		   (map-isi-occurrence top occurrence-topic start-revision))
 	 occurrence-topics)
@@ -267,7 +278,7 @@
 	  variant-top start-revision *tm2rdf-scope-property*
 	  *rdf2tm-subject*))
 	(value-type-topic 
-	 (get-item-by-psi *tm2rdf-value-property*)))
+	 (get-item-by-psi *tm2rdf-value-property* :revision start-revision)))
     (let ((scopes (get-players-by-role-type
 		   scope-assocs start-revision *rdf2tm-object*))
 	  (value-and-datatype
@@ -283,7 +294,7 @@
 	  (reifiers (get-isi-reifiers variant-top start-revision)))
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct scope-assocs)
-	(delete-related-associations variant-top)
+	(delete-related-associations variant-top start-revision)
 	(d::delete-construct variant-top)
 	(let ((variant
 	       (make-construct 'VariantC
@@ -292,9 +303,9 @@
 			       :themes scopes
 			       :charvalue (getf value-and-datatype :value)
 			       :datatype (getf value-and-datatype :datatype)
-			       :name name)))
+			       :parent name)))
 	  (dolist (reifier-topic reifiers)
-	    (add-reifier variant reifier-topic))
+	    (add-reifier variant reifier-topic :revision start-revision))
 	  variant)))))
 
 
@@ -312,7 +323,7 @@
 	  name-top start-revision *tm2rdf-scope-property*
 	  *rdf2tm-subject*))
 	(value-type-topic 
-	 (get-item-by-psi *tm2rdf-value-property*))
+	 (get-item-by-psi *tm2rdf-value-property* :revision start-revision))
 	(variant-topics (get-isi-variants name-top start-revision)))
     (let ((type (let ((fn-types
 			(get-players-by-role-type
@@ -335,7 +346,7 @@
 	(map 'list #'d::delete-construct scope-assocs)
 	(let ((name (make-construct 'NameC
 				    :start-revision start-revision
-				    :topic top
+				    :parent top
 				    :charvalue value
 				    :instance-of type
 				    :item-identifiers ids
@@ -344,10 +355,10 @@
 			 (map-isi-variant name variant-topic
 					  start-revision))
 	       variant-topics)
-	  (delete-related-associations name-top)
+	  (delete-related-associations name-top start-revision)
 	  (d::delete-construct name-top)
 	  (dolist (reifier-topic reifiers)
-	    (add-reifier name reifier-topic))
+	    (add-reifier name reifier-topic :revision start-revision))
 	  name)))))
 
 
@@ -403,19 +414,19 @@
 	(when (/= 1 (length types))
 	  (error "~aexpect one type topic but found: ~a"
 		 err-pref (length types)))
-	(delete-related-associations occ-top)
+	(delete-related-associations occ-top start-revision)
 	(d::delete-construct occ-top)
 	(let ((occurrence
 	       (make-construct 'OccurrenceC
 			       :start-revision start-revision
-			       :topic top
+			       :parent top
 			       :themes scopes
 			       :item-identifiers ids
 			       :instance-of (first types)
 			       :charvalue (getf value-and-datatype :value)
 			       :datatype (getf value-and-datatype :datatype))))
 	  (dolist (reifier-topic reifiers)
-	    (add-reifier occurrence reifier-topic))
+	    (add-reifier occurrence reifier-topic :revision start-revision))
 	  occurrence)))))
 
 
@@ -448,12 +459,15 @@
 	  (let ((topics-in-tm
 		 (with-tm (start-revision document-id tm-id)
 		   (intersection isi-topics (topics xml-importer::tm)))))
-	    (map 'list #'(lambda(top)
-			   (map 'list 
-				#'(lambda(role)
-				    (when (find (parent role) assocs)
-				      (d::delete-construct (parent role))))
-				(player-in-roles top)))
+	    (map 'list
+		 #'(lambda(top)
+		     (map 'list 
+			  #'(lambda(role)
+			      (when (find (parent role :revision start-revision)
+					  assocs)
+				(d::delete-construct
+				 (parent role :revision start-revision))))
+			  (player-in-roles top :revision start-revision)))
 		 topics-in-tm)
 	    topics-in-tm))))))
   
@@ -497,11 +511,13 @@
 	    (map 'list
 		 #'(lambda(assoc)
 		     (let ((role 
-			    (find-if #'(lambda(role)
-					 (eql role-type (instance-of role)))
-				     (roles assoc))))
+			    (find-if
+			     #'(lambda(role)
+				 (eql role-type (instance-of role
+							     :revision start-revision)))
+			     (roles assoc :revision start-revision))))
 		       (when role
-			 (player role))))
+			 (player role :revision start-revision))))
 		 associations))))
       players)))
 
@@ -517,16 +533,18 @@
 	   (remove-if #'null
 		      (map 'list
 			   #'(lambda(occurrence)
-			       (let ((type (instance-of occurrence)))
+			       (let ((type
+				      (instance-of occurrence
+						   :revision start-revision)))
 				 (let ((type-psi
 					(find-if #'(lambda(psi)
 						     (string= 
 						      occurrence-type-uri 
 						      (uri psi)))
-						 (psis type))))
+						 (psis type :revision start-revision))))
 				   (when type-psi
 				     occurrence))))
-			   (occurrences top)))))
+			   (occurrences top :revision start-revision)))))
       identifier-occs)))
 
 
@@ -560,42 +578,45 @@
 	  ids)))))
 
 
-(defun bound-item-identifiers (construct identifiers)
+(defun bound-item-identifiers (construct identifiers start-revision)
   "Bounds the passed item-identifier to the passed construct."
   (declare (ReifiableConstructC construct))
   (dolist (id identifiers)
     (declare (ItemIdentifierC id))
     (if (find-if #'(lambda(ii)
-		     (string= (uri ii) (uri id)))
-		 (item-identifiers construct))
+		     (and (string= (uri ii) (uri id))
+			  (not (eql ii id))))
+		 (item-identifiers construct :revision start-revision))
 	(d::delete-construct id)
-	(setf (identified-construct id) construct)))
+	(add-item-identifier construct id :revision start-revision)))
   construct)
 
 
-(defun bound-subject-identifiers (top identifiers)
+(defun bound-subject-identifiers (top identifiers start-revision)
   "Bounds the passed psis to the passed topic."
   (declare (TopicC top))
   (dolist (id identifiers)
     (declare (PersistentIdC id))
     (if (find-if #'(lambda(psi)
-		     (string= (uri psi) (uri id)))
-		 (psis top))
+		     (and (string= (uri psi) (uri id))
+			  (not (eql psi id))))
+		 (psis top :revision start-revision))
 	(d::delete-construct id)
-	(setf (identified-construct id) top)))
+	(add-psi top id :revision start-revision)))
   top)
 
 
-(defun bound-subject-locators (top locators)
+(defun bound-subject-locators (top locators start-revision)
   "Bounds the passed locators to the passed topic."
   (declare (TopicC top))
   (dolist (id locators)
     (declare (SubjectLocatorC id))
     (if (find-if #'(lambda(locator)
-		     (string= (uri locator) (uri id)))
-		 (locators top))
+		     (and (string= (uri locator) (uri id))
+			  (not (eql locator id))))
+		 (locators top :revision start-revision))
 	(d::delete-construct id)
-	(setf (identified-construct id) top)))
+	(add-locator top id :revision start-revision)))
   top)
 
 
