@@ -13,9 +13,11 @@
    :xml-importer
    :json-exporter
    :json-importer
+   :json-tmcl
    :datamodel
    :it.bese.FiveAM
    :unittests-constants
+   :json-delete-interface
    :fixtures)
   (:export :test-to-json-string-topics
 	   :test-to-json-string-associations
@@ -37,7 +39,14 @@
 	   :test-json-importer-merge-1
 	   :test-json-importer-merge-2
 	   :test-json-importer-merge-3
-	   :test-get-all-topic-psis))
+	   :test-get-all-topic-psis
+	   :test-delete-from-json-identifiers
+	   :test-delete-from-json-topic
+	   :test-delete-from-json-name
+	   :test-delete-from-json-occurrence
+	   :test-delete-from-json-variant
+	   :test-delete-from-json-association
+	   :test-delete-from-json-role))
 
 
 (in-package :json-test)
@@ -1495,6 +1504,647 @@
 		 (is-true (format t "found bad topic-psis: ~a" topic-psis)))))))))
 
 
+(test test-delete-from-json-identifiers
+  "Tests the function delete-from-json with several identifiers."
+  (with-fixture with-empty-db ("data_base")
+    (let ((json-psi-1 "{\"type\":\"PSI\",\"delete\":\"psi-1-1\"}")
+	  (json-psi-3 "{\"type\":\"PSI\",\"delete\":\"psi-1-3\"}")
+	  (json-sl-1 "{\"type\":\"SubjectLocator\",\"delete\":\"sl-1-1\"}")
+	  (json-sl-3 "{\"type\":\"SubjectLocator\",\"delete\":\"sl-1-3\"}")
+	  (json-ii-1 "{\"type\":\"ItemIdentity\",\"delete\":\"ii-1-1\"}")
+	  (json-ii-3 "{\"type\":\"ItemIdentity\",\"delete\":\"ii-1-3\"}")
+	  (rev-1 100)
+	  (rev-2 200))
+      (let ((top (make-construct
+		  'TopicC
+		  :start-revision rev-1
+		  :psis (list (make-construct 'PersistentIdC
+					      :uri "psi-1-1")
+			      (make-construct 'PersistentIdC
+					      :uri "psi-1-2"))
+		  :locators (list (make-construct 'SubjectLocatorC
+						  :uri "sl-1-1")
+				  (make-construct 'SubjectLocatorC
+						  :uri "sl-1-2"))
+		  :item-identifiers (list (make-construct 'ItemIdentifierC
+							  :uri "ii-1-2"))
+		  :names (list (make-construct
+				'NameC
+				:charvalue "name"
+				:start-revision rev-1
+				:item-identifiers (list (make-construct
+							 'ItemIdentifierC
+							 :uri "ii-1-1")))))))
+	(with-revision rev-2
+	  (is (eql top (find-item-by-revision top rev-1)))
+	  (is-false (mark-as-deleted-from-json json-psi-3))
+	  (is-false (mark-as-deleted-from-json json-sl-3))
+	  (is-false (mark-as-deleted-from-json json-ii-3))
+	  (is (= (length (psis top)) 2))
+	  (is (= (length (locators top)) 2))
+	  (is (= (length (item-identifiers top)) 1))
+	  (is (= (length (names top)) 1))
+	  (is (= (length (item-identifiers (first (names top)))) 1))
+	  (is-true (mark-as-deleted-from-json json-psi-1))
+	  (is (= (length (psis top)) 1))
+	  (is (string= (uri (first (psis top))) "psi-1-2"))
+	  (is-true (mark-as-deleted-from-json json-sl-1))
+	  (is (= (length (locators top)) 1))
+	  (is (string= (uri (first (locators top))) "sl-1-2"))
+	  (is-true (mark-as-deleted-from-json json-ii-1))
+	  (is (= (length (item-identifiers top)) 1))
+	  (is (string= (uri (first (item-identifiers top))) "ii-1-2"))
+	  (is (= (length (item-identifiers (first (names top)))) 0)))
+	(with-revision rev-1
+	  (is (= (length (psis top)) 2))
+	  (is (= (length (locators top)) 2))
+	  (is (= (length (item-identifiers top)) 1))
+	  (is (= (length (names top)) 1))
+	  (is (= (length (item-identifiers (first (names top)))) 1)))))))
+
+
+(test test-delete-from-json-topic
+  "Tests the function delete-from-json with several identifiers."
+  (with-fixture with-empty-db ("data_base")
+    (let ((j-top-1 "{\"type\":\"Topic\",\"delete\":{\"id\":\"any-id\",\"itemIdentities\":[\"ii-1-1\"],\"subjectLocators\":null,\"subjectIdentifiers\":null,\"instanceOfs\":null,\"names\":null,\"occurrence\":null}}")
+	  (j-top-2 "{\"type\":\"Topic\",\"delete\":{\"id\":\"any-id\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"psi-1-1\"],\"instanceOfs\":null,\"names\":null,\"occurrence\":null}}")
+	  (j-top-3 "{\"type\":\"Topic\",\"delete\":{\"id\":\"any-id\",\"itemIdentities\":null,\"subjectLocators\":[\"sl-1-1\"],\"subjectIdentifiers\":null,\"instanceOfs\":null,\"names\":null,\"occurrence\":null}}")
+	  (j-top-4 "{\"type\":\"Topic\",\"delete\":{\"id\":\"any-id\",\"itemIdentities\":[\"ii-1-2\"],\"subjectLocators\":[\"sl-1-2\"],\"subjectIdentifiers\":[\"psi-1-2\"],\"instanceOfs\":null,\"names\":null,\"occurrence\":null}}")
+	  (rev-1 100)
+	  (rev-2 200)
+	  (rev-3 300))
+      (let ((top-1 (make-construct
+		    'TopicC
+		    :start-revision rev-1
+		    :item-identifiers (list (make-construct 'ItemIdentifierC
+							    :uri "ii-1-1"))))
+	    (top-2 (make-construct
+		    'TopicC
+		    :start-revision rev-2
+		    :psis (list (make-construct 'PersistentIdC
+						:uri "psi-1-1"))))
+	    (top-3 (make-construct
+		    'TopicC
+		    :start-revision rev-1
+		    :locators (list (make-construct 'SubjectLocatorC
+						    :uri "sl-1-1"))))
+	    (top-4 (make-construct
+		    'TopicC
+		    :start-revision rev-1
+		    :item-identifiers (list (make-construct 'ItemIdentifierC
+							    :uri "ii-1-3"))
+		    :psis (list (make-construct 'PersistentIdC
+						:uri "psi-1-3"))
+		    :locators (list (make-construct 'SubjectLocatorC
+						    :uri "sl-1-3")))))
+	(is-false (set-exclusive-or (get-all-topics rev-2)
+				    (list top-1 top-2 top-3 top-4)))
+	(is-false (mark-as-deleted-from-json j-top-4 :revision rev-2))
+	(is-false (set-exclusive-or (get-all-topics rev-2)
+				    (list top-1 top-2 top-3 top-4)))
+	(is-true (mark-as-deleted-from-json j-top-1 :revision rev-2))
+	(is-false (set-exclusive-or (get-all-topics rev-2)
+				    (list top-2 top-3 top-4)))
+	(is-true (mark-as-deleted-from-json j-top-2 :revision rev-3))
+	(is-false (set-exclusive-or (get-all-topics rev-3)
+				    (list top-3 top-4)))
+	(is-false (set-exclusive-or (get-all-topics rev-2)
+				    (list top-2 top-3 top-4)))
+	(is-true (mark-as-deleted-from-json j-top-3 :revision rev-2))
+	(is-false (set-exclusive-or (get-all-topics rev-3)
+				    (list top-4)))
+	(is-false (set-exclusive-or (get-all-topics rev-2)
+	(list top-2 top-4)))
+	(is-false (set-exclusive-or (get-all-topics rev-3)
+	(list top-4)))))))
+
+
+(test test-delete-from-json-name
+  (with-fixture with-empty-db ("data_base")
+    (let ((j-parent-1 "{\"id\":\"any-id\",\"itemIdentities\":[\"ii-1-1\"],\"subjectLocators\":null,\"subjectIdentifiers\":null,\"instanceOfs\":null,\"names\":null,\"occurrence\":null},")
+	  (j-parent-2 "{\"id\":\"any-id\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"psi-1-1\"],\"instanceOfs\":null,\"names\":null,\"occurrence\":null},")
+	  (j-type "{\"type\":\"Name\",\"parent\":")
+	  (j-name-1 "\"delete\":{\"type\":[\"nType-1\"],\"scopes\":null,\"value\":\"name-1\"}}")
+	  (j-name-2 "\"delete\":{\"type\":null,\"scopes\":[[\"nScope-1\"],[\"nScope-2\"]],\"value\":\"name-2\"}}")
+	  (j-name-3 "\"delete\":{\"type\":null,\"scopes\":null,\"value\":\"name-3\"}}")
+	  (rev-1 100)
+	  (rev-2 200))
+      (let ((nType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "nType-1"))))
+	    (nScope-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "nScope-1"))))
+	    (nScope-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "nScope-2")))))
+	(let ((j-req-1 (concatenate 'string j-type j-parent-1 j-name-1))
+	      (j-req-2 (concatenate 'string j-type j-parent-1 j-name-2))
+	      (j-req-3 (concatenate 'string j-type j-parent-1 j-name-3))
+	      (j-req-4 (concatenate 'string j-type j-parent-2 j-name-1))
+	      (j-req-5 (concatenate 'string j-type j-parent-2 j-name-2))
+	      (top-1 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :item-identifiers (list (make-construct 'ItemIdentifierC
+							      :uri "ii-1-1"))
+		      :names (list (make-construct 'NameC
+						   :start-revision rev-1
+						   :instance-of nType-1
+						   :charvalue "name-1")
+				   (make-construct 'NameC
+						   :start-revision rev-1
+						   :themes (list nScope-1 nScope-2)
+						   :charvalue "name-2")
+				   (make-construct 'NameC
+						   :start-revision rev-1
+						   :charvalue "name-3"))))
+	      (top-2 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :psis (list (make-construct 'PersistentIdC
+						  :uri "psi-1-1"))
+		      :names (list (make-construct 'NameC
+						   :start-revision rev-1
+						   :instance-of nType-1
+						   :charvalue "name-1")
+				   (make-construct 'NameC
+						   :start-revision rev-1
+						   :charvalue "name-3"))))
+	      (top-3 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :locators (list (make-construct 'SubjectLocatorC
+						      :uri "sl-1-1"))
+		      :names (list (make-construct 'NameC
+						   :start-revision rev-1
+						   :instance-of nType-1
+						   :charvalue "name-1")
+				   (make-construct 'NameC
+						   :start-revision rev-1
+						   :themes (list nScope-1 nScope-2)
+						   :charvalue "name-2")
+				   (make-construct 'NameC
+						   :start-revision rev-1
+						   :charvalue "name-3")))))
+	  (with-revision rev-2
+	    (is (= (length (get-all-topics)) 6))
+	    (is (= (length (elephant:get-instances-by-class 'NameC)) 8))
+	    (is (= (length (names top-1)) 3))
+	    (is (= (length (names top-2)) 2))
+	    (is (= (length (names top-3)) 3))
+	    (is-true (mark-as-deleted-from-json j-req-1))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue (names top-1))
+				       (list "name-2" "name-3") :test #'string=))
+	    (is-true (mark-as-deleted-from-json j-req-2))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue (names top-1))
+				       (list "name-3") :test #'string=))
+	    (is-true (mark-as-deleted-from-json j-req-3))
+	    (is-false (names top-1))
+	    (is-false (mark-as-deleted-from-json j-req-3))
+	    (is-false (names top-1))
+	    (is (= (length (names top-2)) 2))
+	    (is (= (length (names top-3)) 3))
+	    (is-true (mark-as-deleted-from-json j-req-4))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue (names top-2))
+				       (list "name-3") :test #'string=))
+	    (is-false (mark-as-deleted-from-json j-req-5))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue (names top-2))
+				       (list "name-3") :test #'string=))
+	    (is (= (length (names top-3)) 3))))))))
+
+
+(test test-delete-from-json-occurrence
+  (with-fixture with-empty-db ("data_base")
+    (let ((j-parent-1 "{\"id\":\"any-id\",\"itemIdentities\":[\"ii-1-1\"],\"subjectLocators\":null,\"subjectIdentifiers\":null,\"instanceOfs\":null,\"names\":null,\"occurrence\":null},")
+	  (j-parent-2 "{\"id\":\"any-id\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"psi-1-1\"],\"instanceOfs\":null,\"names\":null,\"occurrence\":null},")
+	  (j-type "{\"type\":\"Occurrence\",\"parent\":")
+	  (j-occ-1 "\"delete\":{\"type\":[\"oType-1\"],\"scopes\":null,\"resourceRef\":\"value-1\"}}")
+	  (j-occ-2 "\"delete\":{\"type\":[\"oType-2\"],\"scopes\":[[\"oScope-1\"],[\"oScope-2\"]],\"resourceData\":{\"datatype\":\"datatype-1\",\"value\":\"value-2\"}}}")
+	  (j-occ-3 "\"delete\":{\"type\":[\"oType-1\"],\"scopes\":null,\"resourceData\":{\"datatype\":\"datatype-2\",\"value\":\"value-3\"}}}")
+	  (rev-1 100)
+	  (rev-2 200))
+      (let ((oType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "oType-1"))))
+	    (oType-2 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "oType-2"))))
+	    (oScope-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "oScope-1"))))
+	    (oScope-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "oScope-2")))))
+	(let ((j-req-1 (concatenate 'string j-type j-parent-1 j-occ-1))
+	      (j-req-2 (concatenate 'string j-type j-parent-1 j-occ-2))
+	      (j-req-3 (concatenate 'string j-type j-parent-1 j-occ-3))
+	      (j-req-4 (concatenate 'string j-type j-parent-2 j-occ-1))
+	      (j-req-5 (concatenate 'string j-type j-parent-2 j-occ-2))
+	      (top-1 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :item-identifiers (list (make-construct 'ItemIdentifierC
+							      :uri "ii-1-1"))
+		      :occurrences
+		      (list (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :instance-of oType-1
+					    :charvalue "value-1"
+					    :datatype constants::*xml-uri*)
+			    (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :instance-of oType-2
+					    :themes (list oScope-1 oScope-2)
+					    :charvalue "value-2"
+					    :datatype "datatype-1")
+			    (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :instance-of oType-1
+					    :charvalue "value-3"
+					    :datatype "datatype-2"))))
+	      (top-2 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :psis (list (make-construct 'PersistentIdC
+						  :uri "psi-1-1"))
+		      :occurrences
+		      (list (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :instance-of oType-1
+					    :charvalue "value-1"
+					    :datatype constants::*xml-uri*)
+			    (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :charvalue "value-3"
+					    :datatype "datatype-2"))))
+	      (top-3 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :locators (list (make-construct 'SubjectLocatorC
+						      :uri "sl-1-1"))
+		      :occurrences
+		      (list (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :instance-of oType-1
+					    :charvalue "value-1"
+					    :datatype constants::*xml-uri*)
+			    (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :themes (list oScope-1 oScope-2)
+					    :charvalue "value-2"
+					    :datatype "datatype-1")
+			    (make-construct 'OccurrenceC
+					    :start-revision rev-1
+					    :charvalue "value-3"
+					    :datatype "datatype-2")))))
+	  (with-revision rev-2
+	    (is (= (length (get-all-topics)) 7))
+	    (is (= (length (elephant:get-instances-by-class 'OccurrenceC)) 8))
+	    (is (= (length (occurrences top-1)) 3))
+	    (is (= (length (occurrences top-2)) 2))
+	    (is (= (length (occurrences top-3)) 3))
+	    (is-true (mark-as-deleted-from-json j-req-1))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue
+					     (occurrences top-1))
+					(list "value-2" "value-3") :test #'string=))
+	    (is-true (mark-as-deleted-from-json j-req-2))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue
+					     (occurrences top-1))
+					(list "value-3") :test #'string=))
+	    (is-true (mark-as-deleted-from-json j-req-3))
+	    (is-false (occurrences top-1))
+	    (is (= (length (occurrences top-2)) 2))
+	    (is (= (length (occurrences top-3)) 3))
+	    (is-true (mark-as-deleted-from-json j-req-4))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue
+					     (occurrences top-2))
+					(list "value-3") :test #'string=))
+	    (is-false (mark-as-deleted-from-json j-req-5))
+	    (is-false (set-exclusive-or (map 'list #'d:charvalue
+					     (occurrences top-2))
+					(list "value-3") :test #'string=))
+	    (is (= (length (occurrences top-3)) 3))))))))
+
+
+(test test-delete-from-json-variant
+  (with-fixture with-empty-db ("data_base")
+    (let ((j-parent-of-parent-1 "\"parentOfParent\":{\"id\":\"any-id\",\"itemIdentities\":[\"ii-1-1\"],\"subjectLocators\":null,\"subjectIdentifiers\":null,\"instanceOfs\":null,\"names\":null,\"occurrence\":null},")
+	  (j-type "{\"type\":\"Variant\",")
+	  (j-parent-1 "\"parent\":{\"type\":[\"nType-1\"],\"scopes\":null,\"value\":\"name-1\"},")
+	  (j-parent-2 "\"parent\":{\"type\":null,\"scopes\":[[\"vScope-1\"],[\"vScope-2\"]],\"value\":\"name-2\"},")
+	  (j-var-1 "\"delete\":{\"scopes\":[[\"vScope-1\"]],\"resourceRef\":\"value-1\"}}")
+	  (j-var-2 "\"delete\":{\"scopes\":[[\"vScope-1\"],[\"vScope-2\"]],\"resourceData\":{\"datatype\":\"datatype-1\",\"value\":\"value-2\"}}}")
+	  (rev-1 100)
+	  (rev-2 200))
+      (let ((nType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "nType-1"))))
+	    (vScope-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "vScope-1"))))
+	    (vScope-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "vScope-2")))))
+	(let ((j-req-1 (concatenate 'string j-type j-parent-of-parent-1
+				    j-parent-1 j-var-1))
+	      (j-req-2 (concatenate 'string j-type j-parent-of-parent-1
+				    j-parent-1 j-var-2))
+	      (j-req-3 (concatenate 'string j-type j-parent-of-parent-1
+				    j-parent-2 j-var-1))
+	      (top-1 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :item-identifiers (list (make-construct 'ItemIdentifierC
+							      :uri "ii-1-1"))
+		      :names (list (make-construct
+				    'NameC
+				    :start-revision rev-1
+				    :instance-of nType-1
+				    :charvalue "name-1"
+				    :variants (list (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :themes (list vScope-1)
+						     :datatype constants::*xml-uri*
+						     :charvalue "value-1")
+						    (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :themes (list vScope-1 vScope-2)
+						     :datatype "datatype-1"
+						     :charvalue "value-2")
+						    (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :datatype "datatpye-1"
+						     :charvalue "value-2")))
+				   (make-construct 'NameC
+						   :start-revision rev-1
+						   :themes (list vScope-1 vScope-2)
+						   :charvalue "name-2"
+						   :variants (list (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :themes (list vScope-1)
+						     :datatype constants::*xml-uri*
+						     :charvalue "value-1")
+						    (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :themes (list vScope-1 vScope-2)
+						     :datatype "datatype-1"
+						     :charvalue "value-2")
+						    (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :datatype "datatpye-1"
+						     :charvalue "value-2"))))))
+	      (top-2 (make-construct
+		      'TopicC
+		      :start-revision rev-1
+		      :psis (list (make-construct 'PersistentIdC
+						  :uri "psi-1-1"))
+		      :names (list (make-construct
+				    'NameC
+				    :start-revision rev-1
+				    :instance-of nType-1
+				    :charvalue "name-1"
+				    :variants (list (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :themes (list vScope-1)
+						     :datatype constants::*xml-uri*
+						     :charavalue "value-1")
+						    (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :themes (list vScope-1 vScope-2)
+						     :datatype "datatype-1"
+						     :charvalue "value-2")
+						    (make-construct
+						     'VariantC
+						     :start-revision rev-1
+						     :datatype "datatpye-1"
+						     :charvalue "value-2")))))))
+	  (with-revision rev-2
+	    (is (= (length (get-all-topics)) 5))
+	    (is (= (length (elephant:get-instances-by-class 'VariantC)) 9))
+	    (let ((name-1 (find "name-1" (names top-1) :key #'charvalue
+				:test #'string=))
+		  (name-2 (find "name-2" (names top-1) :key #'charvalue
+				:test #'string=))
+		  (name-3 (first (names top-2))))
+	      (is-true name-1)
+	      (is-true name-2)
+	      (is-true name-3)
+	      (is (= (length (variants name-1)) 3))
+	      (is (= (length (variants name-2)) 3))
+	      (is (= (length (variants name-3)) 3))
+	      (is-true (mark-as-deleted-from-json j-req-1))
+	      (is-false (set-exclusive-or (map 'list #'d:charvalue (variants name-1))
+					  (list "value-2" "value-2") :test #'string=))
+	      (is (= (length (variants name-1)) 2))
+	      (is (= (length (variants name-2)) 3))
+	      (is (= (length (variants name-3)) 3))
+	      (is-true (mark-as-deleted-from-json j-req-2))
+	      (is-false (set-exclusive-or (map 'list #'d:charvalue (variants name-1))
+					  (list "value-2" ) :test #'string=))
+	      (is (= (length (variants name-1)) 1))
+	      (is (= (length (variants name-2)) 3))
+	      (is (= (length (variants name-3)) 3))
+	      (is-true (mark-as-deleted-from-json j-req-3))
+	      (is-false (set-exclusive-or (map 'list #'d:charvalue (variants name-2))
+					  (list "value-2" ) :test #'string=))
+	      (is (= (length (variants name-1)) 1))
+	      (is (= (length (variants name-2)) 2))
+	      (is (= (length (variants name-3)) 3)))))))))
+
+
+(test test-delete-from-json-association
+  (with-fixture with-empty-db ("data_base")
+    (let ((j-type "{\"type\":\"Association\",")
+	  (j-role-1 "{\"type\":[\"rType-1\"],\"topicRef\":[\"player-1\"]}")
+	  (j-role-2 "{\"type\":[\"rType-2\"],\"topicRef\":[\"player-1\"]}")
+	  (j-role-3 "{\"type\":[\"rType-1\"],\"topicRef\":[\"player-2\"]}")
+	  (rev-1 100)
+	  (rev-2 200))
+      (let ((j-req-1 (concatenate 'string j-type "\"delete\":{\"type\":[\"aType-1\"],\"scopes\":[[\"aScope-1\"]],\"roles\":[" j-role-1 "," j-role-2 "]}}"))
+	    (j-req-2 (concatenate 'string j-type "\"delete\":{\"type\":[\"aType-2\"],\"scopes\":[[\"aScope-1\"],[\"aScope-2\"]],\"roles\":[" j-role-1 "," j-role-2 "]}}"))
+	    (j-req-3 (concatenate 'string j-type "\"delete\":{\"type\":[\"aType-1\"],\"scopes\":null,\"roles\":[" j-role-1 "," j-role-2 "," j-role-3 "]}}"))
+	    (aType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "aType-1"))))
+	    (aType-2 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "aType-2"))))
+	    (aScope-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "aScope-1"))))
+	    (aScope-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "aScope-2"))))
+	    (player-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "player-1"))))
+	    (player-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "player-2"))))
+	    (rType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "rType-1"))))
+	    (rType-2 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "rType-2")))))
+	(let ((role-1 (list :start-revision rev-1
+			    :player player-1
+			    :instance-of rType-1))
+	      (role-2 (list :start-revision rev-1
+			    :player player-1
+			    :instance-of rType-2))
+	      (role-3 (list :start-revision rev-1
+			    :player player-2
+			    :instance-of rType-1)))
+	  (let ((assoc-1 (make-construct 'AssociationC
+					 :start-revision rev-1
+					 :instance-of aType-1
+					 :themes (list aScope-1)
+					 :roles (list role-1 role-2)))
+		(assoc-2 (make-construct 'AssociationC
+					 :start-revision rev-1
+					 :instance-of aType-2
+					 :themes (list aScope-1 aScope-2)
+					 :roles (list role-1 role-2)))
+		(assoc-3 (make-construct 'AssociationC
+					 :start-revision rev-1
+					 :instance-of aType-1
+					 :roles (list role-1 role-2 role-3))))
+	    (with-revision rev-2
+	      (is (= (length (get-all-associations)) 3))
+	      (is-true (mark-as-deleted-from-json j-req-1))
+	      (is-true (marked-as-deleted-p assoc-1))
+	      (is-false (set-exclusive-or (get-all-associations)
+					  (list assoc-2 assoc-3)))
+	      (is-true (mark-as-deleted-from-json j-req-2))
+	      (is-false (set-exclusive-or (get-all-associations)
+					  (list assoc-3)))
+	      (is-true (mark-as-deleted-from-json j-req-3))
+	      (is-false (get-all-associations)))))))))
+
+
+(test test-delete-from-json-role
+  (with-fixture with-empty-db ("data_base")
+    (let ((j-type "{\"type\":\"Role\",")
+	  (j-role-1 "{\"type\":[\"rType-1\"],\"topicRef\":[\"player-1\"]}")
+	  (j-role-2 "{\"type\":[\"rType-2\"],\"topicRef\":[\"player-1\"]}")
+	  (j-role-3 "{\"type\":[\"rType-1\"],\"topicRef\":[\"player-2\"]}")
+	  (rev-1 100)
+	  (rev-2 200))
+      (let ((j-req-1 (concatenate 'string j-type "\"parent\":{\"type\":[\"aType-1\"],\"scopes\":[[\"aScope-1\"]],\"roles\":[" j-role-1 "," j-role-2 "," j-role-3"]},\"delete\":" j-role-1 "}"))
+	    (j-req-2 (concatenate 'string j-type "\"parent\":{\"type\":[\"aType-2\"],\"scopes\":[[\"aScope-1\"],[\"aScope-2\"]],\"roles\":[" j-role-1 "," j-role-2 "," j-role-3 "]},\"delete\":" j-role-1 "}"))
+	    (j-req-3 (concatenate 'string j-type "\"parent\":{\"type\":[\"aType-1\"],\"scopes\":null,\"roles\":[" j-role-1 "," j-role-2 "," j-role-3 "]},\"delete\":" j-role-2 "}"))
+	    (aType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "aType-1"))))
+	    (aType-2 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "aType-2"))))
+	    (aScope-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "aScope-1"))))
+	    (aScope-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "aScope-2"))))
+	    (player-1 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "player-1"))))
+	    (player-2 (make-construct 'TopicC
+				      :start-revision rev-1
+				      :psis (list (make-construct 'PersistentIdC
+								  :uri "player-2"))))
+	    (rType-1 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "rType-1"))))
+	    (rType-2 (make-construct 'TopicC
+				     :start-revision rev-1
+				     :psis (list (make-construct 'PersistentIdC
+								 :uri "rType-2")))))
+	(let ((role-1 (list :start-revision rev-1
+			    :player player-1
+			    :instance-of rType-1))
+	      (role-2 (list :start-revision rev-1
+			    :player player-1
+			    :instance-of rType-2))
+	      (role-3 (list :start-revision rev-1
+			    :player player-2
+			    :instance-of rType-1)))
+	  (let ((assoc-1 (make-construct 'AssociationC
+					 :start-revision rev-1
+					 :instance-of aType-1
+					 :themes (list aScope-1)
+					 :roles (list role-1 role-2 role-3)))
+		(assoc-2 (make-construct 'AssociationC
+					 :start-revision rev-1
+					 :instance-of aType-2
+					 :themes (list aScope-1 aScope-2)
+					 :roles (list role-1 role-2 role-3))))
+	    (with-revision rev-2
+	      (is (= (length (get-all-associations)) 2))
+	      (is (= (length (roles assoc-1)) 3))
+	      (is (= (length (roles assoc-2)) 3))
+	      (is-true (mark-as-deleted-from-json j-req-1))
+	      (is-false (set-exclusive-or
+			 (roles assoc-1)
+			 (list role-2 role-3)
+			 :test #'(lambda(a-role j-role)
+				   (and (eql (instance-of a-role)
+					     (getf j-role :instance-of))
+					(eql (player a-role)
+					     (getf j-role :player))))))
+	      (is (= (length (roles assoc-1)) 2))
+	      (is (= (length (roles assoc-2)) 3))
+	      (is-true (mark-as-deleted-from-json j-req-2))
+	      (is-false (set-exclusive-or
+			 (roles assoc-2)
+			 (list role-2 role-3)
+			 :test #'(lambda(a-role j-role)
+				   (and (eql (instance-of a-role)
+					     (getf j-role :instance-of))
+					(eql (player a-role)
+					     (getf j-role :player))))))
+	      (is (= (length (roles assoc-1)) 2))
+	      (is (= (length (roles assoc-2)) 2))
+	      (is-false (mark-as-deleted-from-json j-req-3))
+	      (is (= (length (roles assoc-1)) 2))
+	      (is (= (length (roles assoc-2)) 2)))))))))
+	
+
+
+
 (defun run-json-tests()
   (tear-down-test-db)
   (it.bese.fiveam:run! 'test-get-fragment-values-from-json-list-general)
@@ -1516,4 +2166,11 @@
   (it.bese.fiveam:run! 'test-to-json-string-associations)
   (it.bese.fiveam:run! 'test-to-json-string-fragments)
   (it.bese.fiveam:run! 'test-to-json-string-topics)
-  (it.bese.fiveam:run! 'test-get-all-topic-psis))
+  (it.bese.fiveam:run! 'test-get-all-topic-psis)
+  (it.bese.fiveam:run! 'test-delete-from-json-identifiers)
+  (it.bese.fiveam:run! 'test-delete-from-json-topic)
+  (it.bese.fiveam:run! 'test-delete-from-json-name)
+  (it.bese.fiveam:run! 'test-delete-from-json-occurrence)
+  (it.bese.fiveam:run! 'test-delete-from-json-variant)
+  (it.bese.fiveam:run! 'test-delete-from-json-association)
+  (it.bese.fiveam:run! 'test-delete-from-json-role))

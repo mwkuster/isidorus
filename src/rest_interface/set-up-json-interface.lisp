@@ -9,23 +9,46 @@
 
 (in-package :rest-interface)
 
-(defparameter *json-get-prefix* "/json/get/(.+)$") ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
-(defparameter *get-rdf-prefix* "/json/get/rdf/(.+)$") ;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
-(defparameter *json-commit-url* "/json/commit/?$") ;the url to commit a json fragment by "put" or "post"
-(defparameter *json-get-all-psis* "/json/psis/?$") ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
-(defparameter *json-get-summary-url* "/json/summary/?$") ;the url to get a summary of all topic stored in isidorus; you have to set the GET-parameter "start" for the start index of all topics within elephant and the GET-paramter "end" for the last index of the topic sequence -> http://localhost:8000/json/summary/?start=12&end=13
-(defparameter *json-get-all-type-psis* "/json/tmcl/types/?$") ;returns a list of all psis that can be a type
-(defparameter *json-get-all-instance-psis* "/json/tmcl/instances/?$") ;returns a list of all psis that belongs to a valid topic-instance
-(defparameter *json-get-topic-stub-prefix* "/json/topicstubs/(.+)$") ;the json prefix for getting some topic stub information of a topic
-(defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$") ;the json url for getting some tmcl information of a topic treated as a type
-(defparameter *json-get-instance-tmcl-url* "/json/tmcl/instance/?$") ;the json url for getting some tmcl information of a topic treated as an instance
-(defparameter *json-get-overview* "/json/tmcl/overview/?$") ; returns a json-object representing a tree view
-(defparameter *ajax-user-interface-url* "/isidorus") ;the url to the user interface;
-(defparameter *ajax-user-interface-css-prefix* "/css") ;the url to the css files of the user interface
-(defparameter *ajax-user-interface-css-directory-path* "ajax/css") ;the directory contains the css files
-(defparameter *ajax-user-interface-file-path* "ajax/isidorus.html") ;the file path to the HTML file implements the user interface
-(defparameter *ajax-javascript-directory-path* "ajax/javascripts") ;the directory which contains all necessary javascript files
-(defparameter *ajax-javascript-url-prefix* "/javascripts") ; the url prefix of all javascript files
+;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
+(defparameter *json-get-prefix* "/json/get/(.+)$")
+;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
+(defparameter *get-rdf-prefix* "/json/get/rdf/(.+)$")
+;the url to commit a json fragment by "put" or "post"
+(defparameter *json-commit-url* "/json/commit/?$")
+;the url to get all topic psis of isidorus -> localhost:8000/json/psis
+(defparameter *json-get-all-psis* "/json/psis/?$")
+;the url to get a summary of all topic stored in isidorus; you have to set the
+;GET-parameter "start" for the start index of all topics within elephant and the
+;GET-paramter "end" for the last index of the topic sequence
+; -> http://localhost:8000/json/summary/?start=12&end=13
+(defparameter *json-get-summary-url* "/json/summary/?$")
+;returns a list of all psis that can be a type
+(defparameter *json-get-all-type-psis* "/json/tmcl/types/?$")
+;returns a list of all psis that belongs to a valid topic-instance
+(defparameter *json-get-all-instance-psis* "/json/tmcl/instances/?$")
+;the json prefix for getting some topic stub information of a topic
+(defparameter *json-get-topic-stub-prefix* "/json/topicstubs/(.+)$")
+;the json url for getting some tmcl information of a topic treated as a type
+(defparameter *json-get-type-tmcl-url* "/json/tmcl/type/?$")
+;the json url for getting some tmcl information of a topic treated as an instance
+(defparameter *json-get-instance-tmcl-url* "/json/tmcl/instance/?$")
+;returns a json-object representing a tree view
+(defparameter *json-get-overview* "/json/tmcl/overview/?$")
+;the url to the user interface
+(defparameter *ajax-user-interface-url* "/isidorus")
+;the url to the css files of the user interface
+(defparameter *ajax-user-interface-css-prefix* "/css")
+;the directory contains the css files
+(defparameter *ajax-user-interface-css-directory-path* "ajax/css")
+;the file path to the HTML file implements the user interface
+(defparameter *ajax-user-interface-file-path* "ajax/isidorus.html")
+;the directory which contains all necessary javascript files
+(defparameter *ajax-javascript-directory-path* "ajax/javascripts")
+;the url prefix of all javascript files
+(defparameter *ajax-javascript-url-prefix* "/javascripts")
+;the url suffix that calls the mark-as-deleted handler
+(defparameter *mark-as-deleted-url* "/mark-as-deleted")
+
 
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
 			      (get-rdf-prefix *get-rdf-prefix*)
@@ -43,7 +66,8 @@
 			      (ajax-user-interface-css-prefix *ajax-user-interface-css-prefix*)
 			      (ajax-user-interface-css-directory-path *ajax-user-interface-css-directory-path*)
 			      (ajax-javascripts-directory-path *ajax-javascript-directory-path*)
-			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*))
+			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*)
+			      (mark-as-deleted-url *mark-as-deleted-url*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
 
@@ -111,6 +135,9 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-summary-url #'return-topic-summaries)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted-handler)
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -354,6 +381,30 @@
 	    (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 	    (setf (hunchentoot:content-type*) "text")
 	    (format nil "Condition: \"~a\"" err))))))
+
+
+(defun mark-as-deleted-handler (&optional param)
+  "Marks the corresponding elem as deleted."
+  (declare (ignorable param)) ;param is currently not used
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (eq http-method :DELETE)
+	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
+	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
+	    (handler-case
+		(with-writer-lock
+		  (let ((result (json-delete-interface:mark-as-deleted-from-json
+				 json-data :revision (d:get-revision))))
+		    (if result
+			(format nil "") ;operation succeeded
+			(progn
+			  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+			  (format nil "object not found")))))
+	      (condition (err)
+		(progn
+		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Condition: \"~a\"" err))))))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
 ;; =============================================================================

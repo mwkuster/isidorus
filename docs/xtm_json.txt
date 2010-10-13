@@ -449,29 +449,70 @@
 
 //+-----------------------------------------------------------------------------
 //+  *Part 4: Object notation for marking objects as deleted
-//+    type: the type of the deleted object, e.g. Topic for TopicC
-//+    topics: a list of PSIs, where every single PSI represents a topic that
-//+            has to be deleted
-//+    associations: a list of associations that have to be deleted
-//+    parent-topic: a single PSI of the name's, occurrence's or variant's owner
-//+                  topic
-//+    parent-name: the parent name of the variants that have to be deleted
-//+                 (in this case the parent-topic is the topic of the name)
-//+    names: a list of the deletable names
-//+    variants: a list of deletable names
-//+    occurrences: a list of the deletable occurrences
-//+    parent-association: the parent association of the deletable roles
-//+    roles: a list of the deltable roles
+//+    *Topic
+//+    *PSI
+//+    *ItemIdentifier
+//+    *SubjectLocator
+//+    *Name
+//+    *Variant
+//+    *Occurrence
+//+    *Association
+//+    *Role
 //+-----------------------------------------------------------------------------
+Topic:
 {
-  "type":<"Topic" | "Occurrence" | "Name" | "Association" | "Role" | "Variant" >,
-  "topics": [<psi-top-1>, <psi-top-2>, <...>],
-  "associations": [<association-1>, <association-2>, <...>],
-  "parentTopic": "topic-psi",
-  "parentName": <name>,
-  "names": [<name-1>, <name-2>, <...>],
-  "variants": [<variant-1>, <variant-2>, <...>],
-  "occurrences": [<occurrence-1>, <occurrence-2>, <...>],
-  "parentAssociation": <association>,
-  "roles": [<role-1>, <role-2>, <...>]
+  \"type\":\"Topic\",
+  \"delete\":<topic>  //only the topic's identifiers are evaluated
+}
+
+PSI:
+{
+  \"type\":\"PSI\",
+  \"delete\":\"PSI-value\"
+}
+
+Item-Identifier:
+{
+  \"type\":\"ItemIdentity\",
+  \"delete\":\"ItemIdentity-value\"
+}
+
+Subject-Locator:
+{
+  \"type\":SubjectLocator\",
+  \"delete\":\"SubjectLocator-value\"
+}
+
+Name:
+{
+  \"type\":\"Name\",
+  \"parent\":<Topic>, // the topic-identifiers are enough
+  \"delete\":<Name>
+}
+
+Variant:
+{
+  \"type\":\"Variant\",
+  \"parent\":<Name>, // the full name that is needed for TMDM equality
+  \"parentOfParent\":<Topic>, // the topic-identifiers are enough
+  \"delete\"
+}
+
+Occurrence:
+{
+  \"type\":\"Occurrence\", // the full occurrence that is neede for full TMDM equality
+  \"parent\":<Topic>, // the topic-identifiers are enough
+  \"delete\":<Occurrence>
+}
+
+Association:
+{  \"type\":\"Association\",
+   \"delete\":<Association> // the full association that is neede for full TMDM equality
+}
+
+Role:
+{
+  \"type\":\"Role\",
+  \"parent\":<Association>, // the full association that is neede for full TMDM equality
+  \"delete\":<Role> // the full role that is neede for full TMDM equality
 }

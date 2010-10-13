@@ -165,10 +165,12 @@
 					    :depends-on ("json_tmcl_constants"))
 				     (:file "json_importer")
 				     (:file "json_tmcl_validation"
-					    :depends-on ("json_tmcl_constants" "json_exporter" ))
+					    :depends-on ("json_tmcl_constants" "json_exporter" "json_importer"))
 				     (:file "json_tmcl_constants")
 				     (:file "json_tmcl"
-					    :depends-on ("json_tmcl_validation" "json_importer")))
+					    :depends-on ("json_tmcl_validation" "json_importer"))
+				     (:file "json_delete_interface"
+					    :depends-on ("json_importer")))
 	                :depends-on ("model"
 				     "xml"))
 	       (:module "ajax"

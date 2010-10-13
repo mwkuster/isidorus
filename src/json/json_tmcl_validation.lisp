@@ -8,7 +8,7 @@
 
 
 (defpackage :json-tmcl
-  (:use :cl :datamodel :constants :json-tmcl-constants)
+  (:use :cl :datamodel :constants :json-tmcl-constants :json-importer)
   (:export :get-constraints-of-fragment
 	   :topictype-p
 	   :abstract-p
