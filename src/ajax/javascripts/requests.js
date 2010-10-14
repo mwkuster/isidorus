@@ -219,7 +219,7 @@ function commitFragment(json, onSuccessHandler, onFailureHandler)
 }
 
 
-// --- Sends a POST-Message to the server. The sent message enables the server
+// --- Sends a DELETE-Message to the server. The sent message enables the server
 // --- to find the spcified object and mark it as deleted
 function commitDeletedObject(json, onSuccessHandler, onFailureHandler)
 {
@@ -227,9 +227,8 @@ function commitDeletedObject(json, onSuccessHandler, onFailureHandler)
     try{
 	var onFailure = onFailureHandler ? onFailureHandler : defaultFailureHandler;
 	var timeFun = setAjaxTimeout(TIMEOUT, COMMIT_URL);
-	
 	new Ajax.Request(MARK_AS_DELETED_URL, {
-	    "method" : "post",
+	    "method" : "delete",
 	    "postBody" : json,
 	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
 	    "onFailure" : createXHRHandler(onFailure, timeFun)});

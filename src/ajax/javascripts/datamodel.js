@@ -4355,58 +4355,69 @@ function makeRemoveObject(type, objectToDelete){
     if(type !== "Occurrence" && type !== "Name" && type !== "Variant"
        && type !== "Topic" && type !== "Association"){
 	throw "From makeRemoveObject(): type must be: \"Occurrence\" || \"Name\" " +
-	    "|| \"Variant\" || \"Topic\" || \"Association\" but is " + type;
+	    "|| \"Topic\" but is " + type;
     }
     if (!objectToDelete){
 	throw "From makeRemoveObject(): objectToDelete must be set";
     }
 
-    var parentTopic = "null";
-    if(type === "Occurrence" || type === "Name"){
-	var psiFrame = objectToDelete.getFrame().parentNode.parentNode.parentNode.parentNode.select("tr." + CLASSES.subjectIdentifierFrame())[0];
+    // --- Returns a JSON-object that corresponds to a topicStub
+    function makeJsonTopicStub(topicFrame){
+	var topPSIs = "null";
+	var psiFrame = topicFrame.select("tr." + CLASSES.subjectIdentifierFrame())[0];
 	var psiFields = psiFrame.select("input");
-	for(i = 0; psiFields && i !== psiFields.length; ++i){
+	for(var i = 0; psiFields && i !== psiFields.length; ++i){
 	    var psiValue = psiFields[i].value;
 	    if(psiValue.strip().length !== 0){
-		parentTopic = psiValue.strip().toJSON();
+		topPSIs = new Array(psiValue.strip()).toJSON();
 		break;
 	    }
 	}
-    }
-
-    var topics = "null";
-    if (type === "Topic"){
-	var psiFrame = objectToDelete.getFrame().select("tr." + CLASSES.subjectIdentifierFrame())[0];
-	var psiFields = psiFrame.select("input");
-	for(i = 0; psiFields && i !== psiFields.length; ++i){
-	    var psiValue = psiFields[i].value;
-	    if(psiValue.strip().length !== 0){
-		topics = new Array(psiValue.strip()).toJSON();
+	var topIIs = "null";
+	var iiFrame = topicFrame.select("tr." + CLASSES.itemIdentityFrame())[0];
+	var iiFields = iiFrame.select("input");
+	for(var i = 0; iiFields && i !== iiFields.length; ++i){
+	    var iiValue = iiFields[i].value;
+	    if(iiValue.strip().length !== 0){
+		topIIs = new Array(iiValue.strip()).toJSON();
 		break;
 	    }
 	}
+	var topSLs = "null";
+	var slFrame = topicFrame.select("tr." + CLASSES.subjectLocatorFrame())[0];
+	var slFields = slFrame.select("input");
+	for(var i = 0; slFields && i !== slFields.length; ++i){
+	    var slValue = slFields[i].value;
+	    if(slValue.strip().length !== 0){
+		topSLs = new Array(slValue.strip()).toJSON();
+		break;
+	    }
+	}
+	return "{\"id\":\"null\",\"itemIdentities\":" + topIIs +
+	       ",\"subjectLocators\":" + topSLs + ",\"subjectIdentifiers\":" + topPSIs +
+	       ",\"instanceOfs\":\"null\",\"names\":\"null\",\"occurrences\":\"null\"}";
     }
 
-    var deletedObjects = null;
-    if(type === "Topic"){ deletedObjects = topics; }
-    else { deletedObjects = "[" + objectToDelete.toJSON() + "]"; }
+    var delMessage = "null";
 
-    var jsonData = "{\"type\":\"" + type + "\"," +
-	            "\"topics\":" + topics + "," +
-	            "\"associations\":" + "null" + "," +
-                    "\"parentTopic\":" + parentTopic + "," +
-                    "\"parentName\":" + "null" + "," +
-                    "\"names\":" + (type === "Name" ? deletedObjects : "null") + "," +
-                    "\"variants\":" + "null" + "," +
-                    "\"occurrences\":" + (type === "Occurrence" ? deletedObjects : "null") + "," +
-                    "\"parentAssociation\":" + "null" + "," +
-                    "\"roles\":" + "null" + "}";
+    switch(type){
+    case "Topic":
+	delMessage = "{\"type\":\"Topic\",\"delete\":" + makeJsonTopicStub(objectToDelete.getFrame()) + "}";
+	break;
+    case "Name":
+    case "Occurrence":
+	delMessage = "{\"type\":\"" + type + "\",\"parent\":" +
+                     makeJsonTopicStub(objectToDelete.getFrame().parentNode.parentNode.parentNode.parentNode) +
+                     ",\"delete\":" + objectToDelete.toJSON() + "}";
+        break;
+    }
  
-    commitDeletedObject(jsonData, function(xhr){
+    commitDeletedObject(delMessage, function(xhr){
 	    alert("Objected deleted");
 	    if(type === "Topic"){
 		$(CLASSES.subPage()).update();
-		makeHome();
+		setNaviClasses($(PAGES.home));
+		makePage(PAGES.home, "");
 	    }
 	    else if (type === "Occurrence" || type === "Name"){
 		if(objectToDelete.__owner__.__frames__.length > objectToDelete.__max__

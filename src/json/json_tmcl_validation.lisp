@@ -202,7 +202,8 @@
 	(type (get-item-by-psi *type-psi* :revision revision)))
     (let ((topic-types
 	   (loop for role in (player-in-roles topic-instance :revision revision)
-	      when (eq instance (instance-of role :revision revision))
+	      when (and (eq instance (instance-of role :revision revision))
+			(parent role :revision revision))
 	      collect (loop for other-role in
 			   (roles (parent role :revision revision) :revision revision)
 			 when (and (not (eq role other-role))
@@ -228,7 +229,8 @@
 	(type (get-item-by-psi *type-psi* :revision revision)))
     (let ((topic-instances
 	   (loop for role in (player-in-roles topic-instance :revision revision)
-	      when (eq type (instance-of role :revision revision))
+	      when (and (eql type (instance-of role :revision revision))
+			(parent role :revision revision))
 	      collect (loop for other-role in (roles (parent role :revision revision)
 						     :revision revision)
 			 when (and (not (eq role other-role))
@@ -254,7 +256,8 @@
 	(subtype (get-item-by-psi *subtype-psi* :revision revision)))
     (let ((supertypes
 	   (loop for role in (player-in-roles topic-instance :revision revision)
-	      when (eq subtype (instance-of role :revision revision))
+	      when (and (eq subtype (instance-of role :revision revision))
+			(parent role :revision revision))
 	      append (loop for other-role in (roles (parent role :revision revision)
 						    :revision revision)
 			 when (and (not (eq role other-role))
@@ -281,7 +284,8 @@
 	(subtype (get-item-by-psi *subtype-psi* :revision revision)))
     (let ((subtypes
 	   (loop for role in (player-in-roles topic-instance :revision revision)
-	      when (eq supertype (instance-of role :revision revision))
+	      when (and (eq supertype (instance-of role :revision revision))
+			(parent role :revision revision))
 	      append (loop for other-role in (roles (parent role :revision revision)
 						    :revision revision)
 			 when (and (not (eq role other-role))
@@ -318,7 +322,8 @@
 					      :revision revision))
 	  (current-valid-subtypes (append valid-subtypes (list topic-instance))))
       (loop for role in (player-in-roles topic-instance :revision revision)
-	 when (and (eq supertype (instance-of role :revision revision))
+	 when (and (parent role :revision revision)
+		   (eq supertype (instance-of role :revision revision))
 		   (eq supertype-subtype
 		       (instance-of (parent role :revision revision)
 				    :revision revision)))
@@ -357,7 +362,8 @@
 	    (loop for subtype-of-this in all-subtypes-of-this
 	       append (loop for role in (player-in-roles subtype-of-this
 							 :revision revision)
-			 when (and (eq type (instance-of role :revision revision))
+			 when (and (parent role :revision revision)
+				   (eq type (instance-of role :revision revision))
 				   (eq type-instance
 				       (instance-of (parent role :revision revision)
 						    :revision revision)))

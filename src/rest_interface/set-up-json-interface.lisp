@@ -387,7 +387,8 @@
   "Marks the corresponding elem as deleted."
   (declare (ignorable param)) ;param is currently not used
   (let ((http-method (hunchentoot:request-method*)))
-    (if (eq http-method :DELETE)
+    (if (or (eq http-method :DELETE)
+	    (eq http-method :Post)) ;not nice - but the current ui-library can't send http-delete messages
 	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
 	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
 	    (handler-case

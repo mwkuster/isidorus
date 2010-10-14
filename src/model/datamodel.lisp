@@ -2770,6 +2770,8 @@
   (declare (ignorable source-locator))
   (let ((owner (parent construct :revision 0)))
     (when owner
+      ;(private-delete-player construct (player construct :revision revision)
+      ;:revision revision)
       (private-delete-role owner construct :revision revision))))
 
 
