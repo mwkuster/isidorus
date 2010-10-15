@@ -1,12 +1,12 @@
 ;;-*- mode: lisp -*-
 ;;+-----------------------------------------------------------------------------
 ;;+  Isidorus
-;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff
 ;;+
-;;+  Isidorus is freely distributable under the LGPL license.
-;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+  Isidorus is freely distributable under the LLGPL license.
+;;+  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt and
+;;+  trunk/docs/LGPL-LICENSE.txt.
 ;;+-----------------------------------------------------------------------------
-
 
 (defpackage :isidorus-system
   (:use :asdf :cl))
@@ -18,7 +18,7 @@
 (asdf:defsystem "isidorus"
   :description "The future ingenious, self-evaluating Lisp TM engine"
   :version "0.1"
-  :author "Marc Kuester, Christoph Ludwig, Lukas Giessmann"
+  :author "Marc Kuester, Christoph Ludwig, Lukas Georgieff"
   :licence "LGPL"
   :components (
 	       (:file "constants")

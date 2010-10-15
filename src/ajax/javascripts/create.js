@@ -1,14 +1,14 @@
 //+-----------------------------------------------------------------------------
 //+  Isidorus
-//+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+//+  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff
 //+
-//+  Isidorus is freely distributable under the LGPL license.
+//+  Isidorus is freely distributable under the LLGPL license.
 //+  This ajax module uses the frameworks PrototypeJs and Scriptaculous, both
 //+  are distributed under the MIT license.
-//+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt and
-//+  in trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.
+//+  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt, and
+//+  trunk/docs/LGPL-LICENSE.txt in
+//+  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.
 //+-----------------------------------------------------------------------------
-
 
 // --- Creates the "create"-sub-page.
 function makeCreate(psi)

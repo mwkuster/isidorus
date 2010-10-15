@@ -1,5 +1,6 @@
 * text=auto !eol
 docs/LGPL-LICENSE.txt -text
+docs/LLGPL-LICENSE.txt -text
 docs/TODOs.txt svneol=native#text/plain
 docs/collection_feed.png -text svneol=unset#image/png
 docs/fragments_feed.png -text svneol=unset#image/png

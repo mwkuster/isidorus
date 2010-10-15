@@ -1,9 +1,10 @@
 ;;+-----------------------------------------------------------------------------
 ;;+  Isidorus
-;;+  (c) 2008-2009 Marc Kuester, Christoph Ludwig, Lukas Giessmann
+;;+  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff
 ;;+
-;;+  Isidorus is freely distributable under the LGPL license.
-;;+  You can find a detailed description in trunk/docs/LGPL-LICENSE.txt.
+;;+  Isidorus is freely distributable under the LLGPL license.
+;;+  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt and
+;;+  trunk/docs/LGPL-LICENSE.txt.
 ;;+-----------------------------------------------------------------------------
 
 
@@ -11,9 +12,6 @@
 ;; * resolve non-local topicRefs
 ;; * either check the input document for XTM2.0 conformance in advance or
 ;;   raise some kind of error (--> condition) if something goes wrong. 
-;; * handle reifier attributes
-;; * handle variants
-;;
 
 (defpackage :xml-importer
   (:use :cl :cxml :elephant :datamodel :isidorus-threading)
