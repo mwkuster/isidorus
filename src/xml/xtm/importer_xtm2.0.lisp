@@ -396,6 +396,7 @@ topicRef }"
   (xpath-child-elems-by-qname  xtm-dom
                                *xtm2.0-ns* "association"))
 
+
 (defun import-only-topics
     (xtm-dom
      &key    
@@ -417,13 +418,15 @@ topicRef }"
                  (xtm-id d:*current-xtm*)
                  (revision (get-revision)))
   (declare (dom:element xtm-dom))
-  (declare (integer revision))        ;all topics that are imported in one go share the same revision
+  (declare (integer revision))
+   ;all topics/associations that are imported in one go share the same revision
   (assert elephant:*store-controller*)
   (with-writer-lock
     (with-tm (revision xtm-id tm-id)
-      (let
-	  ((topic-vector (get-topic-elems xtm-dom))
-	   (assoc-vector (get-association-elems xtm-dom)))
+      (let ((topic-vector (get-topic-elems xtm-dom))
+	    (assoc-vector (get-association-elems xtm-dom))
+	    (tm-ids
+	     (make-identifiers 'ItemIdentifierC xtm-dom "itemIdentity" revision)))
 	(loop for top-elem across topic-vector do
 	     (from-topic-elem-to-stub top-elem revision 
 				      :xtm-id xtm-id))
@@ -436,4 +439,10 @@ topicRef }"
 	     (format t "a")
 	     (from-association-elem assoc-elem revision 
 				    :tm tm
-				    :xtm-id xtm-id))))))
+				    :xtm-id xtm-id))
+	(loop for tm-id in tm-ids do
+	     (add-item-identifier tm tm-id :revision revision))
+	(let ((reifier-topic (get-reifier-topic xtm-dom revision)))
+	  (when reifier-topic
+	    (add-reifier tm reifier-topic :revision revision)))))))
+	  

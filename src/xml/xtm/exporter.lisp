@@ -39,12 +39,17 @@
        collect item)))
 
 
-(defmacro with-xtm2.0 (&body body)
+(defmacro with-xtm2.0 ((tm revision) &body body)
   "helper macro to build the Topic Map element"
     `(cxml:with-namespace ("t" *xtm2.0-ns*)
       (cxml:with-element 
           "t:topicMap" :empty
           (cxml:attribute "version" "2.0")
+	  (when ,tm
+	    (to-reifier-elem ,tm ,revision)
+	    (map 'list #'(lambda(x)
+			   (to-elem x ,revision))
+		 (item-identifiers ,tm :revision ,revision)))
           ,@body)))
 
 
@@ -54,7 +59,7 @@
        (cxml:with-namespace ("xlink" *xtm1.0-xlink*)
 	 (cxml:with-element 
              "t:topicMap" :empty
-             ,@body))))
+	     ,@body))))
 
 
 (defmacro export-to-elem (tm to-elem)
@@ -90,7 +95,7 @@
 	(with-open-file (stream xtm-path :direction :output)
 	  (cxml:with-xml-output (cxml:make-character-stream-sink stream :canonical nil)
 	    (if (eq xtm-format '2.0)
-		(with-xtm2.0
+		(with-xtm2.0 (tm revision)
 		  (export-to-elem tm #'(lambda(elem)
 					 (to-elem elem revision))))
 		(with-xtm1.0
@@ -109,7 +114,7 @@
       (with-revision revision
 	(cxml:with-xml-output (cxml:make-string-sink :canonical nil)
 	  (if (eq xtm-format '2.0)
-	      (with-xtm2.0
+	      (with-xtm2.0 (tm revision)
 		(export-to-elem tm #'(lambda(elem)
 				       (to-elem elem revision))))
 	      (with-xtm1.0
@@ -123,7 +128,7 @@
     (with-revision (revision fragment)
       (cxml:with-xml-output  (cxml:make-string-sink :canonical nil)
 	(if (eq xtm-format '2.0)
-	    (with-xtm2.0
+	    (with-xtm2.0 (nil nil)
               (to-elem fragment (revision fragment)))
 	    (with-xtm1.0
               (to-elem-xtm1.0 fragment (revision fragment))))))))

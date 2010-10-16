@@ -1177,7 +1177,7 @@
 	  (setf (end-revision last-version) revision)))))
 
 
-;;; TopicMapconstructC
+;;; TopicMapConstructC
 (defgeneric strictly-equivalent-constructs (construct-1 construct-2
 							&key revision)
   (:documentation "Checks if two topic map constructs are not identical but
@@ -3487,10 +3487,11 @@
 ;;; TopicMapC
 (defmethod equivalent-constructs ((construct-1 TopicMapC) (construct-2 TopicMapC)
 				  &key (revision *TM-REVISION*))
-  (declare (integer revision))
-  (when (intersection (item-identifiers construct-1 :revision revision)
-		      (item-identifiers construct-2 :revision revision))
-    t))
+  "In this definition TopicMaps are alwayas equal,
+   since item-identifiers and reifiers are not changing the result of
+   the TMDM equality."
+  (declare (ignorable revision))
+  t)
 
 
 (defgeneric TopicMapC-p (class-symbol)

@@ -13,7 +13,7 @@
   "Exports the reifier-attribute.
    The attribute is only exported if the reifier-topic contains at least
    one item-identifier."
-  (declare (ReifiableConstructC reifiable-construct)
+  (declare (type (or ReifiableConstructC nil) reifiable-construct)
 	   (type (or integer nil) revision))
   (when (and (reifier reifiable-construct :revision revision)
 	     (item-identifiers (reifier reifiable-construct :revision revision)

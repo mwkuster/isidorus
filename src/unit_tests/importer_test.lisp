@@ -39,7 +39,8 @@
            :test-topic-t100
            :test-topicmaps
 	   :test-variants
-	   :test-variants-xtm1.0))
+	   :test-variants-xtm1.0
+	   :test-merge-topicmaps))
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
 (in-package :importer-test)
@@ -683,8 +684,49 @@
                 tms) :test #'string=)))))
 
 
-            
-;as (importer-test:run-importer-tests)
+(test test-merge-topicmaps
+  (let ((dir "data_base")
+	(tm-id-1 "tm-id-1")
+	(tm-id-2 "tm-id-2"))
+    (with-fixture with-empty-db (dir)
+      (xml-importer:setup-repository *poems_light_tm_ii.xtm*
+				     dir :tm-id tm-id-1)
+      (xml-importer:import-xtm *poems_light_tm_ii_merge.xtm*
+			       dir :tm-id tm-id-2)
+      (with-revision 0
+	(let ((tm-1
+	       (d:identified-construct
+		(first (elephant:get-instances-by-value
+			'd:ItemIdentifierC 'd:uri tm-id-1))))
+	      (tm-2
+	       (d:identified-construct
+		(first (elephant:get-instances-by-value
+			'd:ItemIdentifierC 'd:uri tm-id-2)))))
+	  (is-true tm-1)
+	  (is-true tm-2)
+	  (is (eql tm-1 tm-2))
+	  (is-false (set-exclusive-or (map 'list #'d:uri (item-identifiers tm-1))
+				      (list tm-id-1 tm-id-2
+					    "http://some.where/poems_light_tm_ii_1"
+					    "http://some.where/poems_light_tm_ii_2")
+				      :test #'string=))
+	  (is (= (length (d:topics tm-1)) 9))
+	  (is (= (length (d:associations tm-1)) (+ 1 3)))
+	  (is (= (length (d:in-topicmaps (d:get-item-by-id "schiller"))) 1))
+	  (is (eql (first (d:in-topicmaps (d:get-item-by-id "schiller"))) tm-1))
+	  
+
+	  (let ((schiller-1 (d:get-item-by-id
+			     "schiller"
+			     :revision (first (last (d:get-all-revisions)))))
+		(schiller-2 (d:get-item-by-id
+			     "schiller"
+			     :revision (elt (d:get-all-revisions)
+					    (- (length (d:get-all-revisions)) 2)))))
+	    (is-true schiller-1)
+	    (is-false schiller-2)))))))
+
+
 (defun run-importer-tests ()
   (run! 'importer-test))
 

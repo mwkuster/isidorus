@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================= -->
+<!--  Isidorus                                                               -->
+<!--  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff          -->
+<!--                                                                         -->
+<!--  Isidorus is freely distributable under the LLGPL license.              -->
+<!--  This ajax module uses the frameworks PrototypeJs and Scriptaculous,    -->
+<!--  both are distributed under the MIT license.                            -->
+<!--  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt,   -->
+<!--  trunk/docs/LGPL-LICENSE.txt and in                                     -->
+<!--  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   -->
+<!-- ======================================================================= -->
+
+<tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/"
+	     reifier="http://some.where/poems/topicMap-reifier">
+  <!-- this file contains constructs that are originally defined as TM and
+       RDF. So certain constructs are not consistent because of test cases,
+       but all are valid! -->
+  <tm:itemIdentity href="http://some.where/poems_light_tm_ii_1"/>
+
+  <tm:itemIdentity href="http://some.where/poems_light_tm_ii_2"/>
+
+  <tm:topic id="topicMap-reifier">
+    <tm:itemIdentity href="http://some.where/poems/topicMap-reifier"/>
+  </tm:topic>
+
+  <tm:topic id="author">
+    <tm:subjectIdentifier href="http://some.where/types/Author"/>
+  </tm:topic>
+
+  <tm:topic id="poem">
+    <tm:subjectIdentifier href="http://some.where/types/Poem"/>
+  </tm:topic>
+
+  <tm:topic id="writer">
+    <tm:subjectIdentifier href="http://some.where/roletype/writer"/>
+  </tm:topic>
+
+  <tm:topic id="written">
+    <tm:subjectIdentifier href="http://some.where/roletype/written"/>
+  </tm:topic>
+
+  <tm:topic id="wrote">
+    <tm:subjectIdentifier href="http://some.where/relationship/wrote"/>
+  </tm:topic>
+
+  <tm:topic id="goethe">
+    <tm:subjectIdentifier href="http://some.where/author/Goethe"/>
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="zauberlehrling">
+    <tm:subjectIdentifier href="http://some.where/poem/Der_Zauberlehrling"/>
+    <tm:itemIdentity href="http://some.where/poem/Zauberlehrling_itemIdentity_1"/>
+    <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#wrote"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#written"/></tm:type>
+      <tm:topicRef href="#zauberlehrling"/>
+    </tm:role>
+  </tm:association>
+</tm:topicMap>
