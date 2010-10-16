@@ -40,7 +40,8 @@
            :test-topicmaps
 	   :test-variants
 	   :test-variants-xtm1.0
-	   :test-merge-topicmaps))
+	   :test-merge-topicmaps
+	   :test-merge-topicmaps-xtm1.0))
 (declaim (optimize (debug 3) (speed 0) (safety 3) (space 0) (compilation-speed 0)))
 
 (in-package :importer-test)
@@ -710,6 +711,9 @@
 					    "http://some.where/poems_light_tm_ii_1"
 					    "http://some.where/poems_light_tm_ii_2")
 				      :test #'string=))
+	  (is (eql (reifier tm-1)
+		   (d:get-item-by-item-identifier
+		    "http://some.where/poems/topicMap-reifier")))
 	  (is (= (length (d:topics tm-1)) 9))
 	  (is (= (length (d:associations tm-1)) (+ 1 3)))
 	  (is (= (length (d:in-topicmaps (d:get-item-by-id "schiller"))) 1))
@@ -725,6 +729,25 @@
 					    (- (length (d:get-all-revisions)) 2)))))
 	    (is-true schiller-1)
 	    (is-false schiller-2)))))))
+
+
+(test test-merge-topicmaps-xtm1.0
+  (let ((dir "data_base")
+	(tm-id-1 "tm-id-1"))
+    (with-fixture with-empty-db (dir)
+      (xml-importer:setup-repository *poems_light_tm_reification_xtm1.0.xtm*
+				     dir :tm-id tm-id-1 :xtm-format '1.0)
+      (elephant:open-store (xml-importer:get-store-spec dir))
+      (with-revision 0
+	(let ((tm-1
+	       (d:identified-construct
+		(first (elephant:get-instances-by-value
+			'd:ItemIdentifierC 'd:uri tm-id-1)))))
+	  (is-true tm-1)
+	  (is (= (length (topics tm-1)) 8))
+	  (is (= (length (associations tm-1)) (+ 1 2)))
+	  (is (eql (reifier tm-1)
+		   (get-item-by-psi "#tm-reifier"))))))))
 
 
 (defun run-importer-tests ()

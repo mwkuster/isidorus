@@ -549,4 +549,7 @@
 	     (format t "a")
 	     (from-association-elem-xtm1.0 assoc-elem revision
 					   :tm tm
-					   :xtm-id xtm-id))))))
+					   :xtm-id xtm-id))
+	(let ((reifier-topic (get-reifier-topic-xtm1.0 xtm-dom revision)))
+	  (when reifier-topic
+	    (add-reifier tm reifier-topic :revision revision)))))))

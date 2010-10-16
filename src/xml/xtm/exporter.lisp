@@ -53,12 +53,14 @@
           ,@body)))
 
 
-(defmacro with-xtm1.0 (&body body)
+(defmacro with-xtm1.0 ((tm revision) &body body)
   "helper macro to build the Topic Map element"
     `(cxml:with-namespace ("t" *xtm1.0-ns*)
        (cxml:with-namespace ("xlink" *xtm1.0-xlink*)
 	 (cxml:with-element 
              "t:topicMap" :empty
+	     (when ,tm
+	       (to-reifier-elem-xtm1.0 ,tm ,revision))
 	     ,@body))))
 
 
@@ -98,7 +100,7 @@
 		(with-xtm2.0 (tm revision)
 		  (export-to-elem tm #'(lambda(elem)
 					 (to-elem elem revision))))
-		(with-xtm1.0
+		(with-xtm1.0 (tm revision)
 		  (export-to-elem tm #'(lambda(elem)
 					 (to-elem-xtm1.0 elem revision)))))))))))
 
@@ -117,7 +119,7 @@
 	      (with-xtm2.0 (tm revision)
 		(export-to-elem tm #'(lambda(elem)
 				       (to-elem elem revision))))
-	      (with-xtm1.0
+	      (with-xtm1.0 (tm revision)
 		(export-to-elem tm #'(lambda(elem)
 				       (to-elem-xtm1.0 elem revision))))))))))
 
@@ -130,5 +132,5 @@
 	(if (eq xtm-format '2.0)
 	    (with-xtm2.0 (nil nil)
               (to-elem fragment (revision fragment)))
-	    (with-xtm1.0
+	    (with-xtm1.0 (nil nil)
               (to-elem-xtm1.0 fragment (revision fragment))))))))

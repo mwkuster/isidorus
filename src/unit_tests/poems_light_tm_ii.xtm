@@ -13,9 +13,6 @@
 
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/"
 	     reifier="http://some.where/poems/topicMap-reifier">
-  <!-- this file contains constructs that are originally defined as TM and
-       RDF. So certain constructs are not consistent because of test cases,
-       but all are valid! -->
   <tm:itemIdentity href="http://some.where/poems_light_tm_ii_1"/>
 
   <tm:itemIdentity href="http://some.where/poems_light_tm_ii_2"/>
