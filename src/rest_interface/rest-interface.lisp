@@ -81,11 +81,6 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (setf *server-acceptor* (make-instance 'hunchentoot:acceptor :address host-name :port port))
   (setf hunchentoot:*lisp-errors-log-level* :info)
   (setf hunchentoot:*message-log-pathname* "./hunchentoot-errors.log")
-  (map 'list #'(lambda(top)
-		 (let ((psis-of-top (psis top)))
-		   (when psis-of-top
-		     (create-latest-fragment-of-topic (uri (first psis-of-top))))))
-       (elephant:get-instances-by-class 'd:TopicC))
   (hunchentoot:start *server-acceptor*))
 
 (defun shutdown-tm-engine ()

@@ -83,7 +83,7 @@
 		return role)))
 	(when role-to-delete
 	  (d:delete-role parent-assoc role-to-delete :revision revision)
-	  t)))))
+	  role-to-delete)))))
 
 
 (defun delete-association-from-json (json-decoded-list &key
@@ -94,7 +94,7 @@
   (let ((assoc (find-association json-decoded-list :revision revision)))
     (when assoc
       (d:mark-as-deleted assoc :revision revision :source-locator nil)
-      t)))
+      assoc)))
 
 
 (defun make-role-plist (json-decoded-list &key (revision *TM-REVISION*))
@@ -217,7 +217,7 @@
 				scopes (d:themes var :revision revision))))
 		return var)))	(when var-to-delete
 	  (delete-variant parent-name var-to-delete :revision revision)
-	  t)))))
+	  var-to-delete)))))
 
 
 (defun delete-occurrence-from-json (json-decoded-list parent-top
@@ -258,7 +258,7 @@
 		return occ)))
 	(when occ-to-delete
 	  (delete-occurrence parent-top occ-to-delete :revision revision)
-	  t)))))
+	  occ-to-delete)))))
 
 
 (defun delete-name-from-json (json-decoded-list parent-top
@@ -287,7 +287,7 @@
 		return name)))
 	(when name-to-delete
 	  (delete-name parent-top name-to-delete :revision revision)
-	  t)))))
+	  name-to-delete)))))
 
 
 (defun delete-identifier-from-json (uri class delete-function
@@ -302,7 +302,7 @@
 	  (apply delete-function
 		 (list (d:identified-construct id :revision revision)
 		       id :revision revision))
-	  t)
+	  id)
 	nil)))
 
 
@@ -314,7 +314,7 @@
 			json-decoded-list :revision revision)))
     (when top-to-delete
       (mark-as-deleted top-to-delete :source-locator nil :revision revision)
-      t)))
+      top-to-delete)))
 
 
 (defun get-ids-from-json (json-decoded-list)

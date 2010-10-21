@@ -9,6 +9,11 @@
 
 (in-package :rest-interface)
 
+;caching tables
+(defparameter *type-table* nil)
+(defparameter *instance-table* nil)
+
+
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-get-prefix* "/json/get/(.+)$")
 ;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
@@ -70,6 +75,11 @@
 			      (mark-as-deleted-url *mark-as-deleted-url*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
+
+  ;initializes cache and fragments
+  (init-cache)
+  (format t "~%")
+  (init-fragments)
 
   ;; registers the http-code 500 for an internal server error to the standard
   ;; return codes. so there won't be attached a hunchentoot default message,
@@ -149,7 +159,10 @@
   (declare (ignorable param))
   (handler-case (let ((topic-types 
 		         (with-reader-lock
-			   (json-tmcl::return-all-tmcl-types :revision 0))))
+			   (map 'list #'(lambda (oid)
+					  (elephant::controller-recreate-instance
+					   elephant::*store-controller* oid))
+				*type-table*))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  (json:encode-json-to-string
 		   (map 'list #'(lambda(y)
@@ -168,7 +181,10 @@
   (declare (ignorable param))
   (handler-case (let ((topic-instances 
 		         (with-reader-lock
-			   (json-tmcl::return-all-tmcl-instances :revision 0))))
+			   (map 'list #'(lambda (oid)
+					  (elephant::controller-recreate-instance
+					   elephant::*store-controller* oid))
+				*instance-table*))))
 		  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
 		  (json:encode-json-to-string
 		   (map 'list #'(lambda(y)
@@ -314,8 +330,11 @@
 	    (eq http-method :POST))
 	(let ((external-format (flexi-streams:make-external-format :UTF-8 :eol-style :LF)))
 	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
-	    (handler-case (with-writer-lock 
-			    (json-importer:json-to-elem json-data))
+	    (handler-case
+		(with-writer-lock 
+		  (let ((frag (json-importer:json-to-elem json-data)))
+		    (when frag
+		      (push-to-cache (d:topic frag)))))
 	      (condition (err)
 		(progn
 		  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
@@ -396,7 +415,11 @@
 		  (let ((result (json-delete-interface:mark-as-deleted-from-json
 				 json-data :revision (d:get-revision))))
 		    (if result
-			(format nil "") ;operation succeeded
+			(progn
+			  (when (typep result 'd:TopicC)
+			    (delete (elephant::oid result) *type-table*)
+			    (delete (elephant::oid result) *instance-table*))
+			  (format nil "")) ;operation succeeded
 			(progn
 			  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
 			  (format nil "object not found")))))
@@ -456,3 +479,48 @@
 		   (incf idx)))
 	     (unless (< idx (length str))
 	       (return ret-str)))))))
+
+
+(defun init-cache()
+  "Initializes the type and instance cache-tables with all valid types/instances"
+  (with-writer-lock
+    (setf *type-table* nil)
+    (setf *instance-table* nil)
+    (let ((topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*
+				      :revision 0))
+	  (topictype-constraint (json-tmcl::is-type-constrained :revision 0)))
+      (format t "~%initialize cache: ")
+      (map 'list #'(lambda(top)
+		     (format t ".")
+		     (push-to-cache top topictype topictype-constraint))
+	   (elephant:get-instances-by-class 'TopicC)))))
+
+
+(defun push-to-cache (topic-instance &optional
+		      (topictype
+		       (get-item-by-psi
+			json-tmcl::*topictype-psi* :revision 0))
+		      (topictype-constraint
+		       (json-tmcl::is-type-constrained :revision 0)))
+  "Pushes the given topic-instance into the correspondng cache-tables"
+  (when (not (json-tmcl::abstract-p topic-instance :revision 0))
+    (handler-case (progn
+		    (json-tmcl::topictype-p
+		     topic-instance topictype topictype-constraint nil 0)
+		    (push (elephant::oid topic-instance) *type-table*))
+      (condition () nil)))
+  (handler-case (progn
+		  (json-tmcl::valid-instance-p topic-instance nil nil 0)
+		  (push (elephant::oid topic-instance) *instance-table*))
+    (condition () nil)))
+
+
+(defun init-fragments ()
+  "Creates fragments of all topics that have a PSI."
+  (format t "create fragments: ")
+  (map 'list #'(lambda(top)
+		 (let ((psis-of-top (psis top)))
+		   (when psis-of-top
+		     (format t ".")
+		     (create-latest-fragment-of-topic (uri (first psis-of-top))))))
+       (elephant:get-instances-by-class 'd:TopicC)))
