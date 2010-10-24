@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================= -->
+<!--  Isidorus                                                               -->
+<!--  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff          -->
+<!--                                                                         -->
+<!--  Isidorus is freely distributable under the LLGPL license.              -->
+<!--  This ajax module uses the frameworks PrototypeJs and Scriptaculous,    -->
+<!--  both are distributed under the MIT license.                            -->
+<!--  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt,   -->
+<!--  trunk/docs/LGPL-LICENSE.txt and in                                     -->
+<!--  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   -->
+<!-- ======================================================================= -->
+
+<tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
+  <!-- this file contains constructs that are originally defined as TM and
+       RDF. So certain constructs are not consistent because of test cases,
+       but all are valid! -->
+  <tm:topic id="goethe">
+    <tm:subjectIdentifier href="http://some.where/author/Goethe"/>
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
+    <tm:name>
+      <tm:itemIdentity href="http://some.where/name_ii_1"/>
+      <tm:type><tm:topicRef href="#firstName"/></tm:type>
+      <tm:value>Johann Wolfgang</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#lastName"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">von Goethe</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="UUID-born-event">
+    <tm:instanceOf><tm:topicRef href="#event"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#date"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">28.08.1749</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="frankfurt_m">
+    <tm:subjectIdentifier href="http://some.where/metropolis/FrankfurtMain"/>
+    <tm:instanceOf><tm:topicRef href="#metropolis"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">659000</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#fullName"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Frankfurt am Main</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="germany">
+    <tm:subjectIdentifier href="http://some.where/country/Germany"/>
+    <tm:instanceOf><tm:topicRef href="#country"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#nativeName"/></tm:type>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Deutschland</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">82099232</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="berlin">
+    <tm:subjectIdentifier href="http://some.where/metropolis/Berlin"/>
+    <tm:instanceOf><tm:topicRef href="#metropolis"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#fullName"/></tm:type>
+      <tm:resourceData>Berlin</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">3431473</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="UUID-died-event">
+    <tm:instanceOf><tm:topicRef href="#event"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#date"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">22.03.1832</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="weimar">
+    <tm:subjectIdentifier href="http://some.where/city/Weimar"/>
+    <tm:instanceOf><tm:topicRef href="#city"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#fullName"/></tm:type>
+      <tm:resourceData>Weimar</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#population"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedLong">64720</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="zauberlehrling">
+    <tm:subjectIdentifier href="http://some.where/poem/Der_Zauberlehrling"/>
+    <tm:subjectIdentifier href="http://some.where/poem/Zauberlehrling"/>
+    <tm:itemIdentity href="http://some.where/poem/Zauberlehrling_itemIdentity_1"/>
+    <tm:itemIdentity href="http://some.where/poem/Zauberlehrling_itemIdentity_2"/>
+    <tm:subjectLocator href="http://some.where/resource_1"/>
+    <tm:subjectLocator href="http://some.where/resource_2"/>
+    <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:itemIdentity href="http://some.where/occurrence_ii_1"/>
+      <tm:itemIdentity href="http://some.where/occurrence_ii_2"/>
+      <tm:type><tm:topicRef href="#title"/></tm:type>
+      <tm:scope>
+	<tm:topicRef href="#de"/>
+	<tm:topicRef href="#en"/>
+      </tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Der Zauberlehrling</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#content"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Hat der alte Hexenmeister ...</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="UUID-dateRange-1">
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#start"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1797</tm:resourceData>
+    </tm:occurrence>
+        <tm:occurrence>
+      <tm:type><tm:topicRef href="#end"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1797</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="erlkoenig">
+    <tm:subjectIdentifier href="http://some.where/ballad/Der_Erlkoenig"/>
+    <tm:instanceOf><tm:topicRef href="#ballad"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#title"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Der Erlkönig</tm:resourceData>
+      <tm:scope><tm:topicRef href="#en"/></tm:scope>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#content"/></tm:type>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Wer reitet so spät durch Nacht und Wind? ...</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="UUID-dateRange-2">
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#start"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1782</tm:resourceData>
+    </tm:occurrence>
+        <tm:occurrence>
+      <tm:type><tm:topicRef href="#end"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1782</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="prometheus">
+    <tm:subjectIdentifier href="http://some.where/poem/Prometheus"/>
+    <tm:instanceOf><tm:topicRef href="#poem"/></tm:instanceOf>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#title"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Prometheus</tm:resourceData>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#content"/></tm:type>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Bedecke deinen Himmel, Zeus, ...</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="UUID-dateRange-3">
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#start"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">01.01.1772</tm:resourceData>
+    </tm:occurrence>
+        <tm:occurrence>
+      <tm:type><tm:topicRef href="#end"/></tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">31.12.1774</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="dateRange">
+    <tm:subjectIdentifier href="http://some.where/relationship/dateRange"/>
+  </tm:topic>
+
+  <tm:topic id="officialese">
+    <tm:subjectIdentifier href="http://some.where/relationship/officialese"/>
+  </tm:topic>
+
+  <tm:topic id="content">
+    <tm:subjectIdentifier href="http://some.where/relationship/content"/>
+  </tm:topic>
+
+  <tm:topic id="start">
+    <tm:subjectIdentifier href="http://some.where/relationship/start"/>
+  </tm:topic>
+
+  <tm:topic id="end">
+    <tm:subjectIdentifier href="http://some.where/relationship/end"/>
+  </tm:topic>
+
+  <tm:topic id="de">
+    <tm:subjectIdentifier href="http://isidorus/rdf2tm_mapping/scope/de"/>
+  </tm:topic>
+
+  <tm:topic id="en">
+    <tm:subjectIdentifier href="http://some.where/scope/en"/>
+  </tm:topic>
+
+  <tm:topic id="title">
+    <tm:subjectIdentifier href="http://some.where/relationship/title"/>
+  </tm:topic>
+
+  <tm:topic id="poem">
+    <tm:subjectIdentifier href="http://some.where/types/Poem"/>
+  </tm:topic>
+
+  <tm:topic id="ballad">
+    <tm:subjectIdentifier href="http://some.where/types/Ballad"/>
+  </tm:topic>
+
+  <tm:topic id="supertype-subtype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype-subtype"/>
+  </tm:topic>
+
+  <tm:topic id="supertype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype"/>
+  </tm:topic>
+
+  <tm:topic id="subtype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/subtype"/>
+  </tm:topic>
+
+  <tm:topic id="region">
+    <tm:subjectIdentifier href="http://some.where/types/Region"/>
+  </tm:topic>
+
+  <tm:topic id="city">
+    <tm:subjectIdentifier href="http://some.where/types/City"/>
+  </tm:topic>
+
+  <tm:topic id="died">
+    <tm:subjectIdentifier href="http://some.where/relationship/died"/>
+  </tm:topic>
+
+  <tm:topic id="capital">
+    <tm:subjectIdentifier href="http://some.where/relationship/capital"/>
+  </tm:topic>
+
+  <tm:topic id="german">
+    <tm:subjectIdentifier href="http://some.where/language/German"/>
+    <tm:instanceOf><tm:topicRef href="#language"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="language">
+    <tm:subjectIdentifier href="http://some.where/types/Language"/>
+  </tm:topic>
+
+  <tm:topic id="population">
+    <tm:subjectIdentifier href="http://some.where/relationship/population"/>
+  </tm:topic>
+
+  <tm:topic id="nativeName">
+    <tm:subjectIdentifier href="http://some.where/relationship/nativeName"/>
+  </tm:topic>
+
+  <tm:topic id="country">
+    <tm:subjectIdentifier href="http://some.where/types/Country"/>
+  </tm:topic>
+
+  <tm:topic id="metropolis">
+    <tm:subjectIdentifier href="http://some.where/types/Metropolis"/>
+  </tm:topic>
+
+  <tm:topic id="locatedIn">
+    <tm:subjectIdentifier href="http://some.where/relationship/locatedIn"/>
+  </tm:topic>
+
+  <tm:topic id="place">
+    <tm:subjectIdentifier href="http://some.where/relationship/place"/>
+  </tm:topic>
+
+  <tm:topic id="fullName">
+    <tm:subjectIdentifier href="http://some.where/relationship/fullName"/>
+  </tm:topic>
+
+  <tm:topic id="date">
+    <tm:subjectIdentifier href="http://some.where/relationship/date"/>
+  </tm:topic>
+
+  <tm:topic id="born">
+    <tm:subjectIdentifier href="http://some.where/relationship/born"/>
+  </tm:topic>
+
+  <tm:topic id="author">
+    <tm:subjectIdentifier href="http://some.where/types/Author"/>
+  </tm:topic>
+
+  <tm:topic id="firstName">
+    <tm:subjectIdentifier href="http://some.where/relationship/firstName"/>
+  </tm:topic>
+
+  <tm:topic id="lastName">
+    <tm:subjectIdentifier href="http://some.where/relationship/lastName"/>
+  </tm:topic>
+
+  <tm:topic id="event">
+    <tm:subjectIdentifier href="http://some.where/types/Event"/>
+  </tm:topic>
+
+  <tm:topic id="isi-subject">
+    <tm:subjectIdentifier href="http://isidorus/rdf2tm_mapping/subject"/>
+  </tm:topic>
+
+  <tm:topic id="isi-object">
+    <tm:subjectIdentifier href="http://isidorus/rdf2tm_mapping/object"/>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#born"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-born-event"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#place"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-born-event"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#frankfurt_m"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#locatedIn"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#frankfurt_m"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#officialese"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#german"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#locatedIn"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#berlin"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#capital"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#berlin"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#died"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-died-event"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#place"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-died-event"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#weimar"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#locatedIn"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#weimar"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#germany"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#city"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:itemIdentity href="http://some.where/metropolis_supertye-subtype-association"/>
+    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:topicRef href="#region"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:topicRef href="#metropolis"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#dateRange"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#zauberlehrling"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-dateRange-1"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#dateRange"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#erlkoenig"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-dateRange-2"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#dateRange"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#prometheus"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-dateRange-3"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- === the rdf:li elements are contained as a collection, to test the
+       export of collections =============================================== -->
+  <tm:topic id="wrote">
+    <tm:subjectIdentifier href="http://some.where/relationship/wrote"/>
+  </tm:topic>
+
+  <tm:topic id="rest">
+    <tm:subjectIdentifier href="http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"/>
+  </tm:topic>
+
+  <tm:topic id="first">
+    <tm:subjectIdentifier href="http://www.w3.org/1999/02/22-rdf-syntax-ns#first"/>
+  </tm:topic>
+
+  <tm:topic id="nil">
+    <tm:subjectIdentifier href="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </tm:topic>
+
+  <!-- first node -->
+  <tm:topic id="UUID-1-collection"/>
+  
+  <tm:association>
+    <tm:type><tm:topicRef href="#wrote"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-1-collection"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#first"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-1-collection"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#zauberlehrling"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#rest"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-1-collection"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-2-collection"/>
+    </tm:role>
+  </tm:association>
+  
+  <!-- second node -->
+  <tm:topic id="UUID-2-collection"/>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#first"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-2-collection"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#erlkoenig"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#rest"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-2-collection"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#UUID-3-collection"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- third node -->
+  <tm:topic id="UUID-3-collection"/>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#first"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-3-collection"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#prometheus"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type><tm:topicRef href="#rest"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-subject"/></tm:type>
+      <tm:topicRef href="#UUID-3-collection"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#isi-object"/></tm:type>
+      <tm:topicRef href="#nil"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- === tests some TM associations that owns mor than two roles ========= -->
+  <tm:topic id="authorInfo">
+    <tm:subjectIdentifier href="http://some.where/relationship/authorInfo"/>
+  </tm:topic>
+
+  <tm:topic id="schiller">
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#firstName"/></tm:type>
+      <tm:value>Johann Christoph Friedrich</tm:value>
+      <tm:variant>
+	<tm:itemIdentity href="http://some.where/variant_ii_1"/>
+	<tm:scope><tm:topicRef href="#display"/></tm:scope>
+	<tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Friedrich</tm:resourceData>
+      </tm:variant>
+    </tm:name>
+    <tm:name>
+      <tm:type><tm:topicRef href="#lastName"/></tm:type>
+      <tm:value>von Schiller</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#authorInfo"/></tm:type>
+      <tm:resourceRef href="http://de.wikipedia.org/wiki/Schiller"/>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="display">
+    <tm:subjectIdentifier href="http://www.topicmaps.org/xtm/1.0/core.xtm#display"/>
+  </tm:topic>
+
+  <tm:topic id="associatedWithEachOther">
+    <tm:subjectIdentifier href="http://some.where/relationship/associatedWithEachOther"/>
+  </tm:topic>
+
+  <tm:topic id="writer">
+    <tm:subjectIdentifier href="http://some.where/roletype/writer"/>
+  </tm:topic>
+
+  <tm:topic id="literature">
+    <tm:subjectIdentifier href="http://some.where/roletype/literature"/>
+  </tm:topic>
+  
+  <tm:association>
+    <tm:itemIdentity href="http://some.where/test-association"/>
+    <tm:type><tm:topicRef href="#associatedWithEachOther"/></tm:type>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#schiller"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#literature"/></tm:type>
+      <tm:topicRef href="#poem"/>
+    </tm:role>
+    <tm:role>
+      <tm:itemIdentity href="http://some.where/test-role"/>
+      <tm:type><tm:topicRef href="#literature"/></tm:type>
+      <tm:topicRef href="#ballad"/>
+    </tm:role>
+  </tm:association>
+</tm:topicMap>

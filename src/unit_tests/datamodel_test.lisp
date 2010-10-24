@@ -1950,7 +1950,9 @@
 	(is-false (d::equivalent-construct tm-1 :item-identifiers (list ii-2)))
 	(is-false (d::equivalent-construct tm-1 :reifier reifier-2))
 	(is-false (d::strictly-equivalent-constructs tm-1 tm-1))
-	(is-false (d::strictly-equivalent-constructs tm-1 tm-2))))))
+	;in our definition TopicMapC-constructs are always equal, since
+	;item-identifiers and reifiers are not used for TMDM equlity
+	(is-true (d::strictly-equivalent-constructs tm-1 tm-2))))))
 
 
 (test test-class-p ()

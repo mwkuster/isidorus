@@ -53,6 +53,8 @@
 (defparameter *ajax-javascript-url-prefix* "/javascripts")
 ;the url suffix that calls the mark-as-deleted handler
 (defparameter *mark-as-deleted-url* "/mark-as-deleted")
+;the get url to request the latest revision of the storage
+(defparameter *latest-revision-url* "/json/latest-revision/?$")
 
 
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
@@ -72,7 +74,8 @@
 			      (ajax-user-interface-css-directory-path *ajax-user-interface-css-directory-path*)
 			      (ajax-javascripts-directory-path *ajax-javascript-directory-path*)
 			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*)
-			      (mark-as-deleted-url *mark-as-deleted-url*))
+			      (mark-as-deleted-url *mark-as-deleted-url*)
+			      (latest-revision-url *latest-revision-url*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
 
@@ -148,6 +151,9 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted-handler)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher latest-revision-url #'return-latest-revision)
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -429,6 +435,25 @@
 		  (setf (hunchentoot:content-type*) "text")
 		  (format nil "Condition: \"~a\"" err))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
+(defun return-latest-revision ()
+  "Returns an integer that represents the latest revision that
+   is used in the storage."
+  (handler-case
+      (if (eql (hunchentoot:request-method*) :GET)
+	    (let ((sorted-revisions
+		   (with-reader-lock (sort (d:get-all-revisions) #'>))))
+	      (when sorted-revisions
+		(setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+		(format nil "~a" (first sorted-revisions))))
+	    (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))
+    (condition (err)
+      (progn
+	(setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+	(setf (hunchentoot:content-type*) "text")
+	(format nil "Condition: \"~a\"" err)))))
+		      
 
 
 ;; =============================================================================

@@ -72,6 +72,7 @@ src/unit_tests/poems.rdf -text
 src/unit_tests/poems.xtm -text
 src/unit_tests/poems_light.rdf -text
 src/unit_tests/poems_light.xtm -text
+src/unit_tests/poems_light.xtm.txt -text
 src/unit_tests/poems_light_tm_ii.xtm -text
 src/unit_tests/poems_light_tm_ii_merge.xtm -text
 src/unit_tests/poems_light_tm_reification_xtm1.0.xtm -text

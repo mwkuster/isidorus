@@ -111,9 +111,11 @@
 	     (concatenate 'string "\"rolePlayerConstraints\":"  value)))
 	  (otherrole-constraints
 	   (let ((value
-		  (get-otherrole-constraints
-		   (getf constraint-topics :otherrole-constraints)
-		   :revision revision)))
+		  (handler-case
+		      (get-otherrole-constraints
+		       (getf constraint-topics :otherrole-constraints)
+		       :revision revision)
+		    (condition () "null"))))
 	     (concatenate 'string "\"otherRoleConstraints\":" value))))
       (let ((json-string
 	     (concatenate 'string "{" associationtype "," associationrole-constraints
@@ -154,7 +156,8 @@
 							 :revision revision)))
 		       (loop for role in (player-in-roles constraint-topic
 							  :revision revision)
-			  when (and (eq constraint-role
+			  when (and (parent role :revision revision)
+				    (eq constraint-role
 					(instance-of role :revision revision))
 				    (eq applies-to (instance-of
 						    (parent role :revision revision)
@@ -697,6 +700,7 @@
 			   when (and (eq constraint-role
 					 (instance-of role
 						      :revision revision))
+				     (parent role :revision revision)
 				     (eq applies-to (instance-of
 						     (parent role :revision revision)
 						     :revision revision)))
@@ -1655,6 +1659,7 @@
 					(instance-of role :revision revision))
 				    (eq othertopictype-role
 					(instance-of role :revision revision)))
+				(parent role :revision revision)
 				(eq applies-to
 				    (instance-of (parent role :revision revision)
 						 :revision revision)))
@@ -1679,6 +1684,7 @@
 				   :revision revision)
 				when (and (eq constraint-role
 					      (instance-of c-role :revision revision))
+					  (parent c-role :revision revision)
 					  (eq applies-to
 					      (instance-of (parent c-role
 								   :revision revision)

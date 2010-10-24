@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :json-test
-  (:use 
+  (:use
    :common-lisp
    :xml-importer
    :json-exporter
@@ -46,7 +46,8 @@
 	   :test-delete-from-json-occurrence
 	   :test-delete-from-json-variant
 	   :test-delete-from-json-association
-	   :test-delete-from-json-role))
+	   :test-delete-from-json-role
+	   :test-occurrence-xml-content))
 
 
 (in-package :json-test)
@@ -56,6 +57,13 @@
      :description "tests various functions of the json module")
 
 (in-suite json-tests)
+
+
+(defun read-file (strm)
+  "Reads a file from the beginning to the end."
+  (if (= (cl-user::stream-file-position strm) (file-length strm))
+      ""
+      (format nil "~a~%~a" (read-line strm) (read-file strm))))
 
 
 (defvar *t100-1* "{\"topic\":{\"id\":\"t970\",\"itemIdentities\":[\"http://www.egovpt.org/itemIdentifiers#t100\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http://psi.egovpt.org/standard/Common+Lisp\"],\"instanceOfs\":[[\"http://psi.egovpt.org/types/standard\"]],\"names\":[{\"itemIdentities\":[\"http://www.egovpt.org/itemIdentifiers#t100_n1\",\"http://www.egovpt.org/itemIdentifiers#t100_n1a\"],\"type\":null,\"scopes\":null,\"value\":\"Common Lisp\",\"variants\":[{\"itemIdentities\":[\"http://www.egovpt.org/itemIdentifiers#t100_n_v1\"],\"scopes\":[[\"http://www.topicmaps.org/xtm/1.0/core.xtm#sort\"],[\"http://psi.egovpt.org/types/long-name\"]],\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http://www.w3.org/2001/XMLSchema#string\",\"value\":\"Common-Lisp\"}}]}],\"occurrences\":[{\"itemIdentities\":[\"http://www.egovpt.org/itemIdentifiers#t100_o1\"],\"type\":[\"http://psi.egovpt.org/types/links\"],\"scopes\":null,\"resourceRef\":\"http://www.common-lisp.net/\",\"resourceData\":null}]},\"topicStubs\":[{\"id\":\"t220\",\"itemIdentities\":[\"http://psi.egovpt.org/itemIdentifiers#t3\",\"http://www.egovpt.org/itemIdentifiers#t3\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http://psi.egovpt.org/types/standard\"]},{\"id\":\"t68\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"http://www.topicmaps.org/xtm/1.0/core.xtm#sort\"]},{\"id\":\"t284\",\"itemIdentities\":[\"http://psi.egovpt.org/itemIdentifiers#t50a\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http://psi.egovpt.org/types/long-name\"]},{\"id\":\"t324\",\"itemIdentities\":[\"http://psi.egovpt.org/itemIdentifiers#t55\",\"http://psi.egovpt.org/itemIdentifiers#t55_1\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http://psi.egovpt.org/types/links\"]}],\"associations\":null,\"tmIds\":[\"http://www.isidor.us/unittests/testtm\"]}")
@@ -2141,7 +2149,42 @@
 	      (is-false (mark-as-deleted-from-json j-req-3))
 	      (is (= (length (roles assoc-1)) 2))
 	      (is (= (length (roles assoc-2)) 2)))))))))
-	
+
+
+(test test-occurrence-xml-content
+  "Tests the handling of long xml-contents in occurrences when serialized
+   and deserialised to and from json."
+  (with-fixture with-empty-db ("data_base")
+    (elephant:open-store (xml-importer:get-store-spec "data_base"))
+    (let ((xml-data
+	   (with-open-file
+	       (stream unittests-constants::*poems_light.xtm.txt*
+		       :direction :input)
+	     (read-file stream)))
+	  (rev-1 100))
+      (let* ((occ-type (make-construct 'd:TopicC
+				       :start-revision rev-1
+				       :psis (list (make-construct 'd:PersistentIdC
+								   :start-revision rev-1
+								   :uri "occ-type"))))
+	     (top (make-construct 'd:TopicC
+				  :start-revision rev-1
+				  :psis (list (make-construct 'd:PersistentIdC
+							      :uri "test-topic"
+							      :start-revision rev-1))
+				  :occurrences
+				  (list (make-construct 'd:OccurrenceC
+							:start-revision rev-1
+							:instance-of occ-type
+							:charvalue xml-data)))))
+	(is-true (occurrences top))
+	(is (string= (d:charvalue (first (occurrences top))) xml-data))
+	(let ((json-string
+	       (to-json-string (first (occurrences top)))))
+	  (is (string= (cdr (third (fifth (json:decode-json-from-string
+					   json-string))))
+		       xml-data)))))))
+    
 
 
 
@@ -2173,4 +2216,5 @@
   (it.bese.fiveam:run! 'test-delete-from-json-occurrence)
   (it.bese.fiveam:run! 'test-delete-from-json-variant)
   (it.bese.fiveam:run! 'test-delete-from-json-association)
-  (it.bese.fiveam:run! 'test-delete-from-json-role))
+  (it.bese.fiveam:run! 'test-delete-from-json-role)
+  (it.bese.fiveam:run! 'test-occurrence-xml-content))

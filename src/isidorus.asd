@@ -113,6 +113,7 @@
 				     (:static-file "poems.rdf")
 				     (:static-file "poems_light.rdf")
 				     (:static-file "poems_light.xtm")
+				     (:static-file "poems_light.xtm.txt")
 				     (:static-file "poems_light_tm_ii.xtm")
 				     (:static-file "poems_light_tm_ii_merge.xtm")
 				     (:static-file "poems_light_tm_reification_xtm1.0.xtm")

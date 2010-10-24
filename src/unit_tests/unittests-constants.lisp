@@ -31,6 +31,7 @@
 	   :*atom-conf.lisp*
 	   :*poems_light.rdf*
 	   :*poems_light.xtm*
+	   :*poems_light.xtm.txt*
 	   :*full_mapping.rdf*
 	   :*reification_xtm1.0.xtm*
 	   :*reification_xtm2.0.xtm*
@@ -106,6 +107,10 @@
 (defparameter *poems_light.xtm*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "poems_light.xtm")))
+
+(defparameter *poems_light.xtm.txt*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "poems_light.xtm.txt")))
 
 (defparameter *full_mapping.rdf*
   (asdf:component-pathname
