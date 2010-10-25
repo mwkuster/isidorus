@@ -682,12 +682,13 @@
   (let ((psi-inst
 	 (elephant:get-instance-by-value
 	  'PersistentIdC 'uri topic-psi)))
-    (let ((latest-va
-	   (get-most-recent-versioned-assoc
-	    psi-inst 'identified-construct)))
-      (when (and latest-va (versions latest-va))
-	(identified-construct
-	 psi-inst :revision (start-revision (first (versions latest-va))))))))
+    (when psi-inst
+      (let ((latest-va
+	     (get-most-recent-versioned-assoc
+	      psi-inst 'identified-construct)))
+	(when (and latest-va (versions latest-va))
+	  (identified-construct
+	   psi-inst :revision (start-revision (first (versions latest-va)))))))))
 
 
 (defun get-db-instances-by-class (class-symbol &key (revision *TM-REVISION*))
@@ -2156,10 +2157,12 @@
     #'null
     (map 'list
 	 #'(lambda(x)
-	     (when (loop for psi in (psis (instance-of x :revision revision)
-					  :revision revision)
-		      when (string= (uri psi) constants:*instance-psi*)
-		      return t)
+	     (when (and (parent x :revision revision)
+			(instance-of x :revision revision)
+			(loop for psi in (psis (instance-of x :revision revision)
+					       :revision revision)
+			   when (string= (uri psi) constants:*instance-psi*)
+			   return t))
 	       (loop for role in (roles (parent x :revision revision)
 					:revision revision)
 		  when (not (eq role x))

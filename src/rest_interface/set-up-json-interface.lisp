@@ -252,12 +252,9 @@
 				hunchentoot:+http-not-found+)
 			  (setf (hunchentoot:content-type*) "text")
 			  (format nil "Topic \"~a\" not found." psis)))))
-	      (condition (err)
-		(progn
-		  (setf (hunchentoot:return-code*)
-			hunchentoot:+http-internal-server-error+)
-		  (setf (hunchentoot:content-type*) "text")
-		  (format nil "Condition: \"~a\"" err))))))
+	      (condition ()
+		(setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+		"{\"topicConstraints\":{\"exclusiveInstances\":null,\"subjectIdentifierConstraints\":null,\"subjectLocatorConstraints\":null,\"topicNameConstraints\":null,\"topicOccurrenceConstraints\":null,\"abstractConstraint\":false},\"associationsConstraints\":null}"))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
