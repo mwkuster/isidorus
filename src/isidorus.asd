@@ -27,12 +27,16 @@
 	       (:file "xml-constants" 
                       :depends-on ("xml/xtm/core_psis.xtm"
                                    "constants"))
+	       (:module "base-tools"
+			:components ((:file "base-tools")))
 	       (:module "model"
 			:components ((:file "exceptions")
 				     (:file "datamodel"
 					    :depends-on ("exceptions"))
+				     (:file "trivial-queries"
+					    :depends-on ("datamodel"))
                                      (:file "changes"
-                                            :depends-on ("datamodel"))
+                                            :depends-on ("datamodel" "trivial-queries"))
                                      (:file "model_tools"
                                             :depends-on ("exceptions")))
 			:depends-on ("constants"))
@@ -65,7 +69,8 @@
 			:depends-on ("constants"
                                      "xml-constants"
 				     "model"
-				     "threading"))
+				     "threading"
+				     "base-tools"))
 	       (:module "atom"
 			:components ((:file "atom")
 ;;                                      (:file "configuration"

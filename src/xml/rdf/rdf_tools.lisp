@@ -8,7 +8,8 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :rdf-importer
-  (:use :cl :cxml :elephant :datamodel :isidorus-threading :datamodel)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading :datamodel
+	:base-tools)
   (:import-from :constants
 		*rdf-ns*
 		*rdfs-ns*
@@ -78,7 +79,6 @@
 		absolutize-value
 		absolutize-id
 		concatenate-uri
-		push-string
 		node-to-string)
   (:import-from :xml-importer
 		get-uuid

@@ -46,6 +46,7 @@ src/ajax/javascripts/navi.js -text
 src/ajax/javascripts/requests.js -text
 src/ajax/javascripts/search.js -text
 src/ajax/javascripts/tmcl_tools.js -text
+src/base-tools/base-tools.lisp -text
 src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text
@@ -54,6 +55,7 @@ src/json/json_importer.lisp -text
 src/json/json_tmcl.lisp -text
 src/json/json_tmcl_constants.lisp -text
 src/json/json_tmcl_validation.lisp -text
+src/model/trivial-queries.lisp -text
 src/rest_interface/set-up-json-interface.lisp -text
 src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text

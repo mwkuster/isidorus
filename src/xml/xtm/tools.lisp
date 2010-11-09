@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :xml-tools
-  (:use :cl :cxml)
+  (:use :cl :cxml :base-tools)
   (:import-from :constants
 		*xml-ns*
 		*xmlns-ns*
@@ -29,16 +29,9 @@
 	   :absolutize-value
 	   :absolutize-id
 	   :concatenate-uri
-	   :push-string
 	   :node-to-string))
 
 (in-package :xml-tools)
-
-(defmacro push-string (obj place)
-  "Imitates the push macro but instead of pushing object in a list,
-   there will be appended the given string to the main string object."
-  `(setf ,place (concatenate 'string ,place ,obj)))
-
 
 (defun concatenate-uri (absolute-ns value)
   "Returns a string conctenated of the absolut namespace an the given value

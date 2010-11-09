@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :datamodel
-  (:use :cl :elephant :constants)
+  (:use :cl :elephant :constants :base-tools)
   (:nicknames :d)
   (:import-from :exceptions
 		duplicate-identifier-error
@@ -152,10 +152,22 @@
 	   :get-all-associations
 	   :get-all-tms
 
-
 	   ;;globals
 	   :*TM-REVISION*
-	   :*CURRENT-XTM*))
+	   :*CURRENT-XTM*
+	   
+	   ;;trivial-queries
+	   :roles-by-type
+	   :roles-by-player
+	   :filter-associations-by-type
+	   :filter-associations-by-role
+	   :associations-of
+	   :instance-of-associations
+	   :supertype-associations
+	   :direct-supertypes
+	   :supertypes
+	   :direct-instance-of
+	   :invoke-on))
 
 (in-package :datamodel)
 
