@@ -16,7 +16,8 @@
            :object-not-found-error
 	   :not-mergable-error
 	   :missing-argument-error
-	   :tm-reference-error))
+	   :tm-reference-error
+	   :bad-type-error))
 
 (in-package :exceptions)
 
@@ -103,6 +104,20 @@
    (new-reference
     :initarg :new-reference
     :accessor new-reference))
-  (:documentation "Thrown of the referenced-construct is already owned by another
+  (:documentation "Thrown if the referenced-construct is already owned by another
                    TM-construct (existing-reference) and is going to be referenced
                    by a second TM-construct (new-reference) at the same time."))
+
+
+(define-condition bad-type-error (error)
+  ((message
+    :initarg :message
+    :accessor message)
+   (expected-type
+    :initarg :expected-type
+    :accessor expected-type)
+   (result-object
+    :initarg :result-object
+    :accessor result-object))
+  (:documentation "Thrown if a bad result object with respect to the expected
+                   type was found."))

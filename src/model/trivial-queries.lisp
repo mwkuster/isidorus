@@ -225,15 +225,88 @@
        (remove-if #'null all-types)))))
 
 
-(defgeneric invoke-on (construct main-operation &key cast-operation)
+(defgeneric invoke-on (construct operation)
   (:documentation "Invokes the passed main operation on the characteristic's
                    value.
                    If cast-operation is set to a function the characteristic's
                    value is first casted by the cast-operation to another type
                    and afterwords processed by main-opertion.")
-  (:method ((construct TopicC) (main-operation Function) &key cast-operation)
-    (declare (type (or Null Function) cast-operation))
-    (let ((value (if cast-operation
-		     (apply cast-operation (list (charvalue construct)))
-		     (charvalue construct))))
-      (funcall main-operation value))))
+  (:method ((construct TopicC) (operation Function))
+    (funcall operation (charvalue construct))))
+
+
+(defgeneric names-by-type (construct type-identifier &key revision)
+  (:documentation "Returns all names that are of the corresponding type.")
+  (:method ((construct TopicC) (type-identifier IdentifierC)
+	    &key (revision *TM-REVISION*))
+    (declare (integer revision))
+    (let ((type-topic (identified-construct type-identifier :revision revision)))
+      (unless (typep type-topic 'TopicC)
+	(error (make-bad-type-condition (format nil "from name-by-type(): expected a topic as instance-of but found ~a" (type-of type-topic)) 'TopicC type-topic)))
+      (let ((results
+	     (map 'list #'(lambda(name)
+			    (when (instance-of name :revision revision)
+			      name))
+		  (names construct :revision revision))))
+	(remove-if #'null results)))))
+
+
+(defgeneric occurrences-by-type (construct type-identifier &key revision)
+  (:documentation "Returns all names that are of the corresponding type.")
+  (:method ((construct TopicC) (type-identifier IdentifierC)
+	    &key (revision *TM-REVISION*))
+    (declare (integer revision))
+    (let ((type-topic (identified-construct type-identifier :revision revision)))
+      (unless (typep type-topic 'TopicC)
+	(error (make-bad-type-condition (format nil "from occurrence-by-type(): expected a topic as instance-of but found ~a" (type-of type-topic)) 'TopicC type-topic)))
+      (let ((results
+	     (map 'list #'(lambda(occ)
+			    (when (instance-of occ :revision revision)
+			      occ))
+		  (occurrences construct :revision revision))))
+	(remove-if #'null results)))))
+
+
+(defgeneric characteristic-by-type (construct type-identifier &key revision)
+  (:documentation "Returns all characteristics that are of the
+                   corresponding type.")
+  (:method ((construct TopicC) (type-identifier IdentifierC)
+	    &key (revision *TM-REVISION*))
+    (declare (integer revision))
+    (union (names-by-type construct type-identifier :revision revision)
+	   (occurrences-by-type construct type-identifier :revision revision))))
+
+
+(defgeneric occurrences-by-value (construct filter &key revision)
+  (:documentation "Returns a list of all occurrences of the passed
+                   topic, that return a true value when calling filter
+                   on their charvalue.")
+  (:method ((construct TopicC) (filter Function) &key (revision *TM-REVISION*))
+    (let ((results
+	   (map 'list #'(lambda(occ)
+			  (when (invoke-on occ filter)
+			    occ))
+		(occurrences construct :revision revision))))
+      (remove-if #'null results))))
+
+
+(defgeneric names-by-value (construct filter &key revision)
+  (:documentation "Returns a list of all names of the passed
+                   topic, that return a true value when calling filter
+                   on their charvalue.")
+  (:method ((construct TopicC) (filter Function) &key (revision *TM-REVISION*))
+    (let ((results
+	   (map 'list #'(lambda(name)
+			  (when (invoke-on name filter)
+			    name))
+		(names construct :revision revision))))
+      (remove-if #'null results))))
+
+
+(defgeneric characteristic-by-value (construct filter &key revision)
+  (:documentation "Returns a list of all characteristics of the passed
+                   topic, that return a true value when calling filter.")
+  (:method ((construct TopicC) (filter Function) &key (revision *TM-REVISION*))
+    (declare (integer revision))
+    (union (names-by-value construct filter :revision revision)
+	   (occurrences-by-value construct filter :revision revision))))

@@ -15,7 +15,8 @@
 		object-not-found-error
 		missing-argument-error
 		not-mergable-error
-		tm-reference-error)
+		tm-reference-error
+		bad-type-error)
   (:import-from :constants
 		*xml-string*
 		*instance-psi*)
@@ -167,7 +168,13 @@
 	   :direct-supertypes
 	   :supertypes
 	   :direct-instance-of
-	   :invoke-on))
+	   :invoke-on
+	   :names-by-type
+	   :occurrencs-by-type
+	   :characteristics-by-type
+	   :occurrences-by-value
+	   :names-by-value
+	   :characteristics-by-value))
 
 (in-package :datamodel)
 
@@ -646,6 +653,14 @@
 		  :referenced-construct referenced-construct
 		  :existing-reference existing-reference
 		  :new-reference new-reference))
+
+
+(defun make-bad-type-condition (message expected-type result-object)
+  (make-condition
+   'bad-type-error
+   :message message
+   :expected-type expected-type
+   :result-object result-object))
 
 
 (defun make-not-mergable-condition (message construct-1 construct-2)
