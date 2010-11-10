@@ -40,6 +40,11 @@
                                      (:file "model_tools"
                                             :depends-on ("exceptions")))
 			:depends-on ("constants"))
+	       (:module "TM-SPARQL"
+			:components ((:file "sparql"
+					    :depends-on ("sparql_tokenizer"))
+				     (:file "sparql_tokenizer"))
+			:depends-on ("constants" "base-tools" "model"))
 	       (:module "xml"
 			:components ((:module "xtm"
 					      :components ((:file "tools")
@@ -160,6 +165,10 @@
 				     (:file "rdf_exporter_test"
 					    :depends-on ("fixtures"))
 				     (:file "datamodel_test"
+					    :depends-on ("fixtures"))
+				     (:file "sparql_test"
+					    :depends-on ("fixtures"))
+				     (:file "trivial_queries_test"
 					    :depends-on ("fixtures"))
 				     (:file "reification_test"
 					    :depends-on ("fixtures" "unittests-constants")))
