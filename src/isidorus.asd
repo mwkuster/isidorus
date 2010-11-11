@@ -39,7 +39,7 @@
                                             :depends-on ("datamodel" "trivial-queries"))
                                      (:file "model_tools"
                                             :depends-on ("exceptions")))
-			:depends-on ("constants"))
+			:depends-on ("constants" "base-tools"))
 	       (:module "TM-SPARQL"
 			:components ((:file "sparql"
 					    :depends-on ("sparql_tokenizer"))
@@ -177,7 +177,9 @@
 				     "model"
 				     "xml"
 				     "json"
-				     "threading"))
+				     "threading"
+				     "base-tools"
+				     "TM-SPARQL"))
 	       (:module "json"
 	                :components ((:file "json_exporter"
 					    :depends-on ("json_tmcl_constants"))

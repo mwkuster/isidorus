@@ -170,11 +170,13 @@
 	   :direct-instance-of
 	   :invoke-on
 	   :names-by-type
-	   :occurrencs-by-type
+	   :occurrences-by-type
 	   :characteristics-by-type
 	   :occurrences-by-value
 	   :names-by-value
-	   :characteristics-by-value))
+	   :characteristics-by-value
+	   :isa
+	   :aka))
 
 (in-package :datamodel)
 

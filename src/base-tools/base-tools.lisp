@@ -11,7 +11,9 @@
   (:use :cl)
   (:nicknames :tools)
   (:export :push-string
-	   :when-do))
+	   :when-do
+	   :remove-null
+	   :full-path))
 
 (in-package :base-tools)
 
@@ -31,3 +33,23 @@
 	 ,do-with-result
 	 nil)))
 
+
+(defun remove-null (lst)
+  "Removes all null values from the passed list."
+  (remove-if #'null lst))
+
+
+(defun full-path (pathname)
+  "Returns a string that represents the full path of the passed
+   CL:Pathname construct."
+  (declare (CL:Pathname pathname))
+  (let ((segments
+	 (remove-if #'null
+		    (map 'list #'(lambda(item)
+				   (when (stringp item)
+				     (concatenate 'string "/" item)))
+			 (pathname-directory pathname))))
+	(full-path-string ""))
+    (dolist (segment segments)
+      (push-string segment full-path-string))
+    (concatenate 'string full-path-string "/" (pathname-name pathname))))

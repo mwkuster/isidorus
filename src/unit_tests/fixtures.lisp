@@ -13,6 +13,7 @@
    :xml-importer
    :datamodel
    :it.bese.FiveAM
+   :base-tools
    :unittests-constants)
   (:import-from :constants
                 *xtm2.0-ns*)
@@ -38,7 +39,8 @@
            :*XTM-MERGE2-TM*
 	   :rdf-init-db
 	   :rdf-test-db
-	   :with-empty-db))
+	   :with-empty-db
+	   :with-tm-filled-db))
 
 (in-package :fixtures)
 
@@ -219,3 +221,13 @@
   (elephant:open-store (xml-importer:get-store-spec dir))
   (&body)
   (tear-down-test-db))
+
+
+(def-fixture with-tm-filled-db (dir xtm-path)
+  (clean-out-db dir)
+  (let ((tm-id "http://www.isidor.us/unittests/testtm")
+	(xtm-id (full-path xtm-path)))
+    (xml-importer:setup-repository xtm-path dir :tm-id tm-id :xtm-id xtm-id)
+    (elephant:open-store (xml-importer:get-store-spec dir))
+    (&body)
+    (tear-down-test-db)))

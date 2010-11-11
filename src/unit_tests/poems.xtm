@@ -2629,7 +2629,7 @@ The child in his arms finds he motionless, dead.</tm:resourceData>
   </tm:association>
 
   <tm:association>
-    <tm:itemIdentity href="wrrtten-by-erlkoenig-goethe"/>
+    <tm:itemIdentity href="written-by-erlkoenig-goethe"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
     <tm:role>
       <tm:type><tm:topicRef href="#writer"/></tm:type>

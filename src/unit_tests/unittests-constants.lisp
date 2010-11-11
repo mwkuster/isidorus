@@ -29,6 +29,7 @@
 	   :*t100.xtm*
 	   :*atom_test.xtm*
 	   :*atom-conf.lisp*
+	   :*poems.xtm*
 	   :*poems_light.rdf*
 	   :*poems_light.xtm*
 	   :*poems_light.xtm.txt*
@@ -99,6 +100,10 @@
 (defparameter *atom-conf.lisp*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "atom-conf")))
+
+(defparameter *poems.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "poems.xtm")))
 
 (defparameter *poems_light.rdf*
   (asdf:component-pathname
