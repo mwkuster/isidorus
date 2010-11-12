@@ -101,8 +101,8 @@
 					    :depends-on ("rest-interface"))
                                      (:file "read" 
                                             :depends-on ("rest-interface")))
-		       	:depends-on ("model" 
-				     "atom" 
+		       	:depends-on ("model"
+				     "atom"
 				     "xml"
 				     "json"
 				     "threading"))

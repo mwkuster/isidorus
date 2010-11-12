@@ -10,6 +10,7 @@
 (defpackage :rest-interface
   (:nicknames :rest)
   (:use :cl :hunchentoot 
+	:cxml
         :constants
         :atom 
         :datamodel
@@ -40,7 +41,8 @@
 	   :*ajax-user-interface-url*
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*
-	   :*ajax-javascript-url-prefix*))
+	   :*ajax-javascript-url-prefix*
+	   :*xtm-commit-prefix*))
 
 
 (in-package :rest-interface)

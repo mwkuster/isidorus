@@ -20,6 +20,9 @@
 (defparameter *get-rdf-prefix* "/json/get/rdf/(.+)$")
 ;the url to commit a json fragment by "put" or "post"
 (defparameter *json-commit-url* "/json/commit/?$")
+;the url to commit a TM-fragment in XTM 2.0 format, the regular
+;expression represents the topic map id
+(defparameter *xtm-commit-prefix* "/import/xtm/2.0/(.+)$")
 ;the url to get all topic psis of isidorus -> localhost:8000/json/psis
 (defparameter *json-get-all-psis* "/json/psis/?$")
 ;the url to get a summary of all topic stored in isidorus; you have to set the
@@ -75,7 +78,8 @@
 			      (ajax-javascripts-directory-path *ajax-javascript-directory-path*)
 			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*)
 			      (mark-as-deleted-url *mark-as-deleted-url*)
-			      (latest-revision-url *latest-revision-url*))
+			      (latest-revision-url *latest-revision-url*)
+			      (xtm-commit-prefix *xtm-commit-prefix*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
 
@@ -151,6 +155,9 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted-handler)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher xtm-commit-prefix #'xtm-import-handler)
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher latest-revision-url #'return-latest-revision)
@@ -450,8 +457,30 @@
 	(setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 	(setf (hunchentoot:content-type*) "text")
 	(format nil "Condition: \"~a\"" err)))))
-		      
 
+
+(defun xtm-import-handler (&optional tm-id)
+  "Imports the received data as XTM 2.0 topic map."
+  (assert tm-id)
+  (handler-case
+      (if (eql (hunchentoot:request-method*) :POST)
+	  (let ((external-format (flexi-streams:make-external-format
+				  :UTF-8 :eol-style :LF)))
+	    (let ((xml-data (hunchentoot:raw-post-data
+			     :external-format external-format
+			     :force-text t)))
+	      (let ((xml-dom
+		     (dom:document-element
+		      (cxml:parse xml-data (cxml-dom:make-dom-builder)))))
+		(xml-importer:importer xml-dom :tm-id tm-id
+				       :xtm-id (xml-importer::get-uuid))
+		(format nil ""))))
+	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))
+    (condition (err)
+      (progn
+	(setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+	(setf (hunchentoot:content-type*) "text")
+	(format nil "Condition: \"~a\"" err)))))
 
 ;; =============================================================================
 ;; --- some helper functions ---------------------------------------------------
