@@ -1,96 +1,114 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
-  <!-- ======================================================================= -->
-  <!--  Isidorus                                                               -->
-  <!--  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff          -->
-  <!--                                                                         -->
-  <!--  Isidorus is freely distributable under the LLGPL license.              -->
-  <!--  This ajax module uses the frameworks PrototypeJs and Scriptaculous,    -->
-  <!--  both are distributed under the MIT license.                            -->
-  <!--  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt,   -->
-  <!--  trunk/docs/LGPL-LICENSE.txt and in                                     -->
-  <!--  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   -->
-  <!-- ======================================================================= -->
-
-
   <!-- ===================================================================== -->
   <!-- === TMCL meta-model topics ========================================== -->
   <!-- ===================================================================== -->
   <tm:topic id="topictype">
-    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type"/> <!-- naming of psis: Prague, March 25-27, 2008, page 12 -->
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type"/>
+    <!-- naming of psis: Prague, March 25-27, 2008, page 12 -->
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="occurrencetype">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="associationtype">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="roletype">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="nametype">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="scopetype">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/scope-type"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- role types used to include the topictype metatypes in associations -->
   <tm:topic id="topictype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="occurrencetype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="associationtype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="roletype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="otherroletype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/other-role-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="othertopictype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/other-topic-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="nametype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="scopetype-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/scope-type-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- the constraint roletype -->
   <tm:topic id="constraint-role">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constraint-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- ===================================================================== -->
@@ -101,46 +119,60 @@
        defined by TMCL. -->
   <tm:topic id="constraint">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
- 
+
   <!-- this occurrence type is used to type a single occurrence on each
        constraint type. This occurrence holds the TMQL value used to 
        evaluate constraint instances for validity. -->
   <tm:topic id="validation-expression">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/validation-expression"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- the association type used to bind different components into a
        constraint -->
   <tm:topic id="applies-to">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/applies-to"/>
-    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationtype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- the card min facet is used on many constraint types -->
   <tm:topic id="card-min">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/card-min"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- the card max facet is used on many constraint types -->
   <tm:topic id="card-max">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/card-max"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- the reg exp facet is used on many constraint types -->
   <tm:topic id="regexp">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/reg-exp"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- the datatype facet is used on many constraint types -->
   <tm:topic id="datatype">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/datatype"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- ===================================================================== -->
@@ -161,15 +193,16 @@
 
 
   <!-- ===================================================================== -->
-  <!-- === schema type and schema definitions ============================== -->
+  <!-- === schema type and ?schema definitions ============================= -->
   <!-- ===================================================================== -->
 
   <!-- constraints can be bound to a schema -->
   <tm:topic id="schema">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/schema"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
-
 
   <!-- ===================================================================== -->
   <!-- === TMCL constraint types =========================================== -->
@@ -178,16 +211,23 @@
   <!-- topictype-constraint -->
   <tm:topic id="topictype-constraint">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type-constraint"/>
-  </tm:topic> <!-- standard constraints doesn't own a valiadtion-expression-occurrence: Prague, March 25-27, 2008, page 34-36 -->
+  </tm:topic>
+  <!-- standard constraints doesn't own a validation-expression-occurrence: Prague, March 25-27, 2008, page 34-36 -->
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#topictype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -198,13 +238,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#associationtype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -215,13 +261,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#roletype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -232,13 +284,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#occurrencetype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -249,13 +307,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#nametype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -266,16 +330,22 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#abstract-topictype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
-    </tm:association>
+  </tm:association>
 
 
   <!-- exclusive-instance -->
@@ -284,35 +354,45 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#exclusive-instance"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
-
-
   <!-- ===================================================================== -->
   <!-- === subjectidentifier/locator constraints =========================== -->
   <!-- ===================================================================== -->
-  
+
   <!-- subjectlocator-constraint -->
   <tm:topic id="subjectlocator-constraint">
     <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/subject-locator-constraint"/>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#subjectlocator-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -323,13 +403,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#subjectidentifier-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -345,13 +431,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#topicname-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -362,13 +454,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#topicoccurrence-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -379,13 +477,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#occurrencedatatype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -396,13 +500,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#uniqueoccurrence-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -413,13 +523,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#associationrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -430,13 +546,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#roleplayer-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -447,13 +569,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -468,13 +596,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#nametypescope-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -485,13 +619,19 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#occurrencetypescope-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
@@ -502,17 +642,22 @@
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#supertype-subtype"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#supertype-subtype"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#subtype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#subtype"/>
+      </tm:type>
       <tm:topicRef href="#associationtypescope-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#supertype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#supertype"/>
+      </tm:type>
       <tm:topicRef href="#constraint"/>
     </tm:role>
   </tm:association>
-
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: type handling ==================================== -->
@@ -522,35 +667,45 @@
        types -->
   <tm:topic id="ttc">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/ttc"/>
-    <tm:instanceOf><tm:topicRef href="#topictype-constraint"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype-constraint"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- only topics that are instances of associationtype are allowed as
        association types -->
   <tm:topic id="atc">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/atc"/>
-    <tm:instanceOf><tm:topicRef href="#associationtype-constraint"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationtype-constraint"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- only topics that are instances of roletype are allowed as
        association role types -->
   <tm:topic id="rtc">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/rtc"/>
-    <tm:instanceOf><tm:topicRef href="#roletype-constraint"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype-constraint"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- only topics that are instances of occurrencetype are allowed as
        occurrence types -->
   <tm:topic id="otc">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/otc"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype-constraint"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype-constraint"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <!-- only topics that are instances of nametype are allowed as
        name types -->
   <tm:topic id="ntc">
     <tm:subjectIdentifier href="http://some.where/constraint-psis/ntc"/>
-    <tm:instanceOf><tm:topicRef href="#nametype-constraint"/></tm:instanceOf>
+    <tm:instanceOf>
+      <tm:topicRef href="#nametype-constraint"/>
+    </tm:instanceOf>
   </tm:topic>
 
 
@@ -558,767 +713,3373 @@
   <!-- === own datamodel: base types ======================================= -->
   <!-- ===================================================================== -->
 
-  <!-- service -->
+  <!-- ===================================================================== -->
+  <!-- === topictype service =============================================== -->
+  <!-- ===================================================================== -->
   <tm:topic id="service">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
-
+  
+  <!-- name types for the topictype service -->
   <tm:topic id="service-name">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-name"/>
-    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Name"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#nametype"/>
+    </tm:instanceOf>
   </tm:topic>
-
-  <tm:topic id="description">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/description"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  
+  <!-- occurrence types for the topictype service-->
+  <tm:topic id="service-operation">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Operation"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:topic id="service-type">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-type"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Type"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <tm:topic id="service-environment">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-environment"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  <tm:topic id="service-description">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Description"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <tm:topic id="service-key">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-key"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  <tm:topic id="service-keywords">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Keywords"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <!-- url -->
-  <tm:topic id="url">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/url"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  <tm:topic id="description-location-uri">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Description-Location-URI"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <tm:topic id="url-content">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/url-content"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  <tm:topic id="inline-description-location">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Inline-Description-Location"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <!-- parameter -->
+  <tm:topic id="description-location-body">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Description-Location-Body"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="target-namespace">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Target-Namespace"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="use-target-ns">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Use-Target-NS"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="service-owner">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Owner"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="service-identifier">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Identifier"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="textgrid-url">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Textgrid-URL"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="tg-approved">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/TG-Approved"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === topictype hash-object =========================================== -->
+  <!-- ===================================================================== -->
+  <tm:topic id="hash-object">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Hash-Object"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <!-- occurrence types for the topic type hash-object -->
+  <tm:topic id="hash-type">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Hash-Type"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="hash-key">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Hash-Key"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="hash-value">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Hash-Value"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="hash-environment">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Hash-Environment"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === topictype parameter ============================================ -->
+  <!-- ===================================================================== -->
   <tm:topic id="parameter">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/parameter"/>
-    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
   </tm:topic>
 
+  <!-- name types for the topic type parameter -->
   <tm:topic id="parameter-name">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/parameter-name"/>
-    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Name"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#nametype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <!-- description is already defined for the topic-type "service" -->
-
-  <tm:topic id="default-value">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/default-value"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  <!-- occurrence types for the topic type parameter -->
+  <tm:topic id="parameter-type">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Type"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <!-- association service - url -->
-  <tm:topic id="has-url">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/has-url"/>
-    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+  <tm:topic id="parameter-id">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-ID"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
   </tm:topic>
 
+  <tm:topic id="parameter-param">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Param"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-mime-type">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Mime-Type"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-multiple">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Multiple"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-crud">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Crud"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-needs-b64-encoding">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Needs-B64-Encoding"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === topictype parameter-config ====================================== -->
+  <!-- ===================================================================== -->
+  <tm:topic id="parameter-config">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Config"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topictype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <!-- name types for the topic type parameter -->
+  <tm:topic id="parameter-config-name">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Config-Name"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#nametype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <!-- occurrence types for the topic type parameter -->
+  <tm:topic id="parameter-config-id">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Config-ID"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-config-default">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Config-Default"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-config-form">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Config-Form"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="parameter-config-data">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Config-Data"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencetype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+
+  <!-- ===================================================================== -->
+  <!-- === association type has-hash ======================================= -->
+  <!-- ===================================================================== -->
+
+  <!-- association has-hash -->
+  <tm:topic id="has-hash">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Has-Hash"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationtype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <!-- roles -->
   <tm:topic id="service-role">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Service-Role"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <tm:topic id="url-role">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/url-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  <tm:topic id="hash-role">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Hash-Role"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <!-- association url - parameter -->
+
+  <!-- ===================================================================== -->
+  <!-- === association type has-parameter ================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- association has-parameter -->
   <tm:topic id="has-parameter">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/has-parameter"/>
-    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Has-parameter"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationtype"/>
+    </tm:instanceOf>
   </tm:topic>
 
-  <!-- url-role is already defined for has-url associations -->
+  <!-- roles -->
+  <!-- service role as in has-hash-->
+
   <tm:topic id="parameter-role">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/parameter-role"/>
-    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Parameter-Role"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
   </tm:topic>
+
+
+
+  <!-- ===================================================================== -->
+  <!-- === association type has-config ===================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- association has-config -->
+  <tm:topic id="has-config">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Has-config"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationtype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
+  <!-- roles -->
+  <!-- parameter role as in has-parameter-->
+
+  <tm:topic id="config-role">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/Config-role"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roletype"/>
+    </tm:instanceOf>
+  </tm:topic>
+
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: exclusive type constraint ======================== -->
   <!-- ===================================================================== -->
-  <!-- same instances of the type service, url and parameter are not allowed -->
+  
+  <!-- instances composed of the types service, hash-object, parameter,
+       parameter-config are not allowed-->  
   <tm:topic id="exc">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/exc"/>
-    <tm:instanceOf><tm:topicRef href="#exclusive-instance"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/exc"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#exclusive-instance"/>
+    </tm:instanceOf>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#exc"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#exc"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#exc"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#description"/>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
     </tm:role>
   </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#exc"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: subjectIdentifier constraints ==================== -->
   <!-- ===================================================================== -->
-  <!-- topictype "service":
-         *psis: 1:1:"^http://textgrid.org/isidorus/.+/.+$"
-       topictype "url":
-         *psis: 1:1:"^http://textgrid.org/isidorus/url/.+$"
-       topictype "parameter"
-	 *psis: 1:1:"^http://textgrid.org/isidorus/parameter/.+$" -->
+  <!-- a topic of the type service has to have a psi of the form
+       "^http://textgrid.org/serviceregistry/service/.+$",
+       a topic of the type parameter has to have a psi of the form
+       "^http://textgrid.org/serviceregistry/parameter/.+$",
+       a topic of the type hash-object has to have a psi of the form
+       "^http://textgrid.org/serviceregistry/hash/.+$",
+       and a topic of the parameter-config poem has to have a psi of the form
+       "^http://some.where/psis/parameter-config/.+$".
+       further all topics can have mor psis of the form "^.+$" -->
 
   <!-- subjectidentifier of service -->
   <tm:topic id="sic-service">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/sic-service"/>
-    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/sic-service"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#subjectidentifier-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/isidorus/.+/.+$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/serviceregistry/service/.+$</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#sic-service"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
-  <!-- subjectidentifier of url -->
-  <tm:topic id="sic-url">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/sic-url"/>
-    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+  <!-- subjectidentifier of hash-object -->
+  <tm:topic id="sic-hash-object">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/sic-hash-object"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#subjectidentifier-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/isidorus/url/.+$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/serviceregistry/hash/.+$</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#sic-url"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#sic-hash-object"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
     </tm:role>
   </tm:association>
 
   <!-- subjectidentifier of parameter -->
   <tm:topic id="sic-parameter">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/sic-parameter"/>
-    <tm:instanceOf><tm:topicRef href="#subjectidentifier-constraint"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/sic-parameter"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#subjectidentifier-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/isidorus/parameter/.+$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/serviceregistry/parameter/.+$</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#sic-parameter"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter"/>
     </tm:role>
   </tm:association>
+
+  <!-- subjectidentifier of parameter-config -->
+  <tm:topic id="sic-parameter-config">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/sic-parameter-config"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#subjectidentifier-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/serviceregistry/parameter-config/.+$</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#sic-parameter-config"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: subjectLocator constraints ======================= -->
   <!-- ===================================================================== -->
-  <!-- topictype "service":
-         *locators: 0
-       topictype "url":
-         *locators: 0
-       topictype "parameter"
-	 *locators: 0 -->
+  <!-- all instances of service, parameter, hash-object and parameter-config
+       are not allowed to own a subjectLocator -->
 
-  <tm:topic id="slc-service-url-parameter">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/slc-service-url-parameter"/>
-    <tm:instanceOf><tm:topicRef href="#subjectlocator-constraint"/></tm:instanceOf>
+  <tm:topic id="slc-all">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/slc-all"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#subjectlocator-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.*$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.*</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#slc-service-url-parameter"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#slc-all"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#slc-service-url-parameter"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#slc-all"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#slc-service-url-parameter"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter"/>
     </tm:role>
   </tm:association>
+  
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#slc-all"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+  
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#slc-all"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: name constraints ================================= -->
   <!-- ===================================================================== -->
-  <!-- topictype "service":
-         *names: service-name:1:1:"^.+$"
-       topictype "param":
-         *names: param-name:1:1:"^.+$" -->
+  <!-- instances of the type service has to own a name of the type service-name.
+       it must be valid to the regular expression ".+".
+       instances of the type parameter has one name of the type parameter-name
+       with the regular expression ".+" -->
 
-  <!-- service-name -->
+  <!-- service service name -->
   <tm:topic id="service-name-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-name-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
-        <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-name-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicname-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#service-name-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#service-name-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#nametype-role"/>
+      </tm:type>
       <tm:topicRef href="#service-name"/>
     </tm:role>
   </tm:association>
-  
-  <!-- parameter-name -->
+
+  <!-- parameter parameter name -->
   <tm:topic id="parameter-name-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/parameter-name-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicname-constraint"/></tm:instanceOf>
-        <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-name-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicname-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter-name-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter-name-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#nametype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#nametype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter-name"/>
+    </tm:role>
+  </tm:association>
+  
+  <!-- parameter-config parameter-config name -->
+  <tm:topic id="parameter-config-name-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-config-name-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicname-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-name-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#nametype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-name"/>
     </tm:role>
   </tm:association>
 
   <!-- ===================================================================== -->
   <!-- === own datamodel: occurence constraints ============================ -->
   <!-- ===================================================================== -->
-  <!-- topictype "service":
-         *occurrences: service-key:1:1:"^.+$":xml:string
-         *occurrences: description:0:1:".*":xml:string
-	 *occurrences: service-type:0:1:".*":xml:string
-	 *occurrences: service-environment:1:1:"^.+$":xml:string
-       topictype "url":
-         *occurrences: url-content:1:1:"^.+$"
-       topictype "param":
-         *occurrences: description:0:1:".*"
-         *occurrences: default-value:0:1:".*" -->
+  <!-- the topictype service owns the foolowing occurrences:
+        *service-operation => xml:string => ".+" => {1}
+        *sericve-type => xml:string => ".+" => {1}
+        *service-description => xml:string => ".+" => {1}
+        *service-keywords => xml:string => ".+" => {0,1}
+        *description-location-uri => xml:anyUri => ".+" => {0,1}
+        *inline-description-location => xml:string => ".+" => {0,1}
+        *description-loction-body => xml:string => ".+" => {0,1}
+        *target-namespace => xml:string => ".+" => {0,1}
+        *use-target-ns => xml:Boolean => "(true)|(false)" => {0,1}
+        *service-owner => xml:string => ".+" => {1}
+        *service-identifier => xml:string => ".+" => {1} => unique-constraint
+        *textgrid-url => xml:anyUri => ".+" => {1}
+        *tg-approved => xml:Boolean => "(true)|(false)" => {1}
+       
+       the topictype hash-object owns the following occurrences:
+        *hash-type => xml:string => ".+" => {1}
+        *hash-key => xml:string => ".+" => {1}
+        *hash-value => xml:string => ".+" => {1}
+        *hash-environment => xml:string => ".+" => {1}
+        
+       the topictype parameter owns the following occurrences:
+        *parameter-type => xml:string => ".+" => {1}
+        *parameter-id => xml:string => ".+" => {1} => unique-constraint
+        *parameter-param => xml:string => ".+" => {1}
+        *parameter-mime-type => xml:string => ".+" => {1}
+        *parameter-multiple => xml:Boolean => "(true)|(false)" => {0,1}
+        *parameter-crud => xml:Boolean => "(true)|(false)" => {0,1}
+        *parameter-needs-b64-encoding => xml:Boolean => "(true)|(false)" => {1}
+        
+       the topictype parameter-config owns the following occurrences:
+        *parameter-config-id => xml:string => ".+" => {1} => unique-constraint
+        *parameter-config-default => xml:string => "(true)|(false)" => {0,1}
+        *parameter-config-form => xml:string => ".+" => {1}
+        *parameter-config-data => xml:string => ".+" => {0,1}-->
 
-  <!-- service-key occurrence -->
-  <tm:topic id="service-key-occurrence-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-key-occurrence-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+  <!-- unique occurence constraint -->
+  <tm:topic id="unique-id-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/unique-id-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#uniqueoccurrence-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-key-occurrence-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#service-key"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-key-occurrence-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#service"/>
-    </tm:role>
-  </tm:association>
-
-  <!-- description occurrence -->
-  <tm:topic id="description-occurrence-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/description-occurrence-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.*</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#description-occurrence-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#description"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#description-occurrence-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#service"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#description-occurrence-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#parameter"/>
-    </tm:role>
-  </tm:association>
-
-
-  <!-- string datatype -->
+  
+  <!-- occurrence datatypes -->
   <tm:topic id="string-datatype-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/string-datatype-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencedatatype-constraint"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/string-datatype-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencedatatype-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#datatype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#datatype"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#string</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#string-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#description"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#string-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#service-type"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#string-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#service-environment"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#string-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#default-value"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#string-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#service-key"/>
-    </tm:role>
-  </tm:association>
-
-
-  <!-- anyUri datatype -->
-  <tm:topic id="anyUri-datatype-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/anyUri-datatype-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#occurrencedatatype-constraint"/></tm:instanceOf>
+  <tm:topic id="uri-datatype-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/uri-datatype-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencedatatype-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#datatype"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#datatype"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#anyUri</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#anyUri-datatype-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#url-content"/>
-    </tm:role>
-  </tm:association>
-
-
-  <!-- service-type occurrence -->
-  <tm:topic id="service-type-occurrence-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-type-occurrence-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+  <tm:topic id="boolean-datatype-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/boolean-datatype-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#occurrencedatatype-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#datatype"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#boolean</tm:resourceData>
     </tm:occurrence>
+  </tm:topic>
+  
+  <!-- service operation occurrence -->
+  <tm:topic id="service-operation-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-operation-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.*$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-type-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-operation-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-operation-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-operation"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-operation"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service type occurrence -->
+  <tm:topic id="service-type-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-type-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
       <tm:topicRef href="#service-type"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-type-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#service"/>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-type"/>
     </tm:role>
   </tm:association>
 
-
-  <!-- service-environment occurrence -->
-  <tm:topic id="service-environment-occurrence-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-environment-occurrence-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+  <!-- service description occurrence -->
+  <tm:topic id="service-description-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-description-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-environment-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-description-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#service-environment"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-environment-occurrence-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
-
-  <!-- url-content occurrence -->
-  <tm:topic id="url-content-occurrence-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/url-content-occurrence-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-content-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-description-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#url-content"/>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-description"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-content-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-description"/>
     </tm:role>
   </tm:association>
 
-
-  <!-- default-value occurrence -->
-  <tm:topic id="default-value-occurrence-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/default-value-occurrence-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#topicoccurrence-constraint"/></tm:instanceOf>
+  <!-- service keywords occurrence -->
+  <tm:topic id="service-keywords-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-keywords-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#regexp"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.*</tm:resourceData>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#default-value-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-keywords-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#occurrencetype-role"/></tm:type>
-      <tm:topicRef href="#default-value"/>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#default-value-occurrence-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-keywords-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-keywords"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-keywords"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service description location uri occurrence -->
+  <tm:topic id="description-location-uri-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/description-location-uri-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-uri-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-uri-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-uri"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#uri-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-uri"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service inline description location occurrence -->
+  <tm:topic id="inline-description-location-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/inline-description-location-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(true)|(false)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#inline-description-location-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#inline-description-location-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#inline-description-location"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#inline-description-location"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service description location body occurrence -->
+  <tm:topic id="description-location-body-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/description-location-body-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-body-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-body-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-body"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#description-location-body"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service target namespace occurrence -->
+  <tm:topic id="target-namespace-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/target-namespace-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#target-namespace-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#target-namespace-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#target-namespace"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#target-namespace"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service use target ns occurrence -->
+  <tm:topic id="use-target-ns-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/use-target-ns-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(true)|(false)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#use-target-ns-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#use-target-ns-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#use-target-ns"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#use-target-ns"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service owner occurrence -->
+  <tm:topic id="service-owner-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-owner-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-owner-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-owner-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-owner"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-owner"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service identifier occurrence -->
+  <tm:topic id="service-identifier-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/service-identifier-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-identifier-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-identifier-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-identifier"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-identifier"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#unique-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#unique-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-identifier"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service textgrid url occurrence -->
+  <tm:topic id="textgrid-url-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/textgrid-url-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#textgrid-url-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#textgrid-url-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#textgrid-url"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#uri-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#textgrid-url"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- service tg-approved occurrence -->
+  <tm:topic id="tg-approved-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/tg-approved-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(true)|(false)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#tg-approved-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#tg-approved-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#tg-approved"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#tg-approved"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- hash-object type occurrence -->
+  <tm:topic id="hash-type-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/hash-type-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-type"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-type"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- hash-object key occurrence -->
+  <tm:topic id="hash-key-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/hash-key-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-key-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-key-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-key"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-key"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- hash-object value occurrence -->
+  <tm:topic id="hash-value-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/hash-value-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-value-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-value-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-value"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-value"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- hash-object environment occurrence -->
+  <tm:topic id="hash-environment-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/hash-environment-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-environment-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-environment-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-environment"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-environment"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter type occurrence -->
+  <tm:topic id="parameter-type-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-type-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-type"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-type"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter id occurrence -->
+  <tm:topic id="parameter-id-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-id-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-id"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-id"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#unique-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#unique-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-id"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter param occurrence -->
+  <tm:topic id="parameter-param-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-param-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-param-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-param-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-param"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-param"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter mime type occurrence -->
+  <tm:topic id="parameter-mime-type-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-mime-type-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-mime-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-mime-type-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-mime-type"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-mime-type"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter multiple occurrence -->
+  <tm:topic id="parameter-multiple-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-multiple-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(true)|(false)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-multiple-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-multiple-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-multiple"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-multiple"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter crud occurrence -->
+  <tm:topic id="parameter-crud-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-crud-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(true)|(false)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-crud-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-crud-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-crud"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-crud"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter needs b64 encoding occurrence -->
+  <tm:topic id="parameter-needs-b64-encoding-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-needs-b64-encoding-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(false)|(true)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-needs-b64-encoding-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-needs-b64-encoding-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-needs-b64-encoding"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-needs-b64-encoding"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter-config id occurrence -->
+  <tm:topic id="parameter-config-id-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-config-id-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-id"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-id"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#unique-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#unique-id-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-id"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter-config default occurrence -->
+  <tm:topic id="parameter-config-default-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-config-default-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">(false)|(true)</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-default-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-default-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-default"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#boolean-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-default"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter-config form occurrence -->
+  <tm:topic id="parameter-config-form-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-config-form-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-form-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-form-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-form"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-form"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- parameter-config data occurrence -->
+  <tm:topic id="parameter-config-data-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-config-data-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#topicoccurrence-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">0</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#regexp"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">.+</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-data-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-data-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-data"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#string-datatype-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#occurrencetype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config-data"/>
     </tm:role>
   </tm:association>
 
@@ -1326,354 +4087,739 @@
   <!-- ===================================================================== -->
   <!-- === own datamodel: association (-role) constraints ================== -->
   <!-- ===================================================================== -->
-  <!-- association "has-url":
-         *roles: service-role:service:1:1
-	 *roles: url-role:url:1:1
-       association "has-param"
-         *roles: url-role:url:1:1
-	 *roles: parameter-role:parameter:1:1 -->
+  <!-- the topictype service is related with the topictype hash-object via an
+       association of the type has-hash with the roles service-role|service and
+       hash-role|hash-object -->
 
-  <!-- the service-role has to appear exactly once in an association of type
-       has-url -->
-  <tm:topic id="service-role-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-role-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+  <!-- the hash role has to appear exactly once in an association of type
+       has-hash -->
+  <tm:topic id="hash-role-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/hash-role-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationrole-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-role-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
-      <tm:topicRef href="#has-url"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-role-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
-      <tm:topicRef href="#service-role"/>
-    </tm:role>
-  </tm:association>
-
-
-  <!-- the service-role owns a player of the type servie -->
-  <tm:topic id="service-role-player-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/service-role-player-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-role-player-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#service"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-role-player-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
-      <tm:topicRef href="#has-url"/>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#service-role-player-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
-      <tm:topicRef href="#service-role"/>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role"/>
     </tm:role>
   </tm:association>
 
+  <!-- the hash role owns a player of the type hash-object -->
+  <tm:topic id="hash-role-player-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/hash-role-player-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roleplayer-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role"/>
+    </tm:role>
+  </tm:association>
 
   <!-- otherrole-constraint:
-       If there is a role of the type service-role with a player of the type
-       service there must be another role of the type url-role with a player
-       of the type url. -->
-  <tm:topic id="has-url-otherrole-constraint-for-service">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/has-url-otherrole-constraint-for-service"/>
-    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+       If there is a role of the type hash-role with a player of the type
+       hash-object there must be another role of the type service-role with
+       a player of the type service. -->
+  <tm:topic id="has-hash-otherrole-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/has-hash-otherrole-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#otherrole-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
       <tm:type>
-	<tm:topicRef href="#card-min"/>
+        <tm:topicRef href="#card-min"/>
       </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type>
-	<tm:topicRef href="#card-max"/>
+        <tm:topicRef href="#card-max"/>
       </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-url-otherrole-constraint-for-service"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash-otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
-      <tm:topicRef href="#has-url"/>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-url-otherrole-constraint-for-service"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash-otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-role"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#hash-object"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#otherroletype-role"/>
+      </tm:type>
       <tm:topicRef href="#service-role"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-url-otherrole-constraint-for-service"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-hash-otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#othertopictype-role"/>
+      </tm:type>
       <tm:topicRef href="#service"/>
     </tm:role>
   </tm:association>
 
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-url-otherrole-constraint-for-service"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
-      <tm:topicRef href="#url-role"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-url-otherrole-constraint-for-service"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
-    </tm:role>
-  </tm:association>
-
-
-  <!-- the url-role has to appear exactly once in an association of type
+  <!-- the parameter role has to appear exactly once in an association of type
        has-parameter -->
-  <tm:topic id="url-role-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/url-role-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#associationrole-constraint"/></tm:instanceOf>
+  <tm:topic id="parameter-role-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-role-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationrole-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-  </tm:topic>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-role-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
-      <tm:topicRef href="#has-parameter"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-role-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
-      <tm:topicRef href="#url-role"/>
-    </tm:role>
-  </tm:association>
-
-
-  <!-- the service-role owns a player of the type servie -->
-  <tm:topic id="url-role-player-constraint">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/url-role-player-constraint"/>
-    <tm:instanceOf><tm:topicRef href="#roleplayer-constraint"/></tm:instanceOf>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-min"/></tm:type>
-      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
-    </tm:occurrence>
-    <tm:occurrence>
-      <tm:type><tm:topicRef href="#card-max"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-role-player-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-role-player-constraint"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
       <tm:topicRef href="#has-parameter"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#url-role-player-constraint"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
-      <tm:topicRef href="#url-role"/>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role"/>
     </tm:role>
   </tm:association>
 
+  <!-- the parameter role owns a player of the type hash-object -->
+  <tm:topic id="parameter-role-player-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/parameter-role-player-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roleplayer-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role"/>
+    </tm:role>
+  </tm:association>
 
   <!-- otherrole-constraint:
-       If there is a role of the type url-role with a player of the type
-       url there must be another role of the type parameter-role with a player
-       of the type parameter. -->
-  <tm:topic id="has-parameter-otherrole-constraint-for-url">
-    <tm:subjectIdentifier href="http://textgrid.org/isidorus/tmcl/has-parameter-otherrole-constraint-for-url"/>
-    <tm:instanceOf><tm:topicRef href="#otherrole-constraint"/></tm:instanceOf>
+       If there is a role of the type parameter-role with a player of the type
+       parameter there must be another role of the type service-role with
+       a player of the type service. -->
+  <tm:topic id="has-parameter-otherrole-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/has-parameter-otherrole-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#otherrole-constraint"/>
+    </tm:instanceOf>
     <tm:occurrence>
       <tm:type>
-	<tm:topicRef href="#card-min"/>
+        <tm:topicRef href="#card-min"/>
       </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type>
-	<tm:topicRef href="#card-max"/>
+        <tm:topicRef href="#card-max"/>
       </tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-parameter-otherrole-constraint-for-url"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-parameter-otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#associationtype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
       <tm:topicRef href="#has-parameter"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-parameter-otherrole-constraint-for-url"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-parameter-otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#roletype-role"/></tm:type>
-      <tm:topicRef href="#url-role"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-parameter-otherrole-constraint-for-url"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#topictype-role"/></tm:type>
-      <tm:topicRef href="#url"/>
-    </tm:role>
-  </tm:association>
-
-  <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
-    <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-parameter-otherrole-constraint-for-url"/>
-    </tm:role>
-    <tm:role>
-      <tm:type><tm:topicRef href="#otherroletype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter-role"/>
     </tm:role>
   </tm:association>
 
   <tm:association>
-    <tm:type><tm:topicRef href="#applies-to"/></tm:type>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
     <tm:role>
-      <tm:type><tm:topicRef href="#constraint-role"/></tm:type>
-      <tm:topicRef href="#has-parameter-otherrole-constraint-for-url"/>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-parameter-otherrole-constraint"/>
     </tm:role>
     <tm:role>
-      <tm:type><tm:topicRef href="#othertopictype-role"/></tm:type>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-parameter-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#otherroletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service-role"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-parameter-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#othertopictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#service"/>
+    </tm:role>
+  </tm:association>
+
+
+  <!-- the config role has to appear exactly once in an association of type
+       has-config -->
+  <tm:topic id="config-role-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/config-role-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#associationrole-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- the config role owns a player of the type parameter-config -->
+  <tm:topic id="config-role-player-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/config-role-player-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#roleplayer-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role-player-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role"/>
+    </tm:role>
+  </tm:association>
+
+  <!-- otherrole-constraint:
+       If there is a role of the type config-role with a player of the type
+       parameter-config there must be another role of the type parameter-role
+       with a player of the type parameter. -->
+  <tm:topic id="has-config-otherrole-constraint">
+    <tm:subjectIdentifier href="http://textgrid.org/serviceregistry/metamodel/has-config-otherrole-constraint"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#otherrole-constraint"/>
+    </tm:instanceOf>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-min"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type>
+        <tm:topicRef href="#card-max"/>
+      </tm:type>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#unsignedInt">1</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#associationtype-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#roletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#config-role"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#topictype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-config"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#otherroletype-role"/>
+      </tm:type>
+      <tm:topicRef href="#parameter-role"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:association>
+    <tm:type>
+      <tm:topicRef href="#applies-to"/>
+    </tm:type>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#constraint-role"/>
+      </tm:type>
+      <tm:topicRef href="#has-config-otherrole-constraint"/>
+    </tm:role>
+    <tm:role>
+      <tm:type>
+        <tm:topicRef href="#othertopictype-role"/>
+      </tm:type>
       <tm:topicRef href="#parameter"/>
     </tm:role>
   </tm:association>

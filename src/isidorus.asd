@@ -107,7 +107,9 @@
 				     "json"
 				     "threading"))
 	       (:module "unit_tests"
-			:components ((:static-file "dangling_topicref.xtm")
+			:components ((:static-file "textgrid.xtm")
+				     (:static-file "textgrid_old.xtm")
+				     (:static-file "dangling_topicref.xtm")
 				     (:static-file "inconsistent.xtm")               
 				     (:static-file "notificationbase.xtm")           
 				     (:static-file "notification_merge1.xtm")           

@@ -91,6 +91,7 @@ src/unit_tests/sample_objects_2_0.xtm -text
 src/unit_tests/sparql_test.lisp -text
 src/unit_tests/t100.xtm -text
 src/unit_tests/textgrid.xtm -text
+src/unit_tests/textgrid_old.xtm -text
 src/unit_tests/threading_test.lisp -text
 src/unit_tests/trivial_queries_test.lisp -text
 src/xml/rdf/exporter.lisp -text
