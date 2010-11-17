@@ -135,7 +135,6 @@
 	   :list-instanceOf
 	   :list-super-types
 	   :in-topicmap
-	   :string-starts-with
 	   :get-fragments
 	   :get-fragment
 	   :get-all-revisions
@@ -882,14 +881,6 @@
 
 (defmethod internal-id ((construct TopicMapConstructC))
   (slot-value construct (find-symbol "OID" 'elephant)))
-
-
-(defun string-starts-with (str prefix)
-  "Checks if string str starts with a given prefix."
-  (declare (string str prefix))
-  (string= str prefix :start1 0 :end1
-           (min (length prefix)
-                (length str))))
 
 
 ;;; generic definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

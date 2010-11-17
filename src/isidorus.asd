@@ -41,9 +41,9 @@
                                             :depends-on ("exceptions")))
 			:depends-on ("constants" "base-tools"))
 	       (:module "TM-SPARQL"
-			:components ((:file "sparql"
-					    :depends-on ("sparql_tokenizer"))
-				     (:file "sparql_tokenizer"))
+			:components ((:file "sparql")
+				     (:file "sparql_parser"
+					    :depends-on ("sparql")))
 			:depends-on ("constants" "base-tools" "model"))
 	       (:module "xml"
 			:components ((:module "xtm"

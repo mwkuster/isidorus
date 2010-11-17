@@ -8,7 +8,8 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :rdf-exporter
-  (:use :cl :cxml :elephant :datamodel :isidorus-threading :datamodel)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading
+	:datamodel :base-tools)
   (:import-from :constants
 		*rdf-ns*
 		*rdfs-ns*

@@ -21,7 +21,7 @@ playground/url_test.html -text
 playground/url_test.js -text
 playground/versioned-pointer.lisp -text
 src/TM-SPARQL/sparql.lisp -text
-src/TM-SPARQL/sparql_tokenizer.lisp -text
+src/TM-SPARQL/sparql_parser.lisp -text
 src/ajax/css/frame.css -text
 src/ajax/css/main.css -text
 src/ajax/css/navi.css -text

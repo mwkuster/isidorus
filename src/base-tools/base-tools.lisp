@@ -13,7 +13,14 @@
   (:export :push-string
 	   :when-do
 	   :remove-null
-	   :full-path))
+	   :full-path
+	   :trim-whitespace-left
+	   :trim-whitespace-right
+	   :trim-whitespace
+	   :string-starts-with
+	   :string-starts-with-char
+	   :string-until
+	   :string-after))
 
 (in-package :base-tools)
 
@@ -53,3 +60,52 @@
     (dolist (segment segments)
       (push-string segment full-path-string))
     (concatenate 'string full-path-string "/" (pathname-name pathname))))
+
+
+(defun trim-whitespace-left (value)
+  "Uses string-left-trim with a predefined character-list."
+  (declare (String value))
+  (string-left-trim '(#\Space #\Tab #\Newline) value))
+
+
+(defun trim-whitespace-right (value)
+  "Uses string-right-trim with a predefined character-list."
+  (declare (String value))
+  (string-right-trim '(#\Space #\Tab #\Newline) value))
+
+
+(defun trim-whitespace (value)
+  "Uses string-trim with a predefined character-list."
+  (declare (String value))
+  (string-trim '(#\Space #\Tab #\Newline) value))
+
+
+(defun string-starts-with (str prefix)
+  "Checks if string str starts with a given prefix."
+  (declare (string str prefix))
+  (string= str prefix :start1 0 :end1
+           (min (length prefix)
+                (length str))))
+
+
+(defun string-starts-with-char (begin str)
+  (equal (char str 0) begin))
+
+
+(defun string-until (str anchor)
+  "Returns a substring until the position of the passed anchor."
+  (declare (String str anchor))
+  (let ((pos (search anchor str)))
+    (if pos
+	(subseq str 0 pos)
+	str)))
+
+
+(defun string-after (str prefix)
+  "Returns the substring after the found prefix.
+   If there is no substring equal to prefix nil is returned."
+  (declare (String str prefix))
+  (let ((pos (search prefix str)))
+    (if pos
+	(subseq str (+ pos (length prefix)))
+	nil)))

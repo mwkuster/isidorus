@@ -275,15 +275,11 @@ qname '(namespace-uri local-name)"
 
 
 (defun xpath-single-child-elem-by-qname (elem namespace-uri local-name)
-  "Returns some child of elem that has qname (namespace-uri local-name) or
-nil if no such child exists."
+  "Returns some child of elem that has qname (namespace-uri local-name)
+   or nil if no such child exists."
   (declare (dom:element elem))
-  (find-if (lambda (el) (has-qname el namespace-uri local-name)) (dom:child-nodes elem))
-  )
-
-
-(defun string-starts-with (begin str)
-  (equal (char str 0) begin))
+  (find-if (lambda (el) (has-qname el namespace-uri local-name))
+	   (dom:child-nodes elem)))
 
 
 (defun xpath-select-location-path (elem list-of-qnames)
@@ -297,7 +293,7 @@ local names) and evaluates this as a location path"
     (cond
       (list-of-qnames 
        (cond
-         ((string-starts-with #\@ local-name)
+         ((string-starts-with-char #\@ local-name)
           (list (dom:get-attribute-node-ns elem namespace-uri (string-left-trim "@" local-name))))
          (t
           (apply #'append 
