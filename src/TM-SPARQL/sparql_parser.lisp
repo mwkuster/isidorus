@@ -26,10 +26,10 @@
   (:method ((construct SPARQL-Query) (query-string String))
     (let ((trimmed-query-string (trim-whitespace-left query-string)))
       (cond ((string-starts-with trimmed-query-string "SELECT")
-	     (parse-prefixes construct
-			     (string-after trimmed-query-string "SELECT")))
+	     nil) ;;TODO: implement
 	    ((string-starts-with trimmed-query-string "PREFIX")
-	     nil) ;TODO: implement
+	     (parse-prefixes construct
+			     (string-after trimmed-query-string "PREFIX")))
 	    ((string-starts-with trimmed-query-string "BASE")
 	     nil) ;TODO: implement
 	    (t
@@ -52,6 +52,9 @@
 		 (next-query-str
 		  (trim-whitespace-left (string-after trimmed-string ":")))
 		 (results (parse-bracket-value next-query-str construct)))
+	    (when (string= label-name trimmed-string)
+	      (error (make-sparql-parser-condition
+		      trimmed-string (original-query construct) ":")))
 	    (add-prefix construct label-name (getf results :value))
 	    (parser-start construct (getf results :query-string)))))))
 
@@ -63,12 +66,9 @@
   (declare (String query-string open close)
 	   (SPARQL-Query query-object))
   (let ((trimmed-string (trim-whitespace-left query-string)))
-    (if (and (string-starts-with trimmed-string open)
-	     (> (length (string-after trimmed-string close)) 0))
-	(let* ((pref-url
-		(string-until (string-after trimmed-string open) close))
-	       (next-query-str
-		(string-after pref-url close)))
+    (if (string-starts-with trimmed-string open)
+	(let* ((pref-url (string-until (string-after trimmed-string open) close))
+	       (next-query-str (string-after trimmed-string close)))
 	  (unless next-query-str
 	    (error (make-sparql-parser-condition
 		    trimmed-string (original-query query-object)
@@ -77,7 +77,7 @@
 		:value pref-url))
 	(error (make-sparql-parser-condition
 		trimmed-string (original-query query-object)
-		open)))))
+		close)))))
 
 
 

@@ -24,5 +24,13 @@
 (in-suite sparql-test)
 
 
+;TODO: prefix tests
+;PREFIX foaf  :   <http://xmlns.com/foaf/0.1/>
+;PREFIX org:    <http://example.com/ns#>
+;PREFIX isi:<http://isidor.us>
+;PREFIX :<http://some.where>
+;PREFIX foaf : <http://overwrite.foaf>"
+
+
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

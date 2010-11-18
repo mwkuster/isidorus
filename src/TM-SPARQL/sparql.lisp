@@ -18,7 +18,7 @@
 
 
 (defclass SPARQL-Query ()
-  ((original-query :initarg :original-query
+  ((original-query :initarg :query
 		   :reader original-query
 		   :type String
 		   :initform (error
@@ -29,6 +29,7 @@
    (prefix-list :initarg :prefix-list
 		:reader prefix-list
 		:type List
+		:initform nil
 		:documentation "A list of the form
                                ((:label 'id' :value 'prefix'))")
    (variables :initarg :variables
@@ -48,10 +49,10 @@
   (:documentation "Adds the new prefix tuple to the list of all existing.
                    If there already exists a tuple with the same label
                    the label's value will be overwritten by the new value.")
-  (:method ((construct SPARQL-Query) (prefix-label Symbol) (prefix-value String))
+  (:method ((construct SPARQL-Query) (prefix-label String) (prefix-value String))
     (let ((existing-tuple
 	   (find-if #'(lambda(x)
-			(eql (getf x :label) prefix-label))
+			(string= (getf x :label) prefix-label))
 		    (prefix-list construct))))
       (if existing-tuple
 	  (setf (getf existing-tuple :value) prefix-value)
@@ -62,5 +63,5 @@
 
 (defmethod initialize-instance :after ((construct SPARQL-Query) &rest args)
   (declare (ignorable args))
-  (parser-start construct)
+  (parser-start construct (original-query construct))
   construct)
