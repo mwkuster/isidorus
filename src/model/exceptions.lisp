@@ -18,16 +18,9 @@
 	   :missing-argument-error
 	   :tm-reference-error
 	   :bad-type-error
-	   :missing-query-string-error
 	   :sparql-parser-error))
 
 (in-package :exceptions)
-
-
-(define-condition missing-query-string-error(error)
-  ((message
-    :initarg :message
-    :accessor message)))
 
 
 (define-condition sparql-parser-error(error)

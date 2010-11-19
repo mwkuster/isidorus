@@ -24,17 +24,17 @@
 		   :type String
 		   :initform (error
 			      (make-condition
-			       'missing-query-string-error
+			       'missing-argument-error
 			       :message "From TM-Query(): original-query must be set"))
 		   :documentation "Containst the original received querry as string")
-   (prefix-list :initarg :prefix-list
-		:accessor prefix-list ;this value is only for internal purposes
-				      ;purposes and mustn't be reset
-		:type List
-		:initform nil
-		:documentation "A list of the form
-                               ((:label 'id' :value 'prefix'))")
-   (base-value :initarg :base-value ;initialy the requester's address
+   (prefixes :initarg :prefixes
+	     :accessor prefixes ;this value is only for internal purposes
+			        ;purposes and mustn't be reset
+	     :type List
+	     :initform nil
+	     :documentation "A list of the form
+                            ((:label 'id' :value 'prefix'))")
+   (base-value :initarg :base ;initialy the requester's address
 	       :accessor base-value ;this value is only for internal purposes
 				    ;purposes and mustn't be reset
 	       :type String
@@ -44,7 +44,8 @@
 	      :accessor variables ;this value is only for internal purposes
 				  ;purposes and mustn't be reset
 	      :type List
-	      :documentation "A list of the form ((:variable var-symbol
+	      :initform nil
+	      :documentation "A list of the form ((:variable var-name
                              :value value-object)), that contains tuples
                              for each variable and its result.")
    (select-statements :initarg :select-statements
@@ -52,6 +53,7 @@
 					          ;internal purposes purposes
  					          ;and mustn't be reset
 		      :type List
+		      :initform nil
 		      :documentation "A list of the form ((:statement 'statement'
                                       :value value-object))")))
 
@@ -64,12 +66,27 @@
     (let ((existing-tuple
 	   (find-if #'(lambda(x)
 			(string= (getf x :label) prefix-label))
-		    (prefix-list construct))))
+		    (prefixes construct))))
       (if existing-tuple
 	  (setf (getf existing-tuple :value) prefix-value)
 	  (push (list :label prefix-label :value prefix-value)
-		(prefix-list construct))))))
-		    
+		(prefixes construct))))))
+
+
+(defgeneric add-variable (construct variable-name variable-value)
+  (:documentation "Adds a new variable-name with its value to the aexisting list.
+                   If a variable-already exists the existing entry will be
+                   overwritten. An entry is of the form
+                   (:variable string :value any-type).")
+  (:method ((construct SPARQL-Query) (variable-name String) variable-value)
+    (let ((existing-tuple
+	   (find-if #'(lambda(x)
+			(string= (getf x :variable) variable-name))
+		    (variables construct))))
+      (if existing-tuple
+	  (setf (getf existing-tuple :value) variable-value)
+	  (push (list :variable variable-name :value variable-value)
+		(variables construct))))))
 
 
 (defmethod initialize-instance :after ((construct SPARQL-Query) &rest args)

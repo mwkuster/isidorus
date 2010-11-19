@@ -14,9 +14,11 @@
   "Creates a spqrql-parser-error object."
   (declare (String rest-of-query entire-query expected))
   (let ((message
-	 (format nil "The query:~%~a bad token on position ~a. Expected: ~a"
+	 (format nil "The query:~%\"~a\"~%~%has a bad token at position ~a => ~a.~%Expected: ~a"
 		 entire-query (- (length entire-query)
 				 (length rest-of-query))
+		 (subseq entire-query (- (length entire-query)
+					 (length rest-of-query)))
 		 expected)))
     (make-condition 'sparql-parser-error :message message)))
 
@@ -26,19 +28,87 @@
   (:method ((construct SPARQL-Query) (query-string String))
     (let ((trimmed-query-string (trim-whitespace-left query-string)))
       (cond ((string-starts-with trimmed-query-string "SELECT")
-	     nil) ;;TODO: implement
+	     (parse-select
+	      construct (string-after trimmed-query-string "SELECT")))
 	    ((string-starts-with trimmed-query-string "PREFIX")
-	     (parse-prefixes construct
-			     (string-after trimmed-query-string "PREFIX")))
+	     (parse-prefixes
+	      construct (string-after trimmed-query-string "PREFIX")))
 	    ((string-starts-with trimmed-query-string "BASE")
 	     (parse-base construct (string-after trimmed-query-string "BASE")
 			 #'parser-start))
-	    ((= (length trimmed-query-string) 0) ;TODO: remove, only for debugging purposes
+	    ((= (length trimmed-query-string) 0)
+	     ;; If there is only a BASE and/or PREFIX statement return an
+	     ;; query-object with the result nil
 	     construct)
 	    (t
 	     (error (make-sparql-parser-condition
 		     trimmed-query-string (original-query construct)
 		     "SELECT, PREFIX or BASE")))))))
+
+
+(defgeneric parse-select (construct query-string)
+  (:documentation "The entry-point of the parsing of the select - where
+                   statement.")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (trim-whitespace-left query-string))
+	   (next-query (if (string-starts-with trimmed-str "WHERE")
+			   trimmed-str
+			   (parse-variables construct trimmed-str))))
+      (unless (string-starts-with next-query "WHERE")
+	(error (make-sparql-parser-condition
+		next-query (original-query construct) "WHERE")))
+      (let* ((tripples (string-after next-query "WHERE"))
+	     (query-tail (parse-where construct tripples)))
+	(or query-tail) ;TODO: process tail-of query, e.g. order by, ...
+	construct))))
+
+
+(defgeneric parse-where (construct query-string)
+  (:documentation "The entry-point for the parsing of the WHERE statement.")
+  (:method ((construct SPARQL-Query) (query-string String))
+    )) 
+
+
+(defgeneric parse-variables (construct query-string)
+  (:documentation "Parses the variables of the SELECT statement
+                   and adds them to the passed construct.")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let ((trimmed-str (trim-whitespace-left query-string)))
+      (if (string-starts-with trimmed-str "WHERE")
+	  trimmed-str
+	  (let ((result (parse-variable-name trimmed-str construct)))
+	    (add-variable construct (getf result :value) nil)
+	    (parse-variables construct (getf result :next-query)))))))
+
+
+(defun parse-variable-name (query-string query-object)
+  "A helper function that parses the first non-whitespace character
+   in the query. since it must be a variable, it must be prefixed
+   by a ? or $. The return value is of the form
+   (:next-query string :value string)."
+  (declare (String query-string)
+	   (SPARQL-Query query-object))
+  (let ((trimmed-str (trim-whitespace-left query-string))
+	(delimiters (list " " "?" "$" (string #\newline) (string #\tab))))
+    (unless (or (string-starts-with trimmed-str "?")
+		(string-starts-with trimmed-str "$"))
+      (make-sparql-parser-condition
+       trimmed-str (original-query query-object) "? or $"))
+    (let* ((var-name-end (search-first delimiters (subseq trimmed-str 1)))
+	   (var-name
+	    (if var-name-end
+		(subseq trimmed-str 0 (+ 1 var-name-end))
+		(error (make-sparql-parser-condition
+			trimmed-str (original-query query-object)
+			"space, newline, tab, ?, $ or WHERE"))))
+	   (next-query (string-after trimmed-str var-name))
+	   (normalized-var-name 
+	    (if (<= (length var-name) 1)
+		(error (make-sparql-parser-condition
+			next-query (original-query query-object)
+			"a variable name"))
+		(subseq var-name 1))))
+      (list :next-query next-query :value normalized-var-name))))
 
 
 (defgeneric parse-base (construct query-string next-fun)
@@ -48,7 +118,7 @@
                    call function that calls the next transitions and states.")
   (:method ((construct SPARQL-Query) (query-string String) (next-fun Function))
     (let* ((trimmed-str (trim-whitespace-left query-string))
-	   (result (parse-bracketed-value trimmed-str construct)))
+	   (result (parse-closed-value trimmed-str construct)))
       (setf (base-value construct) (getf result :value))
       (funcall next-fun construct (getf result :next-query)))))
 
@@ -59,14 +129,14 @@
     (let ((trimmed-string (trim-whitespace-left query-string)))
       (if (string-starts-with trimmed-string ":")
 	  (let ((results
-		 (parse-bracketed-value (subseq trimmed-string 1) construct)))
+		 (parse-closed-value (subseq trimmed-string 1) construct)))
 	    (add-prefix construct *empty-label* (getf results :value))
 	    (parser-start construct (getf results :next-query)))
 	  (let* ((label-name
 		  (trim-whitespace-right (string-until trimmed-string ":")))
 		 (next-query-str
 		  (trim-whitespace-left (string-after trimmed-string ":")))
-		 (results (parse-bracketed-value next-query-str construct)))
+		 (results (parse-closed-value next-query-str construct)))
 	    (when (string= label-name trimmed-string)
 	      (error (make-sparql-parser-condition
 		      trimmed-string (original-query construct) ":")))
@@ -74,7 +144,7 @@
 	    (parser-start construct (getf results :next-query)))))))
 
 
-(defun parse-bracketed-value(query-string query-object &key (open "<") (close ">"))
+(defun parse-closed-value(query-string query-object &key (open "<") (close ">"))
   "A helper function that checks the value of a statement within
    two brackets, i.e. <prefix-value>. A list of the
    form (:next-query string :value string) is returned."
