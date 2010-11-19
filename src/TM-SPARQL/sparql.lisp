@@ -19,7 +19,8 @@
 
 (defclass SPARQL-Query ()
   ((original-query :initarg :query
-		   :reader original-query
+		   :accessor original-query  ;this value is only for internal
+					     ;purposes and mustn't be reset
 		   :type String
 		   :initform (error
 			      (make-condition
@@ -27,19 +28,29 @@
 			       :message "From TM-Query(): original-query must be set"))
 		   :documentation "Containst the original received querry as string")
    (prefix-list :initarg :prefix-list
-		:reader prefix-list
+		:accessor prefix-list ;this value is only for internal purposes
+				      ;purposes and mustn't be reset
 		:type List
 		:initform nil
 		:documentation "A list of the form
                                ((:label 'id' :value 'prefix'))")
+   (base-value :initarg :base-value ;initialy the requester's address
+	       :accessor base-value ;this value is only for internal purposes
+				    ;purposes and mustn't be reset
+	       :type String
+	       :initform nil
+	       :documentation "Contains the last set base-value.")
    (variables :initarg :variables
-	      :accessor :variables
+	      :accessor variables ;this value is only for internal purposes
+				  ;purposes and mustn't be reset
 	      :type List
 	      :documentation "A list of the form ((:variable var-symbol
                              :value value-object)), that contains tuples
                              for each variable and its result.")
    (select-statements :initarg :select-statements
-		      :accessor select-statements
+		      :accessor select-statements ;this value is only for
+					          ;internal purposes purposes
+ 					          ;and mustn't be reset
 		      :type List
 		      :documentation "A list of the form ((:statement 'statement'
                                       :value value-object))")))
@@ -57,7 +68,7 @@
       (if existing-tuple
 	  (setf (getf existing-tuple :value) prefix-value)
 	  (push (list :label prefix-label :value prefix-value)
-		(slot-value construct 'prefix-list))))))
+		(prefix-list construct))))))
 		    
 
 

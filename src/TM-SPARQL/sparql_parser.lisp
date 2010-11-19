@@ -9,6 +9,7 @@
 
 (in-package :TM-SPARQL)
 
+
 (defun make-sparql-parser-condition(rest-of-query entire-query expected)
   "Creates a spqrql-parser-error object."
   (declare (String rest-of-query entire-query expected))
@@ -18,7 +19,6 @@
 				 (length rest-of-query))
 		 expected)))
     (make-condition 'sparql-parser-error :message message)))
-
 
 
 (defgeneric parser-start(construct query-string)
@@ -31,11 +31,26 @@
 	     (parse-prefixes construct
 			     (string-after trimmed-query-string "PREFIX")))
 	    ((string-starts-with trimmed-query-string "BASE")
-	     nil) ;TODO: implement
+	     (parse-base construct (string-after trimmed-query-string "BASE")
+			 #'parser-start))
+	    ((= (length trimmed-query-string) 0) ;TODO: remove, only for debugging purposes
+	     construct)
 	    (t
 	     (error (make-sparql-parser-condition
 		     trimmed-query-string (original-query construct)
 		     "SELECT, PREFIX or BASE")))))))
+
+
+(defgeneric parse-base (construct query-string next-fun)
+  (:documentation "Parses the Base statment and sets the corresponding
+                   attribute in the query-construct. Since the BASE statement
+                   may appear in different states the next-fun defines the next
+                   call function that calls the next transitions and states.")
+  (:method ((construct SPARQL-Query) (query-string String) (next-fun Function))
+    (let* ((trimmed-str (trim-whitespace-left query-string))
+	   (result (parse-bracketed-value trimmed-str construct)))
+      (setf (base-value construct) (getf result :value))
+      (funcall next-fun construct (getf result :next-query)))))
 
 
 (defgeneric parse-prefixes (construct query-string)
@@ -44,25 +59,25 @@
     (let ((trimmed-string (trim-whitespace-left query-string)))
       (if (string-starts-with trimmed-string ":")
 	  (let ((results
-		 (parse-bracket-value (subseq trimmed-string 1) construct)))
+		 (parse-bracketed-value (subseq trimmed-string 1) construct)))
 	    (add-prefix construct *empty-label* (getf results :value))
-	    (parser-start construct (getf results :query-string)))
+	    (parser-start construct (getf results :next-query)))
 	  (let* ((label-name
 		  (trim-whitespace-right (string-until trimmed-string ":")))
 		 (next-query-str
 		  (trim-whitespace-left (string-after trimmed-string ":")))
-		 (results (parse-bracket-value next-query-str construct)))
+		 (results (parse-bracketed-value next-query-str construct)))
 	    (when (string= label-name trimmed-string)
 	      (error (make-sparql-parser-condition
 		      trimmed-string (original-query construct) ":")))
 	    (add-prefix construct label-name (getf results :value))
-	    (parser-start construct (getf results :query-string)))))))
+	    (parser-start construct (getf results :next-query)))))))
 
 
-(defun parse-bracket-value(query-string query-object &key (open "<") (close ">"))
+(defun parse-bracketed-value(query-string query-object &key (open "<") (close ">"))
   "A helper function that checks the value of a statement within
    two brackets, i.e. <prefix-value>. A list of the
-   form (:query-string string :value string) is returned."
+   form (:next-query string :value string) is returned."
   (declare (String query-string open close)
 	   (SPARQL-Query query-object))
   (let ((trimmed-string (trim-whitespace-left query-string)))
@@ -73,7 +88,7 @@
 	    (error (make-sparql-parser-condition
 		    trimmed-string (original-query query-object)
 		    close)))
-	  (list :query-string next-query-str
+	  (list :next-query next-query-str
 		:value pref-url))
 	(error (make-sparql-parser-condition
 		trimmed-string (original-query query-object)
