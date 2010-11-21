@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :TM-SPARQL
-  (:use :cl :datamodel :base-tools :exceptions)
+  (:use :cl :datamodel :base-tools :exceptions :constants)
   (:export :SPARQL-Query))
 
 
@@ -16,8 +16,20 @@
 
 (defvar *empty-label* "_empty_label_symbol")
 
+(defclass Variable-Container ()
+  ((variables :initarg :variables
+	      :accessor variables ;this value is only for internal purposes
+				  ;purposes and mustn't be reset
+	      :type List
+	      :initform nil
+	      :documentation "A list of the form ((:variable var-name
+                             :value value-object)), that contains tuples
+                             for each variable and its result."))
+   (:documentation "This class is used to store all variable in a WHERE{}
+                    statement"))
 
-(defclass SPARQL-Query ()
+
+(defclass SPARQL-Query (Variable-Container)
   ((original-query :initarg :query
 		   :accessor original-query  ;this value is only for internal
 					     ;purposes and mustn't be reset
@@ -40,22 +52,15 @@
 	       :type String
 	       :initform nil
 	       :documentation "Contains the last set base-value.")
-   (variables :initarg :variables
-	      :accessor variables ;this value is only for internal purposes
-				  ;purposes and mustn't be reset
-	      :type List
-	      :initform nil
-	      :documentation "A list of the form ((:variable var-name
-                             :value value-object)), that contains tuples
-                             for each variable and its result.")
    (select-statements :initarg :select-statements
 		      :accessor select-statements ;this value is only for
 					          ;internal purposes purposes
  					          ;and mustn't be reset
-		      :type List
+		      :type List 
 		      :initform nil
 		      :documentation "A list of the form ((:statement 'statement'
-                                      :value value-object))")))
+                                      :value value-object))"))
+  (:documentation "This class represents the entire request."))
 
 
 (defgeneric add-prefix (construct prefix-label prefix-value)
@@ -73,12 +78,26 @@
 		(prefixes construct))))))
 
 
+(defgeneric get-prefix (construct string-with-prefix)
+  (:documentation "Returns the URL corresponding to the found prefix-label
+                   followed by : and the variable. Otherwise the return
+                   value is nil.")
+  (:method ((construct SPARQL-query) (string-with-prefix String))
+    (loop for entry in (prefixes construct)
+       when (string-starts-with string-with-prefix
+				(concatenate 'string (getf entry :label) ":"))
+       return (concatenate
+	       'string (getf entry :value) ":"
+	       (string-after string-with-prefix
+			     (concatenate 'string (getf entry :label) ":"))))))
+
+
 (defgeneric add-variable (construct variable-name variable-value)
   (:documentation "Adds a new variable-name with its value to the aexisting list.
                    If a variable-already exists the existing entry will be
                    overwritten. An entry is of the form
                    (:variable string :value any-type).")
-  (:method ((construct SPARQL-Query) (variable-name String) variable-value)
+  (:method ((construct Variable-Container) (variable-name String) variable-value)
     (let ((existing-tuple
 	   (find-if #'(lambda(x)
 			(string= (getf x :variable) variable-name))

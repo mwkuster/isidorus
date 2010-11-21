@@ -26,6 +26,10 @@
 	   :*xml-ns*
 	   :*xmlns-ns*
 	   :*xml-string*
+	   :*xml-boolean*
+	   :*xml-decimal*
+	   :*xml-double*
+	   :*xml-integer*
 	   :*xml-uri*
 	   :*rdf2tm-ns*
 	   :*rdf-statement*
@@ -99,6 +103,14 @@
 (defparameter *xmlns-ns* "http://www.w3.org/2000/xmlns/")
 
 (defparameter *xml-string* "http://www.w3.org/2001/XMLSchema#string")
+
+(defparameter *xml-boolean* "http://www.w3.org/2001/XMLSchema#boolean")
+
+(defparameter *xml-integer* "http://www.w3.org/2001/XMLSchema#integer")
+
+(defparameter *xml-decimal* "http://www.w3.org/2001/XMLSchema#decimal")
+
+(defparameter *xml-double* "http://www.w3.org/2001/XMLSchema#double")
 
 (defparameter *xml-uri* "http://www.w3.org/2001/XMLSchema#anyURI")
 

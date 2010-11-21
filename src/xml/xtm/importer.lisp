@@ -72,6 +72,7 @@
 	   :merge-topic-elem-xtm1.0
 	   :from-association-elem-xtm1.0
 	   :importer-xtm1.0
+	   :get-uuid
            :with-tm))
 
 (in-package :xml-importer)

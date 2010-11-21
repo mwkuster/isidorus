@@ -18,10 +18,14 @@
 	   :trim-whitespace-right
 	   :trim-whitespace
 	   :string-starts-with
+	   :string-ends-with
 	   :string-starts-with-char
 	   :string-until
 	   :string-after
-	   :search-first))
+	   :search-first
+	   :concatenate-uri
+	   :absolute-uri-p
+	   :string-starts-with-digit))
 
 (in-package :base-tools)
 
@@ -81,12 +85,46 @@
   (string-trim '(#\Space #\Tab #\Newline) value))
 
 
-(defun string-starts-with (str prefix)
+(defun string-starts-with (str prefix &key (ignore-case nil))
   "Checks if string str starts with a given prefix."
-  (declare (string str prefix))
-  (string= str prefix :start1 0 :end1
-           (min (length prefix)
-                (length str))))
+  (declare (String str prefix)
+	   (Boolean ignore-case))
+  (let ((str-i (if ignore-case
+		   (string-downcase str :start 0 :end (min (length str)
+							   (length prefix)))
+		   str))
+	(prefix-i (if ignore-case
+		      (string-downcase prefix)
+		      prefix)))
+    (string= str-i prefix-i :start1 0 :end1
+	     (min (length prefix-i)
+		  (length str-i)))))
+
+
+(defun string-ends-with (str suffix &key (ignore-case nil))
+  "Checks if string str ends with a given suffix."
+  (declare (String str suffix)
+	   (Boolean ignore-case))
+  (let ((str-i (if ignore-case
+		   (string-downcase str :start (max (- (length str)
+						       (length suffix))
+						    0)
+				    :end (length str))
+		   str))
+	(suffix-i (if ignore-case
+		      (string-downcase suffix)
+		      suffix)))
+    (string= str-i suffix-i :start1 (max (- (length str)
+					    (length suffix))
+					 0))))
+
+
+(defun string-starts-with-digit (str)
+  "Checks whether the passed string starts with a digit."
+  (declare (String str))
+  (loop for item in (list 0 1 2 3 4 5 6 7 8 9)
+     when (string-starts-with str (write-to-string item))
+     return t))
 
 
 (defun string-starts-with-char (begin str)
@@ -124,3 +162,52 @@
     (let ((sorted-positions (sort positions #'<)))
       (when sorted-positions
 	(first sorted-positions)))))
+
+
+(defun concatenate-uri (absolute-ns value)
+  "Returns a string conctenated of the absolut namespace an the given value
+   separated by either '#' or '/'."
+  (declare (string absolute-ns value))
+  (unless (and (> (length absolute-ns) 0)
+	       (> (length value) 0))
+    (error "From concatenate-uri(): absolute-ns and value must be of length > 0"))
+  (unless (absolute-uri-p absolute-ns)
+    (error "From concatenate-uri(): absolute-ns has to be an absolute URI: ~a" absolute-ns))
+  (let ((last-char
+	 (elt absolute-ns (- (length absolute-ns) 1)))
+	(first-char
+	 (elt value 0)))
+    (let ((separator
+	   (cond
+	     ((or (eql first-char #\#)
+		  (eql first-char #\/))
+	      "")
+	     ((or (eql last-char #\#)
+		  (eql last-char #\/))
+	      "")
+	     (t
+	      "/"))))
+      (let ((prep-ns
+	     (if (and (eql last-char first-char)
+		      (or (eql last-char #\#)
+			  (eql last-char #\/)))
+		 (subseq absolute-ns 0 (- (length absolute-ns) 1))
+		 (if (and (eql last-char #\#)
+			  (find #\/ value))
+		     (progn
+		       (when (not (eql first-char #\/))
+			 (setf separator "/"))
+		       (subseq absolute-ns 0 (- (length absolute-ns) 1)))
+		     absolute-ns))))
+	(concatenate 'string prep-ns separator value)))))
+
+
+(defun absolute-uri-p (uri)
+  "Returns t if the passed uri is an absolute one. This
+   is indicated by a ':' with no leadgin '/'."
+  (when uri
+    (let ((position-of-colon
+	   (position #\: uri)))
+      (declare (string uri))
+      (and position-of-colon (> position-of-colon 0)
+	   (not (find #\/ (subseq uri 0 position-of-colon)))))))

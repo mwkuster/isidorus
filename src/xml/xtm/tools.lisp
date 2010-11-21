@@ -21,55 +21,15 @@
 	   :xpath-select-single-location-path
 	   :get-ns-attribute
 	   :clear-child-nodes
-	   :absolute-uri-p
 	   :get-node-name
 	   :child-nodes-or-text
 	   :get-xml-lang
 	   :get-xml-base
 	   :absolutize-value
 	   :absolutize-id
-	   :concatenate-uri
 	   :node-to-string))
 
 (in-package :xml-tools)
-
-(defun concatenate-uri (absolute-ns value)
-  "Returns a string conctenated of the absolut namespace an the given value
-   separated by either '#' or '/'."
-  (declare (string absolute-ns value))
-  (unless (and (> (length absolute-ns) 0)
-	       (> (length value) 0))
-    (error "From concatenate-uri(): absolute-ns and value must be of length > 0"))
-  (unless (absolute-uri-p absolute-ns)
-    (error "From concatenate-uri(): absolute-ns has to be an absolute URI: ~a" absolute-ns))
-  (let ((last-char
-	 (elt absolute-ns (- (length absolute-ns) 1)))
-	(first-char
-	 (elt value 0)))
-    (let ((separator
-	   (cond
-	     ((or (eql first-char #\#)
-		  (eql first-char #\/))
-	      "")
-	     ((or (eql last-char #\#)
-		  (eql last-char #\/))
-	      "")
-	     (t
-	      "/"))))
-      (let ((prep-ns
-	     (if (and (eql last-char first-char)
-		      (or (eql last-char #\#)
-			  (eql last-char #\/)))
-		 (subseq absolute-ns 0 (- (length absolute-ns) 1))
-		 (if (and (eql last-char #\#)
-			  (find #\/ value))
-		     (progn
-		       (when (not (eql first-char #\/))
-			 (setf separator "/"))
-		       (subseq absolute-ns 0 (- (length absolute-ns) 1)))
-		     absolute-ns))))
-	(concatenate 'string prep-ns separator value)))))
-
 
 (defun absolutize-id (id xml-base tm-id)
   "Returns the passed id as an absolute uri computed
@@ -204,17 +164,6 @@
 	  (if (> (length (apply trim-fun (list entire-string))) 0)
 	      (apply  trim-fun (list entire-string))
 	      nil))))) ;there were no text nodes available
-
-
-(defun absolute-uri-p (uri)
-  "Returns t if the passed uri is an absolute one. This
-   is indicated by a ':' with no leadgin '/'."
-  (when uri
-    (let ((position-of-colon
-	   (position #\: uri)))
-      (declare (string uri))
-      (and position-of-colon (> position-of-colon 0)
-	   (not (find #\/ (subseq uri 0 position-of-colon)))))))
 
 
 (defun get-node-name (elem)

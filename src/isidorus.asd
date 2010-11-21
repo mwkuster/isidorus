@@ -78,8 +78,8 @@
 				     "base-tools"))
 	       (:module "atom"
 			:components ((:file "atom")
-;;                                      (:file "configuration"
-;;                                              :depends-on ("atom"))
+				     ;; (:file "configuration"
+				     ;;  :depends-on ("atom"))
                                      (:file "collection"
                                             :depends-on ("atom"))
 				     (:file "snapshots"
@@ -156,7 +156,7 @@
 				     (:file "exporter_xtm2.0_test"
 				            :depends-on ("fixtures"))
 				     (:file "exporter_xtm1.0_test"
-				      :depends-on ("fixtures" "exporter_xtm2.0_test"))
+					    :depends-on ("fixtures" "exporter_xtm2.0_test"))
                                      (:file "atom_test"
 					    :depends-on ("fixtures"))
 				     (:file "json_test"
