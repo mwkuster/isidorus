@@ -11,7 +11,8 @@
   (:use  :cl
 	 :it.bese.FiveAM
 	 :TM-SPARQL
-	 :exceptions)
+	 :exceptions
+	 :constants)
   (:export :run-sparql-tests
 	   :sparql-tests
 	   :test-prefix-and-base))
@@ -149,6 +150,20 @@ $var3 ?var3 WHERE{}")
 			  (and (string= (getf elem :variable) "*")
 			       (null (getf elem :value))))
 		      (TM-SPARQL::variables query-object-3)))))
+
+
+;(test test-parse-literal-string-value
+;  "Tests the helper function parse-literal-string-value."
+;  (let ((query-1 "   \"literal-value\"@de.")
+;	(query-2 "true.")
+;	(query-3 "false}")
+;	(query-4 "1234.43e10")
+;	(query-4 (concatenate 'string "'''true'''\"^^" *xml-boolean* " ;"))
+	
+
+	;TODO: delimiter "   ;" or "   ."
+	;TODO: handle: subject predicate object; predicate object
+;  )
 
 
 (defun run-sparql-tests ()

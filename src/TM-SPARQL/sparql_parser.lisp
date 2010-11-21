@@ -23,6 +23,27 @@
     (make-condition 'sparql-parser-error :message message)))
 
 
+(defun parse-closed-value(query-string query-object &key (open "<") (close ">"))
+  "A helper function that checks the value of a statement within
+   two brackets, i.e. <prefix-value>. A list of the
+   form (:next-query string :value string) is returned."
+  (declare (String query-string open close)
+	   (SPARQL-Query query-object))
+  (let ((trimmed-string (cut-comment query-string)))
+    (if (string-starts-with trimmed-string open)
+	(let* ((pref-url (string-until (string-after trimmed-string open) close))
+	       (next-query-str (string-after trimmed-string close)))
+	  (unless next-query-str
+	    (error (make-sparql-parser-condition
+		    trimmed-string (original-query query-object)
+		    close)))
+	  (list :next-query next-query-str
+		:value pref-url))
+	(error (make-sparql-parser-condition
+		trimmed-string (original-query query-object)
+		close)))))
+
+
 (defun cut-comment (query-string)
   "Returns the given string back. If the query starts with a # or
    space # the characters until the nextline are removed."
@@ -70,8 +91,8 @@
       (unless (string-starts-with next-query "WHERE")
 	(error (make-sparql-parser-condition
 		next-query (original-query construct) "WHERE")))
-      (let* ((tripples (string-after next-query "WHERE"))
-	     (query-tail (parse-where construct tripples)))
+      (let* ((triples (string-after next-query "WHERE"))
+	     (query-tail (parse-where construct triples)))
 	(or query-tail) ;TODO: process tail-of query, e.g. order by, ...
 	construct))))
 
@@ -83,12 +104,15 @@
       (unless (string-starts-with trimmed-str "{")
 	(error (make-sparql-parser-condition trimmed-str
 					     (original-query construct) "{")))
-      (parse-group construct (subseq trimmed-str 1) nil))))
+      (let ((query-tail (parse-group construct (subseq trimmed-str 1) nil nil)))
+	;TODO: process query-tail
+	query-tail))))
 
 
-(defgeneric parse-group (construct query-string values)
+(defgeneric parse-group (construct query-string values filters)
   (:documentation "The entry-point for the parsing of a {} statement.")
-  (:method ((construct SPARQL-Query) (query-string String) (values List))
+  (:method ((construct SPARQL-Query) (query-string String)
+	    (values List) (filters List))
     (let ((trimmed-str (cut-comment query-string)))
       (cond ((string-starts-with trimmed-str "BASE")
 	     (parse-base construct (string-after trimmed-str "BASE")
@@ -96,26 +120,29 @@
 	    ((string-starts-with trimmed-str "{")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
-		     "FILTER, BASE, or tripple. Grouping is currently no implemented.")))
+		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "FILTER")
-	     nil) ;TODO: implement => save the filters and call
-	          ;it after invoking parse-tripples
+	     nil) ;TODO: call parse-group with added filter
 	    ((string-starts-with trimmed-str "OPTIONAL")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
-		     "FILTER, BASE, or tripple. Grouping is currently no implemented.")))
+		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "UNION")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
-		     "FILTER, BASE, or tripple. Grouping is currently no implemented.")))
+		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "}") ;ending of this group
+	     ;TODO: invoke filters with all results
 	     (subseq trimmed-str 1))
 	    (t
-	     (parse-tripple construct trimmed-str values))))))
+	     (let ((result (parse-triple construct trimmed-str values)))
+	       (parse-group construct (getf result :next-query)
+			    (getf result :values) filters)))))))
+	       
 
 
-(defun parse-tripple-elem (query-string query-object &key (literal-allowed nil))
-  "A helper function to parse a subject or predicate of an RDF tripple.
+(defun parse-triple-elem (query-string query-object &key (literal-allowed nil))
+  "A helper function to parse a subject or predicate of an RDF triple.
    Returns an entry of the form (:value (:value string :type <'VAR|'IRI|'LITERAL>)
    :next-query string)."
   (declare (String query-string)
@@ -188,7 +215,7 @@
 		     *xml-string*))
 	 (next-query (getf result-2 :next-query)))
     (list :next-query next-query :lang l-lang :type l-lang
-	  :value (cast-literal l-value l-type query-object))))
+	  :value (cast-literal l-value l-type))))
 
 
 (defun cast-literal (literal-value literal-type)
@@ -232,10 +259,10 @@
    after the closing literal bounding."
   (declare (String query-string)
 	   (SPARQL-Query query-object))
-  (let ((delimiters (list " ." ". " ";" "}" " " (string #\tab)
+  (let ((delimiters (list "." ";" "}" " " (string #\tab)
 			  (string #\newline))))
     (cond ((string-starts-with query-string "@")
-	   (let ((end-pos (search-first (append delimiters (list "."))
+	   (let ((end-pos (search-first delimiters
 					(subseq query-string 1))))
 	     (unless end-pos
 	       (error (make-sparql-parser-condition
@@ -303,19 +330,19 @@
 (defun parse-literal-number-value (query-string query-object)
   "A helper function that parses any number that is a literal.
    The return value is of the form
-   (list :value nil :type string :pos int)."
+   (list :value nil :type string :next-query string."
   (declare (String query-string)
 	   (SPARQL-Query query-object))
   (let* ((trimmed-str (cut-comment query-string))
 	 (triple-delimiters
-	  (list ". " ". " ";" " " (string #\tab)
+	  (list ". " ";" " " (string #\tab)
 		(string #\newline) "}"))
 	 (end-pos (search-first triple-delimiters
 				trimmed-str)))
     (unless end-pos
       (error (make-sparql-parser-condition
 	      trimmed-str (original-query query-object)
-	      "'. ', ' .', ';' ' ', '\\t', '\\n' or '}'")))
+	      "'. ', , ';' ' ', '\\t', '\\n' or '}'")))
     (let* ((literal-number
 	    (read-from-string (subseq trimmed-str 0 end-pos)))
 	   (number-type
@@ -374,53 +401,39 @@
 		       :type 'IRI))))
 
 
-(defgeneric parse-tripple (construct query-string values)
-  (:documentation "Parses a tripple within a trippel group and returns a
+(defgeneric parse-triple (construct query-string values &key last-subject)
+  (:documentation "Parses a triple within a trippel group and returns a
                    a list of the form (:next-query :subject (:type <'VAR|'IRI>
                    :value string) :predicate (:type <'VAR|'IRI> :value string)
                    :object (:type <'VAR|'IRI|'LITERAL> :value string)).")
-  (:method ((construct SPARQL-Query) (query-string String) (values List))
+  (:method ((construct SPARQL-Query) (query-string String) (values List)
+	    &key (last-subject nil))
+    (declare (List last-subject))
     (let* ((trimmed-str (cut-comment query-string))
-	   (subject
-	    (let ((result (parse-tripple-elem trimmed-str construct)))
-	      (setf trimmed-str (getf result :next-query))
-	      (getf result :value)))
-	   (predicate
-	    (let ((result (parse-tripple-elem trimmed-str construct)))
-	      (setf trimmed-str (getf result :next-query))
-	      (getf result :value)))
-	   (object
-	    (let ((result (parse-tripple-elem trimmed-str construct
-					      :literal-allowed t)))
-	      (setf trimmed-str (getf result :next-query))
-	      (getf result :value))))
-      (or subject object predicate);;TODO: implement
-    ;; 0) ; => use last subject
-    ;; 1) search for <url> => if full-url use it otherwise set bse
-    ;; 2) search for label:suffix
-    ;; 3) varname => ?|$
-    ;; 4) literal => only the object
-
-    ;; => BASE is also allowed
-    ;; => ;-shortcut
-
-    ;; <full-url>
-    ;; <base-suffix>
-    ;; label:pref-suffix
-    ;; ?var
-    ;; $var
-    ;; "literal"
-    ;; 'literal'
-    ;; "literal"@language
-    ;; "literal"^^type
-    ;; '''"literal"'''
-    ;; 1, which is the same as "1"^^xsd:integer
-    ;; 1.3, which is the same as "1.3"^^xsd:decimal
-    ;; 1.300, which is the same as "1.300"^^xsd:decimal
-    ;; 1.0e6, which is the same as "1.0e6"^^xsd:double
-    ;; true, which is the same as "true"^^xsd:boolean
-    ;; false, which is the same as "false"^^xsd:boolean
-      )))
+	   (subject-result (if last-subject ;;is used after a ";"
+			       last-subject
+			       (parse-triple-elem trimmed-str construct)))
+	   (predicate-result (parse-triple-elem
+			      (if last-subject
+				  trimmed-str
+				  (getf subject-result :next-query))
+			      construct))
+	   (object-result (parse-triple-elem (getf predicate-result :next-query)
+					     construct :literal-allowed t))
+	   (all-values (append values
+			       (list :subject (getf subject-result :value)
+				     :predicate (getf predicate-result :value)
+				     :object (getf object-result :value)))))
+      (let ((tr-str (cut-comment (getf object-result :next-query))))
+	(cond ((string-starts-with tr-str ";")
+	       (parse-triple construct (subseq tr-str 1) all-values
+			     :last-subject (list :value
+						 (getf subject-result :value))))
+	      ((string-starts-with tr-str ".")
+	       (parse-triple construct (subseq tr-str 1) all-values))
+	      ((string-starts-with tr-str "}") ;no other triples follows
+	       (list :next-query tr-str
+		     :values all-values)))))))
 
 
 (defgeneric parse-variables (construct query-string)
@@ -499,24 +512,3 @@
 		      trimmed-string (original-query construct) ":")))
 	    (add-prefix construct label-name (getf results :value))
 	    (parser-start construct (getf results :next-query)))))))
-
-
-(defun parse-closed-value(query-string query-object &key (open "<") (close ">"))
-  "A helper function that checks the value of a statement within
-   two brackets, i.e. <prefix-value>. A list of the
-   form (:next-query string :value string) is returned."
-  (declare (String query-string open close)
-	   (SPARQL-Query query-object))
-  (let ((trimmed-string (cut-comment query-string)))
-    (if (string-starts-with trimmed-string open)
-	(let* ((pref-url (string-until (string-after trimmed-string open) close))
-	       (next-query-str (string-after trimmed-string close)))
-	  (unless next-query-str
-	    (error (make-sparql-parser-condition
-		    trimmed-string (original-query query-object)
-		    close)))
-	  (list :next-query next-query-str
-		:value pref-url))
-	(error (make-sparql-parser-condition
-		trimmed-string (original-query query-object)
-		close)))))
