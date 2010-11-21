@@ -15,7 +15,8 @@
 	 :constants)
   (:export :run-sparql-tests
 	   :sparql-tests
-	   :test-prefix-and-base))
+	   :test-prefix-and-base
+	   :test-parse-literals))
 
 
 (in-package :sparql-test)
@@ -152,18 +153,82 @@ $var3 ?var3 WHERE{}")
 		      (TM-SPARQL::variables query-object-3)))))
 
 
-;(test test-parse-literal-string-value
-;  "Tests the helper function parse-literal-string-value."
-;  (let ((query-1 "   \"literal-value\"@de.")
-;	(query-2 "true.")
-;	(query-3 "false}")
-;	(query-4 "1234.43e10")
-;	(query-4 (concatenate 'string "'''true'''\"^^" *xml-boolean* " ;"))
-	
+(test test-parse-literals
+  "Tests the helper functions for parsing literals."
+  (let ((query-1 "   \"literal-value\"@de.")
+	(query-2 "true.")
+	(query-3 "false}")
+	(query-4 (concatenate 'string "1234.43e10" (string #\tab)))
+	(query-5 (concatenate 'string "'''true'''^^" *xml-boolean* " ;"))
+	(query-6 (concatenate 'string "'123.4'^^" *xml-double*
+			      "." (string #\newline)))
+	(query-7 "\"Just a test
 
-	;TODO: delimiter "   ;" or "   ."
-	;TODO: handle: subject predicate object; predicate object
-;  )
+literal with some \\\"quoted\\\" words!\"@en.")
+	(query-8 (concatenate 'string "'''12.4'''^^" *xml-integer* ". "))
+	(query-9 (concatenate 'string "\"13e4\"^^" *xml-boolean* " ."))
+	(dummy-object (make-instance 'SPARQL-Query :query "")))
+    (is-true dummy-object)
+    (let ((result (tm-sparql::parse-literal-elem query-1 dummy-object)))
+      (is (string= (getf result :next-query) "."))
+      (is (string= (getf (getf result :value) :value)
+		   "literal-value"))
+      (is (string= (getf (getf result :value) :literal-lang)
+		   "de"))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-string*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (let ((result (tm-sparql::parse-literal-elem query-2 dummy-object)))
+      (is (string= (getf result :next-query) "."))
+      (is (eql (getf (getf result :value) :value) t))
+      (is-false (getf (getf result :value) :literal-lang))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-boolean*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (let ((result (tm-sparql::parse-literal-elem query-3 dummy-object)))
+      (is (string= (getf result :next-query) "}"))
+      (is (eql (getf (getf result :value) :value) nil))
+      (is-false (getf (getf result :value) :literal-lang))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-boolean*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (let ((result (tm-sparql::parse-literal-elem query-4 dummy-object)))
+      (is (string= (getf result :next-query) (string #\tab)))
+      (is (= (getf (getf result :value) :value) 1234.43e10))
+      (is-false (getf (getf result :value) :literal-lang))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-double*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (let ((result (tm-sparql::parse-literal-elem query-5 dummy-object)))
+      (is (string= (getf result :next-query) ";"))
+      (is (eql (getf (getf result :value) :value) t))
+      (is-false (getf (getf result :value) :literal-lang))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-boolean*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (let ((result (tm-sparql::parse-literal-elem query-6 dummy-object)))
+      (is (string= (getf result :next-query)
+		   (concatenate 'string "." (string #\newline))))
+      (is (= (getf (getf result :value) :value) 123.4))
+      (is-false (getf (getf result :value) :literal-lang))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-double*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (let ((result (tm-sparql::parse-literal-elem query-7 dummy-object)))
+      (is (string= (getf result :next-query) "."))
+      (is (string= (getf (getf result :value) :value)
+		   "Just a test
+
+literal with some \\\"quoted\\\" words!"))
+      (is (string= (getf (getf result :value) :literal-lang)
+		   "en"))
+      (is (string= (getf (getf result :value) :literal-type)
+		   *xml-string*))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::LITERAL)))
+    (signals sparql-parser-error
+      (tm-sparql::parse-literal-elem query-8 dummy-object))
+    (signals sparql-parser-error
+      (tm-sparql::parse-literal-elem query-9 dummy-object))))
 
 
 (defun run-sparql-tests ()

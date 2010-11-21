@@ -193,8 +193,9 @@
 		 (parse-literal-number-value trimmed-str query-object)))))
     (list :next-query (getf value-type-lang-query :next-query)
 	  :value (list :value (getf value-type-lang-query :value)
-		       :literal-type (getf value-type-lang-query :value)
-		       :type 'LITERAL))))
+		       :literal-type (getf value-type-lang-query :type)
+		       :type 'LITERAL
+		       :literal-lang (getf value-type-lang-query :lang)))))
 
 
 (defun parse-literal-string-value (query-string query-object)
@@ -209,12 +210,12 @@
 	 (l-value (getf result-1 :literal))
 	 (result-2 (separate-literal-lang-or-type
 		    after-literal-value query-object))
-	 (l-type (getf result-2 :type))
-	 (l-lang (if (getf result-2 :lang)
-		     (getf result-2 :lang)
+	 (l-type (if (getf result-2 :type)
+		     (getf result-2 :type)
 		     *xml-string*))
+	 (l-lang (getf result-2 :lang))
 	 (next-query (getf result-2 :next-query)))
-    (list :next-query next-query :lang l-lang :type l-lang
+    (list :next-query next-query :lang l-lang :type l-type
 	  :value (cast-literal l-value l-type))))
 
 
@@ -225,8 +226,8 @@
   (cond ((string= literal-type *xml-string*)
 	 literal-value)
 	((string= literal-type *xml-boolean*)
-	 (when (or (string/= literal-value "false")
-		   (string/= literal-value "true"))
+	 (when (and (string/= literal-value "false")
+		    (string/= literal-value "true"))
 	   (error (make-condition
 		   'sparql-parser-error
 		   :message (format nil "Could not cast from ~a to ~a"
@@ -259,10 +260,14 @@
    after the closing literal bounding."
   (declare (String query-string)
 	   (SPARQL-Query query-object))
-  (let ((delimiters (list "." ";" "}" " " (string #\tab)
-			  (string #\newline))))
+  (let ((delimiters-1 (list "." ";" "}" " " (string #\tab)
+			    (string #\newline)))
+	(delimiters-2 (list " ." ". " ";" "}" " " (string #\tab)
+			    (string #\newline)
+			    (concatenate 'string "." (string #\newline))
+			    (concatenate 'string "." (string #\tab)))))
     (cond ((string-starts-with query-string "@")
-	   (let ((end-pos (search-first delimiters
+	   (let ((end-pos (search-first delimiters-1
 					(subseq query-string 1))))
 	     (unless end-pos
 	       (error (make-sparql-parser-condition
@@ -272,7 +277,7 @@
 		   :lang (subseq (subseq query-string 1) 0 end-pos)
 		   :type nil)))
 	  ((string-starts-with query-string "^^")
-	   (let ((end-pos (search-first delimiters (subseq query-string 2))))
+	   (let ((end-pos (search-first delimiters-2 (subseq query-string 2))))
 	     (unless end-pos
 	       (error (make-sparql-parser-condition
 		       query-string (original-query query-object)
@@ -282,9 +287,10 @@
 		    (final-type (if (get-prefix query-object type-str)
 				    (get-prefix query-object type-str)
 				    type-str)))
-	       (list :next-query next-query :type final-type :lang nil))))
+	       (list :next-query (cut-comment next-query)
+		     :type final-type :lang nil))))
 	  (t
-	   (list :next-query query-string :type nil :lang nil)))))
+	   (list :next-query (cut-comment query-string) :type nil :lang nil)))))
 
 
 (defun separate-literal-value (query-string query-object)
@@ -323,7 +329,7 @@
 	    (find-literal-end (subseq query-string (+ current-pos
 						      (length delimiter)))
 			      delimiter (+ overall-pos current-pos 1))
-	    (+ overall-pos current-pos 1))
+	    (+ overall-pos current-pos (length delimiter)))
 	nil)))
 
 
@@ -370,8 +376,9 @@
 		  (not (base-value query-object)))
 	      (getf result :value)
 	      (concatenate-uri (base-value query-object)
-			       (getf result :value)))))
-    (list :next-query (getf result :next-query)
+			       (getf result :value))))
+	 (next-query (getf result :next-query)))
+    (list :next-query next-query
 	  :value (list :value result-uri :type 'IRI))))
 
 
