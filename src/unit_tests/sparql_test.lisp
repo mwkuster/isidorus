@@ -16,7 +16,8 @@
   (:export :run-sparql-tests
 	   :sparql-tests
 	   :test-prefix-and-base
-	   :test-parse-literals))
+	   :test-parse-literals
+	   :test-parse-triple-elem))
 
 
 (in-package :sparql-test)
@@ -230,6 +231,50 @@ literal with some \\\"quoted\\\" words!"))
     (signals sparql-parser-error
       (tm-sparql::parse-literal-elem query-9 dummy-object))))
 
+
+(test test-parse-triple-elem
+  "Tests various functionality of the parse-triple-elem function."
+  (let ((query-1 "?var1   .")
+	(query-2 "$var2 ;")
+	(query-3 "$var3 }")
+	(query-4 "<http://full.url>.")
+	(query-5 "<url-suffix>  }")
+	(query-6 "pref:suffix  .")
+	(query-7 "pref:suffix}")
+	(query-8 "preff:suffix}")
+	(dummy-object (make-instance 'SPARQL-Query :query ""
+				     :base "http://base.value")))
+    (tm-sparql::add-prefix dummy-object "pref" "http://prefix.value")
+    (let ((result (tm-sparql::parse-triple-elem query-1 dummy-object)))
+      (is (string= (getf result :next-query) "."))
+      (is (string= (getf (getf result :value) :value) "var1"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::VAR)))
+    (let ((result (tm-sparql::parse-triple-elem query-2 dummy-object)))
+      (is (string= (getf result :next-query) ";"))
+      (is (string= (getf (getf result :value) :value) "var2"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::VAR)))
+    (let ((result (tm-sparql::parse-triple-elem query-3 dummy-object)))
+      (is (string= (getf result :next-query) "}"))
+      (is (string= (getf (getf result :value) :value) "var3"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::VAR)))
+    (let ((result (tm-sparql::parse-triple-elem query-4 dummy-object)))
+      (is (string= (getf result :next-query) "."))
+      (is (string= (getf (getf result :value) :value) "http://full.url"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::IRI)))
+    (let ((result (tm-sparql::parse-triple-elem query-5 dummy-object)))
+      (is (string= (getf result :next-query) "}"))
+      (is (string= (getf (getf result :value) :value) "http://base.value/url-suffix"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::IRI)))
+    (let ((result (tm-sparql::parse-triple-elem query-6 dummy-object)))
+      (is (string= (getf result :next-query) "."))
+      (is (string= (getf (getf result :value) :value) "http://prefix.value/suffix"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::IRI)))
+    (let ((result (tm-sparql::parse-triple-elem query-7 dummy-object)))
+      (is (string= (getf result :next-query) "}"))
+      (is (string= (getf (getf result :value) :value) "http://prefix.value/suffix"))
+      (is (eql (getf (getf result :value) :type) 'TM-SPARQL::IRI)))
+    (signals sparql-parser-error 
+      (tm-sparql::parse-triple-elem query-8 dummy-object))))
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

@@ -154,7 +154,7 @@
 	  ((or (string-starts-with trimmed-str "?")
 	       (string-starts-with trimmed-str "$"))
 	   (let ((result (parse-variable-name trimmed-str query-object)))
-	     (list :next-query (getf result :next-query)
+	     (list :next-query (cut-comment (getf result :next-query))
 		   :value (list :value (getf result :value)
 				:type 'VAR))))
 	  (t
@@ -378,7 +378,7 @@
 	      (concatenate-uri (base-value query-object)
 			       (getf result :value))))
 	 (next-query (getf result :next-query)))
-    (list :next-query next-query
+    (list :next-query (cut-comment next-query)
 	  :value (list :value result-uri :type 'IRI))))
 
 
@@ -396,15 +396,24 @@
 	 (prefix (when elem-str
 		   (string-until elem-str ":")))
 	 (suffix (when prefix
-		   (string-after elem-str ":"))))
+		   (string-after elem-str ":")))
+	 (full-url
+	  (when (and suffix prefix)
+	    (get-prefix query-object (concatenate 'string prefix ":" suffix)))))
     (unless (and end-pos prefix suffix)
       (error (make-sparql-parser-condition
 	      trimmed-str (original-query query-object)
 	      "An IRI of the form prefix:suffix")))
-    (list :next-query (string-after
-		       trimmed-str
-		       (concatenate 'string prefix ":" suffix))
-	  :value (list :value (concatenate 'string prefix ":" suffix)
+    (unless full-url
+      (error (make-condition
+	      'sparql-parser-error
+	      :message (format nil "The prefix in \"~a:~a\" is not registered"
+			       prefix suffix))))
+    (list :next-query (cut-comment
+		       (string-after
+			trimmed-str
+			(concatenate 'string prefix ":" suffix)))
+	  :value (list :value full-url
 		       :type 'IRI))))
 
 

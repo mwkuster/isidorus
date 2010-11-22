@@ -86,8 +86,8 @@
     (loop for entry in (prefixes construct)
        when (string-starts-with string-with-prefix
 				(concatenate 'string (getf entry :label) ":"))
-       return (concatenate
-	       'string (getf entry :value) ":"
+       return (concatenate-uri
+	       (getf entry :value)
 	       (string-after string-with-prefix
 			     (concatenate 'string (getf entry :label) ":"))))))
 
