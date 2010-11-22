@@ -419,9 +419,10 @@
 
 (defgeneric parse-triple (construct query-string values &key last-subject)
   (:documentation "Parses a triple within a trippel group and returns a
-                   a list of the form (:next-query :subject (:type <'VAR|'IRI>
-                   :value string) :predicate (:type <'VAR|'IRI> :value string)
-                   :object (:type <'VAR|'IRI|'LITERAL> :value string)).")
+                   a list of the form (:next-query :values (:subject
+                   (:type <'VAR|'IRI> :value string) :predicate
+                   (:type <'VAR|'IRI> :value string)
+                   :object (:type <'VAR|'IRI|'LITERAL> :value string))).")
   (:method ((construct SPARQL-Query) (query-string String) (values List)
 	    &key (last-subject nil))
     (declare (List last-subject))
@@ -437,9 +438,10 @@
 	   (object-result (parse-triple-elem (getf predicate-result :next-query)
 					     construct :literal-allowed t))
 	   (all-values (append values
-			       (list :subject (getf subject-result :value)
-				     :predicate (getf predicate-result :value)
-				     :object (getf object-result :value)))))
+			       (list
+				(list :subject (getf subject-result :value)
+				      :predicate (getf predicate-result :value)
+				      :object (getf object-result :value))))))
       (let ((tr-str (cut-comment (getf object-result :next-query))))
 	(cond ((string-starts-with tr-str ";")
 	       (parse-triple construct (subseq tr-str 1) all-values
