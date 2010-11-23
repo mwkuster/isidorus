@@ -18,9 +18,16 @@
 	   :missing-argument-error
 	   :tm-reference-error
 	   :bad-type-error
-	   :sparql-parser-error))
+	   :sparql-parser-error
+	   :bad-argument-error))
 
 (in-package :exceptions)
+
+
+(define-condition bad-argument-error(error)
+  ((message 
+    :initarg :message
+    :accessor message)))
 
 
 (define-condition sparql-parser-error(error)

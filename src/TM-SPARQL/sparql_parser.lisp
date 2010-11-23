@@ -109,21 +109,23 @@
 	query-tail))))
 
 
-(defgeneric parse-group (construct query-string &key last-subject values filters)
+(defgeneric parse-group (construct query-string &key last-subject)
   (:documentation "The entry-point for the parsing of a {} statement.")
   (:method ((construct SPARQL-Query) (query-string String)
-	    &key (last-subject nil) (values nil) (filters nil))
-    (declare (List last-subject values filters))
+	    &key (last-subject nil))
+    (declare (type (or Null SPARQL-Triple-Elem) last-subject))
     (let ((trimmed-str (cut-comment query-string)))
       (cond ((string-starts-with trimmed-str "BASE")
 	     (parse-base construct (string-after trimmed-str "BASE")
-			 #'parse-where))
+			 #'(lambda(constr query-str)
+			     (parse-group constr query-str
+					  :last-subject last-subject))))
 	    ((string-starts-with trimmed-str "{")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
 		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "FILTER")
-	     nil) ;TODO: parse-filter and store it
+	     nil) ;TODO: parse-filter and store it in construct => extend class
 	    ((string-starts-with trimmed-str "OPTIONAL")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
@@ -133,12 +135,10 @@
 		     trimmed-str (original-query construct)
 		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "}") ;ending of this group
-	     ;TODO: invoke filters with all results
+	     ;TODO: invoke filters with all results on construct in initialize :after
 	     (subseq trimmed-str 1))
 	    (t
-	     ;(let ((result
-	     (parse-triple construct trimmed-str :values values
-			   :filters filters :last-subject last-subject))))))
+	     (parse-triple construct trimmed-str :last-subject last-subject))))))
 
 
 (defun parse-filter (query-string query-object)
@@ -152,9 +152,7 @@
 
 
 (defun parse-triple-elem (query-string query-object &key (literal-allowed nil))
-  "A helper function to parse a subject or predicate of an RDF triple.
-   Returns an entry of the form (:value (:value string :type <'VAR|'IRI|'LITERAL>)
-   :next-query string)."
+  "A helper function to parse a subject or predicate of an RDF triple."
   (declare (String query-string)
 	   (SPARQL-Query query-object)
 	   (Boolean literal-allowed))
@@ -165,8 +163,9 @@
 	       (string-starts-with trimmed-str "$"))
 	   (let ((result (parse-variable-name trimmed-str query-object)))
 	     (list :next-query (cut-comment (getf result :next-query))
-		   :value (list :value (getf result :value)
-				:type 'VAR))))
+		   :value (make-instance 'SPARQL-Triple-Elem
+					 :elem-type 'VARIABLE
+					 :value (getf result :value)))))
 	  (t
 	   (if (or (string-starts-with-digit trimmed-str)
 		   (string-starts-with trimmed-str "\"")
@@ -202,10 +201,11 @@
 		((string-starts-with-digit trimmed-str)
 		 (parse-literal-number-value trimmed-str query-object)))))
     (list :next-query (getf value-type-lang-query :next-query)
-	  :value (list :value (getf value-type-lang-query :value)
-		       :literal-type (getf value-type-lang-query :type)
-		       :type 'LITERAL
-		       :literal-lang (getf value-type-lang-query :lang)))))
+	  :value (make-instance 'SPARQL-Triple-Elem
+				:elem-type 'LITERAL
+				:value (getf value-type-lang-query :value)
+				:literal-lang (getf value-type-lang-query :lang)
+				:literal-type (getf value-type-lang-query :type)))))
 
 
 (defun parse-literal-string-value (query-string query-object)
@@ -389,7 +389,9 @@
 			       (getf result :value))))
 	 (next-query (getf result :next-query)))
     (list :next-query (cut-comment next-query)
-	  :value (list :value result-uri :type 'IRI))))
+	  :value (make-instance 'SPARQL-Triple-Elem
+				:elem-type 'IRI
+				:value result-uri))))
 
 
 (defun parse-prefix-suffix-pair(query-string query-object)
@@ -423,20 +425,15 @@
 		       (string-after
 			trimmed-str
 			(concatenate 'string prefix ":" suffix)))
-	  :value (list :value full-url
-		       :type 'IRI))))
+	  :value (make-instance 'SPARQL-Triple-Elem
+				:elem-type 'IRI
+				:value full-url))))
 
 
-(defgeneric parse-triple (construct query-string
-				    &key last-subject values filters)
-  (:documentation "Parses a triple within a trippel group and returns a
-                   a list of the form (:next-query :values (:subject
-                   (:type <'VAR|'IRI> :value string) :predicate
-                   (:type <'VAR|'IRI> :value string)
-                   :object (:type <'VAR|'IRI|'LITERAL> :value string))).")
-  (:method ((construct SPARQL-Query) (query-string String)
-	    &key (last-subject nil) (values nil) (filters nil))
-    (declare (List last-subject filters values))
+(defgeneric parse-triple (construct query-string &key last-subject)
+  (:documentation "Parses a triple within a trippel group.")
+  (:method ((construct SPARQL-Query) (query-string String) &key (last-subject nil))
+    (declare (type (or Null SPARQL-Triple-Elem) last-subject))
     (let* ((trimmed-str (cut-comment query-string))
 	   (subject-result (if last-subject ;;is used after a ";"
 			       last-subject
@@ -444,28 +441,27 @@
 	   (predicate-result (parse-triple-elem
 			      (if last-subject
 				  trimmed-str
-				  (getf subject-result :next-query))
+				  (if last-subject
+				      trimmed-str
+				      (getf subject-result :next-query)))
 			      construct))
 	   (object-result (parse-triple-elem (getf predicate-result :next-query)
-					     construct :literal-allowed t))
-	   (all-values (append values
-			       (list
-				(list :subject (getf subject-result :value)
-				      :predicate (getf predicate-result :value)
-				      :object (getf object-result :value))))))
+					     construct :literal-allowed t)))
+      (add-triple construct
+		  (make-instance 'SPARQL-Triple
+				 :subject (if last-subject
+					      last-subject
+					      (getf subject-result :value))
+				 :predicate (getf predicate-result :value)
+				 :object (getf object-result :value)))
       (let ((tr-str (cut-comment (getf object-result :next-query))))
 	(cond ((string-starts-with tr-str ";")
-	       (parse-group
-		construct (subseq tr-str 1)
-		:last-subject (list :value (getf subject-result :value))
-		:values all-values
-		:filters filters))
+	       (parse-group construct (subseq tr-str 1)
+			    :last-subject (getf subject-result :value)))
 	      ((string-starts-with tr-str ".")
-	       (parse-group construct (subseq tr-str 1) :values all-values
-			    :filters filters))
+	       (parse-group construct (subseq tr-str 1)))
 	      ((string-starts-with tr-str "}")
-	       (parse-group construct tr-str :values all-values
-			    :filters filters)))))))
+	       (parse-group construct tr-str)))))))
 
 
 (defgeneric parse-variables (construct query-string)

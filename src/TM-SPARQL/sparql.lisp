@@ -17,9 +17,60 @@
 (defvar *empty-label* "_empty_label_symbol")
 
 
-;(defclass SPARQL-Triple ()
-;  (())
-;  )
+(defclass SPARQL-Triple-Elem()
+  ((elem-type :initarg :elem-type
+	      :reader elem-type
+	      :type Symbol
+	      :initform (error
+			 (make-condition
+			  'missing-argument-error
+			  :message "From SPARQL-Triple-Elem(): elem-type must be set"))
+	      :documentation "Contains information about the type of this element
+                              possible values are 'IRI, 'VARIABLE, or 'LITERAL")
+   (value :initarg :value
+	  :accessor value
+	  :type T
+	  :initform nil
+	  :documentation "Contains the actual value of any type.")
+   (literal-lang :initarg :literal-lang
+		 :accessor literal-lang
+		 :initform nil
+		 :type String
+		 :documentation "Contains the @lang attribute of a literal")
+   (literal-type :initarg :literal-type
+		 :accessor literal-type
+		 :type String
+		 :initform nil
+		 :documentation "Contains the datatype of the literal, e.g. xml:string"))
+  (:documentation "Represents one element of an RDF-triple."))
+
+
+(defclass SPARQL-Triple()
+  ((subject :initarg :subject
+	    :accessor subject
+	    :type SPARQL-Triple-Elem
+	    :initform (error
+		       (make-condition
+			'missing-argument-error
+			:message "From SPARQL-Triple(): subject must be set"))
+	    :documentation "Represents the subject of an RDF-triple.")
+   (predicate :initarg :predicate
+	      :accessor predicate
+	      :type SPARQL-Triple-Elem
+	      :initform (error
+			 (make-condition
+			  'missing-argument-error
+			  :message "From SPARQL-Triple(): predicate must be set"))
+	    :documentation "Represents the predicate of an RDF-triple.")
+   (object :initarg :object
+	   :accessor object
+	   :type SPARQL-Triple-Elem
+	   :initform (error
+		      (make-condition
+		       'missing-argument-error
+		       :message "From SPARQL-Triple-(): object must be set"))
+	   :documentation "Represents the subject of an RDF-triple."))
+  (:documentation "Represents an entire RDF-triple."))
 
 
 (defclass SPARQL-Query ()
@@ -53,15 +104,34 @@
 	       :type String
 	       :initform nil
 	       :documentation "Contains the last set base-value.")
-   (select-statements :initarg :select-statements
-		      :accessor select-statements ;this value is only for
-					          ;internal purposes purposes
- 					          ;and mustn't be reset
-		      :type List 
-		      :initform nil
-		      :documentation "A list of the form ((:statement 'statement'
-                                      :value value-object))"))
+   (select-group :initarg :select-group
+		 :accessor select-group ;this value is only for
+					;internal purposes purposes
+					;and mustn't be reset
+		 :type List
+		 :initform nil
+		 :documentation "Contains a SPARQL-Group that represents
+                                 the entire inner select-where statement."))
   (:documentation "This class represents the entire request."))
+
+
+(defgeneric add-triple (construct triple)
+  (:documentation "Adds a triple object to the select-group list.")
+  (:method ((construct SPARQL-Query) (triple SPARQL-Triple))
+    (push triple (slot-value construct 'select-group))))
+
+
+(defgeneric (setf elem-type) (construct elem-type)
+  (:documentation "Sets the passed elem-type on the passed cosntruct.")
+  (:method ((construct SPARQL-Triple-Elem) (elem-type Symbol))
+    (unless (and (eql elem-type 'IRI)
+		 (eql elem-type 'VARIABLE)
+		 (eql elem-type 'LITERAL))
+      (error (make-condition
+	      'bad-argument-error
+	      :message (format nil "Expected a one of the symbols ~a, but get ~a~%"
+			       '('IRI 'VARIABLE 'LITERAL) elem-type))))
+    (setf (slot-value construct 'elem-type) elem-type)))
 
 
 (defgeneric add-prefix (construct prefix-label prefix-value)
