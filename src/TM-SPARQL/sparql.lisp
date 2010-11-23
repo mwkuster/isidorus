@@ -16,20 +16,13 @@
 
 (defvar *empty-label* "_empty_label_symbol")
 
-(defclass Variable-Container ()
-  ((variables :initarg :variables
-	      :accessor variables ;this value is only for internal purposes
-				  ;purposes and mustn't be reset
-	      :type List
-	      :initform nil
-	      :documentation "A list of the form ((:variable var-name
-                             :value value-object)), that contains tuples
-                             for each variable and its result."))
-   (:documentation "This class is used to store all variable in a WHERE{}
-                    statement"))
+
+;(defclass SPARQL-Triple ()
+;  (())
+;  )
 
 
-(defclass SPARQL-Query (Variable-Container)
+(defclass SPARQL-Query ()
   ((original-query :initarg :query
 		   :accessor original-query  ;this value is only for internal
 					     ;purposes and mustn't be reset
@@ -39,6 +32,14 @@
 			       'missing-argument-error
 			       :message "From TM-Query(): original-query must be set"))
 		   :documentation "Containst the original received querry as string")
+   (variables :initarg :variables
+	      :accessor variables ;this value is only for internal purposes
+					;purposes and mustn't be reset
+	      :type List
+	      :initform nil
+	      :documentation "A list of the form ((:variable var-name
+                             :value value-object)), that contains tuples
+                             for each selected variable and its result.")
    (prefixes :initarg :prefixes
 	     :accessor prefixes ;this value is only for internal purposes
 			        ;purposes and mustn't be reset
@@ -97,7 +98,7 @@
                    If a variable-already exists the existing entry will be
                    overwritten. An entry is of the form
                    (:variable string :value any-type).")
-  (:method ((construct Variable-Container) (variable-name String) variable-value)
+  (:method ((construct SPARQL-Query) (variable-name String) variable-value)
     (let ((existing-tuple
 	   (find-if #'(lambda(x)
 			(string= (getf x :variable) variable-name))

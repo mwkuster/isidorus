@@ -17,7 +17,9 @@
 	   :sparql-tests
 	   :test-prefix-and-base
 	   :test-parse-literals
-	   :test-parse-triple-elem))
+	   :test-parse-triple-elem
+	   :test-parse-group-1
+	   :test-parse-group-2))
 
 
 (in-package :sparql-test)
@@ -287,7 +289,7 @@ literal with some \\\"quoted\\\" words!"))
 				     :base "http://base.value/")))
     (is-true dummy-object)
     (tm-sparql::add-prefix dummy-object "pref" "http://prefix.value/")
-    (let ((result (tm-sparql::parse-triple dummy-object query-1 nil)))
+    (let ((result (tm-sparql::parse-triple dummy-object query-1)))
       (is (string= (getf result :next-query) "}"))
       (is (= (length (getf result :values)) 1))
       (is (eql (getf (getf (first (getf result :values)) :subject) :type)
@@ -302,7 +304,7 @@ literal with some \\\"quoted\\\" words!"))
 	       'TM-SPARQL::VAR))
       (is (string= (getf (getf (first (getf result :values)) :object) :value)
 		   "object")))
-    (let ((result (tm-sparql::parse-triple dummy-object query-2 nil)))
+    (let ((result (tm-sparql::parse-triple dummy-object query-2)))
       (is (string= (getf result :next-query) "}"))
       (is (eql (getf (getf (first (getf result :values)) :subject) :type)
 	       'TM-SPARQL::IRI))
@@ -319,7 +321,7 @@ literal with some \\\"quoted\\\" words!"))
       (is (string= (getf (getf (first (getf result :values)) :object)
 			 :literal-type)
 		   *xml-double*)))
-    (let ((result (tm-sparql::parse-triple dummy-object query-3 nil)))
+    (let ((result (tm-sparql::parse-triple dummy-object query-3)))
       (is (string= (getf result :next-query) "}"))
       (is (eql (getf (getf (first (getf result :values)) :subject) :type)
 	       'TM-SPARQL::IRI))
@@ -338,7 +340,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "en")))))
 
 
-(test test-parse-group-2
+(test test-parse-triple-2
   "Test various functionality of several functions responsible for parsing
    the SELECT-WHERE-statement."
   (let ((query-4 (concatenate 'string "<subject> <predicate> '''true'''^^"

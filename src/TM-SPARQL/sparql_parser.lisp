@@ -104,15 +104,16 @@
       (unless (string-starts-with trimmed-str "{")
 	(error (make-sparql-parser-condition trimmed-str
 					     (original-query construct) "{")))
-      (let ((query-tail (parse-group construct (subseq trimmed-str 1) nil nil)))
+      (let ((query-tail (parse-group construct (subseq trimmed-str 1))))
 	;TODO: process query-tail
 	query-tail))))
 
 
-(defgeneric parse-group (construct query-string values filters)
+(defgeneric parse-group (construct query-string &key last-subject values filters)
   (:documentation "The entry-point for the parsing of a {} statement.")
   (:method ((construct SPARQL-Query) (query-string String)
-	    (values List) (filters List))
+	    &key (last-subject nil) (values nil) (filters nil))
+    (declare (List last-subject values filters))
     (let ((trimmed-str (cut-comment query-string)))
       (cond ((string-starts-with trimmed-str "BASE")
 	     (parse-base construct (string-after trimmed-str "BASE")
@@ -122,7 +123,7 @@
 		     trimmed-str (original-query construct)
 		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "FILTER")
-	     nil) ;TODO: call parse-group with added filter
+	     nil) ;TODO: parse-filter and store it
 	    ((string-starts-with trimmed-str "OPTIONAL")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
@@ -135,10 +136,19 @@
 	     ;TODO: invoke filters with all results
 	     (subseq trimmed-str 1))
 	    (t
-	     (let ((result (parse-triple construct trimmed-str values)))
-	       (parse-group construct (getf result :next-query)
-			    (getf result :values) filters)))))))
-	       
+	     ;(let ((result
+	     (parse-triple construct trimmed-str :values values
+			   :filters filters :last-subject last-subject))))))
+
+
+(defun parse-filter (query-string query-object)
+  "A helper functions that returns a filter and the next-query string
+   in the form (:next-query string :filter object)."
+  ;; !, +, -, *, /, (, ), &&, ||, =, !=, <, >, >=, <=, REGEX(string, pattern)
+  (declare (String query-string)
+	   (SPARQL-Query query-object))
+  ;;TODO: implement
+  (or query-string query-object))
 
 
 (defun parse-triple-elem (query-string query-object &key (literal-allowed nil))
@@ -417,15 +427,16 @@
 		       :type 'IRI))))
 
 
-(defgeneric parse-triple (construct query-string values &key last-subject)
+(defgeneric parse-triple (construct query-string
+				    &key last-subject values filters)
   (:documentation "Parses a triple within a trippel group and returns a
                    a list of the form (:next-query :values (:subject
                    (:type <'VAR|'IRI> :value string) :predicate
                    (:type <'VAR|'IRI> :value string)
                    :object (:type <'VAR|'IRI|'LITERAL> :value string))).")
-  (:method ((construct SPARQL-Query) (query-string String) (values List)
-	    &key (last-subject nil))
-    (declare (List last-subject))
+  (:method ((construct SPARQL-Query) (query-string String)
+	    &key (last-subject nil) (values nil) (filters nil))
+    (declare (List last-subject filters values))
     (let* ((trimmed-str (cut-comment query-string))
 	   (subject-result (if last-subject ;;is used after a ";"
 			       last-subject
@@ -444,14 +455,17 @@
 				      :object (getf object-result :value))))))
       (let ((tr-str (cut-comment (getf object-result :next-query))))
 	(cond ((string-starts-with tr-str ";")
-	       (parse-triple construct (subseq tr-str 1) all-values
-			     :last-subject (list :value
-						 (getf subject-result :value))))
+	       (parse-group
+		construct (subseq tr-str 1)
+		:last-subject (list :value (getf subject-result :value))
+		:values all-values
+		:filters filters))
 	      ((string-starts-with tr-str ".")
-	       (parse-triple construct (subseq tr-str 1) all-values))
-	      ((string-starts-with tr-str "}") ;no other triples follows
-	       (list :next-query tr-str
-		     :values all-values)))))))
+	       (parse-group construct (subseq tr-str 1) :values all-values
+			    :filters filters))
+	      ((string-starts-with tr-str "}")
+	       (parse-group construct tr-str :values all-values
+			    :filters filters)))))))
 
 
 (defgeneric parse-variables (construct query-string)
