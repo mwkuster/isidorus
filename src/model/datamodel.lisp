@@ -280,11 +280,6 @@
   (:documentation "An abstract base class for all pointers."))
 
 
-(defpclass IdentifierC(PointerC)
-  ()
-  (:documentation "An abstract base class for all TM-Identifiers."))
-
-
 (defpclass TopicIdentificationC(PointerC)
   ((xtm-id :initarg :xtm-id
 	   :accessor xtm-id
@@ -296,6 +291,11 @@
   (:documentation "Identify topic items through generalized topic-ids.
                    A topic may have many original topicids, the class
                    representing one of them."))
+
+
+(defpclass IdentifierC(PointerC)
+  ()
+  (:documentation "An abstract base class for all TM-Identifiers."))
 
 
 (defpclass SubjectLocatorC(IdentifierC)
@@ -3159,6 +3159,7 @@
 		   construct 'reifier :start-revision revision)))
       (when assocs ;assocs must be nil or a list with exactly one item
 	(reifier-topic (first assocs))))))
+1
 
 
 (defgeneric add-item-identifier (construct item-identifier &key revision)
@@ -4418,3 +4419,20 @@
 	(when equivalent-construct
 	  (merge-constructs (first equivalent-construct) new-characteristic
 			    :revision revision))))))
+
+
+;; fixes a bug in elephant, where sb-mop:finalize-inheritance is called too late
+(let ((classes
+       (map 'list #'find-class
+	    (list 'TopicMapConstructC 'PointerC 'IdentifierC 'PersistentIdC
+		  'ItemIdentifierC 'SubjectLocatorC 'TopicIdentificationC
+		  'ReifiableConstructC 'TopicC 'TopicMapC 'AssociationC
+		  'RoleC 'CharacteristicC 'ScopableC 'TypableC 'NameC
+		  'OccurrenceC 'VariantC 'DatatypableC 'VersionedConstructC
+		  'VersionedAssociationC 'PointerAssociationC 'ItemIdAssociationC
+		  'TopicIdAssociationC 'PersistentIdAssociationC
+		  'SubjectLocatorAssociationC 'ReifierAssociationC
+		  'CharacteristicAssociationC 'OccurrenceAssociationC
+		  'NameAssociationC 'VariantAssociationC 'RoleAssociationC
+		  'ScopeAssociationC 'TypeAssociationC 'PlayerAssociationC))))
+  (map 'list #'sb-mop:finalize-inheritance classes))

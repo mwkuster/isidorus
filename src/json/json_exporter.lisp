@@ -382,18 +382,12 @@
 	(tm-ids
 	 (concatenate
 	  'string "\"tmIds\":"
-	  (if (in-topicmaps (topic instance))
-	      (let ((j-tm-ids "["))
-		(loop for item in (in-topicmaps (topic instance))
-		   do (setf j-tm-ids
-			    (concatenate
-			     'string j-tm-ids 
-			     (json:encode-json-to-string
-			      (d:uri (first (d:item-identifiers item
-								:revision revision))))
-			     ",")))
-		(concatenate 'string (subseq j-tm-ids 0 (- (length j-tm-ids) 1)) "]"))
-	      "null"))))
+	  (let ((uris
+		 (loop for tm in (in-topicmaps (topic instance))
+		    collect (map 'list #'d:uri
+				 (item-identifiers tm :revision revision)))))
+	    (concatenate 'string (json:encode-json-to-string
+				  (remove-if #'null uris)))))))
     (concatenate 'string "{" main-topic "," topicStubs "," associations
 		 "," tm-ids "}")))
 
