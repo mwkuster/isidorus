@@ -25,8 +25,10 @@
            :import-tm-feed
            :read-url
            :read-fragment-feed
-           :start-tm-engine
-	   :shutdown-tm-engine
+           :start-json-engine
+	   :start-atom-engine
+	   :shutdown-json-engine
+	   :shutdown-atom-engine
 	   :*json-get-prefix*
 	   :*get-rdf-prefix*
 	   :*json-commit-url*
@@ -61,15 +63,47 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
             (apply page-function (coerce matched-registers 'list))))))))
 
 
-(defvar *server-acceptor* nil)
+(defvar *json-server-acceptor* nil)
+(defvar *atom-server-acceptor* nil)
 
 
-(defun start-tm-engine (repository-path &key (conffile "atom/conf.lisp")
-			(host-name "localhost") (port 8000))
-  "Start the Topic Map Engine on a given port, assuming a given
-   hostname. Use the repository under repository-path"
-  (when *server-acceptor*
-    (error "Ther server is already running"))
+(defun start-json-engine (repository-path &key
+			  (host-name "localhost") (port 8000))
+  "Start the Topic Maps Engine on a given port, assuming a given
+   hostname. Use the repository under repository-path.
+   This function starts only the json/xtm/rdf handlers for the UI,
+   The atom interface has to be started separately."
+  (when *json-server-acceptor*
+    (error "The json-server is already running"))
+  (setf hunchentoot:*show-lisp-errors-p* t) ;for now
+  (setf hunchentoot:*hunchentoot-default-external-format* 
+	(flex:make-external-format :utf-8 :eol-style :lf))
+  (unless elephant:*store-controller*
+    (elephant:open-store  
+     (xml-importer:get-store-spec repository-path)))
+  (set-up-json-interface)
+  (setf *json-server-acceptor*
+	(make-instance 'hunchentoot:acceptor :address host-name :port port))
+  (setf hunchentoot:*lisp-errors-log-level* :info)
+  (setf hunchentoot:*message-log-pathname* "./json-hunchentoot-errors.log")
+  (hunchentoot:start *json-server-acceptor*))
+
+
+(defun shutdown-json-engine ()
+  "Shut down the Topic Map Engine, only the json part."
+  (hunchentoot:stop *json-server-acceptor*)
+  (setf *json-server-acceptor* nil)
+  (elephant:close-store))
+
+
+(defun start-atom-engine (repository-path &key (conf-file "atom/conf.lisp")
+			  (host-name "localhost") (port 8001))
+  "Start the Topic Maps Engine on a given port, assuming a given
+   hostname. Use the repository under repository-path.
+   This function starts only the atom interface.
+   The json/xtm/rdf interface has to be started separately."
+  (when *atom-server-acceptor*
+    (error "The atom-server is already running"))
   (setf hunchentoot:*show-lisp-errors-p* t) ;for now
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
@@ -77,16 +111,17 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (unless elephant:*store-controller*
     (elephant:open-store  
      (xml-importer:get-store-spec repository-path)))
-  (load conffile)
+  (load conf-file)
   (publish-feed atom:*tm-feed*)
-  (set-up-json-interface)
-  (setf *server-acceptor* (make-instance 'hunchentoot:acceptor :address host-name :port port))
+  (setf *atom-server-acceptor*
+	(make-instance 'hunchentoot:acceptor :address host-name :port port))
   (setf hunchentoot:*lisp-errors-log-level* :info)
-  (setf hunchentoot:*message-log-pathname* "./hunchentoot-errors.log")
-  (hunchentoot:start *server-acceptor*))
+  (setf hunchentoot:*message-log-pathname* "./atom-hunchentoot-errors.log")
+  (hunchentoot:start *atom-server-acceptor*))
 
-(defun shutdown-tm-engine ()
-  "Shut down the Topic Map Engine"
-  (hunchentoot:stop *server-acceptor*)
-  (setf *server-acceptor* nil)
+
+(defun shutdown-atom-engine ()
+  "Shut down the Topic Map Engine, only the atom part."
+  (hunchentoot:stop *atom-server-acceptor*)
+  (setf *atom-server-acceptor* nil)
   (elephant:close-store))

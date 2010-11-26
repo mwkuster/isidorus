@@ -4414,7 +4414,6 @@ function makeRemoveObject(type, objectToDelete){
     }
  
     commitDeletedObject(delMessage, function(xhr){
-	    alert("Objected deleted");
 	    if(type === "Topic"){
 		$(CLASSES.subPage()).update();
 		setNaviClasses($(PAGES.home));
@@ -4428,7 +4427,6 @@ function makeRemoveObject(type, objectToDelete){
 		else {
 		    if(type === "Occurrence"){
 			objectToDelete.__value__.setValue("");
-			objectToDelete.disable();
 		    }
 		    else {
 			objectToDelete.__value__.__frames__[0].__content__.setValue("");
@@ -4436,13 +4434,14 @@ function makeRemoveObject(type, objectToDelete){
 			objectToDelete.__variants__ = new VariantContainerC(null, objectToDelete);
 			vars.append(objectToDelete.__variants__.getFrame());
 			vars.remove();
-			objectToDelete.disable();
 		    }
+		    objectToDelete.disable();
 		    var ii = objectToDelete.__itemIdentity__;
 		    objectToDelete.__itemIdentity__ = new ItemIdentityC(null, objectToDelete);
 		    ii.append(objectToDelete.__itemIdentity__.getFrame());
 		    ii.remove();
 		}
 	    }
+	    alert("Objected deleted");
 	});   
 }
