@@ -24,7 +24,7 @@ var OWN_URL = HOST_PREF + "isidorus";
 var SUMMARY_URL = HOST_PREF + "json/summary";
 var MARK_AS_DELETED_URL = HOST_PREF + "mark-as-deleted";
 var TM_OVERVIEW = HOST_PREF + "json/tmcl/overview/";
-var TIMEOUT = 20000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
+var TIMEOUT = 30000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
 
 
 

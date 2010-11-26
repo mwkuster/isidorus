@@ -54,6 +54,11 @@
 			'missing-argument-error
 			:message "From SPARQL-Triple(): subject must be set"))
 	    :documentation "Represents the subject of an RDF-triple.")
+   (subject-result :initarg :subject-result
+		   :accessor subject-result
+		   :type T
+		   :initform nil
+		   :documentation "Contains the result of the subject triple elem.")
    (predicate :initarg :predicate
 	      :accessor predicate
 	      :type SPARQL-Triple-Elem
@@ -62,6 +67,12 @@
 			  'missing-argument-error
 			  :message "From SPARQL-Triple(): predicate must be set"))
 	    :documentation "Represents the predicate of an RDF-triple.")
+   (predicate-result :initarg :predicate-result
+		     :accessor predicate-result
+		     :type T
+		     :initform nil
+		     :documentation "Contains the result of the predicate
+                                     triple elem.")
    (object :initarg :object
 	   :accessor object
 	   :type SPARQL-Triple-Elem
@@ -69,7 +80,12 @@
 		      (make-condition
 		       'missing-argument-error
 		       :message "From SPARQL-Triple-(): object must be set"))
-	   :documentation "Represents the subject of an RDF-triple."))
+	   :documentation "Represents the subject of an RDF-triple.")
+   (object-result :initarg :object-result
+		  :accessor object-result
+		  :type T
+		  :initform nil
+		  :documentation "Contains the result of the object triple elem."))
   (:documentation "Represents an entire RDF-triple."))
 
 
@@ -177,6 +193,38 @@
 	  (setf (getf existing-tuple :value) variable-value)
 	  (push (list :variable variable-name :value variable-value)
 		(variables construct))))))
+
+
+
+
+;;TODO:
+;;
+;; find-triples (subject predicate object)
+;; * var var var => return the entire graph (all subjects)
+;; * var var object
+;; * var predicate var
+;; * var predicate object
+;; * subject var var
+;; * subject var object
+;; * subject predicate var
+;; * subject predicate object => return subject predicate object if true otherweise nil
+;; handle special URIs => http://www.networkedplanet.com/ontopic/2009/11/making_topic_maps_sparql.html
+
+(defgeneric set-result (construct)
+  (:documentation "Calculates the result of a triple and set all the values in
+                   the passed object.")
+  (:method ((construct SPARQL-Triple))
+    ;;TODO: implement
+    construct))
+
+
+(defgeneric find-subject-var-var (construct)
+  (:documentation "Finds a triple corresponding to the subject and sets
+                   both variables.")
+  (:method ((construct SPARQL-Triple))
+
+    ))
+
 
 
 (defmethod initialize-instance :after ((construct SPARQL-Query) &rest args)

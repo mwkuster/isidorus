@@ -9,7 +9,6 @@
 
 (in-package :TM-SPARQL)
 
-
 (defun make-sparql-parser-condition(rest-of-query entire-query expected)
   "Creates a spqrql-parser-error object."
   (declare (String rest-of-query entire-query expected))
@@ -157,7 +156,12 @@
 	   (SPARQL-Query query-object)
 	   (Boolean literal-allowed))
   (let ((trimmed-str (cut-comment query-string)))
-    (cond ((string-starts-with trimmed-str "<")
+    (cond ((string-starts-with trimmed-str "a ") ;;rdf:type
+	   (list :next-query (cut-comment (subseq trimmed-str 1))
+		 :value (make-instance 'SPARQL-Triple-Elem
+				       :elem-type 'IRI
+				       :value *rdf-type*)))
+	  ((string-starts-with trimmed-str "<")
 	   (parse-base-suffix-pair trimmed-str query-object))
 	  ((or (string-starts-with trimmed-str "?")
 	       (string-starts-with trimmed-str "$"))
@@ -441,9 +445,7 @@
 	   (predicate-result (parse-triple-elem
 			      (if last-subject
 				  trimmed-str
-				  (if last-subject
-				      trimmed-str
-				      (getf subject-result :next-query)))
+				  (getf subject-result :next-query))
 			      construct))
 	   (object-result (parse-triple-elem (getf predicate-result :next-query)
 					     construct :literal-allowed t)))

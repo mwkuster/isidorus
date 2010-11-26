@@ -39,6 +39,7 @@
 	   :*rdf-nil*
 	   :*rdf-first*
 	   :*rdf-rest*
+	   :*rdf-type*
 	   :*rdf2tm-object*
 	   :*rdf2tm-subject*
 	   :*rdf2tm-scope-prefix*
@@ -125,6 +126,8 @@
 (defparameter *rdf-predicate* (concatenate 'string *rdf-ns* "predicate"))
 
 (defparameter *rdf-nil* (concatenate 'string *rdf-ns* "nil"))
+
+(defparameter *rdf-type* (concatenate 'string *rdf-ns* "type"))
 
 (defparameter *rdf-first* (concatenate 'string *rdf-ns* "first"))
 
