@@ -10,9 +10,10 @@
 (in-package :rest-interface)
 
 ;caching tables
-(defparameter *type-table* nil)
-(defparameter *instance-table* nil)
-
+(defparameter *type-table* nil "Cointains integer==OIDs that represent a topic
+                                instance of a vylid type-topic")
+(defparameter *instance-table* nil "Cointains integer==OIDs that represent a topic
+                                    instance of a valid instance-topic")
 
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-get-prefix* "/json/get/(.+)$")

@@ -4421,18 +4421,22 @@ function makeRemoveObject(type, objectToDelete){
 		makePage(PAGES.home, "");
 	    }
 	    else if (type === "Occurrence" || type === "Name"){
-		if(objectToDelete.__owner__.__frames__.length > objectToDelete.__max__
-		   && objectToDelete.__owner__.__frames__.length > 1){
+		if(objectToDelete.__owner__.__frames__.length >= 1 &&
+		   objectToDelete.__owner__.__frames__.length > objectToDelete.__min__){
 		    objectToDelete.remove();
 		}
 		else {
-		    if(type === "Occurrence"){ objectToDelete.__value__.setValue(""); }
+		    if(type === "Occurrence"){
+			objectToDelete.__value__.setValue("");
+			objectToDelete.disable();
+		    }
 		    else {
 			objectToDelete.__value__.__frames__[0].__content__.setValue("");
 			var vars = objectToDelete.__variants__;
 			objectToDelete.__variants__ = new VariantContainerC(null, objectToDelete);
 			vars.append(objectToDelete.__variants__.getFrame());
 			vars.remove();
+			objectToDelete.disable();
 		    }
 		    var ii = objectToDelete.__itemIdentity__;
 		    objectToDelete.__itemIdentity__ = new ItemIdentityC(null, objectToDelete);
