@@ -43,6 +43,7 @@
 	   :FragmentC
 
 	   ;;methods, functions and macros
+	   :get-all-identifiers-of-construct
 	   :xtm-id
 	   :uri
 	   :identified-construct
@@ -108,6 +109,8 @@
 	   :get-item-by-item-identifier
 	   :get-item-by-locator
 	   :get-item-by-content
+	   :get-item-by-any-id
+	   :any-id
 	   :string-integer-p
 	   :with-revision
 	   :get-latest-fragment-of-topic
@@ -170,6 +173,7 @@
 	   :invoke-on
 	   :names-by-type
 	   :occurrences-by-type
+	   :occurrences-by-datatype
 	   :characteristics-by-type
 	   :occurrences-by-value
 	   :names-by-value
@@ -1028,6 +1032,11 @@
                    the TM."))
 
 
+(defgeneric any-id (construct &key revision)
+  (:documentation "Returns any uri of the constructs identifier, except
+                   TopicIdentificationC. The order is: PSIs, SL, II."))
+
+
 
 ;;; generic functions/accessors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; VersionInfocC
@@ -1836,6 +1845,28 @@
   (append (psis construct :revision revision)
           (locators construct :revision revision)
           (item-identifiers construct :revision revision)))
+
+
+(defun get-item-by-any-id (id-uri &key (revision d:*TM-REVISION*))
+  "Returns a topic or REfifiableConstruct corresponding to the given uri."
+  (declare (String id-uri)
+	   (Integer revision))
+  (or (d:get-item-by-psi id-uri :revision revision)
+      (get-item-by-item-identifier id-uri :revision revision)
+      (get-item-by-locator id-uri :revision revision)))
+
+
+(defmethod any-id ((construct TopicC) &key (revision *TM-REVISION*))
+  (declare (Integer revision))
+  (let ((psi (when-do psis (psis construct :revision revision)
+		      (uri (first psis)))))
+    (if psi
+	psi
+	(let ((sl (when-do sls (locators construct :revision revision)
+			   (uri (first sls)))))
+	  (if sl
+	      sl
+	      (call-next-method))))))
 
 
 (defgeneric names (construct &key revision)
@@ -3159,7 +3190,6 @@
 		   construct 'reifier :start-revision revision)))
       (when assocs ;assocs must be nil or a list with exactly one item
 	(reifier-topic (first assocs))))))
-1
 
 
 (defgeneric add-item-identifier (construct item-identifier &key revision)
@@ -3227,6 +3257,12 @@
 					  :revision revision)
       (add-version-info construct revision)
       construct)))
+
+
+(defmethod any-id ((construct ReifiableConstructC) &key (revision *TM-REVISION*))
+  (declare (Integer revision))
+  (when-do iis (item-identifiers construct :revision revision)
+	   (uri (first iis))))
 
 
 (defgeneric add-reifier (construct reifier-topic &key revision)

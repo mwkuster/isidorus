@@ -321,6 +321,20 @@
 	   (occurrences-by-value construct filter :revision revision))))
 
 
+(defgeneric occurrences-by-datatype (construct datatype &key revision)
+  (:documentation "Returns all occurrences of the specified datatype.")
+  (:method ((construct TopicC) datatype &key (revision *TM-REVISION*))
+    (declare (type (or Null String) datatype)
+	     (Integer revision))
+    (if datatype
+	(remove-null
+	 (map 'list #'(lambda(occ)
+			(when (string= (datatype occ) datatype)
+			  occ))
+	      (occurrences construct :revision revision)))
+	(occurrences construct :revision revision))))
+
+
 (defgeneric isa (construct type &key revision)
   (:documentation "Returns all types if the passed construct
                    is of the specified type.")

@@ -92,7 +92,10 @@
 		next-query (original-query construct) "WHERE")))
       (let* ((triples (string-after next-query "WHERE"))
 	     (query-tail (parse-where construct triples)))
-	(or query-tail) ;TODO: process tail-of query, e.g. order by, ...
+	(when (> (length query-tail) 0)
+	  (error (make-sparql-parser-condition
+		  query-tail (original-query construct)
+		  "The end of the query. Solution sequence modifiers are not supported yet.")))
 	construct))))
 
 
@@ -147,7 +150,7 @@
   (declare (String query-string)
 	   (SPARQL-Query query-object))
   ;;TODO: implement
-  (or query-string query-object))
+  )
 
 
 (defun parse-triple-elem (query-string query-object &key (literal-allowed nil))
@@ -264,8 +267,12 @@
 		   'sparql-parser-error
 		   :message (format nil "Could not cast from ~a to ~a"
 				    literal-value literal-type))))
-	   value))))
-
+	   value))
+	(t
+	 (error (make-condition
+		 'sparql-error 
+		 :message (format nil "The type \"~a\" is not supported."
+				  literal-type))))))
 
 (defun separate-literal-lang-or-type (query-string query-object)
   "A helper function that returns (:next-query string :lang string
