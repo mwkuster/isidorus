@@ -114,7 +114,13 @@
 
 
 (defclass SPARQL-Query ()
-  ((original-query :initarg :query
+  ((revision :initarg :revision
+	     :accessor revision
+	     :type Integer
+	     :initform 0
+	     :documentation "Represents the revision in which all the queries
+                             are processed in the DB.")
+   (original-query :initarg :query
 		   :accessor original-query  ;this value is only for internal
 					     ;purposes and mustn't be reset
 		   :type String
@@ -230,9 +236,9 @@
 			 (filter-by-given-predicate construct :revision revision)
 			 (filter-by-given-object construct :revision revision))))
 	(map 'list #'(lambda(result)
-		       (push (getf result :subject) (subject construct))
-		       (push (getf result :predicate) (predicate construct))
-		       (push (getf result :object) (object construct)))
+		       (push (getf result :subject) (subject-result construct))
+		       (push (getf result :predicate) (predicate-result construct))
+		       (push (getf result :object) (object-result construct)))
 	     ;;literal-datatype is not used and is not returned, since
 	     ;;the values are returned as object of their specific type, e.g.
 	     ;;integer, boolean, string, ...
@@ -244,7 +250,9 @@
                    of a given object.")
   (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
     (declare (Integer revision))
-    (unless (variable-p (object construct))
+    (when (and (not (variable-p (object construct)))
+	       (variable-p (predicate construct))
+	       (variable-p (subject construct)))
       (cond ((literal-p (object construct))
 	     (filter-by-characteristic-value (value (object construct))
 					     (literal-datatype (object construct))
@@ -304,7 +312,12 @@
 			      :predicate pred
 			      :object (charvalue char)
 			      :literal-datatyp literal-datatype))))
-	  chars))))
+	  ;;elephant returns names, occurences, and variants if any string
+	  ;;value matches, so all duplicates have to be removed, additionaly
+	  ;;variants have to be remove completely
+	  (remove-if #'(lambda(obj)
+			 (typep obj 'VariantC))
+		     (remove-duplicates chars))))))
 
 
 (defgeneric filter-by-otherplayer (construct &key revision)
@@ -328,7 +341,7 @@
 			(when-do type (instance-of role :revision revision)
 				 (any-id type :revision revision)))
 		       (subj-uri
-			(when-do plr (instance-of orole :revision revision)
+			(when-do plr (player orole :revision revision)
 				 (any-id plr :revision revision))))
 		  (when (and obj-uri pred-uri subj-uri)
 		    (list :subject subj-uri
@@ -364,16 +377,18 @@
     (when (or (variable-p (object construct))
 	      (iri-p (object construct)))
       (let* ((roles-by-type
-	      (map 'list #'(lambda(typed-construct)
-			     (when (typep typed-construct 'RoleC)
-			       typed-construct))
-		   (used-as-type construct :revision revision)))
+	      (remove-null
+	       (map 'list #'(lambda(typed-construct)
+			      (when (typep typed-construct 'RoleC)
+				typed-construct))
+		    (used-as-type (value (predicate construct)) :revision revision))))
 	     (roles-by-player
 	      (if (iri-p (object construct))
 		  (remove-null
 		   (map 'list #'(lambda(role)
-				  (when (eql (instance-of role :revision revision)
-					     (value (object construct)))))
+				  (when (eql (player role :revision revision)
+					     (value (object construct)))
+				    role))
 			roles-by-type))
 		  roles-by-type))
 	     (pred-uri (any-id (value (predicate construct)) :revision revision)))
@@ -415,7 +430,7 @@
   (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
     (declare (Integer revision))
     (when (and (not (iri-p (object construct)))
-	       (or (not (literal-datatype construct))
+	       (or (not (literal-datatype (object construct)))
 		   (string= (literal-datatype construct) *xml-string*)))
       (let* ((names-by-type
 	      (remove-null
@@ -426,12 +441,13 @@
 				  :revision revision))))
 	     (names-by-literal
 	      (if (variable-p (object construct))
+		  names-by-type
 		  (remove-null
 		   (map 'list #'(lambda(name)
-				  (string= (charvalue name)
-					   (value (object construct))))
-			names-by-type))
-		  names-by-type)))
+				  (when (string= (charvalue name)
+						 (value (object construct)))
+				    name))
+			names-by-type)))))
 	(remove-null
 	 (map 'list
 	      #'(lambda(name)
@@ -713,4 +729,6 @@
 (defmethod initialize-instance :after ((construct SPARQL-Query) &rest args)
   (declare (ignorable args))
   (parser-start construct (original-query construct))
+  (dolist (triple (select-group construct))
+    (set-results triple :revision (revision construct)))
   construct)

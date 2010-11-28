@@ -12,6 +12,9 @@
 	 :it.bese.FiveAM
 	 :TM-SPARQL
 	 :exceptions
+	 :unittests-constants
+	 :fixtures
+	 :d
 	 :constants)
   (:export :run-sparql-tests
 	   :sparql-tests
@@ -19,7 +22,9 @@
 	   :test-parse-literals
 	   :test-parse-triple-elem
 	   :test-parse-group-1
-	   :test-parse-group-2))
+	   :test-parse-group-2
+	   :test-set-result-1
+	   :test-set-result-2))
 
 
 (in-package :sparql-test)
@@ -406,6 +411,255 @@ literal with some \\\"quoted\\\" words!"))
       (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
 		   *xml-string*))
       (is-false (tm-sparql::literal-lang (tm-sparql::object elem))))))
+
+
+(test test-set-result-1
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1 "BASE <http://some.where/>
+                       SELECT ?subject ?predicate ?object WHERE {
+                         ?subject ?predicate ?object }")
+	     (query-2 "BASE <http://some.where/psis/poem/>
+                       SELECT $subject ?predicate WHERE{
+                         ?subject $predicate <zauberlehrling> }")
+	     (query-3 "SELECT ?predicate ?subject WHERE
+                         {?subject ?predicate \"Johann Wolfgang\" }")
+	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))
+	     (q-obj-3 (make-instance 'TM-SPARQL:SPARQL-Query :query query-3)))
+	(is-true q-obj-1)
+	(is (= (length (tm-sparql::select-group q-obj-1)) 1))
+	(is-true q-obj-2)
+	(is (= (length (tm-sparql::select-group q-obj-2)) 1))
+	(is-true q-obj-3)
+	(is (= (length (tm-sparql::select-group q-obj-3)) 1))
+	(is-false (tm-sparql::subject-result
+		   (first (tm-sparql::select-group q-obj-1))))
+	(is-false (tm-sparql::predicate-result
+		   (first (tm-sparql::select-group q-obj-1))))
+	(is-false (tm-sparql::object-result
+		   (first (tm-sparql::select-group q-obj-1))))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-2)))) 2))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-2)))) 2))
+	(is (= (length (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-2)))) 2))
+	(let ((subj-1 (first (tm-sparql::subject-result
+			      (first (tm-sparql::select-group q-obj-2)))))
+	      (subj-2 (second (tm-sparql::subject-result
+			       (first (tm-sparql::select-group q-obj-2)))))
+	      (pred-1 (first (tm-sparql::predicate-result
+			      (first (tm-sparql::select-group q-obj-2)))))
+	      (pred-2 (second (tm-sparql::predicate-result
+			       (first (tm-sparql::select-group q-obj-2)))))
+	      (obj-1 (first (tm-sparql::object-result
+			      (first (tm-sparql::select-group q-obj-2)))))
+	      (obj-2 (second (tm-sparql::object-result
+			       (first (tm-sparql::select-group q-obj-2))))))
+	  (cond ((or (string= subj-1 "http://some.where/psis/author/goethe")
+		     (string= subj-1 "http://some.where/psis/persons/goethe"))
+		 (is (string= pred-1 "http://some.where/base-psis/written"))
+		 (is (or (string= obj-1 "http://some.where/psis/poem/zauberlehrling")
+			 (string= obj-1 "http://some.where/psis/der_zauberlehrling")))
+		 (is (string= subj-2 "http://some.where/base-psis/poem"))
+		 (is (string= pred-2 "http://psi.topicmaps.org/iso13250/model/instance"))
+		 (is (or (string= obj-2 "http://some.where/psis/poem/zauberlehrling")
+			 (string= obj-2 "http://some.where/psis/der_zauberlehrling"))))
+		((string= subj-1 "http://some.where/base-psis/poem")
+		 (is (string= pred-2 "http://some.where/base-psis/written"))
+		 (is (or (string= obj-1 "http://some.where/psis/poem/zauberlehrling")
+			 (string= obj-1 "http://some.where/psis/der_zauberlehrling")))
+		 (is (or (string= subj-2 "http://some.where/psis/author/goethe")
+			 (string= subj-2 "http://some.where/psis/persons/goethe")))
+		 (is (string= pred-1 "http://psi.topicmaps.org/iso13250/model/type"))
+		 (is (or (string= obj-2 "http://some.where/psis/poem/zauberlehrling")
+			 (string= obj-2 "http://some.where/psis/der_zauberlehrling"))))
+		(t
+		 (is-true nil))))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is (= (length (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is (or (string= (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-3))))
+			 "http://some.where/psis/author/goethe")
+		(string= (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-3))))
+			 "http://some.where/psis/persons/goethe")))
+	(is (string= (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-3))))
+		     "http://some.where/base-psis/first-name"))
+	(is (string= (first (tm-sparql::object-result
+			     (first (tm-sparql::select-group q-obj-3))))
+		     "Johann Wolfgang"))))))
+
+
+(test test-set-result-2
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1 "PREFIX pref:<http://some.where/base-psis/>
+                       SELECT $subject $object WHERE {
+                         ?subject pref:written ?object }")
+	     (query-2 "BASE <http://some.where/base-psis/>
+                       SELECT $subject $object WHERE {
+                         ?subject <first-name> ?object }")
+	     (query-3 "BASE <http://some.where/psis/>
+                       SELECT ?subject WHERE{
+                         ?subject <http://some.where/base-psis/written>
+                           <poem/zauberlehrling>}")
+	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))
+	     (q-obj-3 (make-instance 'TM-SPARQL:SPARQL-Query :query query-3)))
+	(is-true q-obj-1)
+	(is (= (length (tm-sparql::select-group q-obj-1)) 1))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-1)))) 4))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-1)))) 4))
+	(is (= (length (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-1)))) 4))
+	(let* ((s-1 (first (tm-sparql::subject-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (s-2 (second (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-1)))))
+	       (s-3 (third (tm-sparql::subject-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (s-4 (fourth (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-1)))))
+	       (p-1 (first (tm-sparql::predicate-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (p-2 (second (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-1)))))
+	       (p-3 (third (tm-sparql::predicate-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (p-4 (fourth (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-1)))))
+	       (o-1 (first (tm-sparql::object-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (o-2 (second (tm-sparql::object-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (o-3 (third (tm-sparql::object-result
+			    (first (tm-sparql::select-group q-obj-1)))))
+	       (o-4 (fourth (tm-sparql::object-result
+			     (first (tm-sparql::select-group q-obj-1))))))
+	  (is (string= p-1 "http://some.where/base-psis/written"))
+	  (is (string= p-2 "http://some.where/base-psis/written"))
+	  (is (string= p-3 "http://some.where/base-psis/written"))
+	  (is (string= p-4 "http://some.where/base-psis/written"))
+	  (is (or (not (set-exclusive-or
+			(list "http://some.where/psis/author/eichendorff"
+			      "http://some.where/psis/author/schiller"
+			      "http://some.where/psis/author/goethe")
+			(list s-1 s-2 s-3 s-4)
+			:test #'string=))
+		  (not (set-exclusive-or
+			(list "http://some.where/psis/author/eichendorff"
+			      "http://some.where/psis/author/schiller"
+			      "http://some.where/psis/persons/goethe")
+			(list s-1 s-2 s-3 s-4)
+			:test #'string=))))
+	  (is-false (set-exclusive-or
+		     (list "http://some.where/psis/poem/mondnacht"
+			   "http://some.where/psis/poem/resignation"
+			   "http://some.where/psis/poem/erlkoenig"
+			   "http://some.where/psis/poem/zauberlehrling")
+		     (list o-1 o-2 o-3 o-4)
+		     :test #'string=)))
+	(is-true q-obj-2)
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-2)))) 3))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-2)))) 3))
+	(is (= (length (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-2)))) 3))
+	(let* ((s-1 (first (tm-sparql::subject-result
+			    (first (tm-sparql::select-group q-obj-2)))))
+	       (s-2 (second (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-2)))))
+	       (s-3 (third (tm-sparql::subject-result
+			    (first (tm-sparql::select-group q-obj-2)))))
+	       (p-1 (first (tm-sparql::predicate-result
+			    (first (tm-sparql::select-group q-obj-2)))))
+	       (p-2 (second (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-2)))))
+	       (p-3 (third (tm-sparql::predicate-result
+			    (first (tm-sparql::select-group q-obj-2)))))
+	       (o-1 (first (tm-sparql::object-result
+			    (first (tm-sparql::select-group q-obj-2)))))
+	       (o-2 (second (tm-sparql::object-result
+			    (first (tm-sparql::select-group q-obj-2)))))
+	       (o-3 (third (tm-sparql::object-result
+			    (first (tm-sparql::select-group q-obj-2))))))
+	  (string= p-1 "http://some.where/base-psis/first-name")
+	  (string= p-2 "http://some.where/base-psis/first-name")
+	  (string= p-3 "http://some.where/base-psis/first-name")
+	  (cond ((string= o-1 "Johann Christoph Friedrich")
+		 (is (string= s-1 "http://some.where/psis/author/schiller"))
+		 (cond ((string= o-2 "Johann Wolfgang")
+			(is (or (string= s-2 "http://some.where/psis/author/goethe")
+				(string= s-2 "http://some.where/psis/persons/goethe")))
+			(is (string= s-3 "http://some.where/psis/author/eichendorff"))
+			(is (string= o-3 "Joseph Karl Benedikt")))
+		       ((string= o-2 "Joseph Karl Benedikt")
+			(is (string= s-2 "http://some.where/psis/author/eichendorff"))
+			(is (or (string= s-3 "http://some.where/psis/author/goethe")
+				(string= s-3 "http://some.where/psis/persons/goethe")))
+			(is (string= o-3 "Johann Wolfgang")))
+		       (t
+			(is-true nil))))
+		((string= o-1 "Johann Wolfgang")
+		 (is (or (string= s-1 "http://some.where/psis/author/goethe")
+			 (string= s-1 "http://some.where/psis/persons/goethe")))
+		 (cond ((string= o-2 "Johann Christoph Friedrich")
+			(is (string= s-2 "http://some.where/psis/author/schiller"))
+			(is (string= s-3 "http://some.where/psis/author/eichendorff"))
+			(is (string= o-3 "Joseph Karl Benedikt")))
+		       ((string= o-2 "Joseph Karl Benedikt")
+			(is (string= s-2 "http://some.where/psis/author/eichendorff"))
+			(is (string= s-3 "http://some.where/psis/author/schiller"))
+			(is (string= o-3 "Johann Christoph Friedrich")))
+		       (t
+			(is-true nil))))
+		((string= o-1 "Joseph Karl Benedikt")
+		 (is (string= s-1 "http://some.where/psis/author/eichendorff"))
+		 (cond ((string= o-2 "Johann Wolfgang")
+			(is (or (string= s-2 "http://some.where/psis/author/goethe")
+				(string= s-2 "http://some.where/psis/persons/goethe")))
+			(is (string= s-3 "http://some.where/psis/author/schiller"))
+			(is (string= o-3 "Johann Christoph Friedrich")))
+		       ((string= o-2 "Johann Christoph Friedrich")
+			(is (string= s-2 "http://some.where/psis/author/schiller"))
+			(is (or (string= s-3 "http://some.where/psis/author/goethe")
+				(string= s-3 "http://some.where/psis/persons/goethe")))
+			(is (string= o-3 "Johann Wolfgang")))
+		       (t
+			(is-true nil))))
+		(t
+		 (is-true nil))))
+	(is-true q-obj-3)
+	(is (= (length (tm-sparql::select-group q-obj-3)) 1))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is (= (length (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is (or (string= (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-3))))
+			 "http://some.where/psis/author/goethe")
+		(string= (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-3))))
+			 "http://some.where/psis/persons/goethe")))
+	(is (string= (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-3))))
+		     "http://some.where/base-psis/written"))
+	(is (string= (first (tm-sparql::object-result
+			     (first (tm-sparql::select-group q-obj-3))))
+		     "http://some.where/psis/poem/zauberlehrling"))))))
+      
 
 
 (defun run-sparql-tests ()

@@ -208,11 +208,12 @@
 		((string-starts-with-digit trimmed-str)
 		 (parse-literal-number-value trimmed-str query-object)))))
     (list :next-query (getf value-type-lang-query :next-query)
-	  :value (make-instance 'SPARQL-Triple-Elem
-				:elem-type 'LITERAL
-				:value (getf value-type-lang-query :value)
-				:literal-lang (getf value-type-lang-query :lang)
-				:literal-type (getf value-type-lang-query :type)))))
+	  :value (make-instance
+		  'SPARQL-Triple-Elem
+		  :elem-type 'LITERAL
+		  :value (getf value-type-lang-query :value)
+		  :literal-lang (getf value-type-lang-query :lang)
+		  :literal-datatype (getf value-type-lang-query :type)))))
 
 
 (defun parse-literal-string-value (query-string query-object)
