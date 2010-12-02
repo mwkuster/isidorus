@@ -24,7 +24,10 @@
 	   :test-parse-group-1
 	   :test-parse-group-2
 	   :test-set-result-1
-	   :test-set-result-2))
+	   :test-set-result-2
+	   :test-set-result-3
+	   :test-set-result-4
+	   :test-set-result-5))
 
 
 (in-package :sparql-test)
@@ -183,35 +186,35 @@ literal with some \\\"quoted\\\" words!\"@en.")
 		   "literal-value"))
       (is (string= (tm-sparql::literal-lang (getf result :value))
 		   "de"))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-string*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (let ((result (tm-sparql::parse-literal-elem query-2 dummy-object)))
       (is (string= (getf result :next-query) "."))
       (is (eql (tm-sparql::value (getf result :value)) t))
       (is-false (tm-sparql::literal-lang (getf result :value)))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-boolean*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (let ((result (tm-sparql::parse-literal-elem query-3 dummy-object)))
       (is (string= (getf result :next-query) "}"))
       (is (eql (tm-sparql::value (getf result :value)) nil))
       (is-false (tm-sparql::literal-lang (getf result :value)))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-boolean*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (let ((result (tm-sparql::parse-literal-elem query-4 dummy-object)))
       (is (string= (getf result :next-query) (string #\tab)))
       (is (= (tm-sparql::value (getf result :value)) 1234.43e10))
       (is-false (tm-sparql::literal-lang (getf result :value)))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-double*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (let ((result (tm-sparql::parse-literal-elem query-5 dummy-object)))
       (is (string= (getf result :next-query) ";"))
       (is (eql (tm-sparql::value (getf result :value)) t))
       (is-false (tm-sparql::literal-lang (getf result :value)))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-boolean*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (let ((result (tm-sparql::parse-literal-elem query-6 dummy-object)))
@@ -219,7 +222,7 @@ literal with some \\\"quoted\\\" words!\"@en.")
 		   (concatenate 'string "." (string #\newline))))
       (is (eql (tm-sparql::value (getf result :value)) 123.4))
       (is-false (tm-sparql::literal-lang (getf result :value)))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-double*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (let ((result (tm-sparql::parse-literal-elem query-7 dummy-object)))
@@ -229,7 +232,7 @@ literal with some \\\"quoted\\\" words!\"@en.")
 
 literal with some \\\"quoted\\\" words!"))
       (is (string= (tm-sparql::literal-lang (getf result :value)) "en"))
-      (is (string= (tm-sparql::literal-type (getf result :value))
+      (is (string= (tm-sparql::literal-datatype (getf result :value))
 		   *xml-string*))
       (is (eql (tm-sparql::elem-type (getf result :value)) 'TM-SPARQL::LITERAL)))
     (signals sparql-parser-error
@@ -322,7 +325,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "http://prefix.value/predicate"))
       (is (eql (tm-sparql::elem-type (tm-sparql::object elem)) lit))
       (is (= (tm-sparql::value (tm-sparql::object elem)) 1234.5e12))
-      (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
+      (is (string= (tm-sparql::literal-datatype (tm-sparql::object elem))
 		   *xml-double*))
       (is-false (tm-sparql::literal-lang (tm-sparql::object elem))))
     (is (string= (tm-sparql::parse-triple dummy-object query-3) ""))
@@ -336,7 +339,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "predicate"))
       (is (eql (tm-sparql::elem-type (tm-sparql::object elem)) lit))
       (is (string= (tm-sparql::value (tm-sparql::object elem)) "literal"))
-      (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
+      (is (string= (tm-sparql::literal-datatype (tm-sparql::object elem))
 		   *xml-string*))
       (is (string= (tm-sparql::literal-lang (tm-sparql::object elem)) "en")))))
 
@@ -368,7 +371,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "http://base.value/predicate"))
       (is (eql (tm-sparql::elem-type (tm-sparql::object elem)) lit))
       (is (eql (tm-sparql::value (tm-sparql::object elem)) t))
-      (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
+      (is (string= (tm-sparql::literal-datatype (tm-sparql::object elem))
 		   *xml-boolean*))
       (is-false (tm-sparql::literal-lang (tm-sparql::object elem))))
     (let ((elem (first (tm-sparql::select-group dummy-object))))
@@ -380,7 +383,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "http://prefix.value/predicate-2"))
       (is (eql (tm-sparql::elem-type (tm-sparql::object elem)) lit))
       (is (= (tm-sparql::value (tm-sparql::object elem)) 12))
-      (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
+      (is (string= (tm-sparql::literal-datatype (tm-sparql::object elem))
 		   *xml-integer*))
       (is-false (tm-sparql::literal-lang (tm-sparql::object elem))))
     (is (string= "http://base.value/" (tm-sparql::base-value dummy-object)))
@@ -396,7 +399,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "http://base.value/predicate"))
       (is (eql (tm-sparql::elem-type (tm-sparql::object elem)) lit))
       (is (eql (tm-sparql::value (tm-sparql::object elem)) nil))
-      (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
+      (is (string= (tm-sparql::literal-datatype (tm-sparql::object elem))
 		   *xml-boolean*))
       (is-false (tm-sparql::literal-lang (tm-sparql::object elem))))
     (let ((elem (first (tm-sparql::select-group dummy-object))))
@@ -408,7 +411,7 @@ literal with some \\\"quoted\\\" words!"))
 		   "http://new.base/predicate-2"))
       (is (eql (tm-sparql::elem-type (tm-sparql::object elem)) lit))
       (is (string= (tm-sparql::value (tm-sparql::object elem)) "abc"))
-      (is (string= (tm-sparql::literal-type (tm-sparql::object elem))
+      (is (string= (tm-sparql::literal-datatype (tm-sparql::object elem))
 		   *xml-string*))
       (is-false (tm-sparql::literal-lang (tm-sparql::object elem))))))
 
@@ -514,6 +517,8 @@ literal with some \\\"quoted\\\" words!"))
 	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))
 	     (q-obj-3 (make-instance 'TM-SPARQL:SPARQL-Query :query query-3)))
 	(is-true q-obj-1)
+	(is-true q-obj-2)
+	(is-true q-obj-3)
 	(is (= (length (tm-sparql::select-group q-obj-1)) 1))
 	(is (= (length (tm-sparql::subject-result
 			(first (tm-sparql::select-group q-obj-1)))) 4))
@@ -659,7 +664,279 @@ literal with some \\\"quoted\\\" words!"))
 	(is (string= (first (tm-sparql::object-result
 			     (first (tm-sparql::select-group q-obj-3))))
 		     "http://some.where/psis/poem/zauberlehrling"))))))
-      
+
+
+(test test-set-result-3
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1 "PREFIX pref:<http://some.where/base-psis/>
+                       SELECT $subject WHERE {
+                         ?subject pref:author-info \"http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe\"^^http://www.w3.org/2001/XMLSchema#anyURI }")
+	     (query-2 "BASE <http://some.where/base-psis/>
+                       SELECT $subject WHERE {
+                         ?subject <last-name> 'von Goethe'^^anyType }")
+	     (query-3 "BASE <http://some.where/base-psis/>
+                       SELECT ?subject WHERE{
+                         ?subject <http://some.where/base-psis/last-name>
+                           'Johann Wolfgang' }")
+	     (query-4 "PREFIX pref-1:<http://some.where/base-psis/>
+                       PREFIX pref-2:<http://some.where/psis/>
+                       SELECT ?subject WHERE {
+                         ?subject pref-1:written pref-2:poem/resignation }")
+	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))
+	     (q-obj-3 (make-instance 'TM-SPARQL:SPARQL-Query :query query-3))
+	     (q-obj-4 (make-instance 'TM-SPARQL:SPARQL-Query :query query-4)))
+	(is-true q-obj-1)
+	(is-true q-obj-2)
+	(is-true q-obj-3)
+	(is-true q-obj-4)
+	(is (= (length (tm-sparql::select-group q-obj-1)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-2)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-3)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-4)) 1))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-1)))) 1))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-2)))) 0))
+	(is (= (length (tm-sparql::predicate-result
+			(first (tm-sparql::select-group q-obj-3)))) 0))
+	(is (or (string= (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-1))))
+			 "http://some.where/psis/author/goethe")
+		(string= (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-1))))
+			 "http://some.where/psis/persons/goethe")))
+	(is (string= (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-1))))
+		     "http://some.where/base-psis/author-info"))
+	(is (string= (first (tm-sparql::object-result
+			     (first (tm-sparql::select-group q-obj-1))))
+		     "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe"))
+	(is (string= (first (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-4))))
+		     "http://some.where/psis/author/schiller"))
+	(is (string= (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-4))))
+		     "http://some.where/base-psis/written"))
+	(is (string= (first (tm-sparql::object-result
+			     (first (tm-sparql::select-group q-obj-4))))
+		     "http://some.where/psis/poem/resignation"))))))
+
+
+(test test-set-result-4
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1 "BASE <http://some.where/>
+                       SELECT ?predicate ?object WHERE {
+                         <psis/author/goethe> ?predicate ?object}")
+	     (query-2 "BASE <http://some.where/>
+                       SELECT ?predicate ?object WHERE {
+                         <psis/poem/zauberlehrling> ?predicate ?object}")
+	     (query-3 "BASE <http://some.where/>
+                       SELECT ?predicate WHERE {
+                         <psis/persons/goethe> ?predicate <psis/poem/zauberlehrling>}")
+	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))
+	     (q-obj-3 (make-instance 'TM-SPARQL:SPARQL-Query :query query-3)))
+	(is-true q-obj-1)
+	(is-true q-obj-2)
+	(is-true q-obj-3)
+	(is (= (length (tm-sparql::select-group q-obj-1)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-2)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-3)) 1))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-1)))) 7))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-2)))) 4))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-3)))) 1))
+	(is-true (or (null (set-exclusive-or
+			    (list "http://some.where/psis/author/goethe")
+			    (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-1)))
+			    :test #'string=))
+		     (null (set-exclusive-or
+			    (list "http://some.where/psis/persons/goethe")
+			    (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-1)))
+			    :test #'string=))))
+	(let ((predicates (tm-sparql::predicate-result
+			   (first (tm-sparql::select-group q-obj-1)))))
+	  (is (= (count "http://some.where/base-psis/written" predicates
+			:test #'string=) 2))
+	  (is (= (count "http://some.where/base-psis/place" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://some.where/base-psis/first-name" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://some.where/base-psis/last-name" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://some.where/base-psis/author-info" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://psi.topicmaps.org/iso13250/model/type" predicates
+			:test #'string=) 1)))
+	(let ((objects (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-1)))))
+	  (is (= (count "http://some.where/psis/poem/erlkoenig" objects
+			:test #'string=) 1))
+	  (is (or (= (count "http://some.where/psis/poem/der_zauberlehrling"
+			    objects :test #'string=) 1)
+		  (= (count "http://some.where/psis/poem/zauberlehrling" objects
+			    :test #'string=) 1)))
+	  (is (or (= (count "http://some.where/base-psis/author" objects
+			    :test #'string=) 1)
+		  (= (count "http://some.where/base-psis/author-psi" objects
+			    :test #'string=) 1)))
+	  (is (= (count "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe"
+			objects :test #'string=) 1))
+	  (is (= (count "von Goethe" objects :test #'string=) 1))
+	  (is (= (count "Johann Wolfgang" objects :test #'string=) 1))
+	  (is (= (count "http://some.where/psis/region/frankfurt_am_main"
+			objects :test #'string=) 1)))
+	(is-true (or (null (set-exclusive-or
+			    (list "http://some.where/psis/poem/der_zauberlehrling")
+			    (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-2)))
+			    :test #'string=))
+		     (null (set-exclusive-or
+			    (list "http://some.where/psis/poem/zauberlehrling")
+			    (tm-sparql::subject-result
+			     (first (tm-sparql::select-group q-obj-2)))
+			    :test #'string=))))
+	(let ((predicates (tm-sparql::predicate-result
+			   (first (tm-sparql::select-group q-obj-2)))))
+	  (is (= (count "http://some.where/base-psis/writer" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://some.where/base-psis/title" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://some.where/base-psis/poem-content" predicates
+			:test #'string=) 1))
+	  (is (= (count "http://psi.topicmaps.org/iso13250/model/type" predicates
+			:test #'string=) 1)))
+	(let ((objects (tm-sparql::object-result
+			(first (tm-sparql::select-group q-obj-2)))))
+	  (is (or (= (count "http://some.where/psis/author/goethe" objects
+			    :test #'string=) 1)
+		  (= (count "http://some.where/psis/persons/goethe" objects
+			    :test #'string=) 1)))
+	  (is (= (count "Der Zauberlehrling" objects :test #'string=) 1))
+	  (is (= (count "http://some.where/base-psis/poem"
+			objects :test #'string=) 1))
+	  ;do not check the entire poem content => too long
+	  )
+	(is (or (string= "http://some.where/psis/author/goethe"
+			 (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-3)))))
+		(string= "http://some.where/psis/persons/goethe"
+			 (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-3)))))))
+	(is (string= "http://some.where/base-psis/written"
+		     (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-3))))))
+	(is (or (string= "http://some.where/psis/poem/der_zauberlehrling"
+			 (first (tm-sparql::object-result
+				 (first (tm-sparql::select-group q-obj-3)))))
+		(string= "http://some.where/psis/poem/zauberlehrling"
+			 (first (tm-sparql::object-result
+				 (first (tm-sparql::select-group q-obj-3)))))))))))
+
+
+(test test-set-result-5
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1 "BASE <http://some.where/>
+                       SELECT ?predicate WHERE {
+                         <psis/author/goethe> ?predicate 'Johann Wolfgang'}")
+	     (query-2 "BASE <http://some.where/>
+                       SELECT ?object WHERE {
+                         <psis/author/goethe> <base-psis/written> ?object}")
+	     (query-3 "BASE <http://some.where/>
+                       SELECT ?object WHERE {
+                         <psis/persons/goethe> <base-psis/last-name> ?object.
+                         <does/not/exist> <any-predicate> ?object}")
+	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))
+	     (q-obj-3 (make-instance 'TM-SPARQL:SPARQL-Query :query query-3)))
+	(is-true q-obj-1)
+	(is-true q-obj-2)
+	(is-true q-obj-3)
+	(is (= (length (tm-sparql::select-group q-obj-1)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-2)) 1))
+	(is (= (length (tm-sparql::select-group q-obj-3)) 2))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-1)))) 1))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-2)))) 2))
+	(is (= (length (tm-sparql::subject-result
+			(first (tm-sparql::select-group q-obj-3)))) 0))
+	(is (= (length (tm-sparql::subject-result
+			(second (tm-sparql::select-group q-obj-3)))) 1))
+	(is (or (string= "http://some.where/psis/author/goethe"
+			 (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-1)))))
+		(string= "http://some.where/psis/persons/goethe"
+			 (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-1)))))))
+	(is (string= "http://some.where/base-psis/first-name"
+		     (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-1))))))
+	(is (string= "Johann Wolfgang"
+		     (first (tm-sparql::object-result
+			     (first (tm-sparql::select-group q-obj-1))))))
+	(is (or (string= "http://some.where/psis/author/goethe"
+			 (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-2)))))
+		(string= "http://some.where/psis/persons/goethe"
+			 (first (tm-sparql::subject-result
+				 (first (tm-sparql::select-group q-obj-2)))))))
+	(is (string= "http://some.where/base-psis/written"
+		     (first (tm-sparql::predicate-result
+			     (first (tm-sparql::select-group q-obj-2))))))
+	(is (or (string= "http://some.where/psis/poem/zauberlehrling"
+			 (first (tm-sparql::object-result
+				 (first (tm-sparql::select-group q-obj-2)))))
+		(string= "http://some.where/psis/poem/der_zauberlehrling"
+			 (first (tm-sparql::object-result
+				 (first (tm-sparql::select-group q-obj-2)))))
+		(string= "http://some.where/psis/poem/erlkoenig"
+			 (first (tm-sparql::object-result
+				 (first (tm-sparql::select-group q-obj-2)))))))
+	(is (or (string= "http://some.where/psis/author/goethe"
+			 (second (tm-sparql::subject-result
+				  (first (tm-sparql::select-group q-obj-2)))))
+		(string= "http://some.where/psis/persons/goethe"
+			 (second (tm-sparql::subject-result
+				  (first (tm-sparql::select-group q-obj-2)))))))
+	(is (string= "http://some.where/base-psis/written"
+		     (second (tm-sparql::predicate-result
+			      (first (tm-sparql::select-group q-obj-2))))))
+	(is (or (string= "http://some.where/psis/poem/zauberlehrling"
+			 (second (tm-sparql::object-result
+				  (first (tm-sparql::select-group q-obj-2)))))
+		(string= "http://some.where/psis/poem/der_zauberlehrling"
+			 (second (tm-sparql::object-result
+				  (first (tm-sparql::select-group q-obj-2)))))
+		(string= "http://some.where/psis/poem/erlkoenig"
+			 (second (tm-sparql::object-result
+				  (first (tm-sparql::select-group q-obj-2)))))))
+	(is-false (first (tm-sparql::subject-result
+			  (first (tm-sparql::select-group q-obj-3)))))
+	(is-false (first (tm-sparql::predicate-result
+			  (first (tm-sparql::select-group q-obj-3)))))
+	(is-false (first (tm-sparql::object-result
+			  (first (tm-sparql::select-group q-obj-3)))))
+	(is (or (string= "http://some.where/psis/author/goethe"
+			 (first (tm-sparql::subject-result
+				 (second (tm-sparql::select-group q-obj-3)))))
+		(string= "http://some.where/psis/persons/goethe"
+			 (first (tm-sparql::subject-result
+				 (second (tm-sparql::select-group q-obj-3)))))))
+	(is (string= "http://some.where/base-psis/last-name"
+		     (first (tm-sparql::predicate-result
+			     (second (tm-sparql::select-group q-obj-3))))))
+	(is (string= "von Goethe"
+		     (first (tm-sparql::object-result
+			     (second (tm-sparql::select-group q-obj-3))))))))))
 
 
 (defun run-sparql-tests ()

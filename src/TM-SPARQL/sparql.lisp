@@ -431,7 +431,7 @@
     (declare (Integer revision))
     (when (and (not (iri-p (object construct)))
 	       (or (not (literal-datatype (object construct)))
-		   (string= (literal-datatype construct) *xml-string*)))
+		   (string= (literal-datatype (object construct)) *xml-string*)))
       (let* ((names-by-type
 	      (remove-null
 	       (map 'list #'(lambda(typed-construct)
@@ -521,7 +521,7 @@
 			subj pred nil :revision revision)))
 	      ((literal-p (object construct))
 	       (filter-characteristics
-		subj pred (value (subject construct))
+		subj pred (value (object construct))
 		(literal-datatype (object construct)) :revision revision))
 	      ((iri-p (object construct))
 	       (filter-associations subj pred (value (object construct))
@@ -621,7 +621,9 @@
 	     (type (or Null String) literal-value literal-datatype)
 	     (type (or Null TopicC) type-top))
     (let* ((occs-by-type
-	    (occurrences-by-type construct type-top :revision revision))
+	    (if type-top
+		(occurrences-by-type construct type-top :revision revision)
+		(occurrences construct :revision revision)))
 	   (all-occs
 	    (remove-null
 	     (map 'list
@@ -650,8 +652,10 @@
     (declare (Integer revision)
 	     (type (or Null String) literal-value)
 	     (type (or Null TopicC) type-top))
-    (let* ((by-type 
-	    (names-by-type construct type-top :revision revision))
+    (let* ((by-type
+	    (if type-top
+		(names-by-type construct type-top :revision revision)
+		(names construct :revision revision)))
 	   (by-literal (if literal-value
 			   (names-by-value
 			    construct #'(lambda(name)
@@ -693,36 +697,48 @@
 
 (defgeneric filter-associations(construct type-top player-top
 					  &key revision)
-  (:documentation "Returns a list of the form (:type <uri> :value <uri>).
-                   type-identifier is the type of the otherrole and
-                   player-identifier if the otherplayer.")
+  (:documentation "Returns a list of the form (:predicate <uri>
+                   :object <uri> :subject <uri>).
+                   predicate is the type of the otherrole and
+                   object is the uri of the otherplayer.")
   (:method ((construct TopicC) type-top player-top
 	    &key (revision *TM-REVISION*))
     (declare (Integer revision)
 	     (type (or Null TopicC) type-top player-top))
     (let ((assocs
 	   (associations-of construct nil nil type-top player-top
-			    :revision revision)))
+			    :revision revision))
+	  (subj-uri (any-id construct :revision revision)))
       (remove-null ;only assocs with two roles can match!
        (map 'list
 	    #'(lambda(assoc)
 		(when (= (length (roles assoc :revision revision)) 2)
 		  (let* ((other-role
 			  (find-if #'(lambda(role)
-				       (not (eql construct
-						 (player role :revision revision))))
+				       (and
+					(not (eql construct
+						  (player role :revision revision)))
+					(or (not type-top)
+					    (eql type-top
+						 (instance-of
+						  role :revision revision)))))
 				   (roles assoc :revision revision)))
 			 (pred-uri
-			  (when-do type-top (instance-of other-role
-							 :revision revision)
-				   (any-id type-top :revision revision)))
+			  (when other-role
+			    (when-do
+			     type-top (instance-of other-role
+						   :revision revision)
+			     (any-id type-top :revision revision))))
+			 
 			 (obj-uri
-			  (when-do player-top (player other-role
-						      :revision revision)
-				   (any-id player-top :revision revision))))
+			  (when other-role
+			    (when-do player-top (player other-role
+							:revision revision)
+				     (any-id player-top :revision revision)))))
 		    (when (and pred-uri obj-uri)
-		      (list :type pred-uri
-			    :value obj-uri)))))
+		      (list :subject subj-uri
+			    :predicate pred-uri
+			    :object obj-uri)))))
 	    assocs)))))
 
 

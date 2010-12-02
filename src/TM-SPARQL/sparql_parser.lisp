@@ -168,7 +168,9 @@
 	   (parse-base-suffix-pair trimmed-str query-object))
 	  ((or (string-starts-with trimmed-str "?")
 	       (string-starts-with trimmed-str "$"))
-	   (let ((result (parse-variable-name trimmed-str query-object)))
+	   (let ((result
+		  (parse-variable-name trimmed-str query-object
+				       :additional-delimiters (list "}"))))
 	     (list :next-query (cut-comment (getf result :next-query))
 		   :value (make-instance 'SPARQL-Triple-Elem
 					 :elem-type 'VARIABLE
@@ -269,11 +271,11 @@
 		   :message (format nil "Could not cast from ~a to ~a"
 				    literal-value literal-type))))
 	   value))
-	(t
-	 (error (make-condition
-		 'sparql-error 
-		 :message (format nil "The type \"~a\" is not supported."
-				  literal-type))))))
+	(t ; return the value as a string
+	 (if (stringp literal-value)
+	     literal-value
+	     (write-to-string literal-value)))))
+	 
 
 (defun separate-literal-lang-or-type (query-string query-object)
   "A helper function that returns (:next-query string :lang string
@@ -489,15 +491,18 @@
 		(parse-variables construct (getf result :next-query))))))))
 
 
-(defun parse-variable-name (query-string query-object)
+(defun parse-variable-name (query-string query-object &key additional-delimiters)
   "A helper function that parses the first non-whitespace character
    in the query. since it must be a variable, it must be prefixed
    by a ? or $. The return value is of the form
    (:next-query string :value string)."
   (declare (String query-string)
-	   (SPARQL-Query query-object))
+	   (SPARQL-Query query-object)
+	   (List additional-delimiters))
   (let ((trimmed-str (cut-comment query-string))
-	(delimiters (list " " "?" "$" "." (string #\newline) (string #\tab))))
+	(delimiters (append
+		     (list " " "?" "$" "." (string #\newline) (string #\tab))
+		     additional-delimiters)))
     (unless (or (string-starts-with trimmed-str "?")
 		(string-starts-with trimmed-str "$"))
       (error (make-sparql-parser-condition
