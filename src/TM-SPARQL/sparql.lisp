@@ -132,9 +132,8 @@
 					;purposes and mustn't be reset
 	      :type List
 	      :initform nil
-	      :documentation "A list of the form ((:variable var-name
-                             :value value-object)), that contains tuples
-                             for each selected variable and its result.")
+	      :documentation "A list of the form that contains the variable
+                              names as string.")
    (prefixes :initarg :prefixes
 	     :accessor prefixes ;this value is only for internal purposes
 			        ;purposes and mustn't be reset
@@ -159,18 +158,23 @@
   (:documentation "This class represents the entire request."))
 
 
-(defmethod variables ((construct SPARQL-Triple-Elem))
+(defgeneric *-p (construct)
+  (:documentation "Returns t if the user selected all variables with *.")
+  (:method ((construct SPARQL-Query))
+    (and (= (length (variables construct)) 1)
+	 (string= (first (variables construct)) "*"))))
+
+
+(defmethod variables ((construct SPARQL-Triple))
   "Returns all variable names that are contained in the passed element."
   (remove-duplicates
    (remove-null
-    (loop for triple in (select-group construct)
-       collect (remove-null
-		(list (when (variable-p (subject construct))
-			(value (subject construct)))
-		      (when (variable-p (predicate construct))
-			(value (predicate construct)))
-		      (when (variable-p (object construct))
-		       (value (object construct)))))))
+    (list (when (variable-p (subject construct))
+	    (value (subject construct)))
+	  (when (variable-p (predicate construct))
+	    (value (predicate construct)))
+	  (when (variable-p (object construct))
+	    (value (object construct)))))
    :test #'string=))
 
 
@@ -222,20 +226,14 @@
 			     (concatenate 'string (getf entry :label) ":"))))))
 
 
-(defgeneric add-variable (construct variable-name variable-value)
+(defgeneric add-variable (construct variable-name)
   (:documentation "Adds a new variable-name with its value to the aexisting list.
                    If a variable-already exists the existing entry will be
                    overwritten. An entry is of the form
                    (:variable string :value any-type).")
-  (:method ((construct SPARQL-Query) (variable-name String) variable-value)
-    (let ((existing-tuple
-	   (find-if #'(lambda(x)
-			(string= (getf x :variable) variable-name))
-		    (variables construct))))
-      (if existing-tuple
-	  (setf (getf existing-tuple :value) variable-value)
-	  (push (list :variable variable-name :value variable-value)
-		(variables construct))))))
+  (:method ((construct SPARQL-Query) (variable-name String))
+    (unless (find variable-name (variables construct) :test #'string=)
+      (push variable-name (variables construct)))))
 
 
 (defgeneric set-results (construct &key revision)
@@ -755,17 +753,20 @@
 	    assocs)))))
 
 
-
 (defgeneric result (construct)
   (:documentation "Returns the result of the entire query.")
   (:method ((construct SPARQL-Query))
     (let ((result-lists (make-result-lists construct)))
       (reduce-results construct result-lists)
-      (let* ((response-variables (variables construct))
+      (let* ((response-variables
+	      (if (*-p construct)
+		  (all-variables construct)
+		  (variables construct)))
 	     (cleaned-results (make-result-lists construct)))
 	(map 'list #'(lambda(response-variable)
-		       (variable-intersection response-variable
-					      cleaned-results))
+		       (list :variable response-variable
+			     :result (variable-intersection response-variable
+							    cleaned-results)))
 	     response-variables)))))
 
 
@@ -775,28 +776,39 @@
   (:method ((construct SPARQL-Query))
     (remove-null
      (loop for triple in (select-group construct)
-	collect (remove-null
-		 (list
-		  (when (variable-p (subject construct))
-		    (list :variable (value (subject construct))
-			  :result (subject-result construct)))
-		  (when (variable-p (predicate construct))
-		    (list :variable (value (predicate construct))
-			  :result (predicate-result construct)))
-		  (when (variable-p (object construct))
-		    (list :variable (value (object construct))
-			  :result (object-result construct)))))))))
+	append (remove-null
+		(list
+		 (when (variable-p (subject triple))
+		   (list :variable (value (subject triple))
+			 :result (subject-result triple)))
+		 (when (variable-p (predicate triple))
+		   (list :variable (value (predicate triple))
+			  :result (predicate-result triple)))
+		 (when (variable-p (object triple))
+		   (list :variable (value (object triple))
+			 :result (object-result triple)))))))))
 
 
 (defgeneric all-variables (result-lists)
   (:documentation "Returns a list of all variables that are contained in
-                   the passed result-lists.")
-  (:method ((result-lists List))
-    (remove-duplicates
-     (map 'list #'(lambda(entry)
-		    (getf entry :variable))
-	  result-lists)
-     :test #'string=)))
+                   the passed result-lists."))
+
+
+(defmethod all-variables ((result-lists List))
+  (remove-duplicates
+   (map 'list #'(lambda(entry)
+		  (getf entry :variable))
+	result-lists)
+   :test #'string=))
+
+
+(defmethod all-variables ((construct SPARQL-Query))
+  "Returns all variables that are contained in the select groupt memebers."
+  (remove-duplicates
+   (remove-null
+    (loop for triple in (select-group construct)
+       append (variables triple)))
+   :test #'string=))
 
 
 (defgeneric variable-intersection (variable-name result-lists)
@@ -814,7 +826,7 @@
       (recursive-intersection list-1 list-2 more-lists))))
 
 
-(defun recursive-intersection (list-1 list-2 &rest more-lists)
+(defun recursive-intersection (list-1 list-2 more-lists)
   "Returns an intersection of al the passed lists."
   (declare (List list-1 list-2))
   (let ((current-result
@@ -823,10 +835,10 @@
 				 (if (and (stringp val-1) (stringp val-2))
 				     (string= val-1 val-2)
 				     (eql val-1 val-2))))))
-    (if (= (length more-lists) 0)
+    (if (not more-lists)
 	current-result
-	(apply #'recursive-intersection current-result
-	       (first more-lists) (rest more-lists)))))
+	(recursive-intersection current-result (first more-lists)
+				(rest more-lists)))))
 
 
 (defgeneric reduce-results(construct result-lists)
@@ -841,7 +853,7 @@
 (defgeneric reduce-triple(construct result-lists)
   (:documentation "Reduces the results of a triple by using only the
                    intersection values.")
-  (:method ((construct SPARQL-Triple-Elem) (result-lists List))
+  (:method ((construct SPARQL-Triple) (result-lists List))
     (let* ((triple-variables (variables construct))
 	   (intersections
 	    (map 'list #'(lambda(var)
@@ -859,7 +871,7 @@
   (:documentation "Checks all results of the passed variable of the given
                    construct and deletes every result with the corresponding
                    row that is not contained in the dont-touch-values.")
-  (:method ((construct SPARQL-Triple-Elem) (variable-name String)
+  (:method ((construct SPARQL-Triple) (variable-name String)
 	    (dont-touch-values List))
     (let ((var-elem
 	   (cond ((and (variable-p (subject construct))
@@ -871,29 +883,30 @@
 		 ((and (variable-p (object construct))
 		       (string= (value (object construct)) variable-name))
 		  (object-result construct)))))
-      (if (not var-elem)
-	  construct
-	  (let* ((rows-to-hold
-		  (remove-null
-		   (map 'list #'(lambda(val)
-				  (if (stringp val)
-				      (position val var-elem :test #'string=)
-				      (position val var-elem)))
-			var-elem)))
-		 (new-result-list
-		  (dolist (row-idx rows-to-hold)
-		    (list :subject (elt (subject-result construct) row-idx)
-			  :predicate (elt (predicate-result construct) row-idx)
-			  :object (elt (object-result construct) row-idx)))))
-	    (setf (subject-result construct)
-		  (map 'list #'(lambda(entry)
-				 (getf entry :subject)) new-result-list))
-	    (setf (predicate-result construct)
-		  (map 'list #'(lambda(entry)
-				 (getf entry :predicate)) new-result-list))
-	    (setf (object-result construct)
-		  (map 'list #'(lambda(entry)
-				 (getf entry :object)) new-result-list)))))))
+      (when var-elem
+	(let* ((rows-to-hold
+		(remove-null
+		 (map 'list #'(lambda(val)
+				(if (stringp val)
+				    (position val var-elem :test #'string=)
+				    (position val var-elem)))
+		      dont-touch-values)))
+	       (new-result-list
+		(map 'list
+		     #'(lambda(row-idx)
+			 (list :subject (elt (subject-result construct) row-idx)
+			       :predicate (elt (predicate-result construct) row-idx)
+			       :object (elt (object-result construct) row-idx)))
+		     rows-to-hold)))
+	  (setf (subject-result construct)
+		(map 'list #'(lambda(entry)
+			       (getf entry :subject)) new-result-list))
+	  (setf (predicate-result construct)
+		(map 'list #'(lambda(entry)
+			       (getf entry :predicate)) new-result-list))
+	  (setf (object-result construct)
+		(map 'list #'(lambda(entry)
+			       (getf entry :object)) new-result-list)))))))
 
 
 (defgeneric results-for-variable (variable-name result-lists)

@@ -163,7 +163,7 @@
 	   (list :next-query (cut-comment (subseq trimmed-str 1))
 		 :value (make-instance 'SPARQL-Triple-Elem
 				       :elem-type 'IRI
-				       :value *rdf-type*)))
+				       :value *type-psi*)))
 	  ((string-starts-with trimmed-str "<")
 	   (parse-base-suffix-pair trimmed-str query-object))
 	  ((or (string-starts-with trimmed-str "?")
@@ -484,10 +484,10 @@
       (if (string-starts-with trimmed-str "WHERE")
 	  trimmed-str
 	  (if (string-starts-with trimmed-str "*")
-	      (progn (add-variable construct "*" nil)
+	      (progn (add-variable construct "*")
 		     (parse-variables construct (string-after trimmed-str "*")))
 	      (let ((result (parse-variable-name trimmed-str construct)))
-		(add-variable construct (getf result :value) nil)
+		(add-variable construct (getf result :value))
 		(parse-variables construct (getf result :next-query))))))))
 
 

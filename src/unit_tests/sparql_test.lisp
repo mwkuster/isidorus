@@ -28,7 +28,8 @@
 	   :test-set-result-2
 	   :test-set-result-3
 	   :test-set-result-4
-	   :test-set-result-5))
+	   :test-set-result-5
+	   :test-result))
 
 
 (in-package :sparql-test)
@@ -134,35 +135,22 @@ $var3 ?var3 WHERE{}")
     (is-true query-object-3)
     (signals sparql-parser-error (make-instance 'SPARQL-Query :query query-3))
     (is (= (length (TM-SPARQL::variables query-object-1)) 3))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "var1")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-1)))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "var2")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-1)))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "var3")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-1)))
+    (is-true (find "var1" (TM-SPARQL::variables query-object-1)
+		   :test #'string=))
+    (is-true (find "var2" (TM-SPARQL::variables query-object-1)
+		   :test #'string=))
+    (is-true (find "var3" (TM-SPARQL::variables query-object-1)
+		   :test #'string=))
     (is (= (length (TM-SPARQL::variables query-object-2)) 3))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "var1")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-2)))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "var2")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-2)))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "var3")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-2)))
-    (is-true (find-if #'(lambda(elem)
-			  (and (string= (getf elem :variable) "*")
-			       (null (getf elem :value))))
-		      (TM-SPARQL::variables query-object-3)))))
+    (is-true (find "var1" (TM-SPARQL::variables query-object-2)
+		   :test #'string=))
+    (is-true (find "var2" (TM-SPARQL::variables query-object-2)
+		   :test #'string=))
+    (is-true (find "var3" (TM-SPARQL::variables query-object-2)
+		   :test #'string=))
+    (is-true (find "*" (TM-SPARQL::variables query-object-3)
+		   :test #'string=))
+    (is-true (tm-sparql::*-p query-object-3))))
 
 
 (test test-parse-literals
@@ -938,6 +926,118 @@ literal with some \\\"quoted\\\" words!"))
 	(is (string= "von Goethe"
 		     (first (tm-sparql::object-result
 			     (second (tm-sparql::select-group q-obj-3))))))))))
+
+
+(test test-result
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1 "PREFIX author:<http://some.where/psis/author/>
+                     PREFIX poem:<http://some.where/psis/poem/>
+                     PREFIX basePSIs:<http://some.where/base-psis/>
+                     SELECT ?poems ?poets WHERE {
+                         ?poets a basePSIs:author .
+                         ?poets basePSIs:written ?poems.
+                         ?poems basePSIs:title 'Der Erlkönig' .
+                         ?poems a basePSIs:poem}")
+	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+	     (query-2 "PREFIX author:<http://some.where/psis/author/>
+                     PREFIX poem:<http://some.where/psis/poem/>
+                     PREFIX basePSIs:<http://some.where/base-psis/>
+                     SELECT * WHERE {
+                         ?poems a basePSIs:poem.
+                         <goethe> <last-name> 'von Goethe' .
+                         ?poems basePSIs:title ?titles}")
+	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2)))
+	(is-true q-obj-1)
+	(is-true q-obj-2)
+	(is (= (length (tm-sparql::select-group q-obj-1)) 4))
+	(is (= (length (tm-sparql::select-group q-obj-2)) 3))
+	(is (= (length (result q-obj-1)) 2))
+	(if (string= (getf (first (result q-obj-1)) :variable) "poets")
+	    (progn
+	      (is (= (length (getf (first (result q-obj-1)) :result)) 1))
+	      (is (or (string= (first (getf (first (result q-obj-1)) :result))
+			       "http://some.where/psis/author/goethe")
+		      (string= (first (getf (first (result q-obj-1)) :result))
+			       "http://some.where/psis/persons/goethe")))
+	      (is (= (length (getf (second (result q-obj-1)) :result)) 1))
+	      (is (string= (first (getf (second (result q-obj-1)) :result))
+			   "http://some.where/psis/poem/erlkoenig"))
+	      (is (string= (getf (second (result q-obj-1)) :variable) "poems")))
+	    (progn
+	      (is (= (length (getf (second (result q-obj-1)) :result)) 1))
+	      (is (or (string= (first (getf (second (result q-obj-1)) :result))
+			       "http://some.where/psis/author/goethe")
+		      (string= (first (getf (second (result q-obj-1)) :result))
+			       "http://some.where/psis/persons/goethe")))
+	      (is (= (length (getf (first (result q-obj-1)) :result)) 1))
+	      (is (string= (first (getf (first (result q-obj-1)) :result))
+			   "http://some.where/psis/poem/erlkoenig"))
+	      (is (string= (getf (first (result q-obj-1)) :variable) "poems"))))
+	(is (= (length (result q-obj-2)) 2))
+	(if (string= (getf (first (result q-obj-2)) :variable) "titles")
+	    (progn
+	      (is (= (length (getf (first (result q-obj-2)) :result)) 4))
+	      (is-true
+	       (find "Mondnacht"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "Der Erlkönig"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "Der Zauberlehrling"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "Resignation - Eine Phantasie"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (string= (getf (second (result q-obj-2)) :variable) "poems")
+	      (is-true
+	       (find "http://some.where/psis/poem/mondnacht"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "http://some.where/psis/poem/resignation"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "http://some.where/psis/poem/erlkoenig"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (or
+		(find "http://some.where/psis/poem/zauberlehrling"
+		      (getf (second (result q-obj-2)) :result) :test #'string=)
+		(find "http://some.where/psis/poem/der_zauberlehrling"
+		      (getf (second (result q-obj-2)) :result) :test #'string=))))
+	    (progn
+	      (is (= (length (getf (second (result q-obj-2)) :result)) 4))
+	      (is-true
+	       (find "Mondnacht"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "Der Erlkönig"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "Der Zauberlehrling"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "Resignation - Eine Phantasie"
+		     (getf (second (result q-obj-2)) :result) :test #'string=))
+	      (string= (getf (first (result q-obj-2)) :variable) "poems")
+	      (is-true
+	       (find "http://some.where/psis/poem/mondnacht"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "http://some.where/psis/poem/resignation"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (find "http://some.where/psis/poem/erlkoenig"
+		     (getf (first (result q-obj-2)) :result) :test #'string=))
+	      (is-true
+	       (or
+		(find "http://some.where/psis/poem/zauberlehrling"
+		      (getf (first (result q-obj-2)) :result) :test #'string=)
+		(find "http://some.where/psis/poem/der_zauberlehrling"
+		      (getf (first (result q-obj-2)) :result) :test #'string=)))))))))
+
+
 
 
 (defun run-sparql-tests ()
