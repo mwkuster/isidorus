@@ -9,10 +9,8 @@
 
 (defpackage :TM-SPARQL
   (:use :cl :datamodel :base-tools :exceptions :constants)
-  (:export :SPARQL-Query))
-
-;;TODO:
-;; *handle special URIs => http://www.networkedplanet.com/ontopic/2009/11/making_topic_maps_sparql.html
+  (:export :SPARQL-Query
+	   :result))
 
 (in-package :TM-SPARQL)
 
@@ -159,6 +157,21 @@
 		 :documentation "Contains a SPARQL-Group that represents
                                  the entire inner select-where statement."))
   (:documentation "This class represents the entire request."))
+
+
+(defmethod variables ((construct SPARQL-Triple-Elem))
+  "Returns all variable names that are contained in the passed element."
+  (remove-duplicates
+   (remove-null
+    (loop for triple in (select-group construct)
+       collect (remove-null
+		(list (when (variable-p (subject construct))
+			(value (subject construct)))
+		      (when (variable-p (predicate construct))
+			(value (predicate construct)))
+		      (when (variable-p (object construct))
+		       (value (object construct)))))))
+   :test #'string=))
 
 
 (defgeneric add-triple (construct triple)
@@ -740,6 +753,162 @@
 			    :predicate pred-uri
 			    :object obj-uri)))))
 	    assocs)))))
+
+
+
+(defgeneric result (construct)
+  (:documentation "Returns the result of the entire query.")
+  (:method ((construct SPARQL-Query))
+    (let ((result-lists (make-result-lists construct)))
+      (reduce-results construct result-lists)
+      (let* ((response-variables (variables construct))
+	     (cleaned-results (make-result-lists construct)))
+	(map 'list #'(lambda(response-variable)
+		       (variable-intersection response-variable
+					      cleaned-results))
+	     response-variables)))))
+
+
+(defgeneric make-result-lists (construct)
+  (:documentation "Returns a list of the form ((:variable 'var-name'
+                   :result (<any-object>)).")
+  (:method ((construct SPARQL-Query))
+    (remove-null
+     (loop for triple in (select-group construct)
+	collect (remove-null
+		 (list
+		  (when (variable-p (subject construct))
+		    (list :variable (value (subject construct))
+			  :result (subject-result construct)))
+		  (when (variable-p (predicate construct))
+		    (list :variable (value (predicate construct))
+			  :result (predicate-result construct)))
+		  (when (variable-p (object construct))
+		    (list :variable (value (object construct))
+			  :result (object-result construct)))))))))
+
+
+(defgeneric all-variables (result-lists)
+  (:documentation "Returns a list of all variables that are contained in
+                   the passed result-lists.")
+  (:method ((result-lists List))
+    (remove-duplicates
+     (map 'list #'(lambda(entry)
+		    (getf entry :variable))
+	  result-lists)
+     :test #'string=)))
+
+
+(defgeneric variable-intersection (variable-name result-lists)
+  (:documentation "Returns a list with all results of the passed variable
+                   that are contained in the result-lists. All results is
+                   an intersection of all paratial results.")
+  (:method ((variable-name String) (result-lists List))
+    (let* ((all-values (results-for-variable variable-name result-lists))
+	   (list-1 (when (>= (length all-values) 1)
+		     (first all-values)))
+	   (list-2 (if (> (length all-values) 2)
+		       (second all-values)
+		       list-1))
+	   (more-lists (rest (rest all-values))))
+      (recursive-intersection list-1 list-2 more-lists))))
+
+
+(defun recursive-intersection (list-1 list-2 &rest more-lists)
+  "Returns an intersection of al the passed lists."
+  (declare (List list-1 list-2))
+  (let ((current-result
+	 (intersection list-1 list-2
+		       :test #'(lambda(val-1 val-2)
+				 (if (and (stringp val-1) (stringp val-2))
+				     (string= val-1 val-2)
+				     (eql val-1 val-2))))))
+    (if (= (length more-lists) 0)
+	current-result
+	(apply #'recursive-intersection current-result
+	       (first more-lists) (rest more-lists)))))
+
+
+(defgeneric reduce-results(construct result-lists)
+  (:documentation "Reduces the select-group of the passed construct by processing
+                   all triples with the intersection-results.")
+  (:method ((construct SPARQL-Query) (result-lists List))
+    (map 'list #'(lambda(triple)
+		   (reduce-triple triple result-lists))
+	 (select-group construct))))
+
+
+(defgeneric reduce-triple(construct result-lists)
+  (:documentation "Reduces the results of a triple by using only the
+                   intersection values.")
+  (:method ((construct SPARQL-Triple-Elem) (result-lists List))
+    (let* ((triple-variables (variables construct))
+	   (intersections
+	    (map 'list #'(lambda(var)
+			   (list :variable var
+				 :result (variable-intersection
+					  var result-lists)))
+		 triple-variables)))
+      (map 'list #'(lambda(entry)
+		     (delete-rows construct (getf entry :variable)
+				  (getf entry :result)))
+	   intersections))))
+
+
+(defgeneric delete-rows (construct variable-name dont-touch-values)
+  (:documentation "Checks all results of the passed variable of the given
+                   construct and deletes every result with the corresponding
+                   row that is not contained in the dont-touch-values.")
+  (:method ((construct SPARQL-Triple-Elem) (variable-name String)
+	    (dont-touch-values List))
+    (let ((var-elem
+	   (cond ((and (variable-p (subject construct))
+		       (string= (value (subject construct)) variable-name))
+		  (subject-result construct))
+		 ((and (variable-p (predicate construct))
+		       (string= (value (predicate construct)) variable-name))
+		  (predicate-result construct))
+		 ((and (variable-p (object construct))
+		       (string= (value (object construct)) variable-name))
+		  (object-result construct)))))
+      (if (not var-elem)
+	  construct
+	  (let* ((rows-to-hold
+		  (remove-null
+		   (map 'list #'(lambda(val)
+				  (if (stringp val)
+				      (position val var-elem :test #'string=)
+				      (position val var-elem)))
+			var-elem)))
+		 (new-result-list
+		  (dolist (row-idx rows-to-hold)
+		    (list :subject (elt (subject-result construct) row-idx)
+			  :predicate (elt (predicate-result construct) row-idx)
+			  :object (elt (object-result construct) row-idx)))))
+	    (setf (subject-result construct)
+		  (map 'list #'(lambda(entry)
+				 (getf entry :subject)) new-result-list))
+	    (setf (predicate-result construct)
+		  (map 'list #'(lambda(entry)
+				 (getf entry :predicate)) new-result-list))
+	    (setf (object-result construct)
+		  (map 'list #'(lambda(entry)
+				 (getf entry :object)) new-result-list)))))))
+
+
+(defgeneric results-for-variable (variable-name result-lists)
+  (:documentation "Returns a list with result-lists for the passed variable.")
+  (:method ((variable-name String) (result-lists List))
+    (let* ((cleaned-result-lists
+	    (remove-if-not #'(lambda(entry)
+			       (string= (getf entry :variable)
+					variable-name))
+			   result-lists))
+	   (values
+	    (map 'list #'(lambda(entry)
+			   (getf entry :result))
+		 cleaned-result-lists)))
+      values)))
 
 
 (defmethod initialize-instance :after ((construct SPARQL-Query) &rest args)

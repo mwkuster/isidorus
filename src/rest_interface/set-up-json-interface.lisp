@@ -428,8 +428,10 @@
 		    (if result
 			(progn
 			  (when (typep result 'd:TopicC)
-			    (delete (elephant::oid result) *type-table*)
-			    (delete (elephant::oid result) *instance-table*))
+			    (append ;;the append function is used only for suppress
+			            ;;style warnings of unused delete return values
+			     (delete (elephant::oid result) *type-table*)
+			     (delete (elephant::oid result) *instance-table*)))
 			  (format nil "")) ;operation succeeded
 			(progn
 			  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
