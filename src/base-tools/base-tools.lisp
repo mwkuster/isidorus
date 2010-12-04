@@ -70,19 +70,19 @@
 (defun trim-whitespace-left (value)
   "Uses string-left-trim with a predefined character-list."
   (declare (String value))
-  (string-left-trim '(#\Space #\Tab #\Newline) value))
+  (string-left-trim '(#\Space #\Tab #\Newline #\cr) value))
 
 
 (defun trim-whitespace-right (value)
   "Uses string-right-trim with a predefined character-list."
   (declare (String value))
-  (string-right-trim '(#\Space #\Tab #\Newline) value))
+  (string-right-trim '(#\Space #\Tab #\Newline #\cr) value))
 
 
 (defun trim-whitespace (value)
   "Uses string-trim with a predefined character-list."
   (declare (String value))
-  (string-trim '(#\Space #\Tab #\Newline) value))
+  (string-trim '(#\Space #\Tab #\Newline #\cr) value))
 
 
 (defun string-starts-with (str prefix &key (ignore-case nil))

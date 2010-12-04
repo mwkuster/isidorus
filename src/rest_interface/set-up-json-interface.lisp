@@ -59,6 +59,8 @@
 (defparameter *mark-as-deleted-url* "/mark-as-deleted")
 ;the get url to request the latest revision of the storage
 (defparameter *latest-revision-url* "/json/latest-revision/?$")
+;the ulr to invoke a SPARQL query
+(defparameter *sparql-url* "/json/tm-sparql/?$")
 
 
 (defun set-up-json-interface (&key (json-get-prefix *json-get-prefix*)
@@ -80,7 +82,8 @@
 			      (ajax-javascripts-url-prefix *ajax-javascript-url-prefix*)
 			      (mark-as-deleted-url *mark-as-deleted-url*)
 			      (latest-revision-url *latest-revision-url*)
-			      (xtm-commit-prefix *xtm-commit-prefix*))
+			      (xtm-commit-prefix *xtm-commit-prefix*)
+			      (sparql-url *sparql-url*))
   "registers the json im/exporter to the passed base-url in hunchentoot's dispatch-table
    and also registers a file-hanlder to the html-user-interface"
 
@@ -162,6 +165,9 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher latest-revision-url #'return-latest-revision)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher sparql-url #'return-tm-sparql)
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -484,6 +490,28 @@
 	(setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
 	(setf (hunchentoot:content-type*) "text")
 	(format nil "Condition: \"~a\"" err)))))
+
+
+(defun return-tm-sparql (&optional param)
+  "Returns a JSON object representing a SPARQL response."
+  (declare (Ignorable param))
+  (handler-case
+      (if (eql (hunchentoot:request-method*) :POST)
+	  (let ((external-format (flexi-streams:make-external-format
+				  :UTF-8 :eol-style :LF)))
+	    (let ((sparql-request (hunchentoot:raw-post-data
+				   :external-format external-format
+				   :force-text t)))
+	      (to-json-string (make-instance 'SPARQL-Query :query sparql-request
+					     :revision 0))))
+	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))
+    (condition (err)
+      (progn
+	(setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+	(setf (hunchentoot:content-type*) "text")
+	(if (typep err 'SPARQL-Parser-Error)
+	    (format nil "SPARQL-Parser-Error: \"~a\"" (exceptions::message err))
+	    (format nil "Condition: \"~a\"" err))))))
 
 ;; =============================================================================
 ;; --- some helper functions ---------------------------------------------------

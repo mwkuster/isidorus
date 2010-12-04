@@ -104,6 +104,7 @@
 		       	:depends-on ("model"
 				     "atom"
 				     "xml"
+				     "TM-SPARQL"
 				     "json"
 				     "threading"))
 	       (:module "unit_tests"
@@ -194,7 +195,8 @@
 				     (:file "json_delete_interface"
 					    :depends-on ("json_importer")))
 	                :depends-on ("model"
-				     "xml"))
+				     "xml"
+				     "TM-SPARQL"))
 	       (:module "ajax"
 			:components ((:static-file "isidorus.html")
 				     (:module "javascripts"

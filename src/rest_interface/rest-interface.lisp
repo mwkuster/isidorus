@@ -12,6 +12,8 @@
   (:use :cl :hunchentoot 
 	:cxml
         :constants
+	:exceptions
+	:TM-SPARQL
         :atom 
         :datamodel
         :exporter
@@ -44,7 +46,8 @@
 	   :*ajax-user-interface-file-path*
 	   :*ajax-javascript-directory-path*
 	   :*ajax-javascript-url-prefix*
-	   :*xtm-commit-prefix*))
+	   :*xtm-commit-prefix*
+	   :*sparql-url*))
 
 
 (in-package :rest-interface)

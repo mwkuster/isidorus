@@ -759,9 +759,9 @@
     (let ((result-lists (make-result-lists construct)))
       (reduce-results construct result-lists)
       (let* ((response-variables
-	      (if (*-p construct)
-		  (all-variables construct)
-		  (variables construct)))
+	      (reverse (if (*-p construct)
+			   (all-variables construct)
+			   (variables construct))))
 	     (cleaned-results (make-result-lists construct)))
 	(map 'list #'(lambda(response-variable)
 		       (list :variable response-variable

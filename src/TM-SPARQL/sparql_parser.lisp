@@ -76,7 +76,8 @@
 	    (t
 	     (error (make-sparql-parser-condition
 		     trimmed-query-string (original-query construct)
-		     "SELECT, PREFIX or BASE")))))))
+		     (format nil "SELECT, PREFIX or BASE, but found: ~a..."
+			     (subseq trimmed-query-string 0 10)))))))))
 
 
 (defgeneric parse-select (construct query-string)

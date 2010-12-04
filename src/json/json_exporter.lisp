@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :json-exporter
-  (:use :cl :json :datamodel)
+  (:use :cl :json :datamodel :TM-SPARQL :base-tools)
   (:export :to-json-string
 	   :get-all-topic-psis
 	   :to-json-string-summary
@@ -476,3 +476,24 @@
 	       (subseq inner-string 0 (- (length inner-string) 1)))))
 	(concatenate 'string "[" json-string "]"))
       "null"))
+
+
+;; =============================================================================
+;; --- json data sparql-results ------------------------------------------------
+;; =============================================================================
+
+(defmethod to-json-string ((construct SPARQL-Query) &key xtm-id revision)
+  "Returns a JSON string that represents the object query result."
+  (declare (Ignorable revision xtm-id))
+  (let ((query-result (result construct)))
+    (if (not query-result)
+	"null"
+	(let ((j-str "{"))
+	  (loop for entry in query-result
+	     do (push-string
+		 (concatenate
+		  'string
+		  (json:encode-json-to-string (getf entry :variable)) ":"
+		  (json:encode-json-to-string (getf entry :result)) ",")
+		 j-str))
+	  (concatenate 'string (subseq j-str 0 (- (length j-str) 1)) "}")))))
