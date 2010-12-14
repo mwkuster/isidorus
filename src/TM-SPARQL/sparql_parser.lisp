@@ -9,19 +9,6 @@
 
 (in-package :TM-SPARQL)
 
-(defun make-sparql-parser-condition(rest-of-query entire-query expected)
-  "Creates a spqrql-parser-error object."
-  (declare (String rest-of-query entire-query expected))
-  (let ((message
-	 (format nil "The query:~%\"~a\"~%~%has a bad token at position ~a => ~a.~%Expected: ~a"
-		 entire-query (- (length entire-query)
-				 (length rest-of-query))
-		 (subseq entire-query (- (length entire-query)
-					 (length rest-of-query)))
-		 expected)))
-    (make-condition 'sparql-parser-error :message message)))
-
-
 (defun parse-closed-value(query-string query-object &key (open "<") (close ">"))
   "A helper function that checks the value of a statement within
    two brackets, i.e. <prefix-value>. A list of the

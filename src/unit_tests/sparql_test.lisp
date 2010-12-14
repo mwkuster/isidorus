@@ -29,7 +29,8 @@
 	   :test-set-result-3
 	   :test-set-result-4
 	   :test-set-result-5
-	   :test-result))
+	   :test-result
+	   :test-set-boundings))
 
 
 (in-package :sparql-test)
@@ -1038,6 +1039,29 @@ literal with some \\\"quoted\\\" words!"))
 		      (getf (first (result q-obj-2)) :result) :test #'string=)))))))))
 
 
+(test test-set-boundings
+  "Tests various cases of the function set-boundings"
+  (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
+	 (str-1 "BOUND((  (?var)  )) || (isLITERAL($var) && ?var = 'abc')}")
+	 (result-1 (tm-sparql::set-boundings dummy-object str-1))
+	 (str-2
+	  "(REGEX(?var1, '''''', ?var3) || (?var1 > ?var3 && (STR( ?var) = \"abc\")))}")
+	 (result-2 (tm-sparql::set-boundings dummy-object str-2))
+	 (str-3
+	  "DATATYPE(?var3) || +?var1 = -?var2
+           ?var1 ?var2 ?var3}")
+	 (result-3 (tm-sparql::set-boundings dummy-object str-3)))
+    (is-true result-1)
+    (is-true result-2)
+    (is (string= (getf result-1 :filter-string)
+		 "BOUND((progn   (progn ?var)  )) || (progn isLITERAL($var) && ?var = '''abc''')"))
+    (is (string= (getf result-1 :next-query) "}"))
+    (is (string= (getf result-2 :filter-string)
+		 "(progn REGEX(?var1, '''''', ?var3) || (progn ?var1 > ?var3 && (progn STR( ?var) = '''abc''')))"))
+    (is (string= (getf result-2 :next-query) "}"))
+    (is (string= (getf result-3 :filter-string)
+		 "DATATYPE(?var3) || +?var1 = -?var2"))
+    (is (string= (getf result-3 :next-query) (subseq str-3 34)))))
 
 
 (defun run-sparql-tests ()

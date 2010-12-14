@@ -150,16 +150,20 @@
 	nil)))
 
 
-(defun search-first (search-strings main-string)
+(defun search-first (search-strings main-string &key from-end)
   "Returns the position of one of the search-strings. The returned position
    is the one closest to 0. If no search-string is found, nil is returned."
   (declare (String main-string)
-	   (List search-strings))
+	   (List search-strings)
+	   (Boolean from-end))
   (let ((positions
-	 (remove-null (map 'list #'(lambda(search-str)
-				     (search search-str main-string))
-			   search-strings))))
-    (let ((sorted-positions (sort positions #'<)))
+	 (remove-null
+	  (map 'list #'(lambda(search-str)
+			 (search search-str main-string :from-end from-end))
+	       search-strings))))
+    (let ((sorted-positions (if from-end
+				(sort positions #'>)
+				(sort positions #'<))))
       (when sorted-positions
 	(first sorted-positions)))))
 
