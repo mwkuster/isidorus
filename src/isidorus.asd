@@ -42,8 +42,10 @@
 			:depends-on ("constants" "base-tools"))
 	       (:module "TM-SPARQL"
 			:components ((:file "sparql")
+				     (:file "sparql_filter"
+					    :depends-on ("sparql"))
 				     (:file "sparql_parser"
-					    :depends-on ("sparql")))
+					    :depends-on ("sparql" "sparql_filter")))
 			:depends-on ("constants" "base-tools" "model"))
 	       (:module "xml"
 			:components ((:module "xtm"

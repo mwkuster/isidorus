@@ -70,7 +70,7 @@
 	     (parse-base construct (string-after trimmed-query-string "BASE")
 			 #'parser-start))
 	    ((= (length trimmed-query-string) 0)
-	     ;; If there is only a BASE and/or PREFIX statement return an
+	     ;; If there is only a BASE and/or PREFIX statement return a
 	     ;; query-object with the result nil
 	     construct)
 	    (t
@@ -128,7 +128,7 @@
 		     trimmed-str (original-query construct)
 		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "FILTER")
-	     nil) ;TODO: parse-filter and store it in construct => extend class
+	     (parse-filter (string-after trimmed-str "FILTER") construct))
 	    ((string-starts-with trimmed-str "OPTIONAL")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
@@ -144,100 +144,89 @@
 	     (parse-triple construct trimmed-str :last-subject last-subject))))))
 
 
-(defun parse-filter (query-string query-object)
-  "A helper functions that returns a filter and the next-query string
-   in the form (:next-query string :filter object)."
-  ;; !, +, -, *, /, (, ), &&, ||, =, !=, <, >, >=, <=, REGEX(string, pattern)
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  ;;TODO: implement
-  )
-
-
-(defun parse-triple-elem (query-string query-object &key (literal-allowed nil))
-  "A helper function to parse a subject or predicate of an RDF triple."
-  (declare (String query-string)
-	   (SPARQL-Query query-object)
-	   (Boolean literal-allowed))
-  (let ((trimmed-str (cut-comment query-string)))
-    (cond ((string-starts-with trimmed-str "a ") ;;rdf:type
-	   (list :next-query (cut-comment (subseq trimmed-str 1))
-		 :value (make-instance 'SPARQL-Triple-Elem
-				       :elem-type 'IRI
-				       :value *type-psi*)))
-	  ((string-starts-with trimmed-str "<")
-	   (parse-base-suffix-pair trimmed-str query-object))
-	  ((or (string-starts-with trimmed-str "?")
-	       (string-starts-with trimmed-str "$"))
-	   (let ((result
-		  (parse-variable-name trimmed-str query-object
-				       :additional-delimiters (list "}"))))
-	     (list :next-query (cut-comment (getf result :next-query))
+(defgeneric parse-triple-elem (construct query-string &key literal-allowed)
+  (:documentation "A helper function to parse a subject or predicate of an RDF triple.")
+  (:method ((construct SPARQL-Query) (query-string String)
+	    &key (literal-allowed nil))
+    (declare (Boolean literal-allowed))
+    (let ((trimmed-str (cut-comment query-string)))
+      (cond ((string-starts-with trimmed-str "a ") ;;rdf:type
+	     (list :next-query (cut-comment (subseq trimmed-str 1))
 		   :value (make-instance 'SPARQL-Triple-Elem
-					 :elem-type 'VARIABLE
-					 :value (getf result :value)))))
-	  (t
-	   (if (or (string-starts-with-digit trimmed-str)
-		   (string-starts-with trimmed-str "\"")
-		   (string-starts-with trimmed-str "true")
-		   (string-starts-with trimmed-str "false")
-		   (string-starts-with trimmed-str "'"))
-	       (progn
-		 (unless literal-allowed
-		   (error (make-sparql-parser-condition
-			   trimmed-str (original-query query-object)
-			   "an IRI of the form prefix:suffix or <iri> but found a literal.")))
-		 (parse-literal-elem trimmed-str query-object))
-	       (parse-prefix-suffix-pair trimmed-str query-object))))))
-
-
-(defun parse-literal-elem (query-string query-object)
-  "A helper-function that returns a literal vaue of the form
-   (:value (:value object :literal-type string :literal-lang
-   string :type <'LITERAL>) :next-query string)."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let* ((trimmed-str (cut-comment query-string))
-	 (value-type-lang-query
-	  (cond ((or (string-starts-with trimmed-str "\"")
+					 :elem-type 'IRI
+					 :value *type-psi*)))
+	    ((string-starts-with trimmed-str "<")
+	     (parse-base-suffix-pair construct trimmed-str))
+	    ((or (string-starts-with trimmed-str "?")
+		 (string-starts-with trimmed-str "$"))
+	     (let ((result
+		    (parse-variable-name construct trimmed-str
+					 :additional-delimiters (list "}"))))
+	       (list :next-query (cut-comment (getf result :next-query))
+		     :value (make-instance 'SPARQL-Triple-Elem
+					   :elem-type 'VARIABLE
+					   :value (getf result :value)))))
+	    (t
+	     (if (or (string-starts-with-digit trimmed-str)
+		     (string-starts-with trimmed-str "\"")
+		     (string-starts-with trimmed-str "true")
+		     (string-starts-with trimmed-str "false")
 		     (string-starts-with trimmed-str "'"))
-		 (parse-literal-string-value trimmed-str query-object))
-		((string-starts-with trimmed-str "true")
-		 (list :value t :type *xml-boolean*
-		       :next-query (subseq trimmed-str (length "true"))))
-		((string-starts-with trimmed-str "false")
-		 (list :value nil :type *xml-boolean*
-		       :next-query (subseq trimmed-str (length "false"))))
-		((string-starts-with-digit trimmed-str)
-		 (parse-literal-number-value trimmed-str query-object)))))
-    (list :next-query (getf value-type-lang-query :next-query)
-	  :value (make-instance
-		  'SPARQL-Triple-Elem
-		  :elem-type 'LITERAL
-		  :value (getf value-type-lang-query :value)
-		  :literal-lang (getf value-type-lang-query :lang)
-		  :literal-datatype (getf value-type-lang-query :type)))))
+		 (progn
+		   (unless literal-allowed
+		     (error (make-sparql-parser-condition
+			     trimmed-str (original-query construct)
+			     "an IRI of the form prefix:suffix or <iri> but found a literal.")))
+		   (parse-literal-elem construct trimmed-str))
+		 (parse-prefix-suffix-pair construct trimmed-str)))))))
 
 
-(defun parse-literal-string-value (query-string query-object)
-  "A helper function that parses a string that is a literal.
-   The return value is of the form
-   (list :value object :type string :lang string :next-query string)."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let* ((trimmed-str (cut-comment query-string))
-	 (result-1 (separate-literal-value trimmed-str query-object))
-	 (after-literal-value (getf result-1 :next-query))
-	 (l-value (getf result-1 :literal))
-	 (result-2 (separate-literal-lang-or-type
-		    after-literal-value query-object))
-	 (l-type (if (getf result-2 :type)
-		     (getf result-2 :type)
-		     *xml-string*))
-	 (l-lang (getf result-2 :lang))
-	 (next-query (getf result-2 :next-query)))
-    (list :next-query next-query :lang l-lang :type l-type
-	  :value (cast-literal l-value l-type))))
+(defgeneric parse-literal-elem (construct query-string)
+  (:documentation "A helper-function that returns a literal vaue of the form
+                   (:value (:value object :literal-type string :literal-lang
+                   string :type <'LITERAL>) :next-query string).")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (cut-comment query-string))
+	   (value-type-lang-query
+	    (cond ((or (string-starts-with trimmed-str "\"")
+		       (string-starts-with trimmed-str "'"))
+		   (parse-literal-string-value construct trimmed-str))
+		  ((string-starts-with trimmed-str "true")
+		   (list :value t :type *xml-boolean*
+			 :next-query (subseq trimmed-str (length "true"))))
+		  ((string-starts-with trimmed-str "false")
+		   (list :value nil :type *xml-boolean*
+			 :next-query (subseq trimmed-str (length "false"))))
+		  ((string-starts-with-digit trimmed-str)
+		   (parse-literal-number-value construct trimmed-str)))))
+      (list :next-query (getf value-type-lang-query :next-query)
+	    :value (make-instance
+		    'SPARQL-Triple-Elem
+		    :elem-type 'LITERAL
+		    :value (getf value-type-lang-query :value)
+		    :literal-lang (getf value-type-lang-query :lang)
+		    :literal-datatype (getf value-type-lang-query :type))))))
+  
+  
+(defgeneric parse-literal-string-value (construct query-string)
+  (:documentation "A helper function that parses a string that is a literal.
+                   The return value is of the form
+                   (list :value object :type string :lang string
+                   :next-query string).")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (cut-comment query-string))
+	   (result-1 (separate-literal-value construct trimmed-str))
+	   (after-literal-value (getf result-1 :next-query))
+	   (l-value (getf result-1 :literal))
+	   (result-2 (separate-literal-lang-or-type
+		      construct after-literal-value))
+	   (l-type (if (getf result-2 :type)
+		       (getf result-2 :type)
+		       *xml-string*))
+	   (l-lang (getf result-2 :lang))
+	   (next-query (getf result-2 :next-query)))
+      (list :next-query next-query :lang l-lang :type l-type
+	    :value (cast-literal l-value l-type)))))
 
 
 (defun cast-literal (literal-value literal-type)
@@ -278,171 +267,150 @@
 	     (write-to-string literal-value)))))
 	 
 
-(defun separate-literal-lang-or-type (query-string query-object)
-  "A helper function that returns (:next-query string :lang string
-   :type string). Only one of :lang and :type can be set, the other
-   element is set to nil. The query string must be the string direct
-   after the closing literal bounding."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let ((delimiters-1 (list "." ";" "}" " " (string #\tab)
-			    (string #\newline)))
-	(delimiters-2 (list " ." ". " ";" "}" " " (string #\tab)
-			    (string #\newline)
-			    (concatenate 'string "." (string #\newline))
-			    (concatenate 'string "." (string #\tab)))))
-    (cond ((string-starts-with query-string "@")
-	   (let ((end-pos (search-first delimiters-1
-					(subseq query-string 1))))
-	     (unless end-pos
-	       (error (make-sparql-parser-condition
-		       query-string (original-query query-object)
-		       "'.', ';', '}', ' ', '\t', or '\n'")))
-	     (list :next-query (subseq (subseq query-string 1) end-pos)
-		   :lang (subseq (subseq query-string 1) 0 end-pos)
-		   :type nil)))
-	  ((string-starts-with query-string "^^")
-	   (let ((end-pos (search-first delimiters-2 (subseq query-string 2))))
-	     (unless end-pos
-	       (error (make-sparql-parser-condition
-		       query-string (original-query query-object)
-		       "'. ', ,' .', ';', '}', ' ', '\t', or '\n'")))
-	     (let* ((type-str (subseq (subseq query-string 2) 0 end-pos))
-		    (next-query (subseq (subseq query-string 2) end-pos))
-		    (final-type (if (get-prefix query-object type-str)
-				    (get-prefix query-object type-str)
-				    type-str)))
-	       (list :next-query (cut-comment next-query)
-		     :type final-type :lang nil))))
-	  (t
-	   (list :next-query (cut-comment query-string) :type nil :lang nil)))))
+(defgeneric separate-literal-lang-or-type (construct query-string)
+  (:documentation "A helper function that returns (:next-query string
+                   :lang string :type string). Only one of :lang and
+                   :type can be set, the other element is set to nil.
+                   The query string must be the string direct after
+                   the closing literal bounding.")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let ((delimiters-1 (list "." ";" "}" " " (string #\tab)
+			      (string #\newline)))
+	  (delimiters-2 (list " ." ". " ";" "}" " " (string #\tab)
+			      (string #\newline)
+			      (concatenate 'string "." (string #\newline))
+			      (concatenate 'string "." (string #\tab)))))
+      (cond ((string-starts-with query-string "@")
+	     (let ((end-pos (search-first delimiters-1
+					  (subseq query-string 1))))
+	       (unless end-pos
+		 (error (make-sparql-parser-condition
+			 query-string (original-query construct)
+			 "'.', ';', '}', ' ', '\t', or '\n'")))
+	       (list :next-query (subseq (subseq query-string 1) end-pos)
+		     :lang (subseq (subseq query-string 1) 0 end-pos)
+		     :type nil)))
+	    ((string-starts-with query-string "^^")
+	     (let ((end-pos (search-first delimiters-2 (subseq query-string 2))))
+	       (unless end-pos
+		 (error (make-sparql-parser-condition
+			 query-string (original-query construct)
+			 "'. ', ,' .', ';', '}', ' ', '\t', or '\n'")))
+	       (let* ((type-str (subseq (subseq query-string 2) 0 end-pos))
+		      (next-query (subseq (subseq query-string 2) end-pos))
+		      (final-type (if (get-prefix construct type-str)
+				      (get-prefix construct type-str)
+				      type-str)))
+		 (list :next-query (cut-comment next-query)
+		       :type final-type :lang nil))))
+	    (t
+	     (list :next-query (cut-comment query-string) :type nil :lang nil))))))
 
 
-(defun separate-literal-value (query-string query-object)
-  "A helper function that returns (:next-query string :literal string).
-   The literal string contains the pure literal value."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let* ((trimmed-str (cut-comment query-string))
-	 (delimiter (cond ((string-starts-with trimmed-str "\"")
-			   "\"")
-			  ((string-starts-with trimmed-str "'''")
-			   "'''")
-			  ((string-starts-with trimmed-str "'")
-			   "'")
-			  (t
-			   (error (make-sparql-parser-condition
-				   trimmed-str (original-query query-object)
-				   "a literal starting with ', ''', or \"")))))
-      	 (literal-end (find-literal-end (subseq trimmed-str (length delimiter))
-					delimiter 0)))
-    (list :next-query (subseq trimmed-str (+ literal-end (length delimiter)))
-	  :literal (subseq trimmed-str (length delimiter) literal-end))))
+(defgeneric separate-literal-value (construct query-string)
+  (:documentation "A helper function that returns (:next-query string
+                   :literal string). The literal string contains the
+                   pure literal value.")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (cut-comment query-string))
+	   (delimiter (cond ((string-starts-with trimmed-str "\"")
+			     "\"")
+			    ((string-starts-with trimmed-str "'''")
+			     "'''")
+			    ((string-starts-with trimmed-str "'")
+			     "'")
+			    (t
+			     (error (make-sparql-parser-condition
+				     trimmed-str (original-query construct)
+				     "a literal starting with ', ''', or \"")))))
+	   (literal-end (find-literal-end (subseq trimmed-str (length delimiter))
+					  delimiter 0)))
+      (list :next-query (subseq trimmed-str (+ literal-end (length delimiter)))
+	    :literal (subseq trimmed-str (length delimiter) literal-end)))))
 
 
-(defun find-literal-end (query-string delimiter &optional (overall-pos 0))
-  "Returns the end of the literal corresponding to the passed delimiter
-   string. The query-string must start after the opening literal delimiter.
-   The return value is an int that represents the start index of closing
-   delimiter. delimiter must be either \", ', or '''.
-   If the returns value is nil, there is no closing delimiter."
-  (declare (String query-string delimiter)
-	   (Integer overall-pos))
-  (let ((current-pos (search delimiter query-string)))
-    (if current-pos
-	(if (string-ends-with (subseq query-string 0 current-pos) "\\")
-	    (find-literal-end (subseq query-string (+ current-pos
-						      (length delimiter)))
-			      delimiter (+ overall-pos current-pos 1))
-	    (+ overall-pos current-pos (length delimiter)))
-	nil)))
-
-
-(defun parse-literal-number-value (query-string query-object)
-  "A helper function that parses any number that is a literal.
-   The return value is of the form
-   (list :value nil :type string :next-query string."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let* ((trimmed-str (cut-comment query-string))
-	 (triple-delimiters
-	  (list ". " ";" " " (string #\tab)
-		(string #\newline) "}"))
-	 (end-pos (search-first triple-delimiters
-				trimmed-str)))
-    (unless end-pos
-      (error (make-sparql-parser-condition
-	      trimmed-str (original-query query-object)
-	      "'. ', , ';' ' ', '\\t', '\\n' or '}'")))
-    (let* ((literal-number
-	    (read-from-string (subseq trimmed-str 0 end-pos)))
-	   (number-type
-	    (if (search "." (subseq trimmed-str 0 end-pos))
-		*xml-double* ;could also be an xml:decimal, since the doucble has
-		             ;a bigger range it shouldn't matter
-		*xml-integer*)))
-      (unless (numberp literal-number)
+(defgeneric parse-literal-number-value (construct query-string)
+  (:documentation "A helper function that parses any number that is a literal.
+                   The return value is of the form
+                  (list :value nil :type string :next-query string.")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (cut-comment query-string))
+	   (triple-delimiters
+	    (list ". " ";" " " (string #\tab)
+		  (string #\newline) "}"))
+	   (end-pos (search-first triple-delimiters
+				  trimmed-str)))
+      (unless end-pos
 	(error (make-sparql-parser-condition
-		trimmed-str (original-query query-object)
-		"a valid number of the form '1', '1.3', 1.0e6'")))
-      (list :value literal-number :type number-type
-	    :next-query (subseq trimmed-str end-pos)))))
+		trimmed-str (original-query construct)
+		"'. ', , ';' ' ', '\\t', '\\n' or '}'")))
+      (let* ((literal-number
+	      (read-from-string (subseq trimmed-str 0 end-pos)))
+	     (number-type
+	      (if (search "." (subseq trimmed-str 0 end-pos))
+		  *xml-double* ;could also be an xml:decimal, since the doucble has
+			       ;a bigger range it shouldn't matter
+		  *xml-integer*)))
+	(unless (numberp literal-number)
+	  (error (make-sparql-parser-condition
+		  trimmed-str (original-query construct)
+		  "a valid number of the form '1', '1.3', 1.0e6'")))
+	(list :value literal-number :type number-type
+	      :next-query (subseq trimmed-str end-pos))))))
 
 
-(defun parse-base-suffix-pair (query-string query-object)
-  "A helper function that returns a list of the form
-   (list :next-query string :value (:value uri :type 'IRI))."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let* ((trimmed-str (cut-comment query-string))
-	 (result (parse-closed-value trimmed-str query-object))
-	 (result-uri
-	  (if (or (absolute-uri-p (getf result :value))
-		  (not (base-value query-object)))
-	      (getf result :value)
-	      (concatenate-uri (base-value query-object)
-			       (getf result :value))))
-	 (next-query (getf result :next-query)))
-    (list :next-query (cut-comment next-query)
-	  :value (make-instance 'SPARQL-Triple-Elem
-				:elem-type 'IRI
-				:value result-uri))))
+(defgeneric parse-base-suffix-pair (construct query-string)
+  (:documentation "A helper function that returns a list of the form
+                  (list :next-query string :value (:value uri :type 'IRI)).")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (cut-comment query-string))
+	   (result (parse-closed-value trimmed-str construct))
+	   (result-uri
+	    (if (or (absolute-uri-p (getf result :value))
+		    (not (base-value construct)))
+		(getf result :value)
+		(concatenate-uri (base-value construct)
+				 (getf result :value))))
+	   (next-query (getf result :next-query)))
+      (list :next-query (cut-comment next-query)
+	    :value (make-instance 'SPARQL-Triple-Elem
+				  :elem-type 'IRI
+				  :value result-uri)))))
 
 
-(defun parse-prefix-suffix-pair(query-string query-object)
-  "A helper function that returns a list of the form
-   (list :next-query string :value (:value uri :type 'IRI))."
-  (declare (String query-string)
-	   (SPARQL-Query query-object))
-  (let* ((trimmed-str (cut-comment query-string))
-	(delimiters (list "." ";" "}" "<" " " (string #\newline)
-			  (string #\tab) "#"))
-	 (end-pos (search-first delimiters trimmed-str))
-	 (elem-str (when end-pos
-		     (subseq trimmed-str 0 end-pos)))
-	 (prefix (when elem-str
-		   (string-until elem-str ":")))
-	 (suffix (when prefix
-		   (string-after elem-str ":")))
-	 (full-url
-	  (when (and suffix prefix)
-	    (get-prefix query-object (concatenate 'string prefix ":" suffix)))))
-    (unless (and end-pos prefix suffix)
-      (error (make-sparql-parser-condition
-	      trimmed-str (original-query query-object)
-	      "An IRI of the form prefix:suffix")))
-    (unless full-url
-      (error (make-condition
-	      'sparql-parser-error
-	      :message (format nil "The prefix in \"~a:~a\" is not registered"
-			       prefix suffix))))
-    (list :next-query (cut-comment
-		       (string-after
-			trimmed-str
-			(concatenate 'string prefix ":" suffix)))
-	  :value (make-instance 'SPARQL-Triple-Elem
-				:elem-type 'IRI
-				:value full-url))))
+(defgeneric parse-prefix-suffix-pair(construct query-string)
+  (:documentation "A helper function that returns a list of the form
+                  (list :next-query string :value (:value uri :type 'IRI)).")
+  (:method ((construct SPARQL-Query) (query-string String))
+    (let* ((trimmed-str (cut-comment query-string))
+	   (delimiters (list "." ";" "}" "<" " " (string #\newline)
+			     (string #\tab) "#"))
+	   (end-pos (search-first delimiters trimmed-str))
+	   (elem-str (when end-pos
+		       (subseq trimmed-str 0 end-pos)))
+	   (prefix (when elem-str
+		     (string-until elem-str ":")))
+	   (suffix (when prefix
+		     (string-after elem-str ":")))
+	   (full-url
+	    (when (and suffix prefix)
+	      (get-prefix construct (concatenate 'string prefix ":" suffix)))))
+      (unless (and end-pos prefix suffix)
+	(error (make-sparql-parser-condition
+		trimmed-str (original-query construct)
+		"An IRI of the form prefix:suffix")))
+      (unless full-url
+	(error (make-condition
+		'sparql-parser-error
+		:message (format nil "The prefix in \"~a:~a\" is not registered"
+				 prefix suffix))))
+      (list :next-query (cut-comment
+			 (string-after
+			  trimmed-str
+			  (concatenate 'string prefix ":" suffix)))
+	    :value (make-instance 'SPARQL-Triple-Elem
+				  :elem-type 'IRI
+				  :value full-url)))))
 
 
 (defgeneric parse-triple (construct query-string &key last-subject)
@@ -452,14 +420,15 @@
     (let* ((trimmed-str (cut-comment query-string))
 	   (subject-result (if last-subject ;;is used after a ";"
 			       last-subject
-			       (parse-triple-elem trimmed-str construct)))
+			       (parse-triple-elem construct trimmed-str)))
 	   (predicate-result (parse-triple-elem
+			      construct
 			      (if last-subject
 				  trimmed-str
-				  (getf subject-result :next-query))
-			      construct))
-	   (object-result (parse-triple-elem (getf predicate-result :next-query)
-					     construct :literal-allowed t)))
+				  (getf subject-result :next-query))))
+	   (object-result (parse-triple-elem construct
+					     (getf predicate-result :next-query)
+					     :literal-allowed t)))
       (add-triple construct
 		  (make-instance 'SPARQL-Triple
 				 :subject (if last-subject
@@ -487,42 +456,42 @@
 	  (if (string-starts-with trimmed-str "*")
 	      (progn (add-variable construct "*")
 		     (parse-variables construct (string-after trimmed-str "*")))
-	      (let ((result (parse-variable-name trimmed-str construct)))
+	      (let ((result (parse-variable-name construct trimmed-str)))
 		(add-variable construct (getf result :value))
 		(parse-variables construct (getf result :next-query))))))))
 
 
-(defun parse-variable-name (query-string query-object &key additional-delimiters)
-  "A helper function that parses the first non-whitespace character
-   in the query. since it must be a variable, it must be prefixed
-   by a ? or $. The return value is of the form
-   (:next-query string :value string)."
-  (declare (String query-string)
-	   (SPARQL-Query query-object)
-	   (List additional-delimiters))
-  (let ((trimmed-str (cut-comment query-string))
-	(delimiters (append
-		     (list " " "?" "$" "." (string #\newline) (string #\tab))
-		     additional-delimiters)))
-    (unless (or (string-starts-with trimmed-str "?")
-		(string-starts-with trimmed-str "$"))
-      (error (make-sparql-parser-condition
-	      trimmed-str (original-query query-object) "? or $")))
-    (let* ((var-name-end (search-first delimiters (subseq trimmed-str 1)))
-	   (var-name
-	    (if var-name-end
-		(subseq trimmed-str 0 (+ 1 var-name-end))
-		(error (make-sparql-parser-condition
-			trimmed-str (original-query query-object)
-			"space, newline, tab, ?, ., $ or WHERE"))))
-	   (next-query (string-after trimmed-str var-name))
-	   (normalized-var-name 
-	    (if (<= (length var-name) 1)
-		(error (make-sparql-parser-condition
-			next-query (original-query query-object)
-			"a variable name"))
-		(subseq var-name 1))))
-      (list :next-query next-query :value normalized-var-name))))
+(defgeneric parse-variable-name (construct query-string &key additional-delimiters)
+  (:documentation "A helper function that parses the first non-whitespace character
+                   in the query. since it must be a variable, it must be prefixed
+                   by a ? or $. The return value is of the form
+                  (:next-query string :value string).")
+  (:method ((construct SPARQL-Query) (query-string String)
+	    &key (additional-delimiters))
+    (declare (List additional-delimiters))
+    (let ((trimmed-str (cut-comment query-string))
+	  (delimiters (append
+		       (list " " "?" "$" "." (string #\newline) (string #\tab))
+		       additional-delimiters)))
+      (unless (or (string-starts-with trimmed-str "?")
+		  (string-starts-with trimmed-str "$"))
+	(error (make-sparql-parser-condition
+		trimmed-str (original-query construct) "? or $")))
+      (let* ((var-name-end (search-first delimiters (subseq trimmed-str 1)))
+	     (var-name
+	      (if var-name-end
+		  (subseq trimmed-str 0 (+ 1 var-name-end))
+		  (error (make-sparql-parser-condition
+			  trimmed-str (original-query construct)
+			  "space, newline, tab, ?, ., $ or WHERE"))))
+	     (next-query (string-after trimmed-str var-name))
+	     (normalized-var-name 
+	      (if (<= (length var-name) 1)
+		  (error (make-sparql-parser-condition
+			  next-query (original-query construct)
+			  "a variable name"))
+		  (subseq var-name 1))))
+	(list :next-query next-query :value normalized-var-name)))))
 
 
 (defgeneric parse-base (construct query-string next-fun)
