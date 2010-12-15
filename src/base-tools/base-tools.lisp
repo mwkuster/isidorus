@@ -19,15 +19,31 @@
 	   :trim-whitespace
 	   :string-starts-with
 	   :string-ends-with
+	   :string-ends-with-one-of
 	   :string-starts-with-char
 	   :string-until
 	   :string-after
 	   :search-first
 	   :concatenate-uri
 	   :absolute-uri-p
-	   :string-starts-with-digit))
+	   :string-starts-with-digit
+	   :string-after-number
+	   :separate-leading-digits
+	   :white-space))
 
 (in-package :base-tools)
+
+
+(defparameter *white-space*
+  (list #\Space #\Tab #\Newline #\cr)
+  "Contains all characters that are treated as white space.")
+
+
+(defun white-space()
+  "Returns a lit os string that represents a white space."
+  (map 'list #'(lambda(char)
+		 (string char))
+       *white-space*))
 
 
 (defmacro push-string (obj place)
@@ -70,19 +86,19 @@
 (defun trim-whitespace-left (value)
   "Uses string-left-trim with a predefined character-list."
   (declare (String value))
-  (string-left-trim '(#\Space #\Tab #\Newline #\cr) value))
+  (string-left-trim *white-space* value))
 
 
 (defun trim-whitespace-right (value)
   "Uses string-right-trim with a predefined character-list."
   (declare (String value))
-  (string-right-trim '(#\Space #\Tab #\Newline #\cr) value))
+  (string-right-trim *white-space* value))
 
 
 (defun trim-whitespace (value)
   "Uses string-trim with a predefined character-list."
   (declare (String value))
-  (string-trim '(#\Space #\Tab #\Newline #\cr) value))
+  (string-trim *white-space* value))
 
 
 (defun string-starts-with (str prefix &key (ignore-case nil))
@@ -119,12 +135,42 @@
 					 0))))
 
 
+(defun string-ends-with-one-of (str suffixes &key (ignore-case nil))
+  "Returns t if str ends with one of the string contained in suffixes."
+  (declare (String str)
+	   (List suffixes)
+	   (Boolean ignore-case))
+  (loop for suffix in suffixes
+     when (string-ends-with str suffix :ignore-case ignore-case)
+     return t))
+
+
 (defun string-starts-with-digit (str)
   "Checks whether the passed string starts with a digit."
   (declare (String str))
   (loop for item in (list 0 1 2 3 4 5 6 7 8 9)
      when (string-starts-with str (write-to-string item))
      return t))
+
+(defun string-after-number (str)
+  "If str starts with a digit, there is returned the first
+   substring after a character that is a non-digit.
+   If str does not start with a digit str is returned."
+  (declare (String str))
+  (if (and (string-starts-with-digit str)
+	   (> (length str) 0))
+      (string-after-number (subseq str 1))
+      str))
+
+
+(defun separate-leading-digits (str &optional digits)
+  "If str starts with a number the number is returned."
+  (declare (String str)
+	   (type (or Null String) digits))
+  (if (string-starts-with-digit str)
+      (separate-leading-digits
+       (subseq str 1) (concatenate 'string digits (subseq str 0 1)))
+      digits))
 
 
 (defun string-starts-with-char (begin str)
