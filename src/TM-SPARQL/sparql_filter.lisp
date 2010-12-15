@@ -20,6 +20,10 @@
   "Contains all supported operators, note some unary operators
    are handled as functions, e.g. + and -")
 
+(defparameter *supported-brackets*
+  (list "(" ")")
+  "Contains all supported brackets in a list of strings.")
+
 
 (defun make-sparql-parser-condition(rest-of-query entire-query expected)
   "Creates a spqrql-parser-error object."
@@ -137,13 +141,16 @@
 		      'SPARQL-PARSER-ERROR
 		      :message (format nil "Invalid filter: \"~a\"~%"
 				       query-string)))
-	      (when fragment-before-idx
-		(let ((inner-value
-		       (subseq string-before fragment-before-idx)))
-		  (if (and (> (length inner-value) 1)
-			   (string-starts-with inner-value "("))
-		      (subseq inner-value 1)
-		      inner-value))))))
+	      (if fragment-before-idx
+		  (subseq string-before fragment-before-idx)
+		  nil))))
+    (when fragment-before
+      (mapcan #'(lambda(operator)
+		  (when (and (string-starts-with fragment-before operator)
+			     (> (length fragment-before) (length operator)))
+		    (setf fragment-before
+			  (string-after fragment-before operator))))
+	      (append *supported-operators* *supported-brackets*)))
     (if fragment-before
 	(progn
 	  (when (or (string-starts-with fragment-before "?")
@@ -160,7 +167,7 @@
 	     (make-condition
 	      'SPARQL-PARSER-ERROR
 	      :message
-	      (format nil "Invalid character: ~a, expected characters: ~a"
+	      (format nil "Invalid character: \"~a\", expected characters: ~a"
 		      fragment-before (append *supported-functions* delimiters)))))
 	  (if (find fragment-before *supported-functions* :test #'string=)
 	      nil
