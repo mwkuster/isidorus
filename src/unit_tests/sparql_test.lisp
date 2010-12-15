@@ -30,7 +30,8 @@
 	   :test-set-result-4
 	   :test-set-result-5
 	   :test-result
-	   :test-set-boundings))
+	   :test-set-boundings
+	   :test-set-unary-operators))
 
 
 (in-package :sparql-test)
@@ -1072,6 +1073,45 @@ literal with some \\\"quoted\\\" words!"))
     (is (string= (getf result-5 :filter-string)
 		 "DATATYPE(?var3) ||(progn isLITERAL  (+?var1 = -?var2))"))
     (is (string= (getf result-5 :next-query) "}"))))
+
+
+(test test-set-unary-operators
+  "Tests various cases of the function set-unary-operators."
+  (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
+	 (str-1 "BOUND(?var1)||(!(+(-(?var1))))}")
+	 (str-2 "!BOUND(?var1) = false}")
+	 (str-3 "+?var1=-$var2}")
+	 (str-4 "!'abc' && (+12 = - 14)}")
+	 (result-1
+	  (getf (tm-sparql::set-boundings dummy-object str-1) :filter-string))
+	 (result-1-1 (tm-sparql::set-unary-operators dummy-object result-1))
+	 (result-2
+	  (getf (tm-sparql::set-boundings dummy-object str-2) :filter-string))
+	 (result-2-1 (tm-sparql::set-unary-operators dummy-object result-2))
+	 (result-3
+	  (getf (tm-sparql::set-boundings dummy-object str-3) :filter-string))
+	 (result-3-1
+	  (tm-sparql::set-unary-operators dummy-object result-3))
+	 (result-4
+	  (getf (tm-sparql::set-boundings dummy-object str-4) :filter-string))
+	 (result-4-1
+	  (tm-sparql::set-unary-operators dummy-object result-4)))
+    (is-true result-1)
+    (is-true result-1-1)
+    (is-true result-2)
+    (is-true result-2-1)
+    (is-true result-3)
+    (is-true result-3-1)
+    (is-true result-4)
+    (is-true result-4-1)
+    (is (string=
+	 result-1-1
+	 "BOUND(?var1)||(progn (not (progn (1+ (progn (1- (progn ?var1)))))))"))
+    (is (string= result-2-1 "(not BOUND(?var1)) = false"))
+    (is (string= result-3-1 "(1+ ?var1)=(1- $var2)"))
+    (is (string= result-4-1 "(not '''abc''') && (progn (1+ 12) = (1- 14))"))))
+	 
+
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

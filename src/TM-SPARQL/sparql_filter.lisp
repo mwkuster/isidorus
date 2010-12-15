@@ -58,6 +58,7 @@
   ;;   *=, !=, <, >, <=, >=, +, -, *, /, ||, &&
   ;; *replace function(x), function(x, y), function(x, y, z)
   ;;   by filter-function(x), (filter-function(x, y), filter-function(x, y, z)
+  ;; check if all functions that will e invoked are allowed
   ;; *create and store this filter object
 
 
@@ -115,21 +116,23 @@
 	   (let ((result (bracket-scope cleaned-str)))
 	     (list :next-query (string-after cleaned-str result)
 		   :scope result)))
-	  ((or (string-starts-with "?" cleaned-str)
-	       (string-starts-with "$" cleaned-str))
+	  ((or (string-starts-with cleaned-str "?")
+	       (string-starts-with cleaned-str "$"))
 	   (let ((result (get-filter-variable cleaned-str)))
 	     (list :next-query (string-after cleaned-str result)
 		   :scope result)))
-	  ((string-starts-with "'''" cleaned-str)
+	  ((string-starts-with cleaned-str "'''")
 	   (let ((result (get-literal cleaned-str)))
 	     (list :next-query (getf result :next-query)
 		   :scope (getf result :literal))))
 	  ((string-starts-with-digit cleaned-str)
-	   (separate-leading-digits cleaned-str))
-	  ((string-starts-with "true" cleaned-str)
+	   (let ((result (separate-leading-digits cleaned-str)))
+	     (list :next-query (string-after cleaned-str result)
+		   :scope result)))
+	  ((string-starts-with cleaned-str "true")
 	   (list :next-query (string-after cleaned-str "true")
 		 :scope "true"))
-	  ((string-starts-with "false" cleaned-str)
+	  ((string-starts-with cleaned-str "false")
 	   (list :next-query (string-after cleaned-str "false")
 		 :scope "false"))
 	  ((let ((pos (search-first *supported-functions* cleaned-str)))
