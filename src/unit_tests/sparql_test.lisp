@@ -9,6 +9,7 @@
 
 (defpackage :sparql-test
   (:use  :cl
+	 :base-tools
 	 :it.bese.FiveAM
 	 :TM-SPARQL
 	 :exceptions
@@ -31,7 +32,8 @@
 	   :test-set-result-5
 	   :test-result
 	   :test-set-boundings
-	   :test-set-unary-operators))
+	   :test-set-unary-operators
+	   :test-set-or-and-operators))
 
 
 (in-package :sparql-test)
@@ -1112,6 +1114,26 @@ literal with some \\\"quoted\\\" words!"))
     (is (string= result-4-1 "(not \"a\\\"b\\\"c\") && (progn (1+ 12) = (1- 14))"))))
 	 
 
+(test test-set-or-and-operators
+  "Tests various cases of the function set-unary-operators."
+  (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
+	 (str-1 "isLITERAL(STR(?var))||?var = 12 && true}")
+	 (str-2 "(true != false || !false ) && 12 < 14 || !isLITERAL(?var)}")
+	 (result-1
+	  (getf (tm-sparql::set-boundings dummy-object str-1) :filter-string))
+	 (result-1-1 (tm-sparql::set-or-and-operators dummy-object result-1))
+	 (result-2
+	  (getf (tm-sparql::set-boundings dummy-object str-2) :filter-string))
+	 (result-2-1 (tm-sparql::set-or-and-operators dummy-object result-2)))
+    (is-true result-1)
+    (is-true result-1-1)
+    (is-true result-2)
+    (is-true result-2-1)
+    (is (string= (string-replace result-1-1 " " "")
+		 "(and(progn(or(prognisLITERAL(STR(?var)))(progn?var=12)))(progntrue))"))
+    (is (string= (string-replace result-2-1 " " "")
+		 "(or(progn(and(progn(progn(or(progntrue!=false)(progn!false))))(progn12<14)))(progn!isLITERAL(?var)))"))))
+    
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

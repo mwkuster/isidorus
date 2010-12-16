@@ -12,6 +12,7 @@
   (:nicknames :tools)
   (:export :push-string
 	   :when-do
+	   :string-replace
 	   :remove-null
 	   :full-path
 	   :trim-whitespace-left
@@ -21,6 +22,7 @@
 	   :string-ends-with
 	   :string-ends-with-one-of
 	   :string-starts-with-char
+	   :string-starts-with-one-of
 	   :string-until
 	   :string-after
 	   :search-first
@@ -30,7 +32,10 @@
 	   :string-after-number
 	   :separate-leading-digits
 	   :white-space
-	   :escape-string))
+	   :white-space-p
+	   :escape-string
+	   :search-first-unclosed-paranthesis 
+	   :search-first-unopened-paranthesis ))
 
 (in-package :base-tools)
 
@@ -60,6 +65,17 @@
   `(let ((,result-bounding ,condition-statement))
      (if ,result-bounding
 	 ,do-with-result
+	 nil)))
+
+
+(defun white-space-p (str)
+  "Returns t if the passed str contains only white space characters."
+  (cond ((and (= (length str) 1)
+	      (string-starts-with-one-of str (white-space)))
+	 t)
+	((string-starts-with-one-of str (white-space))
+	 (white-space-p (subseq str 1)))
+	(t
 	 nil)))
 
 
@@ -118,6 +134,16 @@
 		  (length str-i)))))
 
 
+(defun string-starts-with-one-of (str prefixes &key (ignore-case nil))
+  "Returns t if str ends with one of the string contained in suffixes."
+  (declare (String str)
+	   (List prefixes)
+	   (Boolean ignore-case))
+  (loop for prefix in prefixes
+     when (string-starts-with str prefix :ignore-case ignore-case)
+     return t))
+
+
 (defun string-ends-with (str suffix &key (ignore-case nil))
   "Checks if string str ends with a given suffix."
   (declare (String str suffix)
@@ -146,12 +172,30 @@
      return t))
 
 
+(defun string-replace (main-string string-to-replace new-string)
+  "Replaces every occurrence of string-to-replace by new-string
+   in main-string."
+  (declare (String main-string string-to-replace new-string))
+  (if (string= string-to-replace new-string)
+      main-string
+      (let ((search-idx (search-first (list string-to-replace) main-string)))
+	(if (not search-idx)
+	    main-string
+	    (let ((modified-string
+		   (concatenate 'string (subseq main-string 0 search-idx)
+				new-string (subseq main-string
+						   (+ search-idx (length string-to-replace))))))
+	      (string-replace modified-string string-to-replace new-string))))))
+
+
+
 (defun string-starts-with-digit (str)
   "Checks whether the passed string starts with a digit."
   (declare (String str))
   (loop for item in (list 0 1 2 3 4 5 6 7 8 9)
      when (string-starts-with str (write-to-string item))
      return t))
+
 
 (defun string-after-number (str)
   "If str starts with a digit, there is returned the first
@@ -279,3 +323,40 @@
 	      (t
 	       (push-string current-char result)))))
     result))
+
+
+(defun search-first-unclosed-paranthesis (str)
+  "Returns the idx of the first ( that is not closed, the search is
+   started from the end of the string."
+  (declare (String str))
+  (let ((r-str (reverse str))
+	(open-brackets 0)
+	(result-idx nil))
+    (dotimes (idx (length r-str))
+      (let ((current-char (subseq r-str idx (1+ idx))))
+	(cond ((string= current-char ")")
+	       (decf open-brackets))
+	      ((string= current-char "(")
+	       (incf open-brackets)
+	       (when (> open-brackets 0)
+		 (setf result-idx idx)
+		 (setf idx (length r-str)))))))
+    (when result-idx
+      (- (length str) (1+ result-idx)))))
+
+
+(defun search-first-unopened-paranthesis (str)
+  "Returns the idx of the first paranthesis that is not opened in str."
+  (declare (String str))
+  (let ((closed-brackets 0)
+	(result-idx nil))
+    (dotimes (idx (length str))
+      (let ((current-char (subseq str idx (1+ idx))))
+	(cond ((string= current-char "(")
+	       (decf closed-brackets))
+	      ((string= current-char ")")
+	       (incf closed-brackets)
+	       (when (> closed-brackets 0)
+		 (setf result-idx idx)
+		 (setf idx (length str)))))))
+    result-idx))
