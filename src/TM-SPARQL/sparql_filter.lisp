@@ -58,7 +58,9 @@
   ;;   *=, !=, <, >, <=, >=, +, -, *, /, ||, &&
   ;; *replace function(x), function(x, y), function(x, y, z)
   ;;   by filter-function(x), (filter-function(x, y), filter-function(x, y, z)
-  ;; check if all functions that will e invoked are allowed
+  ;; check if all functions that will be invoked are allowed
+  ;; add a let with all variables that are used: every variable with $ and ? prefix
+  ;; add a let with (true t) and (false nil)
   ;; *create and store this filter object
 
 
@@ -121,7 +123,7 @@
 	   (let ((result (get-filter-variable cleaned-str)))
 	     (list :next-query (string-after cleaned-str result)
 		   :scope result)))
-	  ((string-starts-with cleaned-str "'''")
+	  ((string-starts-with cleaned-str "\"")
 	   (let ((result (get-literal cleaned-str)))
 	     (list :next-query (getf result :next-query)
 		   :scope (getf result :literal))))
@@ -348,7 +350,7 @@
 	    t))))
 
 
-(defun get-literal (query-string &key (quotation "'''"))
+(defun get-literal (query-string &key (quotation "\""))
   "Returns a list of the form (:next-query <string> :literal <string>
    where next-query is the query after the found literal and literal
    is the literal string."
@@ -366,12 +368,14 @@
 	((or (string-starts-with query-string "\"")
 	     (string-starts-with query-string "'"))
 	 (let ((literal-end
-		(find-literal-end (subseq query-string 1)(subseq query-string 0 1))))
+		(find-literal-end (subseq query-string 1)
+				  (subseq query-string 0 1))))
 	   (when literal-end
-	     (list :next-query (subseq query-string (+ 1 literal-end))
-		   :literal (concatenate 'string quotation
-					 (subseq query-string 1 literal-end)
-					 quotation)))))))
+	     (let ((literal
+		    (escape-string (subseq query-string 1 literal-end) "\"")))
+	       (list :next-query (subseq query-string (+ 1 literal-end))
+		     :literal (concatenate 'string quotation literal
+					   quotation))))))))
 
 
 (defun find-literal-end (query-string delimiter &optional (overall-pos 0))

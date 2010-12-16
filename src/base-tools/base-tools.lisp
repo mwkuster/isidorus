@@ -29,7 +29,8 @@
 	   :string-starts-with-digit
 	   :string-after-number
 	   :separate-leading-digits
-	   :white-space))
+	   :white-space
+	   :escape-string))
 
 (in-package :base-tools)
 
@@ -261,3 +262,20 @@
       (declare (string uri))
       (and position-of-colon (> position-of-colon 0)
 	   (not (find #\/ (subseq uri 0 position-of-colon)))))))
+
+
+(defun escape-string (str char-to-escape)
+  "Escapes every occurrence of char-to-escape in str, if it is
+   not escaped."
+  (declare (String str char-to-escape))
+  (let ((result ""))
+    (dotimes (idx (length str))
+      (let ((current-char (subseq str idx (1+ idx)))
+	    (previous-char (if (= idx 0) "" (subseq str (1- idx) idx))))
+	(cond ((and (string= current-char char-to-escape)
+		    (string/= previous-char "\\"))
+	       (push-string "\\" result)
+	       (push-string current-char result))
+	      (t
+	       (push-string current-char result)))))
+    result))
