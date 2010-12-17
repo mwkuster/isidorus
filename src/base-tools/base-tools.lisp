@@ -26,6 +26,7 @@
 	   :string-until
 	   :string-after
 	   :search-first
+	   :search-first-ignore-literals
 	   :concatenate-uri
 	   :absolute-uri-p
 	   :string-starts-with-digit
@@ -35,7 +36,11 @@
 	   :white-space-p
 	   :escape-string
 	   :search-first-unclosed-paranthesis 
-	   :search-first-unopened-paranthesis ))
+	   :search-first-unopened-paranthesis
+	   :in-literal-string-p
+	   :find-literal-end
+	   :get-literal-quotation
+	   :get-literal))
 
 (in-package :base-tools)
 
@@ -245,8 +250,7 @@
   "Returns the position of one of the search-strings. The returned position
    is the one closest to 0. If no search-string is found, nil is returned."
   (declare (String main-string)
-	   (List search-strings)
-	   (Boolean from-end))
+	   (List search-strings))
   (let ((positions
 	 (remove-null
 	  (map 'list #'(lambda(search-str)
@@ -257,6 +261,81 @@
 				(sort positions #'<))))
       (when sorted-positions
 	(first sorted-positions)))))
+
+
+(defun find-literal-end (query-string delimiter &optional (overall-pos 0))
+  "Returns the end of the literal corresponding to the passed delimiter
+   string. The query-string must start after the opening literal delimiter.
+   The return value is an int that represents the start index of closing
+   delimiter. delimiter must be either \", ', or '''.
+   If the returns value is nil, there is no closing delimiter."
+  (declare (String query-string delimiter)
+	   (Integer overall-pos))
+  (let ((current-pos (search delimiter query-string)))
+    (if current-pos
+	(if (string-ends-with (subseq query-string 0 current-pos) "\\")
+	    (find-literal-end (subseq query-string (+ current-pos
+						      (length delimiter)))
+			      delimiter (+ overall-pos current-pos 1))
+	    (+ overall-pos current-pos (length delimiter)))
+	nil)))
+
+
+(defun get-literal-quotation (str)
+  "Returns ', ''', \" or \"\"\" when the string starts with a literal delimiter."
+  (cond ((string-starts-with str "'''")
+	 "'")
+	((string-starts-with str "\"\"\"")
+	 "\"\"\"")
+	((string-starts-with str "'")
+	 "'")
+	((string-starts-with str "\"")
+	 "\"")))
+
+
+(defun get-literal (query-string &key (quotation "\""))
+  "Returns a list of the form (:next-string <string> :literal <string>
+   where next-query is the query after the found literal and literal
+   is the literal string."
+  (declare (String query-string)
+	   (String quotation))
+  (cond ((or (string-starts-with query-string "\"\"\"")
+	     (string-starts-with query-string "'''"))
+	 (let ((literal-end
+		(find-literal-end (subseq query-string 3) (subseq query-string 0 3))))
+	   (when literal-end
+	     (list :next-string (subseq query-string (+ 3 literal-end))
+		   :literal (concatenate 'string quotation
+					 (subseq query-string 3 literal-end)
+					 quotation)))))
+	((or (string-starts-with query-string "\"")
+	     (string-starts-with query-string "'"))
+	 (let ((literal-end
+		(find-literal-end (subseq query-string 1)
+				  (subseq query-string 0 1))))
+	   (when literal-end
+	     (let ((literal
+		    (escape-string (subseq query-string 1 literal-end) "\"")))
+	       (list :next-string (subseq query-string (+ 1 literal-end))
+		     :literal (concatenate 'string quotation literal
+					   quotation))))))))
+
+
+(defun search-first-ignore-literals (search-strings main-string)
+  (declare (String main-string)
+	   (List search-strings))
+  (let ((first-pos (search-first search-strings main-string)))
+    (when first-pos
+      (if (not (in-literal-string-p main-string first-pos))
+	  first-pos
+	  (let* ((literal-start (search-first (list "\"" "'") main-string))
+		 (sub-str (subseq main-string literal-start))
+		 (literal-result (get-literal sub-str))
+		 (next-str (getf literal-result :next-string)))
+	    (let ((next-pos
+		   (search-first-ignore-literals search-strings next-str)))
+	      (when next-pos
+		(+ (- (length main-string) (length next-str)) next-pos))))))))
 
 
 (defun concatenate-uri (absolute-ns value)
@@ -325,38 +404,76 @@
     result))
 
 
-(defun search-first-unclosed-paranthesis (str)
+(defun in-literal-string-p(filter-string pos)
+  "Returns t if the passed pos is within a literal string value."
+  (declare (String filter-string)
+	   (Integer pos))
+  (let ((result nil))
+    (dotimes (idx (length filter-string) result)
+      (let ((current-char (subseq filter-string idx (1+ idx))))
+	(cond ((or (string= current-char "'")
+		   (string= current-char "\""))
+	       (let* ((l-result (get-literal (subseq filter-string idx)))
+		      (next-idx
+		       (when l-result
+			 (- (length filter-string)
+			    (length (getf l-result :next-query))))))
+		 (when (and next-idx (< pos next-idx))
+		   (setf result t)
+		   (setf idx (length filter-string)))
+		 (when (<= pos idx)
+		   (setf idx (length filter-string)))))
+	      (t
+	       (when (<= pos idx)
+		 (setf idx (length filter-string)))))))))
+
+
+(defun search-first-unclosed-paranthesis (str &key ignore-literals)
   "Returns the idx of the first ( that is not closed, the search is
-   started from the end of the string."
-  (declare (String str))
+   started from the end of the string.
+   If ignore-literals is set to t all mparanthesis that are within
+   \", \"\"\", ' and ''' are ignored."
+  (declare (String str)
+	   (Boolean ignore-literals))
   (let ((r-str (reverse str))
 	(open-brackets 0)
 	(result-idx nil))
     (dotimes (idx (length r-str))
       (let ((current-char (subseq r-str idx (1+ idx))))
 	(cond ((string= current-char ")")
-	       (decf open-brackets))
+	       (when (or ignore-literals
+			 (not (in-literal-string-p str idx)))
+		 (decf open-brackets)))
 	      ((string= current-char "(")
-	       (incf open-brackets)
-	       (when (> open-brackets 0)
-		 (setf result-idx idx)
-		 (setf idx (length r-str)))))))
+	       (when (or ignore-literals
+			 (not (in-literal-string-p str idx)))
+		 (incf open-brackets)
+		 (when (> open-brackets 0)
+		   (setf result-idx idx)
+		   (setf idx (length r-str))))))))
     (when result-idx
       (- (length str) (1+ result-idx)))))
 
 
-(defun search-first-unopened-paranthesis (str)
-  "Returns the idx of the first paranthesis that is not opened in str."
-  (declare (String str))
+(defun search-first-unopened-paranthesis (str &key ignore-literals)
+  "Returns the idx of the first paranthesis that is not opened in str.
+   If ignore-literals is set to t all mparanthesis that are within
+   \", \"\"\", ' and ''' are ignored."
+  (declare (String str)
+	   (Boolean ignore-literals))
   (let ((closed-brackets 0)
 	(result-idx nil))
     (dotimes (idx (length str))
       (let ((current-char (subseq str idx (1+ idx))))
 	(cond ((string= current-char "(")
-	       (decf closed-brackets))
+	       (when (or ignore-literals
+			 (not (in-literal-string-p str idx)))
+		 (decf closed-brackets)))
 	      ((string= current-char ")")
-	       (incf closed-brackets)
-	       (when (> closed-brackets 0)
-		 (setf result-idx idx)
-		 (setf idx (length str)))))))
+	       (when (or ignore-literals
+			 (not (in-literal-string-p str idx)))
+		 (incf closed-brackets)
+		 (when (> closed-brackets 0)
+		   (setf result-idx idx)
+		   (setf idx (length str))))))))
     result-idx))

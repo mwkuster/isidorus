@@ -1084,6 +1084,8 @@ literal with some \\\"quoted\\\" words!"))
 	 (str-2 "!BOUND(?var1) = false}")
 	 (str-3 "+?var1=-$var2}")
 	 (str-4 "!'a\"b\"c' && (+12 = - 14)}")
+	 (str-5 "!'a(+c)' && (+12 = - 14)}")
+	 (str-6 "!'abc)def'}")
 	 (result-1
 	  (getf (tm-sparql::set-boundings dummy-object str-1) :filter-string))
 	 (result-1-1 (tm-sparql::set-unary-operators dummy-object result-1))
@@ -1097,7 +1099,15 @@ literal with some \\\"quoted\\\" words!"))
 	 (result-4
 	  (getf (tm-sparql::set-boundings dummy-object str-4) :filter-string))
 	 (result-4-1
-	  (tm-sparql::set-unary-operators dummy-object result-4)))
+	  (tm-sparql::set-unary-operators dummy-object result-4))
+	 (result-5
+	  (getf (tm-sparql::set-boundings dummy-object str-5) :filter-string))
+	 (result-5-1
+	  (tm-sparql::set-unary-operators dummy-object result-5))
+	 (result-6
+	  (getf (tm-sparql::set-boundings dummy-object str-6) :filter-string))
+	 (result-6-1
+	  (tm-sparql::set-unary-operators dummy-object result-6)))
     (is-true result-1)
     (is-true result-1-1)
     (is-true result-2)
@@ -1106,12 +1116,18 @@ literal with some \\\"quoted\\\" words!"))
     (is-true result-3-1)
     (is-true result-4)
     (is-true result-4-1)
+    (is-true result-5)
+    (is-true result-5-1)
+    (is-true result-6)
+    (is-true result-6-1)
     (is (string=
 	 result-1-1
 	 "BOUND(?var1)||(progn (not (progn (1+ (progn (1- (progn ?var1)))))))"))
     (is (string= result-2-1 "(not BOUND(?var1)) = false"))
     (is (string= result-3-1 "(1+ ?var1)=(1- $var2)"))
-    (is (string= result-4-1 "(not \"a\\\"b\\\"c\") && (progn (1+ 12) = (1- 14))"))))
+    (is (string= result-4-1 "(not \"a\\\"b\\\"c\") && (progn (1+ 12) = (1- 14))"))
+    (is (string= result-5-1 "(not \"a(+c)\") && (progn (1+ 12) = (1- 14))"))
+    (is (string= result-6-1 "(not \"abc)def\")"))))
 	 
 
 (test test-set-or-and-operators
@@ -1119,20 +1135,28 @@ literal with some \\\"quoted\\\" words!"))
   (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
 	 (str-1 "isLITERAL(STR(?var))||?var = 12 && true}")
 	 (str-2 "(true != false || !false ) && 12 < 14 || !isLITERAL(?var)}")
+	 (str-3 "isLITERAL('a(bc||def') && 'abc)def'}")
 	 (result-1
 	  (getf (tm-sparql::set-boundings dummy-object str-1) :filter-string))
-	 (result-1-1 (tm-sparql::set-or-and-operators dummy-object result-1))
+	 (result-1-1 (tm-sparql::set-or-and-operators dummy-object result-1 result-1))
 	 (result-2
 	  (getf (tm-sparql::set-boundings dummy-object str-2) :filter-string))
-	 (result-2-1 (tm-sparql::set-or-and-operators dummy-object result-2)))
+	 (result-2-1 (tm-sparql::set-or-and-operators dummy-object result-2 result-2))
+	 (result-3
+	  (getf (tm-sparql::set-boundings dummy-object str-3) :filter-string))
+	 (result-3-1 (tm-sparql::set-or-and-operators dummy-object result-3 result-3)))
     (is-true result-1)
     (is-true result-1-1)
     (is-true result-2)
     (is-true result-2-1)
+    (is-true result-3)
+    (is-true result-3-1)
     (is (string= (string-replace result-1-1 " " "")
 		 "(and(progn(or(prognisLITERAL(STR(?var)))(progn?var=12)))(progntrue))"))
     (is (string= (string-replace result-2-1 " " "")
-		 "(or(progn(and(progn(progn(or(progntrue!=false)(progn!false))))(progn12<14)))(progn!isLITERAL(?var)))"))))
+		 "(or(progn(and(progn(progn(or(progntrue!=false)(progn!false))))(progn12<14)))(progn!isLITERAL(?var)))"))
+    (is (string= (string-replace result-3-1 " " "")
+		 "(and(prognisLITERAL(\"a(bc||def\"))(progn\"abc)def\"))"))))
     
 
 (defun run-sparql-tests ()
