@@ -119,7 +119,9 @@
   "Returns the idx of the first found * or / operator.
    It must not be in a literal string or directly after a (."
   (declare (String filter-string))
-  (let ((first-pos (search-first-ignore-literals (list "*" "/") filter-string)))
+  (let ((first-pos
+	 (search-first-ignore-literals *supported-primary-arithmetic-operators*
+				       filter-string)))
     (when first-pos
       (let ((left-part (trim-whitespace-right (subseq filter-string 0 first-pos))))
 	(if (not (string-ends-with left-part "("))
@@ -162,8 +164,7 @@
 	 (other-anchor
 	  (let ((inner-value
 		 (search-first-ignore-literals
-		  (append *supported-join-operators*
-			  *supported-secundary-arithmetic-operators*
+		  (append *supported-secundary-arithmetic-operators*
 			  *supported-compare-operators*)
 		  left-string :from-end t)))
 	    (when inner-value
@@ -189,8 +190,7 @@
   "Returns the string that is the right part of the binary scope."
   (declare (String right-string))
   (let* ((first-pos (search-first-ignore-literals
-		     (append *supported-join-operators*
-			     (*supported-arithmetic-operators*)
+		     (append (*supported-arithmetic-operators*)
 			     *supported-compare-operators*)
 		     right-string))
 	 (first-bracket
@@ -217,8 +217,104 @@
   (:documentation "Transforms the +, - operators in the filter
                    string to the the corresponding lisp functions.")
   (:method ((construct SPARQL-Query) (filter-string String))
-    ;TODO: implement
-    filter-string))
+    (let ((op-pos (find-+--operators filter-string)))
+      (if (or (not op-pos) (= *tmp* 5))
+	    filter-string
+	  (let* ((op-str (subseq filter-string op-pos (1+ op-pos)))
+		 (left-str (subseq filter-string 0 op-pos))
+		 (right-str (subseq filter-string (1+ op-pos)))
+		 (left-scope (find-+--left-scope left-str))
+		 (right-scope (find-+--right-scope right-str))
+		 (modified-str
+		  (concatenate
+		   'string (subseq left-str 0 (- (length left-str)
+						 (length left-scope)))
+		   "(" op-str " " left-scope " " right-scope ")"
+		   (subseq right-str (length right-scope)))))
+	    ;(format t "fs:_~a_~%os:_~a_~%ls:_~a_~%lc:_~a_~%rs:_~a_~%rc:_~a_~%ms:_~a_~%~%"
+	    ;filter-string op-str left-str left-scope right-str right-scope
+	    ;modified-str)
+	    (set-+-and---operators construct modified-str))))))
+
+
+(defun find-+--left-scope (left-string)
+  "Returns the string that is the left part of the binary scope."
+  (declare (String left-string))
+  ;TODO: adapt
+  (let* ((first-bracket
+	  (let ((inner-value (search-first-unclosed-paranthesis left-string)))
+	    (when inner-value
+	      (+ inner-value (1+ (length (name-after-paranthesis
+					  (subseq left-string inner-value))))))))
+	 (other-anchor
+	  (let ((inner-value
+		 (search-first-ignore-literals
+		  (append *supported-secundary-arithmetic-operators*
+			  *supported-compare-operators*)
+		  left-string :from-end t)))
+	    (when inner-value
+	      (1+ inner-value))))
+	 (paranthesis-pair-idx
+	  (let* ((cleaned-str (trim-whitespace-right left-string))
+		 (bracket-scope (reverse-bracket-scope cleaned-str)))
+	    (when bracket-scope
+	      (- (- (length left-string)
+		    (- (length left-string) (length cleaned-str)))
+		 (length bracket-scope)))))
+	 (start-idx (cond (paranthesis-pair-idx
+			   paranthesis-pair-idx)
+			  ((and first-bracket other-anchor)
+			   (max first-bracket other-anchor))
+			  ((or first-bracket other-anchor)
+			   (or first-bracket other-anchor))
+			  (t 0))))
+    (subseq left-string start-idx)))
+
+
+(defun find-+--right-scope (right-string)
+  "Returns the string that is the right part of the binary scope."
+  (declare (String right-string))
+  ;TODO: adapt
+  (let* ((first-pos (search-first-ignore-literals
+		     (append (*supported-arithmetic-operators*)
+			     *supported-compare-operators*)
+		     right-string))
+	 (first-bracket
+	  (let ((inner-value (search-first-unopened-paranthesis right-string)))
+	    (when inner-value (1+ inner-value))))
+	 (paranthesis-pair-idx
+	  (let* ((cleaned-str (trim-whitespace-left right-string))
+		 (bracket-scope (bracket-scope cleaned-str)))
+	    (when bracket-scope
+	      (+ (- (length right-string) (length cleaned-str))
+		 (length bracket-scope)))))
+	 (end-idx (cond (paranthesis-pair-idx
+			 paranthesis-pair-idx)
+			((and first-pos first-bracket)
+			 (min first-pos first-bracket))
+			(first-pos first-pos)
+			(first-bracket first-bracket)
+			(t (if (= (length right-string) 0)
+			       (1- (length right-string)))))))
+    (subseq right-string 0 end-idx)))
+
+
+(defun find-+--operators (filter-string)
+  "Returns the idx of the first found + or - operator.
+   It must not be in a literal string or directly after a (."
+  (declare (String filter-string))
+  (let ((first-pos
+	 (search-first-ignore-literals *supported-secundary-arithmetic-operators*
+				       filter-string)))
+    (when first-pos
+      (let ((left-part (trim-whitespace-right (subseq filter-string 0 first-pos))))
+	(if (and (not (string-ends-with left-part "(one"))
+		 (not (string-ends-with left-part "(")))
+	    first-pos
+	    (let ((next-pos
+		   (find-+--operators (subseq filter-string (1+ first-pos)))))
+	      (when next-pos
+		(+ 1 first-pos next-pos))))))))
 
 
 (defgeneric set-or-and-operators (construct filter-string original-filter-string)
