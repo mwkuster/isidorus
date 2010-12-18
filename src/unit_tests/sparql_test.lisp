@@ -34,7 +34,8 @@
 	   :test-set-boundings
 	   :test-set-unary-operators
 	   :test-set-or-and-operators
-	   :test-set-*-and-/-operators))
+	   :test-set-*-and-/-operators
+	   :test-set-+-and---operators))
 
 
 (in-package :sparql-test)
@@ -1231,6 +1232,89 @@ literal with some \\\"quoted\\\" words!"))
 		 "(progn(and(progn(or(prognx<a)(progn(progn(and(progna=4)(progn4=(/xy)+(progn(one+1))))))))(progn(one-1))))"))
     (is (string= (string-replace result-4-3 " " "")
 		 "(and(prognisLITERAL((/(progn(*(progn1+\"(13+4*5))\")3))4)))(progn(progn(or(progn12=13+(*1415))(progn(*23)=1)))))"))))
+
+
+(test test-set-+-and---operators
+  "Tests various cases of the function set-*-and-/-operators."
+  (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
+	 (str-1 "x = a + b * c && y = a / 3 + b * 2 || 0 = 12 - 14 + 2 * 3 / 3}")
+	 (str-2 "x = 2 && (2 + 2) * 2 + 12 * 4 / 2 - 10 + 2 * (12 - 3) + (12 * 3)}")
+	 (str-3 "(x < a || ( a = 4 && 4 = x / y + (+1)) && -1)}")
+	 (str-4 "isLITERAL(((1 + '(13+4*5))') * 3) / 4) && (12 = 13 + 14 * 15 || 2 * 3 = 1)}")
+	 (str-5 "(1 + 2 >= 3) || ((2 - 4) + 5 + 6) = 3}")
+	 (result-1
+	  (getf (tm-sparql::set-boundings dummy-object str-1) :filter-string))
+	 (result-1-1
+	  (tm-sparql::set-unary-operators dummy-object result-1))
+	 (result-1-2
+	  (tm-sparql::set-or-and-operators dummy-object result-1-1 result-1))
+	 (result-1-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-1-2))
+	 (result-1-4
+	  (tm-sparql::set-+-and---operators dummy-object result-1-3))
+	 (result-2
+	  (getf (tm-sparql::set-boundings dummy-object str-2) :filter-string))
+	 (result-2-1
+	  (tm-sparql::set-unary-operators dummy-object result-2))
+	 (result-2-2
+	  (tm-sparql::set-or-and-operators dummy-object result-2-1 result-2))
+	 (result-2-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-2-2))
+	 (result-2-4
+	  (tm-sparql::set-+-and---operators dummy-object result-2-3))
+	 (result-3
+	  (getf (tm-sparql::set-boundings dummy-object str-3) :filter-string))
+	 (result-3-1
+	  (tm-sparql::set-unary-operators dummy-object result-3))
+	 (result-3-2
+	  (tm-sparql::set-or-and-operators dummy-object result-3-1 result-3))
+	 (result-3-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-3-2))
+	 (result-3-4
+	  (tm-sparql::set-+-and---operators dummy-object result-3-3))
+	 (result-4
+	  (getf (tm-sparql::set-boundings dummy-object str-4) :filter-string))
+	 (result-4-1
+	  (tm-sparql::set-unary-operators dummy-object result-4))
+	 (result-4-2
+	  (tm-sparql::set-or-and-operators dummy-object result-4-1 result-4))
+	 (result-4-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-4-2))
+	 (result-4-4
+	  (tm-sparql::set-+-and---operators dummy-object result-4-3))
+	 (result-5
+	  (getf (tm-sparql::set-boundings dummy-object str-5) :filter-string))
+	 (result-5-1
+	  (tm-sparql::set-unary-operators dummy-object result-5))
+	 (result-5-2
+	  (tm-sparql::set-or-and-operators dummy-object result-5-1 result-5))
+	 (result-5-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-5-2))
+	 (result-5-4
+	  (tm-sparql::set-+-and---operators dummy-object result-5-3)))
+    (is-true result-1) (is-true result-1-1)
+    (is-true result-1-2) (is-true result-1-3)
+    (is-true result-2) (is-true result-2-1)
+    (is-true result-2-2) (is-true result-2-3)
+    (is-true result-3) (is-true result-3-1)
+    (is-true result-3-2) (is-true result-3-3)
+    (is-true result-4) (is-true result-4-1)
+    (is-true result-4-2) (is-true result-4-3)
+    (is-true result-1-4) (is-true result-2-4)
+    (is-true result-3-4) (is-true result-4-4)
+    (is-true result-5) (is-true result-5-1)
+    (is-true result-5-2) (is-true result-5-3)
+    (is-true result-5-4)
+    (is (string= (string-replace result-1-4 " " "")
+		 "(or(progn(and(prognx=(+a(*bc)))(progny=(+(/a3)(*b2)))))(progn0=(+(-1214)(/(*23)3))))"))
+    (is (string= (string-replace result-2-4 " " "")
+		 "(and(prognx=2)(progn(+(+(-(+(*(progn(+22))2)(/(*124)2))10)(*2(progn(-123))))(progn(*123)))))"))
+    (is (string= (string-replace result-3-4 " " "")
+		 "(progn(and(progn(or(prognx<a)(progn(progn(and(progna=4)(progn4=(+(/xy)(progn(one+1)))))))))(progn(one-1))))"))
+    (is (string= (string-replace result-4-4 " " "")
+		 "(and(prognisLITERAL((/(progn(*(progn(+1\"(13+4*5))\"))3))4)))(progn(progn(or(progn12=(+13(*1415)))(progn(*23)=1)))))"))
+    (is (string= (string-replace result-5-4 " " "")
+		 "(or(progn(progn(+12)>=3))(progn(progn(+(+(progn(-24))5)6))=3))"))))
 	 
     
 

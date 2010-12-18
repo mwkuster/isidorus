@@ -95,7 +95,7 @@
   ;; **replace -x by (one- x)
   ;; **||, &&
   ;; **, /
-  ;; +, -
+  ;; *+, -
   ;; *=, !=, <, >, <=, >=
   ;; *replace function(x), function(x, y), function(x, y, z)
   ;;   by filter-function(x), (filter-function(x, y), filter-function(x, y, z)
@@ -231,9 +231,6 @@
 						 (length left-scope)))
 		   "(" op-str " " left-scope " " right-scope ")"
 		   (subseq right-str (length right-scope)))))
-	    ;(format t "fs:_~a_~%os:_~a_~%ls:_~a_~%lc:_~a_~%rs:_~a_~%rc:_~a_~%ms:_~a_~%~%"
-	    ;filter-string op-str left-str left-scope right-str right-scope
-	    ;modified-str)
 	    (set-+-and---operators construct modified-str))))))
 
 
