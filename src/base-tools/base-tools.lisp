@@ -321,19 +321,48 @@
 					   quotation))))))))
 
 
-(defun search-first-ignore-literals (search-strings main-string)
+;(defun search-first-ignore-literals (search-strings main-string)
+;  (declare (String main-string)
+;	   (List search-strings))
+;  (let ((first-pos (search-first search-strings main-string)))
+;    (when first-pos
+;      (if (not (in-literal-string-p main-string first-pos))
+;	  first-pos
+;	  (let* ((literal-start (search-first (list "\"" "'") main-string))
+;		 (sub-str (subseq main-string literal-start))
+;		 (literal-result (get-literal sub-str))
+;		 (next-str (getf literal-result :next-string)))
+;	    (let ((next-pos
+;		   (search-first-ignore-literals search-strings next-str)))
+;	      (when next-pos
+;		(+ (- (length main-string) (length next-str)) next-pos))))))))
+
+
+(defun search-first-ignore-literals (search-strings main-string &key from-end)
   (declare (String main-string)
-	   (List search-strings))
-  (let ((first-pos (search-first search-strings main-string)))
+	   (List search-strings)
+	   (Boolean from-end))
+  (let ((first-pos
+	 (search-first search-strings main-string :from-end from-end)))
     (when first-pos
       (if (not (in-literal-string-p main-string first-pos))
 	  first-pos
-	  (let* ((literal-start (search-first (list "\"" "'") main-string))
-		 (sub-str (subseq main-string literal-start))
-		 (literal-result (get-literal sub-str))
-		 (next-str (getf literal-result :next-string)))
+	  (let* ((literal-start
+		  (search-first (list "\"" "'") (subseq main-string 0 first-pos)
+				:from-end from-end))
+		 (next-str
+		  (if from-end
+		      
+
+		      (subseq main-string 0 literal-start)
+		      
+		      
+		      (let* ((sub-str (subseq main-string literal-start))
+			     (literal-result (get-literal sub-str)))
+			(getf literal-result :next-string)))))
 	    (let ((next-pos
-		   (search-first-ignore-literals search-strings next-str)))
+		   (search-first-ignore-literals search-strings next-str
+						 :from-end from-end)))
 	      (when next-pos
 		(+ (- (length main-string) (length next-str)) next-pos))))))))
 
@@ -417,7 +446,7 @@
 		      (next-idx
 		       (when l-result
 			 (- (length filter-string)
-			    (length (getf l-result :next-query))))))
+			    (length (getf l-result :next-string))))))
 		 (when (and next-idx (< pos next-idx))
 		   (setf result t)
 		   (setf idx (length filter-string)))
@@ -468,7 +497,8 @@
 	(cond ((string= current-char "(")
 	       (when (or ignore-literals
 			 (not (in-literal-string-p str idx)))
-		 (decf closed-brackets)))
+		 (decf closed-brackets)
+		 (setf result-idx nil)))
 	      ((string= current-char ")")
 	       (when (or ignore-literals
 			 (not (in-literal-string-p str idx)))

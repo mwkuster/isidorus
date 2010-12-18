@@ -15,17 +15,40 @@
   "Contains all supported SPARQL-functions")
 
 
-(defparameter *supported-binary-operators*
-  (list "||" "&&" "=" "!=" "<" "<=" ">" ">=" "+" "-" "*" "/")
+(defparameter *supported-primary-arithmetic-operators*
+  (list "*" "/") "Contains all supported arithmetic operators.")
+
+
+(defparameter *supported-secundary-arithmetic-operators*
+  (list "+" "-") "Contains all supported arithmetic operators.")
+
+
+(defparameter *supported-compare-operators*
+  (list "=" "!=" "<" "<=" ">" ">=")
   "Contains all supported binary operators.")
+
+
+(defparameter *supported-join-operators*
+  (list "||" "&&") "Contains all supported join operators.")
 
 
 (defparameter *supported-unary-operators*
   (list "!" "+" "-") "Contains all supported unary operators")
 
 
+(defun *supported-arithmetic-operators* ()
+  (append *supported-primary-arithmetic-operators*
+	  *supported-secundary-arithmetic-operators*))
+
+
+(defun *supported-binary-operators* ()
+  (append (*supported-arithmetic-operators*)
+	  *supported-compare-operators*
+	  *supported-join-operators*))
+
+
 (defun *supported-operators* ()
-  (union *supported-binary-operators* *supported-unary-operators*
+  (union (*supported-binary-operators*) *supported-unary-operators*
 	 :test #'string=))
 
 
@@ -56,37 +79,146 @@
 	   (next-query (getf result-set-boundings :next-query))
 	   (filter-string-unary-ops
 	    (set-unary-operators construct filter-string))
+	   ;;TODO: encapsulate all binary operator mehtod in the method set-binary-ops
 	   (filter-string-or-and-ops
 	    (set-or-and-operators construct filter-string-unary-ops
 				  filter-string-unary-ops))
-	   (filter-string-binary-ops
-	    (set-binary-operators construct filter-string-or-and-ops))
-	    
-	   ))))
+	   (filter-string-arithmetic-ops
+	    (set-arithmetic-operators construct filter-string-or-and-ops))
+	   )
+      filter-string-arithmetic-ops)))
   ;;TODO: implement
   ;; **replace () by (progn )
   ;; **replace ', """, ''' by "
   ;; **replace !x by (not x)
-  ;; **replace +x by (1+ x)
-  ;; **replace -x by (1- x)
+  ;; **replace +x by (one+ x)
+  ;; **replace -x by (one- x)
   ;; **||, &&
-  ;; *=, !=, <, >, <=, >=, +, -, *, /
+  ;; **, /
+  ;; +, -
+  ;; *=, !=, <, >, <=, >=
   ;; *replace function(x), function(x, y), function(x, y, z)
   ;;   by filter-function(x), (filter-function(x, y), filter-function(x, y, z)
   ;; *check if all functions that will be invoked are allowed
-  ;; *add a let with all variables that are used: every variable with $ and ? prefix
-  ;; *add a let with (true t) and (false nil)
   ;; *embrace the final result uris in <> => unit-tests
-  ;; *create and store this filter object
+  ;; *create and store this filter object => store the created string and implement
+  ;;   a method "invoke-filter(SPARQL-Triple filter-string)" so that the variables
+  ;;   are automatically contained in a letafterwards the eval function can be called
+  ;;   this method should also have a let with (true t) and (false nil)
 
 
-(defgeneric set-binary-operators (construct filter-string)
-  (:documentation "Transforms the =, !=, <, >, <=, >=, +, -, *, / operators
-                   in the filter string to the the lisp =, /=, <, >, <=, >=,
-                   +, -, * and / functions.")
+(defgeneric set-arithmetic-operators (construct filter-string)
+  (:documentation "Transforms the +, -, *, / operators in the filter
+                   string to the the corresponding lisp functions.")
+  (:method ((construct SPARQL-Query) (filter-string String))
+    (let ((filter-string-*/ (set-*-and-/-operators construct filter-string)))
+      (set-+-and---operators construct filter-string-*/))))
+
+
+(defun find-*/-operators (filter-string)
+  "Returns the idx of the first found * or / operator.
+   It must not be in a literal string or directly after a (."
+  (declare (String filter-string))
+  (let ((first-pos (search-first-ignore-literals (list "*" "/") filter-string)))
+    (when first-pos
+      (let ((left-part (trim-whitespace-right (subseq filter-string 0 first-pos))))
+	(if (not (string-ends-with left-part "("))
+	    first-pos
+	    (let ((next-pos
+		   (find-*/-operators (subseq filter-string (1+ first-pos)))))
+	      (when next-pos
+		(+ 1 first-pos next-pos))))))))
+
+
+(defgeneric set-*-and-/-operators (construct filter-string)
+  (:documentation "Transforms the *, / operators in the filter
+                   string to the the corresponding lisp functions.")
+  (:method ((construct SPARQL-Query) (filter-string String))
+    (let ((op-pos (find-*/-operators filter-string)))
+      (if (not op-pos)
+	  filter-string
+	  (let* ((op-str (subseq filter-string op-pos (1+ op-pos)))
+		 (left-str (subseq filter-string 0 op-pos))
+		 (right-str (subseq filter-string (1+ op-pos)))
+		 (left-scope (find-*/-left-scope left-str))
+		 (right-scope (find-*/-right-scope right-str))
+		 (modified-str
+		  (concatenate
+		   'string (subseq left-str 0 (- (length left-str)
+						 (length left-scope)))
+		   "(" op-str " " left-scope " " right-scope ")"
+		   (subseq right-str (length right-scope)))))
+	    (set-*-and-/-operators construct modified-str))))))
+
+
+(defun find-*/-left-scope (left-string)
+  "Returns the string that is the left part of the binary scope."
+  (declare (String left-string))
+  (let* ((first-bracket
+	  (let ((inner-value (search-first-unclosed-paranthesis left-string)))
+	    (when inner-value
+	      (+ inner-value (1+ (length (name-after-paranthesis
+					  (subseq left-string inner-value))))))))
+	 (other-anchor
+	  (let ((inner-value
+		 (search-first-ignore-literals
+		  (append *supported-join-operators*
+			  *supported-secundary-arithmetic-operators*
+			  *supported-compare-operators*)
+		  left-string :from-end t)))
+	    (when inner-value
+	      (1+ inner-value))))
+	 (paranthesis-pair-idx
+	  (let* ((cleaned-str (trim-whitespace-right left-string))
+		 (bracket-scope (reverse-bracket-scope cleaned-str)))
+	    (when bracket-scope
+	      (- (- (length left-string)
+		    (- (length left-string) (length cleaned-str)))
+		 (length bracket-scope)))))
+	 (start-idx (cond (paranthesis-pair-idx
+			   paranthesis-pair-idx)
+			  ((and first-bracket other-anchor)
+			   (max first-bracket other-anchor))
+			  ((or first-bracket other-anchor)
+			   (or first-bracket other-anchor))
+			  (t 0))))
+    (subseq left-string start-idx)))
+
+
+(defun find-*/-right-scope (right-string)
+  "Returns the string that is the right part of the binary scope."
+  (declare (String right-string))
+  (let* ((first-pos (search-first-ignore-literals
+		     (append *supported-join-operators*
+			     (*supported-arithmetic-operators*)
+			     *supported-compare-operators*)
+		     right-string))
+	 (first-bracket
+	  (let ((inner-value (search-first-unopened-paranthesis right-string)))
+	    (when inner-value (1+ inner-value))))
+	 (paranthesis-pair-idx
+	  (let* ((cleaned-str (trim-whitespace-left right-string))
+		 (bracket-scope (bracket-scope cleaned-str)))
+	    (when bracket-scope
+	      (+ (- (length right-string) (length cleaned-str))
+		 (length bracket-scope)))))
+	 (end-idx (cond (paranthesis-pair-idx
+			 paranthesis-pair-idx)
+			((and first-pos first-bracket)
+			 (min first-pos first-bracket))
+			(first-pos first-pos)
+			(first-bracket first-bracket)
+			(t (if (= (length right-string) 0)
+			       (1- (length right-string)))))))
+    (subseq right-string 0 end-idx)))
+
+
+(defgeneric set-+-and---operators (construct filter-string)
+  (:documentation "Transforms the +, - operators in the filter
+                   string to the the corresponding lisp functions.")
   (:method ((construct SPARQL-Query) (filter-string String))
     ;TODO: implement
-    ))
+    filter-string))
 
 
 (defgeneric set-or-and-operators (construct filter-string original-filter-string)
@@ -94,7 +226,8 @@
                    the the lisp or and and functions.")
   (:method ((construct SPARQL-Query) (filter-string String)
 	    (original-filter-string String))
-    (let ((op-pos (search-first-ignore-literals (list "||" "&&") filter-string)))
+    (let ((op-pos (search-first-ignore-literals
+		   *supported-join-operators* filter-string)))
       (if (not op-pos)
 	  filter-string
 	  (let* ((op-str (subseq filter-string op-pos (+ 2 op-pos)))
@@ -122,7 +255,7 @@
 	  (remove-null (map 'list #'(lambda(op-string)
 				      (when (= (length op-string) 2)
 					op-string))
-			    *supported-binary-operators*)))
+			    (*supported-binary-operators*))))
 	 (operator-str (subseq filter-string idx)))
     (if (string-starts-with-one-of operator-str 2-ops)
 	(subseq operator-str 0 2)
@@ -169,22 +302,43 @@
 (defun find-or-and-right-scope (right-string)
   "Returns the string that is the right part of the binary scope."
   (declare (String right-string))
-  (let* ((first-pos (search-first-ignore-literals (list "||" "&&") right-string))
+  (let* ((first-pos (search-first-ignore-literals
+		     *supported-join-operators* right-string))
 	 (first-bracket
 	  (let ((inner-value (search-first-unopened-paranthesis right-string)))
 	    (when inner-value (1+ inner-value))))
-	 (end-idx (cond ((and first-pos first-bracket)
-			 (min first-pos first-bracket))
-			(first-pos first-pos)
-			(first-bracket first-bracket)
-			(t (if (= (length right-string) 0)
-			       (1- (length right-string)))))))
+	 (paranthesis-pair-idx
+	  (let* ((cleaned-str (trim-whitespace-left right-string))
+		 (bracket-scope (bracket-scope cleaned-str)))
+	    (when bracket-scope
+	      (+ (- (length right-string) (length cleaned-str))
+		 (length bracket-scope)))))
+	 (end-idx
+	  (cond ((and first-pos first-bracket)
+		 (if (< first-pos first-bracket)
+		     (if paranthesis-pair-idx
+			 (if (< first-pos paranthesis-pair-idx)
+			     paranthesis-pair-idx
+			     first-pos)
+			 first-pos)
+		     first-bracket))
+		(first-bracket first-bracket)
+		(first-pos
+		 (if paranthesis-pair-idx
+		     (if (< first-pos paranthesis-pair-idx)
+			 paranthesis-pair-idx
+			 first-pos)
+		     first-pos))
+		(t
+		 (if (= (length right-string) 0)
+		     0
+		     (length right-string))))))
     (subseq right-string 0 end-idx)))
 
 
 (defgeneric set-unary-operators (construct filter-string)
   (:documentation "Transforms the unary operators !, +, - to (not ),
-                   (1+ ) and (1- ). The return value is a modified filter
+                   (one+ ) and (one- ). The return value is a modified filter
                    string.")
   (:method ((construct SPARQL-Query) (filter-string String))
     (let ((result-string ""))
@@ -210,7 +364,7 @@
 			   (string-ends-with-one-of string-before
 						    (*supported-operators*)))
 		       (let ((result (unary-operator-scope filter-string idx)))
-			 (push-string (concatenate 'string "(1" current-char " ")
+			 (push-string (concatenate 'string "(one" current-char " ")
 				      result-string)
 			 (push-string (set-unary-operators construct
 							   (getf result :scope))
@@ -315,6 +469,29 @@
       (if found-end
 	  (subseq str 0 (1+ found-end))
 	  str))))
+
+
+(defun reverse-bracket-scope (str &key (open-bracket "(") (close-bracket ")"))
+  "If str ends with close-bracket there will be returned the substring until
+   the matching open-bracket is found. Otherwise the return value is nil."
+  (declare (String str open-bracket close-bracket))
+  (when (string-ends-with str close-bracket)
+    (let ((local-str (subseq str 0 (1- (length str))))
+	  (result ")")
+	  (close-brackets 1))
+      (do ((idx (1- (length local-str)))) ((< idx 0))
+	(let ((current-char (subseq local-str idx (1+ idx))))
+	  (push-string current-char result)
+	  (cond ((string= current-char open-bracket)
+		 (when (not (in-literal-string-p local-str idx))
+		   (decf close-brackets))
+		 (when (= close-brackets 0)
+		   (setf idx 0)))
+		((string= current-char close-bracket)
+		 (when (not (in-literal-string-p local-str idx))
+		   (incf close-brackets)))))
+	(decf idx))
+      (reverse result))))
 
 
 (defun bracket-scope (str &key (open-bracket "(") (close-bracket ")"))
