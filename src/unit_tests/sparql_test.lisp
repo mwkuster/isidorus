@@ -36,7 +36,8 @@
 	   :test-set-or-and-operators
 	   :test-set-*-and-/-operators
 	   :test-set-+-and---operators
-	   :test-set-compare-operators))
+	   :test-set-compare-operators
+	   :test-set-functions))
 
 
 (in-package :sparql-test)
@@ -1236,7 +1237,7 @@ literal with some \\\"quoted\\\" words!"))
 
 
 (test test-set-+-and---operators
-  "Tests various cases of the function set-*-and-/-operators."
+  "Tests various cases of the function set-+-and---operators."
   (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
 	 (str-1 "x = a + b * c && y = a / 3 + b * 2 || 0 = 12 - 14 + 2 * 3 / 3}")
 	 (str-2 "x = 2 && (2 + 2) * 2 + 12 * 4 / 2 - 10 + 2 * (12 - 3) + (12 * 3)}")
@@ -1319,7 +1320,7 @@ literal with some \\\"quoted\\\" words!"))
 
 
 (test test-set-compare-operators
-  "Tests various cases of the function set-*-and-/-operators."
+  "Tests various cases of the function set-compare-operators."
   (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
 	 (str-1 "x = a + b * c && y = a / 3 + b * 2 || 0 = 12 - 14 + 2 * 3 / 3}")
 	 (str-2 "x = 2 && (2 + 2) * 2 + 12 * 4 / 2 - 10 + 2 * (12 - 3) + (12 * 3)}")
@@ -1429,6 +1430,104 @@ literal with some \\\"quoted\\\" words!"))
 		 "(or(progn(progn(>=(+12)3)))(progn(=(progn(+(+(progn(-24))5)6))3)))"))
     (is (string= (string-replace result-6-5 " " "")
 		 "(or(progn(!=(<=(>21)0)99))(progntrue))"))))
+
+
+(test test-set-functions
+  "Tests various cases of the function set-functions"
+  (let* ((dummy-object (make-instance 'TM-SPARQL::SPARQL-Query :query "  "))
+	 (str-1 "BOUND((  (?var)  )) || (isLITERAL($var) && ?var = 'abc')}")
+	 (str-2
+	  "(REGEX(?var1, '''''', ?var3) || (?var1 > ?var3 && (STR( ?var) = \"abc\")))}")
+	 (str-3
+	  "STR(DATATYPE(?var3,isLITERAL(x, y))) || +?var1 = -?var2 + ?var2 * ?var3}")
+	 (str-4 "DATATYPE(?var3) ||isLITERAL(+?var1 = -?var2)}")
+	 (str-5 "DATATYPE(?var3) ||(isLITERAL  (+?var1 = -?var2))}")
+	 (result-1
+	  (getf (tm-sparql::set-boundings dummy-object str-1) :filter-string))
+	 (result-1-2
+	  (tm-sparql::set-or-and-operators dummy-object result-1 result-1))
+	 (result-1-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-1-2))
+	 (result-1-4
+	  (tm-sparql::set-+-and---operators dummy-object result-1-3))
+	 (result-1-5
+	  (tm-sparql::set-compare-operators dummy-object result-1-4))
+	 (result-1-6
+	  (tm-sparql::set-functions dummy-object result-1-5))
+	 (result-2
+	  (getf (tm-sparql::set-boundings dummy-object str-2) :filter-string))
+	 (result-2-2
+	  (tm-sparql::set-or-and-operators dummy-object result-2 result-2))
+	 (result-2-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-2-2))
+	 (result-2-4
+	  (tm-sparql::set-+-and---operators dummy-object result-2-3))
+	 (result-2-5
+	  (tm-sparql::set-compare-operators dummy-object result-2-4))
+	 (result-2-6
+	  (tm-sparql::set-functions dummy-object result-2-5))
+	 (result-3
+	      (getf (tm-sparql::set-boundings dummy-object str-3) :filter-string))
+	 (result-3-2-1
+	  (tm-sparql::set-unary-operators dummy-object result-3))
+	 (result-3-2
+	  (tm-sparql::set-or-and-operators dummy-object result-3-2-1 result-3))
+	 (result-3-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-3-2))
+	 (result-3-4
+	  (tm-sparql::set-+-and---operators dummy-object result-3-3))
+	 (result-3-5
+	  (tm-sparql::set-compare-operators dummy-object result-3-4))
+	 (result-3-6
+	  (tm-sparql::set-functions dummy-object result-3-5))
+	 (result-4
+	  (getf (tm-sparql::set-boundings dummy-object str-4) :filter-string))
+	 (result-4-2-1
+	  (tm-sparql::set-unary-operators dummy-object result-4))
+	 (result-4-2
+	  (tm-sparql::set-or-and-operators dummy-object result-4-2-1 result-4-2-1))
+	 (result-4-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-4-2))
+	 (result-4-4
+	  (tm-sparql::set-+-and---operators dummy-object result-4-3))
+	 (result-4-5
+	  (tm-sparql::set-compare-operators dummy-object result-4-4))
+	 (result-4-6
+	  (tm-sparql::set-functions dummy-object result-4-5))
+	 (result-5
+	  (getf (tm-sparql::set-boundings dummy-object str-5) :filter-string))
+	 (result-5-2-1
+	  (tm-sparql::set-unary-operators dummy-object result-5))
+	 (result-5-2
+	  (tm-sparql::set-or-and-operators dummy-object result-5-2-1 result-5-2-1))
+	 (result-5-3
+	  (tm-sparql::set-*-and-/-operators dummy-object result-5-2))
+	 (result-5-4
+	  (tm-sparql::set-+-and---operators dummy-object result-5-3))
+	 (result-5-5
+	  (tm-sparql::set-compare-operators dummy-object result-5-4))
+	 (result-5-6
+	  (tm-sparql::set-functions dummy-object result-5-5)))
+    (is-true result-1) (is-true result-1-2) (is-true result-1-3)
+    (is-true result-1-4) (is-true result-1-5) (is-true result-1-6)
+    (is-true result-2) (is-true result-2-2) (is-true result-2-3)
+    (is-true result-2-4) (is-true result-2-5) (is-true result-2-6)
+    (is-true result-3) (is-true result-3-2) (is-true result-3-3)
+    (is-true result-3-4) (is-true result-3-5) (is-true result-3-6)
+    (is-true result-4) (is-true result-4-2) (is-true result-4-3)
+    (is-true result-4-4) (is-true result-4-5) (is-true result-4-6)
+    (is-true result-5) (is-true result-5-2) (is-true result-5-3)
+    (is-true result-5-4) (is-true result-5-5) (is-true result-5-6)
+    (is (string= (string-replace result-1-6 " " "")
+		 "(or(progn(BOUND(progn(progn?var))))(progn(progn(and(progn(isLITERAL$var))(progn(=?var\"abc\"))))))"))
+    (is (string= (string-replace result-2-6 " " "")
+		 "(progn(or(progn(REGEX?var1\"\"?var3))(progn(progn(and(progn(>?var1?var3))(progn(progn(=(STR?var)\"abc\"))))))))"))
+    (is (string= (string-replace result-3-6 " " "")
+		 "(or(progn(STR(DATATYPE?var3(isLITERALxy))))(progn(=(one+?var1)(+(one-?var2)(*?var2?var3)))))"))
+    (is (string= (string-replace result-4-6 " " "")
+		 "(or(progn(DATATYPE?var3))(progn(isLITERAL(=(one+?var1)(one-?var2)))))"))
+    (is (string= (string-replace result-5-6 " " "")
+		 "(or(progn(DATATYPE?var3))(progn(progn(isLITERAL(=(one+?var1)(one-?var2))))))"))))
 	 
     
 

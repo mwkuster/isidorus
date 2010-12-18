@@ -102,39 +102,89 @@
 	   (filter-string-arithmetic-ops
 	    (set-arithmetic-operators construct filter-string-or-and-ops))
 	   (filter-string-compare-ops
-	    (set-compare-operators construct filter-string-arithmetic-ops)))
-      filter-string-compare-ops)))
+	    (set-compare-operators construct filter-string-arithmetic-ops))
+	   (filter-string-functions
+	    (set-functions construct filter-string-compare-ops)))
+      filter-string-functions)))
   ;;TODO: implement
-  ;; **replace () by (progn )
-  ;; **replace ', """, ''' by "
-  ;; **replace !x by (not x)
-  ;; **replace +x by (one+ x)
-  ;; **replace -x by (one- x)
-  ;; **||, &&
-  ;; **, /
-  ;; **+, -
-  ;; **=, !=, <, >, <=, >=
-  ;; *replace function(x), function(x, y), function(x, y, z)
-  ;;   by filter-function(x), (filter-function(x, y), filter-function(x, y, z)
   ;; *check if all functions that will be invoked are allowed
-  ;; *embrace the final result uris in <> => unit-tests
+  ;; *implement wrapper functions, also for the operators
+  ;;   it would be nice of the self defined operator functions would be in a
+  ;;   separate packet, e.g. filter-functions, so =, ... would couse no
+  ;;   collisions
+  ;; *embrace the final results uris in <> => unit-tests
   ;; *create and store this filter object => store the created string and implement
   ;;   a method "invoke-filter(SPARQL-Triple filter-string)" so that the variables
   ;;   are automatically contained in a letafterwards the eval function can be called
   ;;   this method should also have a let with (true t) and (false nil)
 
 
-(defvar *tmp* 0)
+(defgeneric set-functions (construct filter-string)
+  (:documentation "Transforms all supported functions of the form
+                   function(x, y) to (function x y).")
+  (:method ((construct SPARQL-Query) (filter-string String))
+    (let ((op-pos (find-functions filter-string)))
+      (if (not op-pos)
+	  filter-string
+	  (let* ((fun-name
+		  (return-if-starts-with (subseq filter-string op-pos)
+					 *supported-functions*))
+		 (left-str (subseq filter-string 0 op-pos))
+		 (right-str (subseq filter-string
+				    (+ op-pos (length fun-name))))
+		 (cleaned-right-str (trim-whitespace-left right-str))
+		 (arg-list (bracket-scope cleaned-right-str))
+		 (cleaned-arg-list (clean-function-arguments arg-list))
+		 (modified-str
+		  (concatenate
+		   'string left-str "(" fun-name " " cleaned-arg-list ")"
+		   (subseq right-str (+ (- (length right-str)
+					   (length cleaned-right-str))
+					(length arg-list))))))
+	    (set-functions construct modified-str))))))
+
+
+(defun clean-function-arguments (argument-string)
+  "Transforms all arguments within an argument list of the form
+   (x, y, z, ...) to x y z."
+  (declare (String argument-string))
+  (when (and (string-starts-with argument-string "(")
+	     (string-ends-with argument-string ")"))
+    (let ((local-str (subseq argument-string 1 (1- (length argument-string))))
+	  (result ""))
+      (dotimes (idx (length local-str) result)
+	(let ((current-char (subseq local-str idx (1+ idx))))
+	  (if (and (string= current-char ",")
+		   (not (in-literal-string-p local-str idx)))
+	      (push-string " " result)
+	      (push-string current-char result)))))))
+
+
+(defun find-functions (filter-string)
+  "Returns the idx of the first found 'BOUND', 'isLITERAL', 'STR',
+   'DATATYPE', or 'REGEX'.
+   It must not be in a literal string or directly after a (."
+  (declare (String filter-string))
+  (let* ((first-pos
+	  (search-first-ignore-literals *supported-functions*
+					filter-string)))
+    (when first-pos
+      (let ((left-part (trim-whitespace-right (subseq filter-string 0 first-pos))))
+	(if (not (string-ends-with left-part "("))
+	    first-pos
+	    (let ((next-pos
+		   (find-functions (subseq filter-string (1+ first-pos)))))
+	      (when next-pos
+		(+ 1 first-pos next-pos))))))))
+
+
 (defgeneric set-compare-operators (construct filter-string)
   (:documentation "Transforms the =, !=, <, >, <= and >= operators in the
                    filter string to the the corresponding lisp functions.")
   (:method ((construct SPARQL-Query) (filter-string String))
-    (incf *tmp*)
     (let ((op-pos (find-compare-operators filter-string)))
-      (if (or (not op-pos) (= *tmp* 5))
-	  (progn
-	    (setf *tmp* 0)
-	    filter-string)
+      (if (not op-pos)
+	  filter-string
 	  (let* ((op-str (if (string-starts-with-one-of
 			      (subseq filter-string op-pos)
 			      (*2-compare-operators*))
@@ -335,8 +385,8 @@
                    string to the the corresponding lisp functions.")
   (:method ((construct SPARQL-Query) (filter-string String))
     (let ((op-pos (find-+--operators filter-string)))
-      (if (or (not op-pos) (= *tmp* 5))
-	    filter-string
+      (if (not op-pos)
+	  filter-string
 	  (let* ((op-str (subseq filter-string op-pos (1+ op-pos)))
 		 (left-str (subseq filter-string 0 op-pos))
 		 (right-str (subseq filter-string (1+ op-pos)))
@@ -438,7 +488,7 @@
 	  filter-string
 	  (let* ((op-str (subseq filter-string op-pos (+ 2 op-pos)))
 		 (left-str (subseq filter-string 0 op-pos))
-		 (right-str (subseq filter-string (+ 2 op-pos)))
+		 (right-str (subseq filter-string (+ (length op-str) op-pos)))
 		 (left-scope (find-or-and-left-scope left-str))
 		 (right-scope (find-or-and-right-scope right-str))
 		 (modified-str
@@ -567,8 +617,8 @@
 			(trim-whitespace-right (subseq filter-string 0 idx))))
 		   (if (or (string= string-before "")
 			   (string-ends-with string-before "(progn")
-			   (string-ends-with-one-of string-before
-						    (*supported-operators*)))
+			   (string-ends-with-one-of
+			    string-before (append (*supported-operators*) (list "("))))
 		       (let ((result (unary-operator-scope filter-string idx)))
 			 (push-string (concatenate 'string "(one" current-char " ")
 				      result-string)
@@ -719,7 +769,7 @@
 		       (progn
 			 (setf idx (- (1- (length str))
 				      (length (getf literal :next-string))))
-			 (push-string (getf literal :literal) str))
+			 (push-string (getf literal :literal) result))
 		       (progn
 			 (setf result nil)
 			 (setf idx (length str))))))
@@ -790,7 +840,13 @@
 		   (error (make-sparql-parser-condition
 			   (subseq query-string idx)
 			   (original-query construct)
-			   "a valid filter, but the filter is not complete")))
+			   (format nil
+				   "a valid filter, but the filter is not complete, ~a"
+				   (if (> open-brackets 0)
+				       (format nil "~a ')' is missing"
+					       open-brackets)
+				       (format nil "~a '(' is missing"
+					       open-brackets))))))
 		 (setf result
 		       (list :next-query (subseq query-string idx)
 			     :filter-string filter-string)))
@@ -804,7 +860,7 @@
   represents a (progn) block."
   (declare (String query-string)
 	   (Integer idx))
-  (let* ((delimiters (append (list " " (string #\Space) (string #\Tab)
+  (let* ((delimiters (append (list " " "," (string #\Space) (string #\Tab)
 				   (string #\Newline) (string #\cr) "(" ")")
 			     (*supported-operators*)))
 	 (string-before (trim-whitespace-right (subseq query-string 0 idx)))
@@ -813,8 +869,9 @@
 	 (fragment-before
 	  (if (and (not fragment-before-idx)
 		   (and (> (length string-before) 0)
-			(not (find string-before *supported-functions*
-				   :test #'string=))))
+			(not (string-ends-with-one-of
+			      (trim-whitespace-right string-before)
+			      *supported-functions*))))
 	      (error (make-condition
 		      'SPARQL-PARSER-ERROR
 		      :message (format nil "Invalid filter: \"~a\"~%"
@@ -838,16 +895,15 @@
 	      'SPARQL-PARSER-ERROR
 	      :message (format nil "Invalid filter: found \"~a\" but expected ~a"
 			       fragment-before *supported-functions*))))
-	  (when (not (find fragment-before (append *supported-functions*
-						   delimiters)
-			   :test #'string=))
+	  (when (not (string-starts-with-one-of
+		      fragment-before (append *supported-functions* delimiters)))
 	    (error
 	     (make-condition
 	      'SPARQL-PARSER-ERROR
 	      :message
 	      (format nil "Invalid character: \"~a\", expected characters: ~a"
 		      fragment-before (append *supported-functions* delimiters)))))
-	  (if (find fragment-before *supported-functions* :test #'string=)
+	  (if (string-ends-with-one-of fragment-before *supported-functions*)
 	      nil
 	      t))
 	(if (find string-before *supported-functions* :test #'string=)

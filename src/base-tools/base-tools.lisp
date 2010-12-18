@@ -40,7 +40,8 @@
 	   :in-literal-string-p
 	   :find-literal-end
 	   :get-literal-quotation
-	   :get-literal))
+	   :get-literal
+	   :return-if-starts-with))
 
 (in-package :base-tools)
 
@@ -507,3 +508,16 @@
 		   (setf result-idx idx)
 		   (setf idx (length str))))))))
     result-idx))
+
+
+(defun return-if-starts-with (str to-be-matched &key from-end ignore-case)
+  "Returns the string that is contained in to-be-matched and that is the
+   start of the string str."
+  (declare (String str)
+	   (List to-be-matched)
+	   (Boolean from-end ignore-case))
+  (loop for try in to-be-matched
+     when (if from-end
+	      (string-ends-with str try :ignore-case ignore-case)
+	      (string-starts-with str try :ignore-case ignore-case))
+     return try))
