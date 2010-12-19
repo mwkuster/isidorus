@@ -132,8 +132,8 @@
 					;purposes and mustn't be reset
 	      :type List
 	      :initform nil
-	      :documentation "A list of the form that contains the variable
-                              names as string.")
+	      :documentation "A list of that contains the variable
+                              names as strings.")
    (prefixes :initarg :prefixes
 	     :accessor prefixes ;this value is only for internal purposes
 			        ;purposes and mustn't be reset
@@ -154,15 +154,31 @@
 		 :type List
 		 :initform nil
 		 :documentation "Contains a SPARQL-Group that represents
-                                 the entire inner select-where statement."))
+                                 the entire inner select-where statement.")
+   (filters :initarg filters
+	    :accessor filters ;this value is only for internal purposes
+			      ;purposes and mustn't be reset
+	    :type List ;a list of strings
+	    :initform nil
+	    :documentation "Contains strings, each string represents a filter
+                            that was transformed to lisp code and can be evoked
+                            on each triple in the list select-group."))
   (:documentation "This class represents the entire request."))
 
 
 (defgeneric *-p (construct)
   (:documentation "Returns t if the user selected all variables with *.")
   (:method ((construct SPARQL-Query))
-    (and (= (length (variables construct)) 1)
-	 (string= (first (variables construct)) "*"))))
+    (loop for var in (variables construct)
+       when (string= var "*")
+       return t)))
+
+
+(defgeneric add-filter (construct filter)
+  (:documentation "Pushes the filter string to the corresponding list in
+                   the construct.")
+  (:method ((construct SPARQL-Query) (filter String))
+    (push filter (filters construct))))
 
 
 (defmethod variables ((construct SPARQL-Triple))
@@ -234,6 +250,38 @@
   (:method ((construct SPARQL-Query) (variable-name String))
     (unless (find variable-name (variables construct) :test #'string=)
       (push variable-name (variables construct)))))
+
+
+(defgeneric invoke-filter (construct filter-string)
+  (:documentation "Invokes the passed filter on the construct that
+                   represents a sparql result.")
+  (:method ((construct SPARQL-Triple) (filter-string String))
+    (dotimes (row-idx (length (subject-result construct)))
+      (let* ((subj-var
+	      (when (variable-p (subject construct))
+		(concatenate 'string "(" (value (subject construct))
+			     " " (elt (subject-result construct) row-idx) ")")))
+	     (pred-var 
+	      (when (variable-p (predicate construct))
+		(concatenate 'string "(" (value (predicate construct))
+			     " " (elt (predicate-result construct) row-idx) ")")))
+	     (obj-var 
+	      (when (variable-p (object construct))
+		(concatenate 'string "(" (value (object construct))
+			     " " (elt (object-result construct) row-idx) ")")))
+	     (var-let
+	      (if (or subj-var pred-var obj-var)
+		  (concatenate 'string "(let (" subj-var pred-var obj-var ")")
+		  "(let ()"))
+	     (expression (concatenate 'string var-let filter-string ")")))
+	
+	))
+    ;TODO: implement
+    ;; *implement a method "invoke-filter(SPARQL-Triple filter-string)" so
+    ;;   that the variables are automatically contained in a let afterwards
+    ;;   the eval function can be called this method should also have a let
+    ;;   with (true t) and (false nil)
+    ))
 
 
 (defgeneric set-results (construct &key revision)
@@ -766,18 +814,16 @@
 (defgeneric result (construct)
   (:documentation "Returns the result of the entire query.")
   (:method ((construct SPARQL-Query))
-    (let ((result-lists (make-result-lists construct)))
-      (reduce-results construct result-lists)
-      (let* ((response-variables
-	      (reverse (if (*-p construct)
-			   (all-variables construct)
-			   (variables construct))))
-	     (cleaned-results (make-result-lists construct)))
-	(map 'list #'(lambda(response-variable)
-		       (list :variable response-variable
-			     :result (variable-intersection response-variable
-							    cleaned-results)))
-	     response-variables)))))
+    (let* ((response-variables
+	    (reverse (if (*-p construct)
+			 (all-variables construct)
+			 (variables construct))))
+	   (cleaned-results (make-result-lists construct)))
+      (map 'list #'(lambda(response-variable)
+		     (list :variable response-variable
+			   :result (variable-intersection response-variable
+							  cleaned-results)))
+	   response-variables))))
 
 
 (defgeneric make-result-lists (construct)
@@ -939,4 +985,10 @@
   (parser-start construct (original-query construct))
   (dolist (triple (select-group construct))
     (set-results triple :revision (revision construct)))
+  ;; filters all entries that are not important for the result
+  ;; => an intersection is invoked
+  (reduce-results construct (make-result-lists construct))
+  (dolist (triple (select-group construct))
+    (dolist (filter (filters construct))
+      (invoke-filter triple filter)))
   construct)

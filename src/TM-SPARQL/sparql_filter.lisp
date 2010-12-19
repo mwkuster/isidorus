@@ -117,18 +117,17 @@
 	    (set-compare-operators construct filter-string-arithmetic-ops))
 	   (filter-string-functions
 	    (set-functions construct filter-string-compare-ops)))
-      (list :next-query next-query
-	    :filter-string (scan-filter-for-deprecated-calls
-			    construct filter-string-functions original-filter-string)))))
+      (add-filter construct
+		  (scan-filter-for-deprecated-calls
+		   construct filter-string-functions original-filter-string))
+      (parse-group construct next-query))))
   ;;TODO: implement
   ;; *implement wrapper functions, also for the operators
-  ;;   it would be nice of the self defined operator functions would be in a
+  ;;   it would be nice when the self defined operator functions would be in a
   ;;   separate packet, e.g. filter-functions, so =, ... would couse no
   ;;   collisions
-  ;; *create and store this filter object => store the created string and implement
-  ;;   a method "invoke-filter(SPARQL-Triple filter-string)" so that the variables
-  ;;   are automatically contained in a letafterwards the eval function can be called
-  ;;   this method should also have a let with (true t) and (false nil)
+  ;; *add ^^datatype to the object-literal-results
+  ;; *implement to-literal => CharacteristicC => \"...\"^^datatype => use for tm-sparql
 
 
 (defgeneric scan-filter-for-deprecated-calls (construct filter-string
@@ -677,10 +676,8 @@
 		       (push-string current-char result-string))))
 		((or (string= current-char "'")
 		     (string= current-char "\""))
-		 (let* ((sub-str (subseq filter-string idx))
-			(quotation (get-literal-quotation sub-str))
-			(literal
-			 (get-literal (subseq filter-string idx) :quotation quotation)))
+		 (let ((literal
+			(get-literal (subseq filter-string idx))))
 		   (if literal
 		       (progn
 			 (setf idx (- (1- (length filter-string))
@@ -710,7 +707,7 @@
 	     (list :next-query (string-after cleaned-str result)
 		   :scope result)))
 	  ((string-starts-with cleaned-str "\"")
-	   (let ((result (get-literal cleaned-str)))
+	   (let ((result (get-literal cleaned-str :quotation "\"")))
 	     (list :next-query (getf result :next-string)
 		   :scope (getf result :literal))))
 	  ((string-starts-with-digit cleaned-str)
@@ -807,10 +804,7 @@
 	(let ((current-char (subseq str idx (1+ idx))))
 	  (cond ((or (string= "'" current-char)
 		     (string= "\"" current-char))
-		 (let* ((sub-str (subseq str idx))
-			(quotation (get-literal-quotation sub-str))
-			(literal
-			 (get-literal (subseq str idx) :quotation quotation)))
+		 (let ((literal (get-literal (subseq str idx))))
 		   (if literal
 		       (progn
 			 (setf idx (- (1- (length str))
@@ -861,7 +855,8 @@
 		 (push-string current-char filter-string))
 		((or (string= "'" current-char)
 		     (string= "\"" current-char))
-		 (let ((result (get-literal (subseq query-string idx))))
+		 (let ((result
+			(get-literal (subseq query-string idx) :quotation "\"")))
 		   (unless result
 		     (error (make-sparql-parser-condition
 			     (subseq query-string idx)

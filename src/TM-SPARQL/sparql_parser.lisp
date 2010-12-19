@@ -95,7 +95,9 @@
 	(error (make-sparql-parser-condition trimmed-str
 					     (original-query construct) "{")))
       (let ((query-tail (parse-group construct (subseq trimmed-str 1))))
-	;TODO: process query-tail
+	(when (> (length (trim-whitespace query-tail)) 0)
+	  (make-sparql-parser-condition
+	   query-tail (original-query construct) "end of query, solution sequences and modifiers are not supported"))
 	query-tail))))
 
 
@@ -125,7 +127,6 @@
 		     trimmed-str (original-query construct)
 		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "}") ;ending of this group
-	     ;TODO: invoke filters with all results on construct in initialize :after
 	     (subseq trimmed-str 1))
 	    (t
 	     (parse-triple construct trimmed-str :last-subject last-subject))))))
@@ -249,9 +250,7 @@
 				    literal-value literal-type))))
 	   value))
 	(t ; return the value as a string
-	 (if (stringp literal-value)
-	     literal-value
-	     (write-to-string literal-value)))))
+	 literal-value)))
 	 
 
 (defgeneric separate-literal-lang-or-type (construct query-string)

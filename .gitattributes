@@ -20,6 +20,7 @@ playground/threading_debugging.lisp -text
 playground/url_test.html -text
 playground/url_test.js -text
 playground/versioned-pointer.lisp -text
+src/TM-SPARQL/filter_wrappers.lisp -text
 src/TM-SPARQL/sparql.lisp -text
 src/TM-SPARQL/sparql_filter.lisp -text
 src/TM-SPARQL/sparql_parser.lisp -text

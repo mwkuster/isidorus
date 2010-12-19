@@ -1,4 +1,3 @@
-;;-*- mode: lisp -*-
 ;;+-----------------------------------------------------------------------------
 ;;+  Isidorus
 ;;+  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff
@@ -42,8 +41,9 @@
 			:depends-on ("constants" "base-tools"))
 	       (:module "TM-SPARQL"
 			:components ((:file "sparql")
+				     (:file "filter_wrappers")
 				     (:file "sparql_filter"
-					    :depends-on ("sparql"))
+					    :depends-on ("sparql" "filter_wrappers"))
 				     (:file "sparql_parser"
 					    :depends-on ("sparql" "sparql_filter")))
 			:depends-on ("constants" "base-tools" "model"))

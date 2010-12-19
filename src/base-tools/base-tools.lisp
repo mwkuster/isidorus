@@ -294,49 +294,37 @@
 	 "\"")))
 
 
-(defun get-literal (query-string &key (quotation "\""))
+(defun get-literal (query-string &key (quotation nil))
   "Returns a list of the form (:next-string <string> :literal <string>
    where next-query is the query after the found literal and literal
    is the literal string."
   (declare (String query-string)
-	   (String quotation))
-  (cond ((or (string-starts-with query-string "\"\"\"")
-	     (string-starts-with query-string "'''"))
-	 (let ((literal-end
-		(find-literal-end (subseq query-string 3) (subseq query-string 0 3))))
-	   (when literal-end
-	     (list :next-string (subseq query-string (+ 3 literal-end))
-		   :literal (concatenate 'string quotation
-					 (subseq query-string 3 literal-end)
-					 quotation)))))
-	((or (string-starts-with query-string "\"")
-	     (string-starts-with query-string "'"))
-	 (let ((literal-end
-		(find-literal-end (subseq query-string 1)
-				  (subseq query-string 0 1))))
-	   (when literal-end
-	     (let ((literal
-		    (escape-string (subseq query-string 1 literal-end) "\"")))
-	       (list :next-string (subseq query-string (+ 1 literal-end))
-		     :literal (concatenate 'string quotation literal
-					   quotation))))))))
-
-
-;(defun search-first-ignore-literals (search-strings main-string)
-;  (declare (String main-string)
-;	   (List search-strings))
-;  (let ((first-pos (search-first search-strings main-string)))
-;    (when first-pos
-;      (if (not (in-literal-string-p main-string first-pos))
-;	  first-pos
-;	  (let* ((literal-start (search-first (list "\"" "'") main-string))
-;		 (sub-str (subseq main-string literal-start))
-;		 (literal-result (get-literal sub-str))
-;		 (next-str (getf literal-result :next-string)))
-;	    (let ((next-pos
-;		   (search-first-ignore-literals search-strings next-str)))
-;	      (when next-pos
-;		(+ (- (length main-string) (length next-str)) next-pos))))))))
+	   (type (or Null String) quotation))
+  (let ((local-quotation quotation))
+    (cond ((or (string-starts-with query-string "\"\"\"")
+	       (string-starts-with query-string "'''"))
+	   (unless local-quotation
+	     (setf local-quotation (subseq query-string 0 3)))
+	   (let ((literal-end
+		  (find-literal-end (subseq query-string 3) (subseq query-string 0 3))))
+	     (when literal-end
+	       (list :next-string (subseq query-string (+ 3 literal-end))
+		     :literal (concatenate 'string quotation
+					   (subseq query-string 3 literal-end)
+					   quotation)))))
+	  ((or (string-starts-with query-string "\"")
+	       (string-starts-with query-string "'"))
+	   (unless local-quotation
+	     (setf local-quotation (subseq query-string 0 1)))
+	   (let ((literal-end
+		  (find-literal-end (subseq query-string 1)
+				    (subseq query-string 0 1))))
+	     (when literal-end
+	       (let ((literal
+		      (escape-string (subseq query-string 1 literal-end) "\"")))
+		 (list :next-string (subseq query-string (+ 1 literal-end))
+		       :literal (concatenate 'string local-quotation literal
+					     local-quotation)))))))))
 
 
 (defun search-first-ignore-literals (search-strings main-string &key from-end)
