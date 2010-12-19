@@ -256,6 +256,14 @@
 	     results)))))
 
 
+(defun embrace-uri(uri-string)
+  "Returns '<'uri-string'>' if uri-string is not a string uri-string
+   is returned as result."
+  (if (typep uri-string 'String)
+      (concatenate 'string "<" uri-string ">")
+      uri-string))
+
+
 (defgeneric filter-by-given-object (construct &key revision)
   (:documentation "Returns a list representing a triple that is the result
                    of a given object.")
@@ -319,8 +327,8 @@
 			  (pred (when-do top (instance-of char :revision revision)
 					 (any-id top :revision revision))))
 		      (when (and subj pred)
-			(list :subject subj
-			      :predicate pred
+			(list :subject (embrace-uri subj)
+			      :predicate (embrace-uri pred)
 			      :object (charvalue char)
 			      :literal-datatyp literal-datatype))))
 	  ;;elephant returns names, occurences, and variants if any string
@@ -355,9 +363,9 @@
 			(when-do plr (player orole :revision revision)
 				 (any-id plr :revision revision))))
 		  (when (and obj-uri pred-uri subj-uri)
-		    (list :subject subj-uri
-			  :predicate pred-uri
-			  :object obj-uri))))
+		    (list :subject (embrace-uri subj-uri)
+			  :predicate (embrace-uri pred-uri)
+			  :object (embrace-uri obj-uri)))))
 	    roles-by-oplayer)))))
 
 
@@ -421,9 +429,9 @@
 			  (when-do plr (player orole :revision revision)
 				   (any-id plr :revision revision))))
 		    (when (and subj-uri pred-uri obj-uri)
-		      (list :subject subj-uri
-			    :predicate pred-uri
-			    :object obj-uri))))
+		      (list :subject (embrace-uri subj-uri)
+			    :predicate (embrace-uri pred-uri)
+			    :object (embrace-uri obj-uri)))))
 	      roles-by-player))))))
 
 
@@ -469,8 +477,8 @@
 			 (when-do top (instance-of name :revision revision)
 				  (any-id top :revision revision))))
 		    (when (and subj pred)
-		      (list :subject subj
-			    :predicate pred
+		      (list :subject (embrace-uri subj)
+			    :predicate (embrace-uri pred)
 			    :object (charvalue name)
 			    :literal-datatype *xml-string*))))
 	      names-by-literal))))))
@@ -509,8 +517,8 @@
 			 (when-do top (instance-of occ :revision revision)
 				  (any-id top :revision revision))))
 		    (when (and subj pred)
-		      (list :subject subj
-			    :predicate pred
+		      (list :subject (embrace-uri subj)
+			    :predicate (embrace-uri pred)
 			    :object (charvalue occ)
 			    :literal-datatype (datatype occ)))))
 	      all-occs))))))
@@ -641,15 +649,17 @@
 		  #'(lambda(occ)
 		      (filter-occ-by-value occ literal-value literal-datatype))
 		  occs-by-type)))
-	   (subj-uri (any-id construct :revision revision)))
+	   (subj-uri (when-do top-uri (any-id construct :revision revision)
+			      top-uri)))
       (remove-null
        (map 'list #'(lambda(occ)
 		      (let ((pred-uri
-			     (when-do type-top (instance-of occ :revision revision)
+			     (when-do type-top
+				      (instance-of occ :revision revision)
 				      (any-id type-top :revision revision))))
 			(when pred-uri
-			  (list :subject subj-uri
-				:predicate pred-uri
+			  (list :subject (embrace-uri subj-uri)
+				:predicate (embrace-uri pred-uri)
 				:object (charvalue occ)
 				:literal-datatype (datatype occ)))))
 	    all-occs)))))
@@ -681,8 +691,8 @@
 			     (when-do type-top (instance-of name :revision revision)
 				      (any-id type-top :revision revision))))
 			(when pred-uri
-			  (list :subject subj-uri
-				:predicate pred-uri
+			  (list :subject (embrace-uri subj-uri)
+				:predicate (embrace-uri pred-uri)
 				:object (charvalue name)
 				:literal-datatype *xml-string*))))
 	    all-names)))))
@@ -747,9 +757,9 @@
 							:revision revision)
 				     (any-id player-top :revision revision)))))
 		    (when (and pred-uri obj-uri)
-		      (list :subject subj-uri
-			    :predicate pred-uri
-			    :object obj-uri)))))
+		      (list :subject (embrace-uri subj-uri)
+			    :predicate (embrace-uri pred-uri)
+			    :object (embrace-uri obj-uri))))))
 	    assocs)))))
 
 

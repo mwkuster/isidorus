@@ -510,14 +510,18 @@
     result-idx))
 
 
-(defun return-if-starts-with (str to-be-matched &key from-end ignore-case)
+(defun return-if-starts-with (str to-be-matched &key from-end ignore-case
+			      ignore-leading-whitespace)
   "Returns the string that is contained in to-be-matched and that is the
    start of the string str."
   (declare (String str)
 	   (List to-be-matched)
-	   (Boolean from-end ignore-case))
-  (loop for try in to-be-matched
-     when (if from-end
-	      (string-ends-with str try :ignore-case ignore-case)
-	      (string-starts-with str try :ignore-case ignore-case))
-     return try))
+	   (Boolean from-end ignore-case ignore-leading-whitespace))
+  (let ((cleaned-str (if ignore-leading-whitespace
+			 (trim-whitespace-left str)
+			 str)))
+    (loop for try in to-be-matched
+       when (if from-end
+		(string-ends-with cleaned-str try :ignore-case ignore-case)
+		(string-starts-with cleaned-str try :ignore-case ignore-case))
+       return try)))

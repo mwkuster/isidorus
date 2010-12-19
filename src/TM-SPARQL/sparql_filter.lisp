@@ -24,7 +24,9 @@
 
 
 (defparameter *supported-compare-operators*
-  (list "!=" "<=" ">=" "=" "<" ">") ;not the order is important!
+  (list "!=" "<=" ">=" "=" "<" ">") ;note the order is important!
+                                    ;the operators with length = 2
+                                    ;must be listed first
   "Contains all supported binary operators.")
 
 
@@ -34,6 +36,12 @@
 
 (defparameter *supported-unary-operators*
   (list "!" "+" "-") "Contains all supported unary operators")
+
+
+(defparameter *allowed-filter-calls*
+  (append (list "one+" "one-" "progn" "or" "and" "not" "/=" "="
+		">" ">=" "<" "<=" "+" "-" "*" "/")
+	  *supported-functions*))
 
 
 (defun *2-compare-operators* ()
@@ -88,35 +96,73 @@
 
 (defgeneric parse-filter (construct query-string)
   (:documentation "A helper functions that returns a filter and the next-query
-                   string in the form (:next-query string :filter object).")
+                   string in the form (:next-query string
+                   :filter-string object).")
   (:method ((construct SPARQL-Query) (query-string String))
     ;note the order of the invacations is important!
     (let* ((result-set-boundings (set-boundings construct query-string))
 	   (filter-string (getf result-set-boundings :filter-string))
 	   (next-query (getf result-set-boundings :next-query))
+	   (original-filter-string
+	    (subseq query-string 0 (- (length query-string)
+				      (length next-query))))
 	   (filter-string-unary-ops
 	    (set-unary-operators construct filter-string))
 	   (filter-string-or-and-ops
 	    (set-or-and-operators construct filter-string-unary-ops
-				  filter-string-unary-ops))
+				  original-filter-string))
 	   (filter-string-arithmetic-ops
 	    (set-arithmetic-operators construct filter-string-or-and-ops))
 	   (filter-string-compare-ops
 	    (set-compare-operators construct filter-string-arithmetic-ops))
 	   (filter-string-functions
 	    (set-functions construct filter-string-compare-ops)))
-      filter-string-functions)))
+      (list :next-query next-query
+	    :filter-string (scan-filter-for-deprecated-calls
+			    construct filter-string-functions original-filter-string)))))
   ;;TODO: implement
-  ;; *check if all functions that will be invoked are allowed
   ;; *implement wrapper functions, also for the operators
   ;;   it would be nice of the self defined operator functions would be in a
   ;;   separate packet, e.g. filter-functions, so =, ... would couse no
   ;;   collisions
-  ;; *embrace the final results uris in <> => unit-tests
   ;; *create and store this filter object => store the created string and implement
   ;;   a method "invoke-filter(SPARQL-Triple filter-string)" so that the variables
   ;;   are automatically contained in a letafterwards the eval function can be called
   ;;   this method should also have a let with (true t) and (false nil)
+
+
+(defgeneric scan-filter-for-deprecated-calls (construct filter-string
+							original-filter)
+  (:documentation "Returns the passed filter-string or throws a
+                   sparql-parser-error of there is an unallowed
+                   function call.")
+  (:method ((construct SPARQL-Query) (filter-string String)
+	    (original-filter String))
+    (dotimes (idx (length filter-string) filter-string)
+      (when-do fun-name (return-function-name (subseq filter-string idx))
+	       (unless (string-starts-with-one-of fun-name *supported-functions*)
+		 (error 
+		  (make-condition
+		   'exceptions:sparql-parser-error
+		   :message (format nil "Invalid filter: the filter \"~a\" evaluated to \"~a\" which contains the depricated function ~a!"
+				    filter-string original-filter fun-name))))))))
+	       
+
+
+(defun return-function-name (filter-string)
+  "If the string starts with ( there is returned the function name
+   that is placed directly after the (."
+  (declare (String filter-string))
+  (when (string-starts-with filter-string "(")
+    (let ((local-str (trim-whitespace-left (subseq filter-string 1)))
+	  (whitespaces (map 'list #'string (white-space)))
+	  (result ""))
+      (dotimes (idx (length local-str) result)
+	(let ((current-char (subseq local-str idx (1+ idx))))
+	  (if (string-starts-with-one-of
+	       current-char (append whitespaces *supported-brackets*))
+	      (setf idx (length local-str))
+	      (push-string current-char result)))))))
 
 
 (defgeneric set-functions (construct filter-string)
@@ -695,7 +741,7 @@
 
 
 (defun function-scope (str)
-  "If str starts with a supported function it there is given the entire substr
+  "If str starts with a supported function there is given the entire substr
    that is the scope of the function, i.e. the function name and all its
    variable including the closing )."
   (declare (String str))
