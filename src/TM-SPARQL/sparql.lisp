@@ -256,32 +256,35 @@
   (:documentation "Invokes the passed filter on the construct that
                    represents a sparql result.")
   (:method ((construct SPARQL-Triple) (filter-string String))
-    (dotimes (row-idx (length (subject-result construct)))
-      (let* ((subj-var
-	      (when (variable-p (subject construct))
-		(concatenate 'string "(" (value (subject construct))
-			     " " (elt (subject-result construct) row-idx) ")")))
-	     (pred-var 
-	      (when (variable-p (predicate construct))
-		(concatenate 'string "(" (value (predicate construct))
-			     " " (elt (predicate-result construct) row-idx) ")")))
-	     (obj-var 
-	      (when (variable-p (object construct))
-		(concatenate 'string "(" (value (object construct))
-			     " " (elt (object-result construct) row-idx) ")")))
-	     (var-let
-	      (if (or subj-var pred-var obj-var)
-		  (concatenate 'string "(let (" subj-var pred-var obj-var ")")
-		  "(let ()"))
-	     (expression (concatenate 'string var-let filter-string ")")))
-	
-	))
-    ;TODO: implement
-    ;; *implement a method "invoke-filter(SPARQL-Triple filter-string)" so
-    ;;   that the variables are automatically contained in a let afterwards
-    ;;   the eval function can be called this method should also have a let
-    ;;   with (true t) and (false nil)
-    ))
+    (let ((results nil)) ;a list of the form (:subject x :predicate y :object z)
+      (dotimes (row-idx (length (subject-result construct)))
+	(let* ((subj-var
+		(when (variable-p (subject construct))
+		  (concatenate 'string "(" (value (subject construct))
+			       " " (elt (subject-result construct) row-idx) ")")))
+	       (pred-var 
+		(when (variable-p (predicate construct))
+		  (concatenate 'string "(" (value (predicate construct))
+			       " " (elt (predicate-result construct) row-idx) ")")))
+	       (obj-var 
+		(when (variable-p (object construct))
+		  (concatenate 'string "(" (value (object construct))
+			       " " (elt (object-result construct) row-idx) ")")))
+	       (var-let
+		(concatenate 'string "(let ((true t) (false nil)"
+			     subj-var pred-var obj-var ")"))
+	       (expression (concatenate 'string var-let filter-string ")")))
+	  (when (eval (read-from-string expression))
+	    (push (list :subject (elt (subject-result construct) row-idx)
+			:predicate (elt (predicate-result construct) row-idx)
+			:object (elt (object-result construct) row-idx))
+		  results))))
+      (setf (subject-result construct)
+	    (map 'list #'(lambda(result) (getf result :subject)) results))
+      (setf (predicate-result construct)
+	    (map 'list #'(lambda(result) (getf result :predicate)) results))
+      (setf (object-result construct)
+	    (map 'list #'(lambda(result) (getf result :object)) results)))))
 
 
 (defgeneric set-results (construct &key revision)
