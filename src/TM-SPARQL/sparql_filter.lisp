@@ -121,10 +121,6 @@
 		  (scan-filter-for-deprecated-calls
 		   construct filter-string-functions original-filter-string))
       (parse-group construct next-query))))
-  ;;TODO: implement
-  ;; *add ^^datatype to the object-literal-results
-  ;; *implement to-literal => CharacteristicC => \"...\"^^datatype => use for tm-sparql
-  ;; *implement str correctly
 
 
 (defgeneric scan-filter-for-deprecated-calls (construct filter-string

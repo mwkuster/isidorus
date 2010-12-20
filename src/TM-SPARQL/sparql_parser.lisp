@@ -217,42 +217,6 @@
 	    :value (cast-literal l-value l-type)))))
 
 
-(defun cast-literal (literal-value literal-type)
-  "A helper function that casts the passed string value of the literal
-   corresponding to the passed literal-type."
-  (declare (String literal-value literal-type))
-  (cond ((string= literal-type *xml-string*)
-	 literal-value)
-	((string= literal-type *xml-boolean*)
-	 (when (and (string/= literal-value "false")
-		    (string/= literal-value "true"))
-	   (error (make-condition
-		   'sparql-parser-error
-		   :message (format nil "Could not cast from ~a to ~a"
-				    literal-value literal-type))))
-	 (if (string= literal-value "false")
-	     nil
-	     t))
-	((string= literal-type *xml-integer*)
-	 (handler-case (parse-integer literal-value)
-	   (condition ()
-	     (error (make-condition
-		   'sparql-parser-error
-		   :message (format nil "Could not cast from ~a to ~a"
-				    literal-value literal-type))))))
-	((or (string= literal-type *xml-decimal*) ;;both types are
-	     (string= literal-type *xml-double*)) ;;handled the same way
-	 (let ((value (read-from-string literal-value)))
-	   (unless (numberp value)
-	     (error (make-condition
-		   'sparql-parser-error
-		   :message (format nil "Could not cast from ~a to ~a"
-				    literal-value literal-type))))
-	   value))
-	(t ; return the value as a string
-	 literal-value)))
-	 
-
 (defgeneric separate-literal-lang-or-type (construct query-string)
   (:documentation "A helper function that returns (:next-query string
                    :lang string :type string). Only one of :lang and

@@ -41,7 +41,8 @@
 			:depends-on ("constants" "base-tools"))
 	       (:module "TM-SPARQL"
 			:components ((:file "sparql")
-				     (:file "filter_wrappers")
+				     (:file "filter_wrappers"
+					    :depends-on ("sparql"))
 				     (:file "sparql_filter"
 					    :depends-on ("sparql" "filter_wrappers"))
 				     (:file "sparql_parser"
