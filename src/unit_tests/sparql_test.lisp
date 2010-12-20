@@ -1525,41 +1525,80 @@ literal with some \\\"quoted\\\" words!"))
 		 "(or(progn(DATATYPE?var3))(progn(progn(isLITERAL(=(one+?var1)(one-?var2))))))"))))
 
 
-;(test test-module-1
-;  "Tests the entire module."
-;  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
-;    (with-revision 0
-;      (let* ((query-1
-;	      "BASE <http://some.where/psis/poem/>
-;              SELECT $subject ?predicate WHERE{
-;               ?subject $predicate <zauberlehrling> .
-;               FILTER (STR(?predicate) = 'http://some.where/base-psis/written')}")
-;	     (query-2 "SELECT ?object ?subject WHERE{
-;                        <http://some.where/psis/author/goethe> ?prediate ?object .
-;                        FILTER (isLITERAL(?object) &&
-;                                DATATYPE(?object) =
-;                                 'http://www.w3.org/2001/XMLSchema#string')}")
-;	     (query-3 "SELECT ?object ?subject WHERE{
-;                        <http://some.where/psis/author/goethe> ?prediate ?object .
-;                        FILTER (notAllowed(?subject)}")
-;	     (query-4 "SELECT ?object ?subject WHERE{
-;                        <http://some.where/psis/author/goethe> ?prediate ?object .
-;                        FILTER ((notAllowed ?subject))}")
-;	     (query-5 "SELECT ?object ?subject WHERE{
-;                        <http://some.where/psis/author/goethe> ?prediate ?object .
-;                        FILTER(?a && (?b || ?c)}")
-;	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
-;	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2)))
-;	(is-true q-obj-1)
-;	(is-true q-obj-2)
-;	(signals excpetions-sparql-parser-error
-;	  (make-instance 'TM-SPARQL:SPARQL-Query :query query-3))
-;	(signals excpetions-sparql-parser-error
-;	  (make-instance 'TM-SPARQL:SPARQL-Query :query query-4))
-;	(signals excpetions-sparql-parser-error
-;	  (make-instance 'TM-SPARQL:SPARQL-Query :query query-5))
-;	;;TODO: implement
-;	))))
+(test test-module-1
+  "Tests the entire module."
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1
+	      "BASE <http://some.where/psis/poem/>
+              SELECT $subject ?predicate WHERE{
+               ?subject $predicate <zauberlehrling> .
+               FILTER (STR(?predicate) = 'http://some.where/base-psis/written')}")
+	     (query-2 "SELECT ?object ?subject WHERE{
+                        <http://some.where/psis/author/goethe> ?predicate ?object .
+                        FILTER (isLITERAL(?object) &&
+                                DATATYPE(?object) =
+                                 'http://www.w3.org/2001/XMLSchema#string')}")
+	     (query-3 "SELECT ?object ?subject WHERE{
+                        <http://some.where/psis/author/goethe> ?predicate ?object .
+                        FILTER (notAllowed(?subject)}")
+	     (query-4 "SELECT ?object ?predicate WHERE{
+                        <http://some.where/psis/author/goethe> ?predicate ?object .
+                        FILTER ((notAllowed( ?predicate)))}")
+	     (query-5 "SELECT ?object ?subject WHERE{
+                        <http://some.where/psis/author/goethe> ?predicate ?object .
+                        FILTER(?a && (?b || ?c)}")
+	     (result-1
+	      (tm-sparql:result
+	       (make-instance 'TM-SPARQL:SPARQL-Query :query query-1)))
+	     (result-2 
+	      (tm-sparql:result
+	       (make-instance 'TM-SPARQL:SPARQL-Query :query query-2))))
+	(is-true result-1)
+	(is-true result-2)
+	(signals exceptions:sparql-parser-error
+	  (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query query-3)))
+	(signals exceptions:sparql-parser-error
+	  (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query query-4)))
+	(signals exceptions:sparql-parser-error
+	  (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query query-5)))
+	(is (= (length result-1) 2))
+	(if (string= (getf (first result-1) :variable) "subject")
+	    (progn
+	      (is (= (length (getf (first result-1) :result)) 1))
+	      (is (string= (first (getf (first result-1) :result))
+			   "<http://some.where/psis/author/goethe>"))
+	      (is (string= (getf (second result-1) :variable) "predicate"))
+	      (is (= (length (getf (second result-1) :result)) 1))
+	      (is (string= (first (getf (second result-1) :result))
+			   "<http://some.where/base-psis/written>")))
+	    (progn
+	      (is (= (length (getf (second result-1) :result)) 1))
+	      (is (string= (first (getf (second result-1) :result))
+			   "<http://some.where/psis/author/goethe>"))
+	      (is (string= (getf (first result-1) :variable) "predicate"))
+	      (is (= (length (getf (first result-1) :result)) 1))
+	      (is (string= (first (getf (first result-1) :result))
+			   "<http://some.where/base-psis/written>"))))
+	(if (string= (getf (first result-2) :variable) "subject")
+	    (progn 
+	      (is (= (length (getf (first result-2) :result)) 0))
+	      (is (string= (getf (second result-2) :variable) "object"))
+	      (is (= (length (getf (second result-2) :result)) 3))
+	      (is-false (set-exclusive-or
+			 (getf (second result-2) :result)
+			 (list "Johann Wolfgang" "von Goethe"
+			       "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe")
+			 :test #'string=)))
+	    (progn 
+	      (is (= (length (getf (second result-2) :result)) 0))
+	      (is (string= (getf (first result-2) :variable) "object"))
+	      (is (= (length (getf (first result-2) :result)) 3))
+	      (is-false (set-exclusive-or
+			 (getf (first result-2) :result)
+			 (list "Johann Wolfgang" "von Goethe"
+			       "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe")
+			 :test #'string=))))))))
     
 
 (defun run-sparql-tests ()
