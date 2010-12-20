@@ -128,20 +128,27 @@
 
 (defgeneric scan-filter-for-deprecated-calls (construct filter-string
 							original-filter)
-  (:documentation "Returns the passed filter-string or throws a
-                   sparql-parser-error of there is an unallowed
-                   function call.")
+  (:documentation "Returns the passed filter-string where all functions
+                   are explicit wrapped in the filter-functions package
+                   or throws a sparql-parser-error of there is an
+                   unallowed function call.")
   (:method ((construct SPARQL-Query) (filter-string String)
 	    (original-filter String))
-    (dotimes (idx (length filter-string) filter-string)
-      (when-do fun-name (return-function-name (subseq filter-string idx))
-	       (unless (string-starts-with-one-of fun-name *supported-functions*)
+    (let ((result ""))
+      (dotimes (idx (length filter-string) result)
+	(let ((fun-name (return-function-name (subseq filter-string idx))))
+	  (cond ((not fun-name)
+		 (push-string (subseq filter-string idx (1+ idx)) result))
+		((string-starts-with-one-of fun-name *allowed-filter-calls*)
+		 (push-string "(filter-functions::" result)
+		 (push-string fun-name result)
+		 (incf idx (length fun-name)))
+		(t
 		 (error 
 		  (make-condition
 		   'exceptions:sparql-parser-error
-		   :message (format nil "Invalid filter: the filter \"~a\" evaluated to \"~a\" which contains the depricated function ~a!"
-				    filter-string original-filter fun-name))))))))
-	       
+		   :message (format nil "Invalid filter: the filter \"~a\" evaluated to \"~a\" which contains the deprecated function ~a!"
+				    filter-string original-filter fun-name))))))))))
 
 
 (defun return-function-name (filter-string)

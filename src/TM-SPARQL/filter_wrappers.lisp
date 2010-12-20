@@ -9,7 +9,8 @@
 
 
 (defpackage :filter-functions
-  (:use :base-tools :constants :tm-sparql))
+  (:use :base-tools :constants :tm-sparql)
+  (:import-from :cl progn handler-case let))
 
 
 (defun filter-functions::not(x)

@@ -252,33 +252,50 @@
       (push variable-name (variables construct)))))
 
 
+(defgeneric generate-let-variable-string (construct value)
+  (:documentation "Returns a list if the form (:string <var-string>
+                  :variable-names (<?var-name-as-string>
+                  <$var-name-as-string>)).")
+  (:method ((construct SPARQL-Triple-Elem) value)
+    (when (variable-p construct)
+      (let* ((var-value (write-to-string value))
+	     (var-name (value construct))
+	     (lisp-str
+	      (concatenate 'string "(?" var-name " " var-value ")"
+			   "($" var-name " " var-value ")"))
+	     (vars
+	      (concatenate 'string "?" var-name " $" var-name)))
+	(list :string lisp-str
+	      :variable-names vars)))))
+
+
 (defgeneric invoke-filter (construct filter-string)
   (:documentation "Invokes the passed filter on the construct that
                    represents a sparql result.")
   (:method ((construct SPARQL-Triple) (filter-string String))
     (let ((results nil)) ;a list of the form (:subject x :predicate y :object z)
       (dotimes (row-idx (length (subject-result construct)))
-	(let* ((subj-var
-		(when (variable-p (subject construct))
-		  (concatenate 'string "(" (value (subject construct))
-			       " " (elt (subject-result construct) row-idx) ")")))
-	       (pred-var 
-		(when (variable-p (predicate construct))
-		  (concatenate 'string "(" (value (predicate construct))
-			       " " (elt (predicate-result construct) row-idx) ")")))
-	       (obj-var 
-		(when (variable-p (object construct))
-		  (concatenate 'string "(" (value (object construct))
-			       " " (elt (object-result construct) row-idx) ")")))
-	       (var-let
-		(concatenate 'string "(let ((true t) (false nil) "
-			     subj-var pred-var obj-var ")"))
+	(let* ((subj-elem
+		(generate-let-variable-string
+		 (subject construct) (elt (subject-result construct) row-idx)))
+	       (pred-elem
+		(generate-let-variable-string
+		 (predicate construct) (elt (predicate-result construct) row-idx)))
+	       (obj-elem
+		(generate-let-variable-string
+		 (object construct) (elt (object-result construct) row-idx)))
 	       (expression
-		(concatenate 'string var-let "(cl:handler-case "
-			     filter-string
-			     "(exception:sparql-parser-error (err) "
-			     "(cl:in-package :cl-user) "
-			     "(error err)))")))
+		(concatenate 'string
+			     "(let* ((true t)(false nil)"
+			     (getf subj-elem :string)
+			     (getf pred-elem :string)
+			     (getf obj-elem :string)
+			     "(result " filter-string "))"
+			     "(declare (ignorable true false "
+			     (getf subj-elem :variable-names) " "
+			     (getf pred-elem :variable-names) " "
+			     (getf obj-elem :variable-names) "))"
+			     "result)")))
 	  (when (eval (read-from-string expression))
 	    (push (list :subject (elt (subject-result construct) row-idx)
 			:predicate (elt (predicate-result construct) row-idx)

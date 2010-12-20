@@ -117,7 +117,7 @@
 		     trimmed-str (original-query construct)
 		     "FILTER, BASE, or triple. Grouping is currently no implemented.")))
 	    ((string-starts-with trimmed-str "FILTER")
-	     (parse-filter (string-after trimmed-str "FILTER") construct))
+	     (parse-filter construct (string-after trimmed-str "FILTER")))
 	    ((string-starts-with trimmed-str "OPTIONAL")
 	     (error (make-sparql-parser-condition
 		     trimmed-str (original-query construct)
