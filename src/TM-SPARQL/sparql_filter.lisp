@@ -122,10 +122,6 @@
 		   construct filter-string-functions original-filter-string))
       (parse-group construct next-query))))
   ;;TODO: implement
-  ;; *implement wrapper functions, also for the operators
-  ;;   it would be nice when the self defined operator functions would be in a
-  ;;   separate packet, e.g. filter-functions, so =, ... would couse no
-  ;;   collisions
   ;; *add ^^datatype to the object-literal-results
   ;; *implement to-literal => CharacteristicC => \"...\"^^datatype => use for tm-sparql
 

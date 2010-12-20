@@ -37,7 +37,8 @@
 	   :test-set-*-and-/-operators
 	   :test-set-+-and---operators
 	   :test-set-compare-operators
-	   :test-set-functions))
+	   :test-set-functions
+	   :test-module-1))
 
 
 (in-package :sparql-test)
@@ -472,7 +473,7 @@ literal with some \\\"quoted\\\" words!"))
 			 (string= obj-1 "<http://some.where/psis/der_zauberlehrling>")))
 		 (is (or (string= subj-2 "<http://some.where/psis/author/goethe>")
 			 (string= subj-2 "<http://some.where/psis/persons/goethe>")))
-		 (is (string= pred-1 "<http://psi.topicmaps.org/iso13250/model/type>"))
+		 (is (string= pred-1 "<http://psi.topicmaps.org/iso13250/model/instance>"))
 		 (is (or (string= obj-2 "<http://some.where/psis/poem/zauberlehrling>")
 			 (string= obj-2 "<http://some.where/psis/der_zauberlehrling>"))))
 		(t
@@ -867,7 +868,7 @@ literal with some \\\"quoted\\\" words!"))
 	(is (= (length (tm-sparql::subject-result
 			(first (tm-sparql::select-group q-obj-3)))) 0))
 	(is (= (length (tm-sparql::subject-result
-			(second (tm-sparql::select-group q-obj-3)))) 1))
+			(second (tm-sparql::select-group q-obj-3)))) 0))
 	(is (or (string= "<http://some.where/psis/author/goethe>"
 			 (first (tm-sparql::subject-result
 				 (first (tm-sparql::select-group q-obj-1)))))
@@ -922,18 +923,12 @@ literal with some \\\"quoted\\\" words!"))
 			  (first (tm-sparql::select-group q-obj-3)))))
 	(is-false (first (tm-sparql::object-result
 			  (first (tm-sparql::select-group q-obj-3)))))
-	(is (or (string= "<http://some.where/psis/author/goethe>"
-			 (first (tm-sparql::subject-result
-				 (second (tm-sparql::select-group q-obj-3)))))
-		(string= "<http://some.where/psis/persons/goethe>"
-			 (first (tm-sparql::subject-result
-				 (second (tm-sparql::select-group q-obj-3)))))))
-	(is (string= "<http://some.where/base-psis/last-name>"
-		     (first (tm-sparql::predicate-result
-			     (second (tm-sparql::select-group q-obj-3))))))
-	(is (string= "von Goethe"
-		     (first (tm-sparql::object-result
-			     (second (tm-sparql::select-group q-obj-3))))))))))
+	(is-false (first (tm-sparql::subject-result
+			  (second (tm-sparql::select-group q-obj-3)))))
+	(is-false (first (tm-sparql::predicate-result
+			  (second (tm-sparql::select-group q-obj-3)))))
+	(is-false (first (tm-sparql::object-result
+			  (second (tm-sparql::select-group q-obj-3)))))))))
 
 
 (test test-result
@@ -1528,7 +1523,43 @@ literal with some \\\"quoted\\\" words!"))
 		 "(or(progn(DATATYPE?var3))(progn(isLITERAL(=(one+?var1)(one-?var2)))))"))
     (is (string= (string-replace result-5-6 " " "")
 		 "(or(progn(DATATYPE?var3))(progn(progn(isLITERAL(=(one+?var1)(one-?var2))))))"))))
-	 
+
+
+;(test test-module-1
+;  "Tests the entire module."
+;  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+;    (with-revision 0
+;      (let* ((query-1
+;	      "BASE <http://some.where/psis/poem/>
+;              SELECT $subject ?predicate WHERE{
+;               ?subject $predicate <zauberlehrling> .
+;               FILTER (STR(?predicate) = 'http://some.where/base-psis/written')}")
+;	     (query-2 "SELECT ?object ?subject WHERE{
+;                        <http://some.where/psis/author/goethe> ?prediate ?object .
+;                        FILTER (isLITERAL(?object) &&
+;                                DATATYPE(?object) =
+;                                 'http://www.w3.org/2001/XMLSchema#string')}")
+;	     (query-3 "SELECT ?object ?subject WHERE{
+;                        <http://some.where/psis/author/goethe> ?prediate ?object .
+;                        FILTER (notAllowed(?subject)}")
+;	     (query-4 "SELECT ?object ?subject WHERE{
+;                        <http://some.where/psis/author/goethe> ?prediate ?object .
+;                        FILTER ((notAllowed ?subject))}")
+;	     (query-5 "SELECT ?object ?subject WHERE{
+;                        <http://some.where/psis/author/goethe> ?prediate ?object .
+;                        FILTER(?a && (?b || ?c)}")
+;	     (q-obj-1 (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))
+;	     (q-obj-2 (make-instance 'TM-SPARQL:SPARQL-Query :query query-2)))
+;	(is-true q-obj-1)
+;	(is-true q-obj-2)
+;	(signals excpetions-sparql-parser-error
+;	  (make-instance 'TM-SPARQL:SPARQL-Query :query query-3))
+;	(signals excpetions-sparql-parser-error
+;	  (make-instance 'TM-SPARQL:SPARQL-Query :query query-4))
+;	(signals excpetions-sparql-parser-error
+;	  (make-instance 'TM-SPARQL:SPARQL-Query :query query-5))
+;	;;TODO: implement
+;	))))
     
 
 (defun run-sparql-tests ()

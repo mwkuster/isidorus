@@ -271,9 +271,14 @@
 		  (concatenate 'string "(" (value (object construct))
 			       " " (elt (object-result construct) row-idx) ")")))
 	       (var-let
-		(concatenate 'string "(let ((true t) (false nil)"
+		(concatenate 'string "(let ((true t) (false nil) "
 			     subj-var pred-var obj-var ")"))
-	       (expression (concatenate 'string var-let filter-string ")")))
+	       (expression
+		(concatenate 'string var-let "(cl:handler-case "
+			     filter-string
+			     "(exception:sparql-parser-error (err) "
+			     "(cl:in-package :cl-user) "
+			     "(error err)))")))
 	  (when (eval (read-from-string expression))
 	    (push (list :subject (elt (subject-result construct) row-idx)
 			:predicate (elt (predicate-result construct) row-idx)
@@ -945,11 +950,16 @@
       (when var-elem
 	(let* ((rows-to-hold
 		(remove-null
-		 (map 'list #'(lambda(val)
-				(if (stringp val)
-				    (position val var-elem :test #'string=)
-				    (position val var-elem)))
-		      dont-touch-values)))
+		 (map 'list #'(lambda(res)
+				(when (cond
+					((stringp res)
+					 (find res dont-touch-values :test #'string=))
+					((numberp res)
+					 (find res dont-touch-values :test #'=))
+					(t
+					 (find res dont-touch-values)))
+				  (position res var-elem)))
+		      var-elem)))
 	       (new-result-list
 		(map 'list
 		     #'(lambda(row-idx)
