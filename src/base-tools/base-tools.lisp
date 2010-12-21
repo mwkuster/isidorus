@@ -11,6 +11,7 @@
   (:use :cl)
   (:nicknames :tools)
   (:export :push-string
+	   :concat
 	   :when-do
 	   :string-replace
 	   :remove-null
@@ -62,6 +63,10 @@
   "Imitates the push macro but instead of pushing object in a list,
    there will be appended the given string to the main string object."
   `(setf ,place (concatenate 'string ,place ,obj)))
+
+
+(defmacro concat (&rest strings)
+  `(concatenate 'string ,@strings))
 
 
 (defmacro when-do (result-bounding condition-statement do-with-result)
@@ -449,15 +454,14 @@
 (defun search-first-unclosed-paranthesis (str &key ignore-literals)
   "Returns the idx of the first ( that is not closed, the search is
    started from the end of the string.
-   If ignore-literals is set to t all mparanthesis that are within
+   If ignore-literals is set to t all paranthesis that are within
    \", \"\"\", ' and ''' are ignored."
   (declare (String str)
 	   (Boolean ignore-literals))
-  (let ((r-str (reverse str))
-	(open-brackets 0)
+  (let ((open-brackets 0)
 	(result-idx nil))
-    (dotimes (idx (length r-str))
-      (let ((current-char (subseq r-str idx (1+ idx))))
+    (do ((idx (1- (length str)))) ((< idx 0))
+      (let ((current-char (subseq str idx (1+ idx))))
 	(cond ((string= current-char ")")
 	       (when (or ignore-literals
 			 (not (in-literal-string-p str idx)))
@@ -468,9 +472,9 @@
 		 (incf open-brackets)
 		 (when (> open-brackets 0)
 		   (setf result-idx idx)
-		   (setf idx (length r-str))))))))
-    (when result-idx
-      (- (length str) (1+ result-idx)))))
+		   (setf idx 0)))))
+	(decf idx)))
+    result-idx))
 
 
 (defun search-first-unopened-paranthesis (str &key ignore-literals)
