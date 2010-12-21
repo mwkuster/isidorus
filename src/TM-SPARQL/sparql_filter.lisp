@@ -571,6 +571,7 @@
 	    (when inner-value 
 	      (+ inner-value (1+ (length (name-after-paranthesis
 					  (subseq left-string inner-value))))))))
+	 
 	 (start-idx (if first-bracket
 			first-bracket
 			0)))
@@ -950,3 +951,27 @@
 	(if (find string-before *supported-functions* :test #'string=)
 	    nil
 	    t))))
+
+
+(defun get-variables-from-filter-string(filter-string)
+  "Returns a list of string with all variables that are used in this filter."
+  (let ((variables nil))
+    (dotimes (idx (length filter-string))
+      (let ((current-string (subseq filter-string idx)))
+	(when (and (or (string-starts-with current-string "?")
+		       (string-starts-with current-string "$"))
+		   (not (in-literal-string-p filter-string idx)))
+	  (let ((end-pos
+		 (let ((inner-value
+			(search-first
+			 (append (list " " "?" "$" "." ",")
+				 (*supported-operators*)
+				 *supported-brackets*
+				 (map 'list #'string (white-space)))
+			 (subseq current-string 1))))
+		   (if inner-value
+		       (1+ inner-value)
+		       (length current-string)))))
+	    (push (subseq current-string 1 end-pos) variables)
+	    (incf idx end-pos)))))
+    (remove-duplicates variables :test #'string=)))

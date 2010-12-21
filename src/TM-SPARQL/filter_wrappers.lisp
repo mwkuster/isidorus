@@ -129,11 +129,12 @@
 	   
 
 (defun filter-functions::regex(str pattern &optional flags)
-  (let* ((local-flags (filter-functions::normalize-value flags))
+  (let* ((local-str (filter-functions::normalize-value str))
+	 (local-flags (filter-functions::normalize-value flags))
 	 (case-insensitive (when (find #\i local-flags) t))
 	 (multi-line (when (find #\m local-flags) t))
 	 (single-line (when (find #\s local-flags) t))
-      	 (local-pattern
+	 (local-pattern
 	  (if (find #\x local-flags)
 	      (base-tools:string-replace
 	       (base-tools:string-replace
@@ -148,7 +149,7 @@
 				:case-insensitive-mode case-insensitive
 				:multi-line-mode multi-line
 				:single-line-mode single-line)))
-    (ppcre:scan scanner str)))
+    (ppcre:scan scanner local-str)))
 
 
 (defun filter-functions::bound(x)

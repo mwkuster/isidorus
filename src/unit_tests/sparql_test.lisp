@@ -38,7 +38,8 @@
 	   :test-set-+-and---operators
 	   :test-set-compare-operators
 	   :test-set-functions
-	   :test-module-1))
+	   :test-module-1
+	   :test-module-2))
 
 
 (in-package :sparql-test)
@@ -1599,6 +1600,32 @@ literal with some \\\"quoted\\\" words!"))
 			 (list "Johann Wolfgang" "von Goethe"
 			       "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe")
 			 :test #'string=))))))))
+
+
+(test test-module-2
+  "Tests the entire module."
+  (with-fixture with-tm-filled-db ("data_base" *poems.xtm*)
+    (with-revision 0
+      (let* ((query-1
+	      "PREFIX poem:<http://some.where/psis/poem/>
+               PREFIX author:<http://some.where/psis/author/>
+               PREFIX main:<http://some.where/base-psis/>
+               PREFIX tmdm:<http://psi.topicmaps.org/iso13250/model/>
+               SELECT ?poems WHERE{
+                ?poems tmdm:type main:poem . #self as ?x a <y>
+	        ?poems main:title ?titles .
+  	        FILTER (REGEX(?titles, '[a-zA-Z]+ [a-zA-Z]+')) }")
+	     (result-1
+	      (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query query-1))))
+	(is-true result-1)
+	(is (= (length result-1) 1))
+	(is (string= (getf (first result-1) :variable) "poems"))
+	(is-false (set-exclusive-or
+		   (getf (first result-1) :result)
+		   (list "<http://some.where/psis/poem/resignation>"
+			 "<http://some.where/psis/poem/erlkoenig>"
+			 "<http://some.where/psis/poem/zauberlehrling>")
+		   :test #'string=))))))
     
 
 (defun run-sparql-tests ()
