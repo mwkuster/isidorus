@@ -532,35 +532,12 @@
 	     (let ((last-position-of-current-path
 		    (- (length current-path-string) 1)))
 	       (let ((current-url
-		      (concatenate
-		       'string url-prefix
+		      (concat
+		       url-prefix
 		       (subseq current-path-string start-position-of-relative-path
 			       last-position-of-current-path))))
 		 (push (list :path current-path :url current-url) files-and-urls))))))
       files-and-urls)))
-
-
-(defun string-replace (str search-str replace-str)
-  "replaces all sub-strings in str of the form search-str with
-   the string replace-str and returns the new generated string"
-  (if (= (length search-str) 0)
-      str
-      (progn
-	(let ((ret-str "")
-	      (idx 0))
-	  (loop
-	     (if (string= str search-str
-			  :start1 idx
-			  :end1 (min (length str)
-				     (+ idx (length search-str))))
-		 (progn
-		   (setf ret-str (concatenate 'string ret-str replace-str))
-		   (incf idx (length search-str)))
-		 (progn
-		   (setf ret-str (concatenate 'string ret-str (subseq str idx (1+ idx))))
-		   (incf idx)))
-	     (unless (< idx (length str))
-	       (return ret-str)))))))
 
 
 (defun init-cache()

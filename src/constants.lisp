@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :constants
-  (:use :cl)
+  (:use :cl :base-tools)
   (:export :*atom-ns*
            :*egovpt-ns*
 	   :*instance-psi*
@@ -117,74 +117,74 @@
 
 (defparameter *rdf2tm-ns* "http://isidorus/rdf2tm_mapping/")
 
-(defparameter *rdf-statement* (concatenate 'string *rdf-ns* "Statement"))
+(defparameter *rdf-statement* (concat *rdf-ns* "Statement"))
 
-(defparameter *rdf-object* (concatenate 'string *rdf-ns* "object"))
+(defparameter *rdf-object* (concat *rdf-ns* "object"))
 
-(defparameter *rdf-subject* (concatenate 'string *rdf-ns* "subject"))
+(defparameter *rdf-subject* (concat *rdf-ns* "subject"))
 
-(defparameter *rdf-predicate* (concatenate 'string *rdf-ns* "predicate"))
+(defparameter *rdf-predicate* (concat *rdf-ns* "predicate"))
 
-(defparameter *rdf-nil* (concatenate 'string *rdf-ns* "nil"))
+(defparameter *rdf-nil* (concat *rdf-ns* "nil"))
 
-(defparameter *rdf-type* (concatenate 'string *rdf-ns* "type"))
+(defparameter *rdf-type* (concat *rdf-ns* "type"))
 
-(defparameter *rdf-first* (concatenate 'string *rdf-ns* "first"))
+(defparameter *rdf-first* (concat *rdf-ns* "first"))
 
-(defparameter *rdf-rest* (concatenate 'string *rdf-ns* "rest"))
+(defparameter *rdf-rest* (concat *rdf-ns* "rest"))
 
-(defparameter *rdf2tm-object* (concatenate 'string *rdf2tm-ns* "object"))
+(defparameter *rdf2tm-object* (concat *rdf2tm-ns* "object"))
 
-(defparameter *rdf2tm-subject* (concatenate 'string *rdf2tm-ns* "subject"))
+(defparameter *rdf2tm-subject* (concat *rdf2tm-ns* "subject"))
 
-(defparameter *rdf2tm-scope-prefix* (concatenate 'string *rdf2tm-ns* "scope/"))
+(defparameter *rdf2tm-scope-prefix* (concat *rdf2tm-ns* "scope/"))
 
-(defparameter *rdf2tm-blank-node-prefix* (concatenate 'string *rdf2tm-ns* "blank_node/"))
+(defparameter *rdf2tm-blank-node-prefix* (concat *rdf2tm-ns* "blank_node/"))
 
 (defparameter *tm2rdf-ns* "http://isidorus/tm2rdf_mapping/")
 
-(defparameter *tm2rdf-topic-type-uri* (concatenate 'string *tm2rdf-ns* "types/Topic"))
+(defparameter *tm2rdf-topic-type-uri* (concat *tm2rdf-ns* "types/Topic"))
 
-(defparameter *tm2rdf-name-type-uri* (concatenate 'string *tm2rdf-ns* "types/Name"))
+(defparameter *tm2rdf-name-type-uri* (concat *tm2rdf-ns* "types/Name"))
 
-(defparameter *tm2rdf-name-property* (concatenate 'string *tm2rdf-ns* "name"))
+(defparameter *tm2rdf-name-property* (concat *tm2rdf-ns* "name"))
 
-(defparameter *tm2rdf-variant-type-uri* (concatenate 'string *tm2rdf-ns* "types/Variant"))
+(defparameter *tm2rdf-variant-type-uri* (concat *tm2rdf-ns* "types/Variant"))
 
-(defparameter *tm2rdf-variant-property* (concatenate 'string *tm2rdf-ns* "variant"))
+(defparameter *tm2rdf-variant-property* (concat *tm2rdf-ns* "variant"))
 
-(defparameter *tm2rdf-occurrence-type-uri* (concatenate 'string *tm2rdf-ns* "types/Occurrence"))
+(defparameter *tm2rdf-occurrence-type-uri* (concat *tm2rdf-ns* "types/Occurrence"))
 
-(defparameter *tm2rdf-occurrence-property* (concatenate 'string *tm2rdf-ns* "occurrence"))
+(defparameter *tm2rdf-occurrence-property* (concat *tm2rdf-ns* "occurrence"))
 
-(defparameter *tm2rdf-role-type-uri* (concatenate 'string *tm2rdf-ns* "types/Role"))
+(defparameter *tm2rdf-role-type-uri* (concat *tm2rdf-ns* "types/Role"))
 
-(defparameter *tm2rdf-role-property* (concatenate 'string *tm2rdf-ns* "role"))
+(defparameter *tm2rdf-role-property* (concat *tm2rdf-ns* "role"))
 
-(defparameter *tm2rdf-association-type-uri* (concatenate 'string *tm2rdf-ns* "types/Association"))
+(defparameter *tm2rdf-association-type-uri* (concat *tm2rdf-ns* "types/Association"))
 
-(defparameter *tm2rdf-association-property* (concatenate 'string *tm2rdf-ns* "association"))
+(defparameter *tm2rdf-association-property* (concat *tm2rdf-ns* "association"))
 
-(defparameter *tm2rdf-subjectIdentifier-property* (concatenate 'string *tm2rdf-ns* "subjectIdentifier"))
+(defparameter *tm2rdf-subjectIdentifier-property* (concat *tm2rdf-ns* "subjectIdentifier"))
 
-(defparameter *tm2rdf-subjectLocator-property* (concatenate 'string *tm2rdf-ns* "subjectLocator"))
+(defparameter *tm2rdf-subjectLocator-property* (concat *tm2rdf-ns* "subjectLocator"))
 
-(defparameter *tm2rdf-itemIdentity-property* (concatenate 'string *tm2rdf-ns* "itemIdentity"))
+(defparameter *tm2rdf-itemIdentity-property* (concat *tm2rdf-ns* "itemIdentity"))
 
-(defparameter *tm2rdf-value-property* (concatenate 'string *tm2rdf-ns* "value"))
+(defparameter *tm2rdf-value-property* (concat *tm2rdf-ns* "value"))
 
-(defparameter *tm2rdf-nametype-property* (concatenate 'string *tm2rdf-ns* "nametype"))
+(defparameter *tm2rdf-nametype-property* (concat *tm2rdf-ns* "nametype"))
 
-(defparameter *tm2rdf-scope-property* (concatenate 'string *tm2rdf-ns* "scope"))
+(defparameter *tm2rdf-scope-property* (concat *tm2rdf-ns* "scope"))
 
-(defparameter *tm2rdf-varianttype-property* (concatenate 'string *tm2rdf-ns* "varianttype"))
+(defparameter *tm2rdf-varianttype-property* (concat *tm2rdf-ns* "varianttype"))
 
-(defparameter *tm2rdf-occurrencetype-property* (concatenate 'string *tm2rdf-ns* "occurrencetype"))
+(defparameter *tm2rdf-occurrencetype-property* (concat *tm2rdf-ns* "occurrencetype"))
 
-(defparameter *tm2rdf-roletype-property* (concatenate 'string *tm2rdf-ns* "roletype"))
+(defparameter *tm2rdf-roletype-property* (concat *tm2rdf-ns* "roletype"))
 
-(defparameter *tm2rdf-associationtype-property* (concatenate 'string *tm2rdf-ns* "associationtype"))
+(defparameter *tm2rdf-associationtype-property* (concat *tm2rdf-ns* "associationtype"))
 
-(defparameter *tm2rdf-player-property* (concatenate 'string *tm2rdf-ns* "player"))
+(defparameter *tm2rdf-player-property* (concat *tm2rdf-ns* "player"))
 
-(defparameter *tm2rdf-reifier-property* (concatenate 'string *tm2rdf-ns* "reifier"))
+(defparameter *tm2rdf-reifier-property* (concat *tm2rdf-ns* "reifier"))

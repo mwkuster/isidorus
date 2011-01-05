@@ -90,7 +90,7 @@
 					     :revision revision))))
 	    (cxml:attribute "href"
 			    (if ref-topic
-				(concatenate 'string "#" (topic-id ref-topic revision))
+				(concat "#" (topic-id ref-topic revision))
 				characteristic-value))))
 	(cxml:with-element "t:resourceData"
 	  (when (slot-boundp characteristic 'datatype)
@@ -165,7 +165,7 @@
 	(cxml:with-element "t:instanceOf"
 	  (loop for item in ios
 	     do (cxml:with-element "t:topicRef"
-		  (cxml:attribute "href" (concatenate 'string "#" (topic-id item revision))))))))
+		  (cxml:attribute "href" (concat "#" (topic-id item revision))))))))
     (map 'list #'(lambda(x)
 		   (to-elem x revision))
 	 (names topic :revision revision))

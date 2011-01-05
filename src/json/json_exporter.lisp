@@ -43,24 +43,23 @@
 
 (defun resourceX-to-json-string (value datatype &key (xtm-id d:*current-xtm*))
   "returns a resourceRef and resourceData json object"
-  ;(declare (string value datatype))
   (if (string= datatype "http://www.w3.org/2001/XMLSchema#anyURI")
-      (concatenate
-       'string "\"resourceRef\":"		   
-       (let ((inner-value
-	      (let ((ref-topic (when (and (> (length value) 0)
-					  (eql (elt value 0) #\#))
-				 (get-item-by-id (subseq value 1) :xtm-id xtm-id))))
-		(if ref-topic
-		    (concatenate 'string "#" (topic-id ref-topic))
-		    value))))
-	 (json:encode-json-to-string inner-value))
-       ",\"resourceData\":null")
-      (concatenate 'string "\"resourceRef\":null,"
-		   "\"resourceData\":{\"datatype\":"
-		   (json:encode-json-to-string datatype)
-		   ",\"value\":"
-		   (json:encode-json-to-string value) "}")))
+      (concat "\"resourceRef\":"		   
+	      (let ((inner-value
+		     (let ((ref-topic
+			    (when (and (> (length value) 0)
+				       (eql (elt value 0) #\#))
+			      (get-item-by-id (subseq value 1) :xtm-id xtm-id))))
+		       (if ref-topic
+			   (concat "#" (topic-id ref-topic))
+			   value))))
+		(json:encode-json-to-string inner-value))
+	      ",\"resourceData\":null")
+      (concat "\"resourceRef\":null,"
+	      "\"resourceData\":{\"datatype\":"
+	      (json:encode-json-to-string datatype)
+	      ",\"value\":"
+	      (json:encode-json-to-string value) "}")))
 
 
 (defun ref-topics-to-json-string (topics &key (revision *TM-REVISION*))
@@ -82,13 +81,12 @@
   "returns a json string of the type of the passed parent-elem"
   (declare (TypableC parent-elem)
 	   (type (or integer null) revision))
-  (concatenate
-   'string "\"type\":"
-   (if (instance-of parent-elem :revision revision)
-       (json:encode-json-to-string
-	(map 'list #'uri (psis (instance-of parent-elem :revision revision)
-			       :revision revision)))
-       "null")))
+  (concat "\"type\":"
+	  (if (instance-of parent-elem :revision revision)
+	      (json:encode-json-to-string
+	       (map 'list #'uri (psis (instance-of parent-elem :revision revision)
+				      :revision revision)))
+	      "null")))
 
 
 (defmethod to-json-string ((instance VariantC) &key (xtm-id d:*current-xtm*)
@@ -97,15 +95,13 @@
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
   (let ((itemIdentity
-	 (concatenate
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string instance :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string instance :what 'item-identifiers
+					     :revision revision)))
 	(scope
-	 (concatenate
-	  'string "\"scopes\":" (ref-topics-to-json-string
-				 (themes instance :revision revision)
-				 :revision revision)))
+	 (concat "\"scopes\":" (ref-topics-to-json-string
+				(themes instance :revision revision)
+				:revision revision)))
 	(resourceX
 	 (let ((value
 		(when (slot-boundp instance 'charvalue)
@@ -114,7 +110,7 @@
 		(when (slot-boundp instance 'datatype)
 		  (datatype instance))))
 	   (resourceX-to-json-string value type :xtm-id xtm-id))))
-    (concatenate 'string "{" itemIdentity "," scope "," resourceX "}")))
+    (concat "{" itemIdentity "," scope "," resourceX "}")))
 
 
 (defmethod to-json-string ((instance NameC) &key (xtm-id d:*current-xtm*)
@@ -123,40 +119,34 @@
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
   (let ((itemIdentity
-	 (concatenate
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string instance :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string instance :what 'item-identifiers
+					     :revision revision)))
 	(type
 	 (type-to-json-string instance :revision revision))
 	(scope
-	 (concatenate 
-	  'string "\"scopes\":"
-	  (ref-topics-to-json-string (themes instance :revision revision)
-				     :revision revision)))
+	 (concat "\"scopes\":"
+		 (ref-topics-to-json-string (themes instance :revision revision)
+					    :revision revision)))
 	(value
-	 (concatenate 'string "\"value\":"
-		      (if (slot-boundp instance 'charvalue)
-			  (json:encode-json-to-string (charvalue instance))
-			  "null")))
+	 (concat "\"value\":"
+		 (if (slot-boundp instance 'charvalue)
+		     (json:encode-json-to-string (charvalue instance))
+		     "null")))
 	(variant
 	 (if (variants instance :revision revision)
-	     (concatenate
-	      'string "\"variants\":"
+	     (concat
+	      "\"variants\":"
 	      (let ((j-variants "["))
 		(loop for variant in (variants instance :revision revision)
-		   do (setf j-variants
-			    (concatenate
-			     'string j-variants
-			     (json-exporter::to-json-string variant :xtm-id xtm-id
-							    :revision revision)
-			     ",")))
-			    (concatenate
-			     'string (subseq j-variants 0
-					     (- (length j-variants) 1)) "]")))
-	     (concatenate 'string "\"variants\":null"))))
-    (concatenate 'string "{" itemIdentity "," type "," scope "," value
-		 "," variant "}")))
+		   do (push-string
+		       (concat (json-exporter::to-json-string
+				variant :xtm-id xtm-id :revision revision)
+			       ",")
+		       j-variants))
+		(concat (subseq j-variants 0 (- (length j-variants) 1)) "]")))
+	     (concat "\"variants\":null"))))
+    (concat "{" itemIdentity "," type "," scope "," value "," variant "}")))
 
 
 (defmethod to-json-string ((instance OccurrenceC) &key (xtm-id d:*current-xtm*)
@@ -165,17 +155,15 @@
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
   (let ((itemIdentity
-	 (concatenate
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string instance :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string instance :what 'item-identifiers
+					     :revision revision)))
 	(type
 	 (type-to-json-string instance :revision revision))
 	(scope
-	 (concatenate
-	  'string "\"scopes\":"
-	  (ref-topics-to-json-string (themes instance :revision revision)
-				     :revision revision)))
+	 (concat "\"scopes\":"
+		 (ref-topics-to-json-string (themes instance :revision revision)
+					    :revision revision)))
 	(resourceX
 	 (let ((value
 		(when (slot-boundp instance 'charvalue)
@@ -184,7 +172,7 @@
 		(when (slot-boundp instance 'datatype)
 		  (datatype instance))))
 	   (resourceX-to-json-string value type :xtm-id xtm-id))))
-    (concatenate 'string "{" itemIdentity "," type "," scope "," resourceX "}")))
+    (concat "{" itemIdentity "," type "," scope "," resourceX "}")))
 
 
 (defmethod to-json-string ((instance TopicC) &key (xtm-id d:*current-xtm*)
@@ -193,59 +181,51 @@
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
   (let ((id
-	 (concatenate
-	  'string "\"id\":"
-	  (json:encode-json-to-string (topic-id instance revision))))
+	 (concat "\"id\":"
+		 (json:encode-json-to-string (topic-id instance revision))))
 	(itemIdentity
-	 (concatenate
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string instance :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string instance :what 'item-identifiers
+					     :revision revision)))
 	(subjectLocator 
-	 (concatenate
-	  'string "\"subjectLocators\":"
-	  (identifiers-to-json-string instance :what 'locators
-				      :revision revision)))
+	 (concat "\"subjectLocators\":"
+		 (identifiers-to-json-string instance :what 'locators
+					     :revision revision)))
 	(subjectIdentifier
-	 (concatenate
-	  'string "\"subjectIdentifiers\":"
-	  (identifiers-to-json-string instance :what 'psis
-				      :revision revision)))
+	 (concat "\"subjectIdentifiers\":"
+		 (identifiers-to-json-string instance :what 'psis
+					     :revision revision)))
 	(instanceOf
-	 (concatenate
-	  'string "\"instanceOfs\":"
-	  (ref-topics-to-json-string (list-instanceOf instance :revision revision)
-				     :revision revision)))
+	 (concat "\"instanceOfs\":"
+		 (ref-topics-to-json-string
+		  (list-instanceOf instance :revision revision)
+		  :revision revision)))
 	(name
-	 (concatenate
-	  'string "\"names\":"
-	  (if (names instance :revision revision)
-	      (let ((j-names "["))
-		(loop for item in (names instance :revision revision)
-		   do (setf j-names
-			    (concatenate 
-			     'string j-names (to-json-string item :xtm-id xtm-id
-							     :revision revision)
-			     ",")))
-		(concatenate 'string (subseq j-names 0 (- (length j-names) 1)) "]"))
-	      "null")))
+	 (concat "\"names\":"
+		 (if (names instance :revision revision)
+		     (let ((j-names "["))
+		       (loop for item in (names instance :revision revision)
+			  do (push-string
+			      (concat  (to-json-string item :xtm-id xtm-id
+						       :revision revision) ",")
+			      j-names))
+		       (concat (subseq j-names 0 (- (length j-names) 1)) "]"))
+		     "null")))
 	(occurrence
-	 (concatenate
-	  'string "\"occurrences\":"
+	 (concat
+	  "\"occurrences\":"
 	  (if (occurrences instance :revision revision)
 	      (let ((j-occurrences "["))
 		(loop for item in (occurrences instance :revision revision)
-		   do (setf j-occurrences
-			    (concatenate
-			     'string j-occurrences
-			     (to-json-string item :xtm-id xtm-id :revision revision)
-			     ",")))
-		(concatenate
-		 'string (subseq j-occurrences 0 (- (length j-occurrences) 1)) "]"))
+		   do (push-string
+		       (concat
+			(to-json-string item :xtm-id xtm-id :revision revision)
+			",")
+		       j-occurrences))
+		(concat (subseq j-occurrences 0 (- (length j-occurrences) 1)) "]"))
 	      "null"))))
-    (concatenate 'string "{" id "," itemIdentity "," subjectLocator "," 
-		 subjectIdentifier ","
-		 instanceOf "," name "," occurrence "}")))
+    (concat "{" id "," itemIdentity "," subjectLocator "," subjectIdentifier ","
+	    instanceOf "," name "," occurrence "}")))
 
 
 (defun to-json-topicStub-string (topic &key (revision *TM-REVISION*))
@@ -257,24 +237,19 @@
 	   (type (or integer null) revision))
   (when topic
     (let ((id
-	   (concatenate
-	    'string "\"id\":"
-	    (json:encode-json-to-string (topic-id topic revision))))
+	   (concat "\"id\":"
+		   (json:encode-json-to-string (topic-id topic revision))))
 	  (itemIdentity
-	   (concatenate
-	    'string "\"itemIdentities\":"
-	    (identifiers-to-json-string topic :what 'item-identifiers
-					:revision revision)))
+	   (concat "\"itemIdentities\":"
+		   (identifiers-to-json-string topic :what 'item-identifiers
+					       :revision revision)))
 	  (subjectLocator 
-	   (concatenate
-	    'string "\"subjectLocators\":"
-	    (identifiers-to-json-string topic :what 'locators :revision revision)))
+	   (concat "\"subjectLocators\":"
+		   (identifiers-to-json-string topic :what 'locators :revision revision)))
 	  (subjectIdentifier
-	   (concatenate
-	    'string "\"subjectIdentifiers\":"
-	    (identifiers-to-json-string topic :what 'psis :revision revision))))
-      (concatenate 'string "{" id "," itemIdentity "," subjectLocator ","
-		   subjectIdentifier "}"))))
+	   (concat "\"subjectIdentifiers\":"
+		   (identifiers-to-json-string topic :what 'psis :revision revision))))
+      (concat "{" id "," itemIdentity "," subjectLocator "," subjectIdentifier "}"))))
 
 
 (defmethod to-json-string ((instance RoleC) &key (xtm-id d:*current-xtm*)
@@ -283,52 +258,46 @@
   (declare (ignorable xtm-id)
 	   (type (or integer null) revision))
   (let ((itemIdentity
-	 (concatenate
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string instance :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string instance :what 'item-identifiers
+					     :revision revision)))
 	(type
 	 (type-to-json-string instance :revision revision))
 	(topicRef
-	 (concatenate
-	  'string "\"topicRef\":"
-	  (if (player instance :revision revision)
-	      (json:encode-json-to-string
-	       (map 'list #'uri (psis (player instance :revision revision)
-				      :revision revision)))
-	      "null"))))
-    (concatenate 'string "{" itemIdentity "," type "," topicRef "}")))
+	 (concat "\"topicRef\":"
+		 (if (player instance :revision revision)
+		     (json:encode-json-to-string
+		      (map 'list #'uri (psis (player instance :revision revision)
+					     :revision revision)))
+		     "null"))))
+    (concat "{" itemIdentity "," type "," topicRef "}")))
 
 
 (defmethod to-json-string ((instance AssociationC) &key (xtm-id d:*current-xtm*)
 			   (revision *TM-REVISION*))
   "transforms an AssociationC object to a json string"
   (let ((itemIdentity
-	 (concatenate 
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string instance :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string instance :what 'item-identifiers
+					     :revision revision)))
 	(type
 	 (type-to-json-string instance :revision revision))
 	(scope
-	 (concatenate
-	  'string "\"scopes\":"
-	  (ref-topics-to-json-string (themes instance :revision revision)
-				     :revision revision)))
+	 (concat "\"scopes\":"
+		 (ref-topics-to-json-string (themes instance :revision revision)
+					    :revision revision)))
 	(role
-	 (concatenate
-	  'string "\"roles\":"
-	  (if (roles instance :revision revision)
-	      (let ((j-roles "["))
-		(loop for item in (roles instance :revision revision)
-		   do (setf j-roles
-			    (concatenate
-			     'string j-roles (to-json-string item :xtm-id xtm-id
-							     :revision revision)
-			     ",")))
-		(concatenate 'string (subseq j-roles 0 (- (length j-roles) 1)) "]"))
-	      "null"))))
-    (concatenate 'string "{" itemIdentity "," type "," scope "," role "}")))
+	 (concat "\"roles\":"
+		 (if (roles instance :revision revision)
+		     (let ((j-roles "["))
+		       (loop for item in (roles instance :revision revision)
+			  do (push-string
+			      (concat (to-json-string item :xtm-id xtm-id
+						      :revision revision) ",")
+			      j-roles))
+		       (concat (subseq j-roles 0 (- (length j-roles) 1)) "]"))
+		     "null"))))
+    (concat "{" itemIdentity "," type "," scope "," role "}")))
 
 
 (defmethod to-json-string ((instance TopicMapC) &key (xtm-id d:*current-xtm*)
@@ -349,47 +318,40 @@
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
   (let ((main-topic
-	 (concatenate
-	  'string "\"topic\":"
-	  (to-json-string (topic instance) :xtm-id xtm-id :revision revision)))
+	 (concat "\"topic\":"
+		 (to-json-string (topic instance) :xtm-id xtm-id :revision revision)))
 	(topicStubs
-	 (concatenate
-	  'string "\"topicStubs\":"
-	  (if (referenced-topics instance)
-	      (let ((j-topicStubs "["))
-		(loop for item in (referenced-topics instance)
-		   do (setf j-topicStubs
-			    (concatenate
-			     'string j-topicStubs
-			     (to-json-topicStub-string item :revision revision)
-			     ",")))
-		(concatenate
-		 'string (subseq j-topicStubs 0 (- (length j-topicStubs) 1)) "]"))
-	      "null")))
+	 (concat "\"topicStubs\":"
+		 (if (referenced-topics instance)
+		     (let ((j-topicStubs "["))
+		       (loop for item in (referenced-topics instance)
+			  do (push-string
+			      (concat (to-json-topicStub-string item :revision revision)
+				      ",")
+			      j-topicStubs))
+		       (concat (subseq j-topicStubs 0 (- (length j-topicStubs) 1)) "]"))
+		     "null")))
 	(associations
-	 (concatenate
-	  'string "\"associations\":"
-	  (if (associations instance)
-	      (let ((j-associations "["))
-		(loop for item in (associations instance)
-		   do (setf j-associations
-			    (concatenate 'string j-associations
-					 (to-json-string item :xtm-id xtm-id
-							 :revision revision) ",")))
-		(concatenate 'string (subseq j-associations 0
-					     (- (length j-associations) 1)) "]"))
-	      "null")))
+	 (concat "\"associations\":"
+		 (if (associations instance)
+		     (let ((j-associations "["))
+		       (loop for item in (associations instance)
+			  do (push-string
+			      (concat (to-json-string item :xtm-id xtm-id
+						      :revision revision) ",")
+			      j-associations))
+		       (concat (subseq j-associations 0
+				       (- (length j-associations) 1)) "]"))
+		     "null")))
 	(tm-ids
-	 (concatenate
-	  'string "\"tmIds\":"
-	  (let ((uris
-		 (loop for tm in (in-topicmaps (topic instance))
-		    collect (map 'list #'d:uri
-				 (item-identifiers tm :revision revision)))))
-	    (concatenate 'string (json:encode-json-to-string
-				  (remove-if #'null uris)))))))
-    (concatenate 'string "{" main-topic "," topicStubs "," associations
-		 "," tm-ids "}")))
+	 (concat "\"tmIds\":"
+		 (let ((uris
+			(loop for tm in (in-topicmaps (topic instance))
+			   collect (when (item-identifiers tm)
+				     (uri (first (item-identifiers
+						  tm :revision revision)))))))
+		   (json:encode-json-to-string uris)))))
+    (concat "{" main-topic "," topicStubs "," associations "," tm-ids "}")))
 
 
 ;; =============================================================================
@@ -418,45 +380,39 @@
   (declare (TopicC topic)
 	   (type (or integer null) revision))
   (let ((id
-	 (concatenate 'string "\"id\":\"" (topic-id topic revision) "\""))
+	 (concat "\"id\":\"" (topic-id topic revision) "\""))
 	(itemIdentity
-	 (concatenate
-	  'string "\"itemIdentities\":"
-	  (identifiers-to-json-string topic :what 'item-identifiers
-				      :revision revision)))
+	 (concat "\"itemIdentities\":"
+		 (identifiers-to-json-string topic :what 'item-identifiers
+					     :revision revision)))
 	(subjectLocator 
-	 (concatenate
-	  'string "\"subjectLocators\":"
-	  (identifiers-to-json-string topic :what 'locators :revision revision)))
+	 (concat "\"subjectLocators\":"
+		 (identifiers-to-json-string topic :what 'locators :revision revision)))
 	(subjectIdentifier
-	 (concatenate
-	  'string "\"subjectIdentifiers\":"
-	  (identifiers-to-json-string topic :what 'psis :revision revision)))
+	 (concat "\"subjectIdentifiers\":"
+		 (identifiers-to-json-string topic :what 'psis :revision revision)))
 	(instanceOf
-	 (concatenate
-	  'string "\"instanceOfs\":"
-	  (ref-topics-to-json-string (list-instanceOf topic :revision revision)
-				     :revision revision)))
+	 (concat "\"instanceOfs\":"
+		 (ref-topics-to-json-string (list-instanceOf topic :revision revision)
+					    :revision revision)))
 	(name
-	 (concatenate
-	  'string "\"names\":"
-	  (if (names topic :revision revision)
-	      (json:encode-json-to-string
-	       (loop for name in (names topic :revision revision)
-		  when (slot-boundp name 'charvalue)
-		  collect (charvalue name)))
-	      "null")))
+	 (concat "\"names\":"
+		 (if (names topic :revision revision)
+		     (json:encode-json-to-string
+		      (loop for name in (names topic :revision revision)
+			 when (slot-boundp name 'charvalue)
+			 collect (charvalue name)))
+		     "null")))
 	(occurrence
-	 (concatenate
-	  'string "\"occurrences\":"
-	  (if (occurrences topic :revision revision)
-	      (json:encode-json-to-string
-	       (loop for occurrence in (occurrences topic :revision revision)
-		  when (slot-boundp occurrence 'charvalue)
-		  collect (charvalue occurrence)))
-	      "null"))))
-    (concatenate 'string "{" id "," itemIdentity "," subjectLocator ","
-		 subjectIdentifier "," instanceOf "," name "," occurrence "}")))
+	 (concat "\"occurrences\":"
+		 (if (occurrences topic :revision revision)
+		     (json:encode-json-to-string
+		      (loop for occurrence in (occurrences topic :revision revision)
+			 when (slot-boundp occurrence 'charvalue)
+			 collect (charvalue occurrence)))
+		     "null"))))
+    (concat "{" id "," itemIdentity "," subjectLocator "," subjectIdentifier
+	    "," instanceOf "," name "," occurrence "}")))
 
 
 (defun make-topic-summary (topic-list &key (revision *TM-REVISION*))
@@ -466,15 +422,12 @@
   (if topic-list
       (let ((json-string
 	     (let ((inner-string nil))
-	       (concatenate
-		'string
-		(loop for topic in topic-list
-		   do (setf inner-string
-			    (concatenate
-			     'string inner-string
-			     (to-json-string-summary topic :revision revision) ","))))
+	       (loop for topic in topic-list
+		  do (push-string 
+		      (concat (to-json-string-summary topic :revision revision) ",")
+		      inner-string))
 	       (subseq inner-string 0 (- (length inner-string) 1)))))
-	(concatenate 'string "[" json-string "]"))
+	(concat "[" json-string "]"))
       "null"))
 
 
@@ -491,9 +444,8 @@
 	(let ((j-str "{"))
 	  (loop for entry in query-result
 	     do (push-string
-		 (concatenate
-		  'string
+		 (concat
 		  (json:encode-json-to-string (getf entry :variable)) ":"
 		  (json:encode-json-to-string (getf entry :result)) ",")
 		 j-str))
-	  (concatenate 'string (subseq j-str 0 (- (length j-str) 1)) "}")))))
+	  (concat (subseq j-str 0 (- (length j-str) 1)) "}")))))

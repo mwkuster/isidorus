@@ -168,15 +168,14 @@ $var3 ?var3 WHERE{}")
   (let ((query-1 "   \"literal-value\"@de.")
 	(query-2 "true.")
 	(query-3 "false}")
-	(query-4 (concatenate 'string "1234.43e10" (string #\tab)))
-	(query-5 (concatenate 'string "'''true'''^^" *xml-boolean* " ;"))
-	(query-6 (concatenate 'string "'123.4'^^" *xml-double*
-			      "." (string #\newline)))
+	(query-4 (concat "1234.43e10" (string #\tab)))
+	(query-5 (concat "'''true'''^^" *xml-boolean* " ;"))
+	(query-6 (concat "'123.4'^^" *xml-double* "." (string #\newline)))
 	(query-7 "\"Just a test
 
 literal with some \\\"quoted\\\" words!\"@en.")
-	(query-8 (concatenate 'string "'''12.4'''^^" *xml-integer* ". "))
-	(query-9 (concatenate 'string "\"13e4\"^^" *xml-boolean* " ."))
+	(query-8 (concat "'''12.4'''^^" *xml-integer* ". "))
+	(query-9 (concat "\"13e4\"^^" *xml-boolean* " ."))
 	(dummy-object (make-instance 'SPARQL-Query :query "")))
     (is-true dummy-object)
     (let ((res (tm-sparql::parse-literal-elem dummy-object query-1)))
@@ -218,7 +217,7 @@ literal with some \\\"quoted\\\" words!\"@en.")
       (is (eql (tm-sparql::elem-type (getf res :value)) 'TM-SPARQL::LITERAL)))
     (let ((res (tm-sparql::parse-literal-elem dummy-object query-6)))
       (is (string= (getf res :next-query)
-		   (concatenate 'string "." (string #\newline))))
+		   (concat "." (string #\newline))))
       (is (eql (tm-sparql::value (getf res :value)) 123.4))
       (is-false (tm-sparql::literal-lang (getf res :value)))
       (is (string= (tm-sparql::literal-datatype (getf res :value))
@@ -346,13 +345,13 @@ literal with some \\\"quoted\\\" words!"))
 (test test-parse-group-2
   "Test various functionality of several functions responsible for parsing
    the SELECT-WHERE-statement."
-  (let ((query-4 (concatenate 'string "<subject> <predicate> '''true'''^^"
-			      *xml-boolean* "; pref:predicate-2 \"12\"^^"
-			      *xml-integer* "}"))
-	(query-5 (concatenate 'string "<subject> <predicate> '''false'''^^"
-			      *xml-boolean* "; BASE <http://new.base/>"
-			      "<predicate-2> \"abc\"^^"
-			      *xml-string* "}"))
+  (let ((query-4 (concat "<subject> <predicate> '''true'''^^"
+			 *xml-boolean* "; pref:predicate-2 \"12\"^^"
+			 *xml-integer* "}"))
+	(query-5 (concat "<subject> <predicate> '''false'''^^"
+			 *xml-boolean* "; BASE <http://new.base/>"
+			 "<predicate-2> \"abc\"^^"
+			 *xml-string* "}"))
 	(dummy-object (make-instance 'SPARQL-Query :query ""
 				     :base "http://base.value/"))
 	(lit 'TM-SPARQL::LITERAL)

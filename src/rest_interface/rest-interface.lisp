@@ -21,6 +21,7 @@
         :xml-importer
 	:json-exporter
 	:json-importer
+	:base-tools
         :isidorus-threading)
   (:export :import-fragments-feed
            :import-snapshots-feed

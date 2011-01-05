@@ -41,7 +41,7 @@
 	     (let ((value
 		    (get-constraints-of-topic topics :treat-as treat-as
 					      :revision revision)))
-	       (concatenate 'string "\"topicConstraints\":" value))))
+	       (concat "\"topicConstraints\":" value))))
 	(let ((available-associations
 	       (remove-duplicates
 		(loop for topic in topics
@@ -51,29 +51,22 @@
 	    (topictype-p item associationtype associationtype-constraint
 			 nil revision))
 	  (let ((associations-constraints
-		 (concatenate
-		  'string "\"associationsConstraints\":"
-		  (let ((inner-associations-constraints "["))
-		    (loop for available-association in available-associations
-		       do (let ((value
-				 (get-constraints-of-association
-				  available-association :revision revision)))
-			    (setf inner-associations-constraints
-				  (concatenate 'string inner-associations-constraints
-					       value ","))))
-		    (if (string= inner-associations-constraints "[")
-			(setf inner-associations-constraints "null")
-			(setf inner-associations-constraints
-			      (concatenate
-			       'string
-			       (subseq inner-associations-constraints 0
-				       (- (length inner-associations-constraints) 1))
-			       "]")))))))
-	    (let ((json-string
-		   (concatenate 'string
-				"{" topic-constraints "," associations-constraints
-				"}")))
-	      json-string)))))))
+		 (concat "\"associationsConstraints\":"
+			 (let ((inner-associations-constraints "["))
+			   (loop for available-association in available-associations
+			      do (let ((value
+					(get-constraints-of-association
+					 available-association :revision revision)))
+				   (push-string (concat value ",")
+						inner-associations-constraints)))
+			   (if (string= inner-associations-constraints "[")
+			       (setf inner-associations-constraints "null")
+			       (setf inner-associations-constraints
+				     (concat
+				      (subseq inner-associations-constraints 0
+					      (- (length inner-associations-constraints) 1))
+				      "]")))))))
+	    (concat "{" topic-constraints "," associations-constraints "}")))))))
 
 
 ;; =============================================================================
@@ -89,26 +82,26 @@
 	 (get-all-constraint-topics-of-association associationtype-topic
 						   :revision revision)))
     (let ((associationtype
-	   (concatenate 'string "\"associationType\":"
-			(json-exporter::identifiers-to-json-string
-			 associationtype-topic :revision revision)))
+	   (concat "\"associationType\":"
+		   (json-exporter::identifiers-to-json-string
+		    associationtype-topic :revision revision)))
 	  (associationtypescope-constraints
 	   (let ((value (get-typescope-constraints associationtype-topic
 						   :what 'association
 						   :revision revision)))
-	     (concatenate 'string "\"scopeConstraints\":" value)))
+	     (concat "\"scopeConstraints\":" value)))
 	  (associationrole-constraints
 	   (let ((value
 		  (get-associationrole-constraints
 		   (getf constraint-topics :associationrole-constraints)
 		   :revision revision)))
-	     (concatenate 'string "\"associationRoleConstraints\":" value)))
+	     (concat "\"associationRoleConstraints\":" value)))
 	  (roleplayer-constraints
 	   (let ((value
 		  (get-roleplayer-constraints
 		   (getf constraint-topics :roleplayer-constraints)
 		   :revision revision)))
-	     (concatenate 'string "\"rolePlayerConstraints\":"  value)))
+	     (concat "\"rolePlayerConstraints\":"  value)))
 	  (otherrole-constraints
 	   (let ((value
 		  (handler-case
@@ -116,13 +109,10 @@
 		       (getf constraint-topics :otherrole-constraints)
 		       :revision revision)
 		    (condition () "null"))))
-	     (concatenate 'string "\"otherRoleConstraints\":" value))))
-      (let ((json-string
-	     (concatenate 'string "{" associationtype "," associationrole-constraints
-			  "," roleplayer-constraints ","
-			  otherrole-constraints "," associationtypescope-constraints
-			  "}")))
-	json-string))))
+	     (concat "\"otherRoleConstraints\":" value))))
+      (concat "{" associationtype "," associationrole-constraints
+	      "," roleplayer-constraints "," otherrole-constraints ","
+	      associationtypescope-constraints "}"))))
 
 
 (defun get-otherrole-constraints (constraint-topics &key (revision *TM-REVISION*))
@@ -271,69 +261,66 @@
 			   constraint-lists))
 
 		  (let ((json-player-type
-			 (concatenate
-			  'string "\"playerType\":"
-			  (topics-to-json-list
-			   (getf (list-subtypes (getf involved-topic-tupple :player)
-						nil nil nil nil revision)
-				 :subtypes) :revision revision)))
+			 (concat "\"playerType\":"
+				 (topics-to-json-list
+				  (getf (list-subtypes
+					 (getf involved-topic-tupple :player)
+					 nil nil nil nil revision)
+					:subtypes) :revision revision)))
 			(json-player
-			 (concatenate
-			  'string "\"players\":"
-			  (topics-to-json-list
-			   (list-instances (getf involved-topic-tupple :player)
-					   topictype topictype-constraint revision)
-			   :revision revision)))
+			 (concat "\"players\":"
+				 (topics-to-json-list
+				  (list-instances
+				   (getf involved-topic-tupple :player)
+				   topictype topictype-constraint revision)
+				  :revision revision)))
 			(json-role
-			 (concatenate
-			  'string "\"roleType\":"
-			  (topics-to-json-list
-			   (getf (list-subtypes (getf involved-topic-tupple :role)
-						roletype roletype-constraint nil
-						nil revision)
-				 :subtypes) :revision revision)))
+			 (concat "\"roleType\":"
+				 (topics-to-json-list
+				  (getf (list-subtypes
+					 (getf involved-topic-tupple :role)
+					 roletype roletype-constraint nil
+					 nil revision)
+					:subtypes) :revision revision)))
 			(json-otherplayer-type
-			 (concatenate
-			  'string "\"otherPlayerType\":"
-			  (topics-to-json-list
-			   (getf (list-subtypes
-				  (getf involved-topic-tupple :otherplayer)
-				  nil nil nil nil revision) :subtypes)
-			   :revision revision)))
+			 (concat "\"otherPlayerType\":"
+				 (topics-to-json-list
+				  (getf (list-subtypes
+					 (getf involved-topic-tupple :otherplayer)
+					 nil nil nil nil revision) :subtypes)
+				  :revision revision)))
 			(json-otherplayer
-			 (concatenate
-			  'string "\"otherPlayers\":"
-			  (topics-to-json-list
-			   (list-instances (getf involved-topic-tupple :otherplayer)
-					   topictype topictype-constraint revision)
-			   :revision revision)))
+			 (concat "\"otherPlayers\":"
+				 (topics-to-json-list
+				  (list-instances
+				   (getf involved-topic-tupple :otherplayer)
+				   topictype topictype-constraint revision)
+				  :revision revision)))
 			(json-otherrole
-			 (concatenate
-			  'string "\"otherRoleType\":"
-			  (topics-to-json-list
-			   (getf (list-subtypes
-				  (getf involved-topic-tupple :otherrole)
-				  roletype roletype-constraint nil nil revision)
-				 :subtypes) :revision revision)))
+			 (concat "\"otherRoleType\":"
+				 (topics-to-json-list
+				  (getf (list-subtypes
+					 (getf involved-topic-tupple :otherrole)
+					 roletype roletype-constraint nil nil revision)
+					:subtypes) :revision revision)))
 			(card-min
-			 (concatenate 'string "\"cardMin\":"
-				      (getf (first constraint-lists) :card-min)))
+			 (concat "\"cardMin\":"
+				 (getf (first constraint-lists) :card-min)))
 			(card-max
-			 (concatenate 'string "\"cardMax\":"
-				      (getf (first constraint-lists) :card-max))))
+			 (concat "\"cardMax\":"
+				 (getf (first constraint-lists) :card-max))))
 		    (setf cleaned-otherrole-constraints
-			  (concatenate 'string cleaned-otherrole-constraints
-				       "{" json-player-type "," json-player ","
-				       json-role "," json-otherplayer-type ","
-				       json-otherplayer "," json-otherrole ","
-				       card-min "," card-max "},")))))
+			  (concat cleaned-otherrole-constraints
+				  "{" json-player-type "," json-player ","
+				  json-role "," json-otherplayer-type ","
+				  json-otherplayer "," json-otherrole ","
+				  card-min "," card-max "},")))))
 	  (if (string= cleaned-otherrole-constraints "[")
 	      (setf cleaned-otherrole-constraints "null")
 	      (setf cleaned-otherrole-constraints 
-		    (concatenate
-		     'string (subseq cleaned-otherrole-constraints 0
-				     (- (length cleaned-otherrole-constraints) 1))
-		     "]")))
+		    (concat (subseq cleaned-otherrole-constraints 0
+				    (- (length cleaned-otherrole-constraints) 1))
+			    "]")))
 	  cleaned-otherrole-constraints)))))
 
 
@@ -442,47 +429,44 @@
 					     :revision revision)))
 			   constraint-lists))
 		  (let ((json-player-type
-			 (concatenate
-			  'string "\"playerType\":"
-			  (topics-to-json-list
-			   (getf (list-subtypes (getf role-player-tupple :player)
-						nil nil nil nil revision) :subtypes)
-			   :revision revision)))
+			 (concat "\"playerType\":"
+				 (topics-to-json-list
+				  (getf (list-subtypes
+					 (getf role-player-tupple :player)
+					 nil nil nil nil revision) :subtypes)
+				  :revision revision)))
 			(json-players
-			 (concatenate
-			  'string "\"players\":"
-			  (topics-to-json-list
-			   (list-instances (getf role-player-tupple :player)
-					   topictype topictype-constraint revision)
-			   :revision revision)))
+			 (concat "\"players\":"
+				 (topics-to-json-list
+				  (list-instances
+				   (getf role-player-tupple :player)
+				   topictype topictype-constraint revision)
+				  :revision revision)))
 			(json-role
-			 (concatenate
-			  'string "\"roleType\":"
-			  (topics-to-json-list
-			   (getf (list-subtypes (getf role-player-tupple :role)
-						roletype roletype-constraint nil
-						nil revision)
-				 :subtypes)
-			   :revision revision)))
+			 (concat "\"roleType\":"
+				 (topics-to-json-list
+				  (getf (list-subtypes
+					 (getf role-player-tupple :role)
+					 roletype roletype-constraint nil
+					 nil revision)
+					:subtypes)
+				  :revision revision)))
 			(card-min
-			 (concatenate
-			  'string "\"cardMin\":"
-			  (getf (first constraint-lists) :card-min)))
+			 (concat "\"cardMin\":"
+				 (getf (first constraint-lists) :card-min)))
 			(card-max
-			 (concatenate
-			  'string "\"cardMax\":"
-			  (getf (first constraint-lists) :card-max))))
+			 (concat "\"cardMax\":"
+				 (getf (first constraint-lists) :card-max))))
 		    (setf cleaned-roleplayer-constraints
-			  (concatenate 'string cleaned-roleplayer-constraints
-				       "{" json-player-type "," json-players ","
-				       json-role "," card-min "," card-max "},")))))
+			  (concat cleaned-roleplayer-constraints
+				  "{" json-player-type "," json-players ","
+				  json-role "," card-min "," card-max "},")))))
 	  (if (string= cleaned-roleplayer-constraints "[")
 	      (setf cleaned-roleplayer-constraints "null")
 	      (setf cleaned-roleplayer-constraints 
-		    (concatenate
-		     'string (subseq cleaned-roleplayer-constraints 0
-				     (- (length cleaned-roleplayer-constraints) 1))
-		     "]")))
+		    (concat (subseq cleaned-roleplayer-constraints 0
+				    (- (length cleaned-roleplayer-constraints) 1))
+			    "]")))
 	  cleaned-roleplayer-constraints)))))
 
 
@@ -555,20 +539,18 @@
 						    roletype roletype-constraint
 						    nil nil revision) :subtypes)))))
 		    (setf cleaned-associationrole-constraints
-			  (concatenate 'string
-				       cleaned-associationrole-constraints
-				       "{\"roleType\":" roletype-with-subtypes
-				       ",\"cardMin\":" (getf (first constraint-lists)
-							     :card-min)
-				       ",\"cardMax\":" (getf (first constraint-lists)
-							     :card-max) "},")))))
+			  (concat cleaned-associationrole-constraints
+				  "{\"roleType\":" roletype-with-subtypes
+				  ",\"cardMin\":" (getf (first constraint-lists)
+							:card-min)
+				  ",\"cardMax\":" (getf (first constraint-lists)
+							:card-max) "},")))))
 	  (if (string= cleaned-associationrole-constraints "[")
 	      (setf cleaned-associationrole-constraints "null")
 	      (setf cleaned-associationrole-constraints 
-		    (concatenate
-		     'string (subseq cleaned-associationrole-constraints 0
-				     (- (length cleaned-associationrole-constraints)
-					1)) "]")))
+		    (concat (subseq cleaned-associationrole-constraints 0
+				    (- (length cleaned-associationrole-constraints)
+				       1)) "]")))
 	  cleaned-associationrole-constraints)))))
 
 
@@ -627,51 +609,49 @@
 	   (let ((value "["))
 	     (loop for exclusive-instance-constraint in exclusive-instance-constraints
 		do (setf value
-			 (concatenate 'string value
-				      (get-exclusive-instance-constraints
-				       (first exclusive-instance-constraint)
-				       (second exclusive-instance-constraint)
-				       :revision revision) ",")))
+			 (concat value (get-exclusive-instance-constraints
+					(first exclusive-instance-constraint)
+					(second exclusive-instance-constraint)
+					:revision revision) ",")))
 	     (if (string= value "[")
 		 (setf value "null")
-		 (setf value (concatenate 'string (subseq value 0
-							  (- (length value) 1)) "]")))
-	     (concatenate 'string "\"exclusiveInstances\":" value)))
+		 (setf value (concat (subseq value 0 (- (length value) 1)) "]")))
+	     (concat "\"exclusiveInstances\":" value)))
 	  (subjectidentifier-constraints
 	   (let ((value
 		  (get-simple-constraints
 		   subjectidentifier-constraints
 		   :error-msg-constraint-name "subjectidentifier"
 		   :revision revision)))
-	     (concatenate 'string "\"subjectIdentifierConstraints\":" value)))
+	     (concat "\"subjectIdentifierConstraints\":" value)))
 	  (subjectlocator-constraints
 	   (let ((value
 		  (get-simple-constraints
 		   subjectlocator-constraints
 		   :error-msg-constraint-name "subjectlocator"
 		   :revision revision)))
-	     (concatenate 'string "\"subjectLocatorConstraints\":" value)))
+	     (concat "\"subjectLocatorConstraints\":" value)))
 	  (topicname-constraints
 	   (let ((value
 		  (get-topicname-constraints topicname-constraints
 					     :revision revision)))
-	     (concatenate 'string "\"topicNameConstraints\":" value)))
+	     (concat "\"topicNameConstraints\":" value)))
 	  (topicoccurrence-constraints
 	   (let ((value
 		  (get-topicoccurrence-constraints topicoccurrence-constraints
 						   uniqueoccurrence-constraints
 						   :revision revision)))
-	     (concatenate 'string "\"topicOccurrenceConstraints\":" value)))
+	     (concat "\"topicOccurrenceConstraints\":" value)))
 	  (abstract-constraint
-	   (concatenate 'string "\"abstractConstraint\":"
-			(if abstract-topictype-constraints
-			    "true"
-			    "false"))))
+	   (concat "\"abstractConstraint\":"
+		   (if abstract-topictype-constraints
+		       "true"
+		       "false"))))
       (let ((json-string
-	     (concatenate 'string "{" exclusive-instance-constraints ","
-			  subjectidentifier-constraints
-			  "," subjectlocator-constraints "," topicname-constraints ","
-			  topicoccurrence-constraints "," abstract-constraint "}")))
+	     (concat "{" exclusive-instance-constraints ","
+		     subjectidentifier-constraints "," subjectlocator-constraints
+		     "," topicname-constraints "," topicoccurrence-constraints
+		     "," abstract-constraint "}")))
         json-string))))
 
 
@@ -721,15 +701,15 @@
 				    (player other-role :revision revision)
 				    topictype topictype-constraint nil
 				    nil revision) :subtypes)))))))))
-      (concatenate 'string "{\"owner\":" (json-exporter::identifiers-to-json-string
-					  owner :revision revision)
-		   ",\"exclusives\":"
-		   (json:encode-json-to-string
-		    (map 'list #'(lambda(y)
-				   (map 'list #'uri y))
-			 (map 'list #'(lambda(z)
-					(psis z :revision revision))
-			      topics))) "}"))))
+      (concat "{\"owner\":" (json-exporter::identifiers-to-json-string
+			     owner :revision revision)
+	      ",\"exclusives\":"
+	      (json:encode-json-to-string
+	       (map 'list #'(lambda(y)
+			      (map 'list #'uri y))
+		    (map 'list #'(lambda(z)
+				   (psis z :revision revision))
+			 topics))) "}"))))
 
 
 (defun get-simple-constraints(constraint-topics &key
@@ -763,21 +743,19 @@
   (let ((constraints "["))
     (loop for constraint in simple-constraints
        do (let ((constraint
-		 (concatenate
-		  'string "{\"regexp\":"
-		  (json:encode-json-to-string (getf constraint :regexp))
-		  ",\"cardMin\":"
-		  (json:encode-json-to-string (getf constraint :card-min))
-		  ",\"cardMax\":"
-		  (json:encode-json-to-string (getf constraint :card-max))
-		  "}")))
+		 (concat "{\"regexp\":"
+			 (json:encode-json-to-string (getf constraint :regexp))
+			 ",\"cardMin\":"
+			 (json:encode-json-to-string (getf constraint :card-min))
+			 ",\"cardMax\":"
+			 (json:encode-json-to-string (getf constraint :card-max))
+			 "}")))
 	    (if (string= constraints "[")
-		(setf constraints (concatenate 'string constraints constraint))
-		(setf constraints (concatenate 'string constraints "," constraint)))))
+		(push-string constraint constraints)
+		(push-string (concat "," constraint) constraints))))
     (if (string= constraints "[")
-	(setf constraints "null")
-	(setf constraints (concatenate 'string constraints "]")))
-    constraints))
+	"null"
+	(concat constraints "]"))))
 
 
 (defun get-topicname-constraints(constraint-topics &key (revision *TM-REVISION*))
@@ -850,8 +828,8 @@
 		    (let ((nametypescopes "\"nametypescopes\":["))
 		      (loop for current-topic in nametype-with-subtypes
 			 do (let ((current-json-string
-				   (concatenate
-				    'string "{\"nameType\":"
+				   (concat
+				    "{\"nameType\":"
 				    (json-exporter::identifiers-to-json-string
 				     current-topic :revision revision)
 				    ",\"scopeConstraints\":"
@@ -859,30 +837,25 @@
 							       :what 'topicname
 							       :revision revision)
 				    "}")))
-			      (setf nametypescopes
-				    (concatenate 'string nametypescopes
-						 current-json-string ","))))
+			      (push-string (concat current-json-string ",")
+					   nametypescopes)))
 		      (if (string= nametypescopes "\"nametypescopes\"[")
 			  (setf nametypescopes "null")
 			  (setf nametypescopes
-				(concatenate 
-				 'string (subseq nametypescopes 0
-						 (- (length nametypescopes) 1)) "]")))
+				(concat (subseq nametypescopes 0
+						(- (length nametypescopes) 1)) "]")))
 		      (let ((json-constraint-lists
-			     (concatenate
-			      'string "\"constraints\":"
-			      (simple-constraints-to-json constraint-lists))))
+			     (concat "\"constraints\":"
+				     (simple-constraints-to-json constraint-lists))))
 			(setf cleaned-topicname-constraints
-			      (concatenate
-			       'string cleaned-topicname-constraints "{"
-			       nametypescopes "," json-constraint-lists "},")))))))
+			      (concat cleaned-topicname-constraints "{"
+				      nametypescopes "," json-constraint-lists "},")))))))
 	  (if (string= cleaned-topicname-constraints "[")
 	      (setf cleaned-topicname-constraints "null")
 	      (setf cleaned-topicname-constraints
-		    (concatenate
-		     'string (subseq cleaned-topicname-constraints 0
-				     (- (length cleaned-topicname-constraints) 1))
-		     "]")))
+		    (concat (subseq cleaned-topicname-constraints 0
+				    (- (length cleaned-topicname-constraints) 1))
+			    "]")))
 	  cleaned-topicname-constraints)))))
 
 
@@ -963,51 +936,43 @@
 		    (let ((occurrencetypes-json-string "\"occurrenceTypes\":["))
 		      (loop for current-topic in occurrencetype-with-subtypes
 			 do (let ((current-json-string
-				   (concatenate
-				    'string "{\"occurrenceType\":"
-				    (json-exporter::identifiers-to-json-string
-				     current-topic :revision revision)
-				    ",\"scopeConstraints\":"
-				    (get-typescope-constraints
-				     current-topic :what 'topicoccurrence
-				     :revision revision)
-				    ",\"datatypeConstraint\":"
-				    (get-occurrence-datatype-constraint
-				     current-topic :revision revision)
-				    "}")))
-			      (setf occurrencetypes-json-string
-				    (concatenate 'string occurrencetypes-json-string
-						 current-json-string ","))))
+				   (concat "{\"occurrenceType\":"
+					   (json-exporter::identifiers-to-json-string
+					    current-topic :revision revision)
+					   ",\"scopeConstraints\":"
+					   (get-typescope-constraints
+					    current-topic :what 'topicoccurrence
+					    :revision revision)
+					   ",\"datatypeConstraint\":"
+					   (get-occurrence-datatype-constraint
+					    current-topic :revision revision)
+					   "}")))
+			      (push-string (concat current-json-string ",")
+					   occurrencetypes-json-string)))
 		      (if (string= occurrencetypes-json-string "\"occurrenceTypes\"[")
 			  (setf occurrencetypes-json-string "null")
 			  (setf occurrencetypes-json-string
-				(concatenate
-				 'string (subseq occurrencetypes-json-string 0
-						 (- (length
-						     occurrencetypes-json-string) 1))
-				 "]")))
+				(concat (subseq occurrencetypes-json-string 0
+						(- (length
+						    occurrencetypes-json-string) 1))
+					"]")))
 		      (let ((unique-constraints
-			     (concatenate 'string "\"uniqueConstraints\":"
-					  (get-simple-constraints
-					   unique-constraint-topics
-					   :revision revision)))
+			     (concat "\"uniqueConstraints\":"
+				     (get-simple-constraints unique-constraint-topics
+							     :revision revision)))
 			    (json-constraint-lists
-			     (concatenate
-			      'string "\"constraints\":" 
-			      (simple-constraints-to-json constraint-lists))))
+			     (concat "\"constraints\":" 
+				     (simple-constraints-to-json constraint-lists))))
 			(let ((current-json-string
-			       (concatenate
-				'string "{" occurrencetypes-json-string ","
-				json-constraint-lists "," unique-constraints "}")))
-			  (setf cleaned-topicoccurrence-constraints
-				(concatenate
-				 'string cleaned-topicoccurrence-constraints
-				 current-json-string ","))))))))
+			       (concat "{" occurrencetypes-json-string ","
+				       json-constraint-lists ","
+				       unique-constraints "}")))
+			  (push-string (concat current-json-string ",")
+				       cleaned-topicoccurrence-constraints)))))))
 	  (if (string= cleaned-topicoccurrence-constraints "[")
 	      (setf cleaned-topicoccurrence-constraints "null")
 	      (setf cleaned-topicoccurrence-constraints
-		    (concatenate
-		     'string
+		    (concat
 		     (subseq
 		      cleaned-topicoccurrence-constraints 0
 		      (- (length cleaned-topicoccurrence-constraints) 1)) "]")))
@@ -1185,8 +1150,8 @@
 		      (let ((card-min (getf (first constraint-lists) :card-min))
 			    (card-max (getf (first constraint-lists) :card-max)))
 			(let ((json-scopes
-			       (concatenate
-				'string "\"scopeTypes\":"
+			       (concat
+				"\"scopeTypes\":"
 				(let ((scopetypes-with-subtypes
 				       (remove-if
 					#'null
@@ -1207,17 +1172,15 @@
 					     topic-group))
 				    scopetypes-with-subtypes))))))
 			  (let ((current-json-string
-				 (concatenate 'string "{" json-scopes
-					      ",\"cardMin\":\"" card-min
-					      "\",\"cardMax\":\"" card-max "\"}")))
-			    (setf cleaned-typescope-constraints 
-				  (concatenate 'string cleaned-typescope-constraints
-					       current-json-string ",")))))))
+				 (concat "{" json-scopes
+					 ",\"cardMin\":\"" card-min
+					 "\",\"cardMax\":\"" card-max "\"}")))
+			    (push-string (concat current-json-string ",")
+					 cleaned-typescope-constraints))))))
 	      (if (string= cleaned-typescope-constraints "[")
 		  (setf cleaned-typescope-constraints "null")
 		  (setf cleaned-typescope-constraints 
-			(concatenate
-			 'string
+			(concat
 			 (subseq cleaned-typescope-constraints 0
 				 (- (length cleaned-typescope-constraints) 1)) "]")))
 	      cleaned-typescope-constraints)))))))
@@ -1725,16 +1688,14 @@
 (defun tree-view-to-json-string (tree-views)
   "Returns a full tree-view as json-string."
   (let ((json-string 
-	 (concatenate
-	  'string "["
+	 (concat
+	  "["
 	  (if tree-views
 	      (let ((inner-string ""))
 		(loop for tree-view in tree-views
-		   do (setf inner-string 
-			    (concatenate 'string inner-string
-					 (node-to-json-string tree-view) ",")))
-		(concatenate 'string (subseq inner-string 0
-					     (- (length inner-string) 1)) "]"))
+		   do (push-string (concat (node-to-json-string tree-view) ",")
+				   inner-string))
+		(concat (subseq inner-string 0 (- (length inner-string) 1)) "]"))
 	      "null"))))
     json-string))
 
@@ -1784,50 +1745,46 @@
   (declare (type (or integer null) revision)
 	   (list node))
   (let ((topic-psis
-	 (concatenate
-	  'string "\"topic\":"
+	 (concat
+	  "\"topic\":"
 	  (json:encode-json-to-string
 	   (map 'list #'d:uri (d:psis (getf node :topic) :revision revision)))))
 	(is-type
-	 (concatenate 'string "\"isType\":"
-		      (if (getf node :is-type)
-			  "true"
-			  "false")))
+	 (concat "\"isType\":" (if (getf node :is-type)
+				   "true"
+				   "false")))
 	(is-instance
-	 (concatenate 'string "\"isInstance\":"
-		      (if (getf node :is-instance)
-			  "true"
-			  "false")))
+	 (concat "\"isInstance\":"  (if (getf node :is-instance)
+					"true"
+					"false")))
 	(instances
-	 (concatenate
-	  'string "\"instances\":"
+	 (concat
+	  "\"instances\":"
 	  (if (getf node :instances)
 	      (let ((inner-string "["))
 		(loop for instance-node in (getf node :instances)
 		   do (setf inner-string
-			    (concatenate 
-			     'string inner-string
+			    (concat
+			     inner-string
 			     (node-to-json-string instance-node :revision revision)
 			     ",")))
-		(concatenate 'string (subseq inner-string 0
-					     (- (length inner-string) 1)) "]"))
+		(concat (subseq inner-string 0 (- (length inner-string) 1)) "]"))
 	      "null")))
 	(subtypes
-	 (concatenate
-	  'string "\"subtypes\":"
+	 (concat
+	  "\"subtypes\":"
 	  (if (getf node :subtypes)
 	      (let ((inner-string "["))
 		(loop for instance-node in (getf node :subtypes)
-		   do (setf inner-string
-			    (concatenate 'string inner-string
-					 (node-to-json-string instance-node
-							      :revision revision)
-					 ",")))
-		(concatenate 'string (subseq inner-string 0
-					     (- (length inner-string) 1)) "]"))
+		   do (push-string (concat
+				    (node-to-json-string instance-node
+							 :revision revision)
+				    ",")
+				   inner-string))
+		(concat (subseq inner-string 0 (- (length inner-string) 1)) "]"))
 	      "null"))))
-    (concatenate 'string "{" topic-psis "," is-type "," is-instance "," instances
-		 "," subtypes"}")))
+    (concat "{" topic-psis "," is-type "," is-instance "," instances
+	    "," subtypes"}")))
 
 
 (defun make-nodes (topic-instance is-type is-instance &key (revision *TM-REVISION*))

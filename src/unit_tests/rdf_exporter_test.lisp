@@ -13,7 +13,8 @@
    :xml-importer
    :datamodel
    :it.bese.FiveAM
-   :fixtures)
+   :fixtures
+   :base-tools)
   (:import-from :constants
                 *rdf-ns*
 		*rdfs-ns*
@@ -99,7 +100,7 @@
 		    (+ 3 (length item-identifiers)))
 		 (string= node-ns *tm2rdf-ns*)
 		 (string= node-name "role")
-		 (type-p descr (concatenate 'string *tm2rdf-ns* "types/Role"))
+		 (type-p descr (concat *tm2rdf-ns* "types/Role"))
 		 (if player-uri
 		     (property-p descr *tm2rdf-ns* "player"
 				 :resource player-uri)
@@ -227,8 +228,7 @@
 		      (length (loop for ii in item-identifiers
 				 when (identifier-p descr ii)
 				 collect ii)))
-		   (type-p descr (concatenate 'string *tm2rdf-ns* 
-					     "types/Variant"))))
+		   (type-p descr (concat *tm2rdf-ns* "types/Variant"))))
        return t))
 
 
@@ -252,8 +252,7 @@
 		       (length variants)))
 		 (string= node-ns *tm2rdf-ns*)
 		 (string= node-name "name")
-		 (type-p descr (concatenate 'string *tm2rdf-ns*
-					   "types/Name"))
+		 (type-p descr (concat *tm2rdf-ns* "types/Name"))
 		 (property-p descr *tm2rdf-ns* "nametype" :resource name-type)
 		 (= (length name-scopes)
 		    (length (loop for scope in name-scopes
@@ -295,8 +294,7 @@
 		       (length item-identifiers)))
 		 (string= node-ns *tm2rdf-ns*)
 		 (string= node-name "occurrence")
-		 (type-p descr (concatenate 'string *tm2rdf-ns*
-					   "types/Occurrence"))
+		 (type-p descr (concat *tm2rdf-ns* "types/Occurrence"))
 		 (property-p descr *tm2rdf-ns* "occurrencetype"
 			     :resource occurrence-type)
 		 (= (length occurrence-scopes)
@@ -345,15 +343,15 @@
 		       "von Goethe"))
 	(is (name-p me "http://some.where/relationship/firstName" nil
 		    (list "http://some.where/name_ii_1") "Johann Wolfgang"))
-	(let ((born-id (concatenate
-			'string "id_"
+	(let ((born-id (concat
+			"id_"
 			(write-to-string
 			 (elephant::oid
 			  (d:parent
 			   (elephant:get-instance-by-value
 			    'd:OccurrenceC 'd:charvalue "28.08.1749"))))))
-	      (died-id (concatenate
-			'string "id_"
+	      (died-id (concat
+			"id_"
 			(write-to-string
 			 (elephant::oid
 			  (d:parent
@@ -383,7 +381,7 @@
 			 erlkoenigs)))
 	(is-true me)
 	(is-true (type-p me "http://some.where/types/Ballad"))
-	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Topic")))
+	(is-true (type-p me (concat *tm2rdf-ns* "types/Topic")))
 	(is-true (literal-p me *sw-arc* "content"
 			    "Wer reitet so spät durch Nacht und Wind? ..."
 			    :xml-lang "de"))
@@ -391,8 +389,8 @@
 			       (list "http://some.where/scope/en") nil
 			       "Der Erlkönig"))
 	(let ((dateRange-id
-	       (concatenate
-		'string "id_"
+	       (concat
+		"id_"
 		(write-to-string
 		 (elephant::oid
 		  (d:parent
@@ -419,8 +417,8 @@
 			    "Bedecke deinen Himmel, Zeus, ..."
 			    :xml-lang "de"))
 	(let ((dateRange-id
-	       (concatenate
-		'string "id_"
+	       (concat
+		"id_"
 		(write-to-string
 		 (elephant::oid
 		  (d:parent
@@ -441,7 +439,7 @@
 			 zauberlehrlings)))
 	(is-true me)
 	(is-true (type-p me "http://some.where/types/Poem"))
-	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Topic")))
+	(is-true (type-p me (concat *tm2rdf-ns* "types/Topic")))
 	(is-true (identifier-p me "http://some.where/poem/Zauberlehrling"
 			       :what "subjectIdentifier"))
 	(is-true (identifier-p
@@ -461,8 +459,8 @@
 				     "http://some.where/occurrence_ii_2")
 			       "Der Zauberlehrling"))
 	(let ((dateRange-id
-	       (concatenate
-		'string "id_"
+	       (concat
+		"id_"
 		(write-to-string
 		 (elephant::oid
 		  (d:parent
@@ -596,8 +594,8 @@
 (test test-born-event
   "Tests the blank node of the born-event."
   (with-fixture rdf-exporter-test-db ()
-    (let ((born-id (concatenate
-		    'string "id_"
+    (let ((born-id (concat
+		    "id_"
 		    (write-to-string
 		     (elephant::oid
 		      (d:parent
@@ -623,8 +621,8 @@
 (test test-died-event
   "Tests the blank node of the born-event."
   (with-fixture rdf-exporter-test-db ()
-    (let ((born-id (concatenate
-		    'string "id_"
+    (let ((born-id (concat
+		    "id_"
 		    (write-to-string
 		     (elephant::oid
 		      (d:parent
@@ -650,8 +648,8 @@
 (test test-dateRange-zauberlehrling
   "Tests the node of zauberlehrling's dateRange."
   (with-fixture rdf-exporter-test-db ()
-    (let ((dr-id (concatenate
-		  'string "id_"
+    (let ((dr-id (concat
+		  "id_"
 		  (write-to-string
 		   (elephant::oid
 		    (d:parent
@@ -671,8 +669,8 @@
 (test test-dateRange-erlkoenig
   "Tests the node of erlkoenig's dateRange."
   (with-fixture rdf-exporter-test-db ()
-    (let ((dr-id (concatenate
-		  'string "id_"
+    (let ((dr-id (concat
+		  "id_"
 		  (write-to-string
 		   (elephant::oid
 		    (d:parent
@@ -692,8 +690,8 @@
 (test test-dateRange-prometheus
   "Tests the node of prometheus' dateRange."
   (with-fixture rdf-exporter-test-db ()
-    (let ((dr-id (concatenate
-		  'string "id_"
+    (let ((dr-id (concat
+		  "id_"
 		  (write-to-string
 		   (elephant::oid
 		    (d:parent
@@ -713,8 +711,8 @@
 (test test-schiller
   "Tests the node of schiller."
   (with-fixture rdf-exporter-test-db ()
-    (let ((schiller-id (concatenate
-			'string "id_"
+    (let ((schiller-id (concat
+			"id_"
 			(write-to-string
 			 (elephant::oid
 			  (d:parent
@@ -725,7 +723,7 @@
       (is (= (length (get-resources-by-id schiller-id)) 1))
       (let ((me (elt (get-resources-by-id schiller-id) 0)))
 	(is-true (type-p me "http://some.where/types/Author"))
-	(is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Topic")))
+	(is-true (type-p me (concat *tm2rdf-ns* "types/Topic")))
 	(is-true (literal-p me *sw-arc* "authorInfo"
 			    "http://de.wikipedia.org/wiki/Schiller"
 			    :datatype *xml-uri*))
@@ -755,7 +753,7 @@
 	  (poem (get-resources-by-uri "http://some.where/types/Poem"))
 	  (ballad (get-resources-by-uri "http://some.where/types/Ballad"))
 	  (language (get-resources-by-uri "http://some.where/types/Language"))
-	  (rdf-nil (get-resources-by-uri (concatenate 'string *rdf-ns* "nil"))))
+	  (rdf-nil (get-resources-by-uri (concat *rdf-ns* "nil"))))
       (is-true authors)
       (is (= (length authors) 1))
       (is (= (length (dom:child-nodes (elt authors 0))) 0))
@@ -842,7 +840,7 @@
 			 (property-p 
 			  (elt node-3s 0) *rdf-ns* "rest"
 			  :resource
-			  (concatenate 'string *rdf-ns* "nil")))))))))))))))
+			  (concat *rdf-ns* "nil")))))))))))))))
 
 
 (test test-association
@@ -855,21 +853,20 @@
 		       "http://some.where/test-association")))))
       (is-true assoc-id)
       (let ((assocs (get-resources-by-id
-		     (concatenate 'string "id_" (write-to-string assoc-id)))))
+		     (concat "id_" (write-to-string assoc-id)))))
 	(is (= (length assocs)))
 	(let ((me (elt assocs 0)))
 	  (is (= (length (dom:child-nodes me)) 7))
-	  (is-true (type-p me (concatenate 'string *tm2rdf-ns* "types/Association")))
+	  (is-true (type-p me (concat *tm2rdf-ns* "types/Association")))
 	  (is-true (identifier-p me "http://some.where/test-association"))
 	  (is-true (property-p me *tm2rdf-ns* "associationtype"
-			       :resource (concatenate
-					  'string *sw-arc*
-					  "associatedWithEachOther")))
+			       :resource (concat
+					  *sw-arc* "associatedWithEachOther")))
 	  (is-true (role-p me "http://some.where/roletype/writer"
 			   nil :player-uri "http://some.where/author/Goethe"))
 
-	  (let ((schiller-id (concatenate
-			      'string "id_"
+	  (let ((schiller-id (concat
+			      "id_"
 			      (write-to-string
 			       (elephant::oid
 				(d:parent

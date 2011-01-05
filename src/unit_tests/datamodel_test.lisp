@@ -13,6 +13,7 @@
    :datamodel
    :it.bese.FiveAM
    :fixtures
+   :base-tools
    :unittests-constants)
   (:import-from :exceptions
 		duplicate-identifier-error
@@ -481,12 +482,10 @@
 				       :revision rev-0)))
 	(is (eql top-3
 		 (get-item-by-id
-		  (concatenate 'string "t" (write-to-string
-					    (elephant::oid top-3)))
+		  (concat "t" (write-to-string (elephant::oid top-3)))
 		  :revision rev-0 :xtm-id nil)))
 	(is-false (get-item-by-id
-		   (concatenate 'string "t" (write-to-string
-					     (elephant::oid top-3)))
+		   (concat "t" (write-to-string (elephant::oid top-3)))
 		   :revision rev-1 :xtm-id nil)))))
 
 

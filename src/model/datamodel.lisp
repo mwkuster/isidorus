@@ -1634,7 +1634,7 @@
 	  (unless possible-identifiers
 	    (error (make-object-not-found-condition (format nil "Could not find an object ~a in xtm-id ~a" construct xtm-id))))
 	  (uri (first possible-identifiers)))
-	(concatenate 'string "t" (write-to-string (internal-id construct))))))
+	(concat "t" (write-to-string (internal-id construct))))))
 
 
 (defgeneric topic-identifiers (construct &key revision)

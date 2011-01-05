@@ -59,14 +59,14 @@
        *white-space*))
 
 
+(defmacro concat (&rest strings)
+  `(concatenate 'string ,@strings))
+
+
 (defmacro push-string (obj place)
   "Imitates the push macro but instead of pushing object in a list,
    there will be appended the given string to the main string object."
-  `(setf ,place (concatenate 'string ,place ,obj)))
-
-
-(defmacro concat (&rest strings)
-  `(concatenate 'string ,@strings))
+  `(setf ,place (concat ,place ,obj)))
 
 
 (defmacro when-do (result-bounding condition-statement do-with-result)
@@ -103,12 +103,12 @@
 	 (remove-if #'null
 		    (map 'list #'(lambda(item)
 				   (when (stringp item)
-				     (concatenate 'string "/" item)))
+				     (concat "/" item)))
 			 (pathname-directory pathname))))
 	(full-path-string ""))
     (dolist (segment segments)
       (push-string segment full-path-string))
-    (concatenate 'string full-path-string "/" (pathname-name pathname))))
+    (concat full-path-string "/" (pathname-name pathname))))
 
 
 (defun trim-whitespace-left (value)
@@ -193,9 +193,10 @@
 	(if (not search-idx)
 	    main-string
 	    (let ((modified-string
-		   (concatenate 'string (subseq main-string 0 search-idx)
-				new-string (subseq main-string
-						   (+ search-idx (length string-to-replace))))))
+		   (concat (subseq main-string 0 search-idx)
+			   new-string
+			   (subseq main-string
+				   (+ search-idx (length string-to-replace))))))
 	      (string-replace modified-string string-to-replace new-string))))))
 
 
@@ -225,7 +226,7 @@
 	   (type (or Null String) digits))
   (if (string-starts-with-digit str)
       (separate-leading-digits
-       (subseq str 1) (concatenate 'string digits (subseq str 0 1)))
+       (subseq str 1) (concat digits (subseq str 0 1)))
       digits))
 
 
@@ -314,9 +315,9 @@
 		  (find-literal-end (subseq query-string 3) (subseq query-string 0 3))))
 	     (when literal-end
 	       (list :next-string (subseq query-string (+ 3 literal-end))
-		     :literal (concatenate 'string quotation
-					   (subseq query-string 3 literal-end)
-					   quotation)))))
+		     :literal (concat quotation
+				      (subseq query-string 3 literal-end)
+				      quotation)))))
 	  ((or (string-starts-with query-string "\"")
 	       (string-starts-with query-string "'"))
 	   (unless local-quotation
@@ -328,8 +329,8 @@
 	       (let ((literal
 		      (escape-string (subseq query-string 1 literal-end) "\"")))
 		 (list :next-string (subseq query-string (+ 1 literal-end))
-		       :literal (concatenate 'string local-quotation literal
-					     local-quotation)))))))))
+		       :literal (concat local-quotation literal
+					local-quotation)))))))))
 
 
 (defun search-first-ignore-literals (search-strings main-string &key from-end)
@@ -396,7 +397,7 @@
 			 (setf separator "/"))
 		       (subseq absolute-ns 0 (- (length absolute-ns) 1)))
 		     absolute-ns))))
-	(concatenate 'string prep-ns separator value)))))
+	(concat prep-ns separator value)))))
 
 
 (defun absolute-uri-p (uri)

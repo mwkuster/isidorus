@@ -14,7 +14,7 @@
 ;;   raise some kind of error (--> condition) if something goes wrong. 
 
 (defpackage :xml-importer
-  (:use :cl :cxml :elephant :datamodel :isidorus-threading)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading :base-tools)
   (:import-from :constants
 		*type-instance-psi*
 		*type-psi*

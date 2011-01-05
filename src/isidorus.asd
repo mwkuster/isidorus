@@ -19,8 +19,8 @@
   :version "0.1"
   :author "Marc Kuester, Christoph Ludwig, Lukas Georgieff"
   :licence "LGPL"
-  :components (
-	       (:file "constants")
+  :components ((:file "constants"
+		      :depends-on ("base-tools"))
                (:static-file "xml/xtm/core_psis.xtm")
 	       (:static-file "xml/rdf/rdf_core_psis.xtm")
 	       (:file "xml-constants" 
@@ -76,6 +76,7 @@
 					      :depends-on ("xtm")))
 			:depends-on ("constants"
                                      "xml-constants"
+				     "base-tools"
 				     "model"
 				     "threading"
 				     "base-tools"))
@@ -109,7 +110,8 @@
 				     "xml"
 				     "TM-SPARQL"
 				     "json"
-				     "threading"))
+				     "threading"
+				     "base-tools"))
 	       (:module "unit_tests"
 			:components ((:static-file "textgrid.xtm")
 				     (:static-file "textgrid_old.xtm")
@@ -197,7 +199,8 @@
 					    :depends-on ("json_tmcl_validation" "json_importer"))
 				     (:file "json_delete_interface"
 					    :depends-on ("json_importer")))
-	                :depends-on ("model"
+	                :depends-on ("base-tools"
+				     "model"
 				     "xml"
 				     "TM-SPARQL"))
 	       (:module "ajax"

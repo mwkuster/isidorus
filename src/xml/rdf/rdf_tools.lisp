@@ -100,8 +100,8 @@
 			      *_n-map*)))
 	  (if owner
 	      (let ((new-name
-		     (concatenate
-		      'string *rdf-ns* "_"
+		     (concat
+		      *rdf-ns* "_"
 		      (write-to-string (+ (length (getf owner :props)) 1)))))
 		(push (list :elem property
 			    :name new-name)
@@ -112,7 +112,7 @@
 		 (list :owner owner-identifier
 		       :props (list
 			       (list :elem property
-				     :name (concatenate 'string *rdf-ns* "_1"))))
+				     :name (concat *rdf-ns* "_1"))))
 		 *_n-map*)
 		"_1"))))))
 
@@ -183,15 +183,11 @@
     (when (or resource datatype parseType class subClassOf)
       (error "~a~a is not allowed here (~a)!"
 	     err-pref (cond
-			(resource (concatenate 'string "resource("
-					       resource ")"))
-			(datatype (concatenate 'string "datatype("
-					       datatype ")"))
-			(parseType (concatenate 'string "parseType("
-						parseType ")"))
-			(class (concatenate 'string "Class(" class ")"))
-			(subClassOf (concatenate 'string "subClassOf("
-						 subClassOf ")")))
+			(resource (concat "resource(" resource ")"))
+			(datatype (concat "datatype(" datatype ")"))
+			(parseType (concat "parseType(" parseType ")"))
+			(class (concat "Class(" class ")"))
+			(subClassOf (concat "subClassOf(" subClassOf ")")))
 	     (dom:node-name node)))
     (dolist (item *rdf-types*)
       (when (get-ns-attribute node item)
@@ -310,9 +306,9 @@
       (error "~aonly one of ~a and rdf:datatype (~a) is allowed!"
 	     err-pref
 	     (cond
-	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
-	       (resource (concatenate 'string "rdf:resource (" resource ")"))
-	       (type (concatenate 'string "rdf:type (" type ")"))
+	       (nodeID (concat "rdf:nodeID (" nodeID ")"))
+	       (resource (concat "rdf:resource (" resource ")"))
+	       (type (concat "rdf:type (" type ")"))
 	       (literals literals))
 	     datatype))
     (when (and (or nodeID resource)
@@ -320,8 +316,8 @@
      (error "~awhen ~a is set no content is allowed: ~a!"
 	     err-pref
 	     (cond
-	       (nodeID (concatenate 'string "rdf:nodeID (" nodeID ")"))
-	       (resource (concatenate 'string "rdf:resource (" resource ")")))
+	       (nodeID (concat "rdf:nodeID (" nodeID ")"))
+	       (resource (concat "rdf:resource (" resource ")")))
 	     content))
     (when (and type
 	       (stringp content)
@@ -340,8 +336,8 @@
       (error "~a~a not allowed here!"
 	     err-pref
 	     (if about
-		 (concatenate 'string "rdf:about (" about ")")
-		 (concatenate 'string "rdfs:subClassOf (" subClassOf ")"))))
+		 (concat "rdf:about (" about ")")
+		 (concat "rdfs:subClassOf (" subClassOf ")"))))
     (when (and (string= node-name "subClassOf")
 	       (string= node-ns *rdfs-ns*)
 	       (not (or nodeID resource content)))
@@ -424,8 +420,7 @@
   (remove-if
    #'null
    (append (unless (string= (get-type-of-node-name elem)
-			    (concatenate 'string *rdf-ns*
-					 "Description"))
+			    (concat *rdf-ns* "Description"))
 	     (list 
 	      (list :topicid (get-type-of-node-name elem)
 		    :psi (get-type-of-node-name elem)

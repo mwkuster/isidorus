@@ -40,7 +40,7 @@
   (let ((prep-id (if (and (> (length id) 0)
 			  (eql (elt id 0) #\#))
 		     id
-		     (concatenate 'string "#" (string-left-trim "/" id)))))
+		     (concat "#" (string-left-trim "/" id)))))
     (absolutize-value prep-id xml-base tm-id)))
 				  
 
@@ -65,8 +65,8 @@
 	(let ((fragment
 	       (if (and (> (length prep-value) 0)
 			(eql (elt prep-value 0) #\#))
-		   (concatenate 'string prep-base prep-value)
-		   (concatenate 'string prep-base "/" prep-value))))
+		   (concat prep-base prep-value)
+		   (concat prep-base "/" prep-value))))
 	  (if (absolute-uri-p fragment)
 	      fragment
 	      (let ((prep-fragment
@@ -79,7 +79,7 @@
 		       (if (eql (elt prep-fragment 0) #\#)
 			   ""
 			   "/")))
-		  (concatenate 'string prep-tm-id separator prep-fragment))))))))
+		  (concat prep-tm-id separator prep-fragment))))))))
 
 
 (defun get-xml-lang(elem &key (old-lang nil))
@@ -123,8 +123,8 @@
 	new-base
 	(if (not new-base)
 	    old-base
-	    (concatenate 'string (string-right-trim "/" old-base)
-			 "/" (string-left-trim "/" new-base))))))
+	    (concat (string-right-trim "/" old-base)
+		    "/" (string-left-trim "/" new-base))))))
 
 
 (defun child-nodes-or-text (elem &key (trim nil))
@@ -170,7 +170,7 @@
   "Returns the node's name without a prefix."
   (if (find #\: (dom:node-name elem))
       (subseq (dom:node-name elem)
-	      (length (concatenate 'string (dom:prefix elem) ":")))
+	      (length (concat (dom:prefix elem) ":")))
       (dom:node-name elem)))
 
 
@@ -190,17 +190,16 @@
 (defun xpath-fn-string (elem &optional (strip-whitespace t))
   "Extract the string value of an XML DOM element (with subelements)"
   (declare (dom:element elem))
-  ;;  ((conditional-fn #'(lambda(s) (string-trim " #\t#\n" s)) strip-whitespace ; 
   (handle-whitespace strip-whitespace
-   (apply #'concatenate 'string 
-               (map 'list
-                    (lambda (s)
-                      (cond
-                        ((dom:text-node-p s)
-                         (dom:node-value s))
-                        ((dom:element-p s)
-                         (xpath-fn-string s))))
-                    (dom:child-nodes elem)))))
+   (apply #'concatenate 'string
+	  (map 'list
+	       (lambda (s)
+		 (cond
+		   ((dom:text-node-p s)
+		    (dom:node-value s))
+		   ((dom:element-p s)
+		    (xpath-fn-string s))))
+	       (dom:child-nodes elem)))))
 
 (defun attr-value (attr)
   (dom:node-value attr))
@@ -312,16 +311,15 @@ returns nil"
 	    (attributes (dom:attributes elem))
 	    (child-nodes (dom:child-nodes elem))
 	    (elem-string ""))
-	(push-string (concatenate 'string "<" node-name) elem-string)
+	(push-string (concat "<" node-name) elem-string)
 	(dom:map-node-map
 	 #'(lambda(attr)
 	     (let ((attr-name (dom:node-name attr))
 		   (attr-value (dom:node-value attr)))
-	       (push-string (concatenate 'string " " attr-name "=\""
-					 attr-value "\"")
+	       (push-string (concat " " attr-name "=\"" attr-value "\"")
 			    elem-string)))
 	 attributes)
 	(push-string ">" elem-string)
 	(loop for child-node across child-nodes
 	   do (push-string (node-to-string child-node) elem-string))
-	(push-string (concatenate 'string "</" node-name ">") elem-string))))
+	(push-string (concat "</" node-name ">") elem-string))))

@@ -19,7 +19,7 @@
 	       (> (length reifier-uri) 0))
       (let ((psi
 	     (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri
-					     (concatenate 'string "#" reifier-uri))))
+					     (concat "#" reifier-uri))))
 	(when psi
 	  (let ((reifier-topic (identified-construct psi :revision start-revision)))
 	    (when reifier-topic

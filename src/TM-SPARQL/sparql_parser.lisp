@@ -228,8 +228,8 @@
 			      (string #\newline)))
 	  (delimiters-2 (list " ." ". " ";" "}" " " (string #\tab)
 			      (string #\newline)
-			      (concatenate 'string "." (string #\newline))
-			      (concatenate 'string "." (string #\tab)))))
+			      (concat "." (string #\newline))
+			      (concat "." (string #\tab)))))
       (cond ((string-starts-with query-string "@")
 	     (let ((end-pos (search-first delimiters-1
 					  (subseq query-string 1))))
@@ -344,7 +344,7 @@
 		     (string-after elem-str ":")))
 	   (full-url
 	    (when (and suffix prefix)
-	      (get-prefix construct (concatenate 'string prefix ":" suffix)))))
+	      (get-prefix construct (concat prefix ":" suffix)))))
       (unless (and end-pos prefix suffix)
 	(error (make-sparql-parser-condition
 		trimmed-str (original-query construct)
@@ -355,9 +355,8 @@
 		:message (format nil "The prefix in \"~a:~a\" is not registered"
 				 prefix suffix))))
       (list :next-query (cut-comment
-			 (string-after
-			  trimmed-str
-			  (concatenate 'string prefix ":" suffix)))
+			 (string-after trimmed-str
+				       (concat prefix ":" suffix)))
 	    :value (make-instance 'SPARQL-Triple-Elem
 				  :elem-type 'IRI
 				  :value full-url)))))

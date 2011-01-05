@@ -14,6 +14,7 @@
    :it.bese.FiveAM
    :unittests-constants
    :fixtures
+   :base-tools
    :exporter)
   (:import-from :constants
                 *xtm2.0-ns*
@@ -531,26 +532,26 @@
 	(revision-1 100)
 	(document-id "doc-id")
 	(doc-1
-	 (concatenate 'string "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
-		      "xmlns:arcs=\"http://test/arcs/\" "
-		      "xmlns:rdfs=\"" *rdfs-ns* "\">"
-		      "<rdf:Description rdf:about=\"first-node\">"
-		      "<arcs:arc1 rdf:ID=\"reification-1\">"
-		      "<rdf:Description rdf:about=\"second-node\" />"
-		      "</arcs:arc1>"
-		      "</rdf:Description>"
-		      "<rdf:Description rdf:ID=\"#reification-1\">"
-		      "<arcs:arc2 rdf:resource=\"third-node\"/>"
-		      "</rdf:Description>"
-		      "<rdf:Description rdf:nodeID=\"fourth-node\">"
-		      "<arcs:arc3 rdf:ID=\"reification-2\" rdf:datatype=\"dt\">"
-		      "occurrence data"
-		      "</arcs:arc3>"
-		      "</rdf:Description>"
-		      "<rdf:Description rdf:ID=\"#reification-2\">"
-		      "<arcs:arc4 rdf:resource=\"fifth-node\" />"
-		      "</rdf:Description>"
-		      "</rdf:RDF>")))
+	 (concat "<rdf:RDF xmlns:rdf=\"" *rdf-ns* "\" "
+		 "xmlns:arcs=\"http://test/arcs/\" "
+		 "xmlns:rdfs=\"" *rdfs-ns* "\">"
+		 "<rdf:Description rdf:about=\"first-node\">"
+		 "<arcs:arc1 rdf:ID=\"reification-1\">"
+		 "<rdf:Description rdf:about=\"second-node\" />"
+		 "</arcs:arc1>"
+		 "</rdf:Description>"
+		 "<rdf:Description rdf:ID=\"#reification-1\">"
+		 "<arcs:arc2 rdf:resource=\"third-node\"/>"
+		 "</rdf:Description>"
+		 "<rdf:Description rdf:nodeID=\"fourth-node\">"
+		 "<arcs:arc3 rdf:ID=\"reification-2\" rdf:datatype=\"dt\">"
+		 "occurrence data"
+		 "</arcs:arc3>"
+		 "</rdf:Description>"
+		 "<rdf:Description rdf:ID=\"#reification-2\">"
+		 "<arcs:arc4 rdf:resource=\"fifth-node\" />"
+		 "</rdf:Description>"
+		 "</rdf:RDF>")))
     (clean-out-db db-dir)
     (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
       (is-true dom-1)
@@ -685,17 +686,17 @@
 	  (is-true (reified-construct (reifier name)))
 	  (is (= (length (psis (reifier name))) 1))
 	  (is (string= (uri (first (psis (reifier name))))
-		       (concatenate 'string tm-id "lisa-name")))
+		       (concat tm-id "lisa-name")))
 	  (is-true (reifier variant))
 	  (is-true (reified-construct (reifier variant)))
 	  (is (= (length (psis (reifier variant))) 1))
 	  (is (string= (uri (first (psis (reifier variant))))
-		       (concatenate 'string tm-id "lisa-name-variant")))
+		       (concat tm-id "lisa-name-variant")))
 	  (is-true (reifier occurrence))
 	  (is-true (reified-construct (reifier occurrence)))
 	  (is (= (length (psis (reifier occurrence))) 1))
 	  (is (string= (uri (first (psis (reifier occurrence))))
-		       (concatenate 'string tm-id "lisa-occurrence")))))))
+		       (concat tm-id "lisa-occurrence")))))))
   (elephant:close-store))
 
 
@@ -722,7 +723,7 @@
 	(is-true (reified-construct (reifier friendship-association)))
 	(is (= (length (psis (reifier friendship-association))) 1))
 	(is (string= (uri (first (psis (reifier friendship-association))))
-		     (concatenate 'string tm-id "friendship-association")))
+		     (concat tm-id "friendship-association")))
 	(is (= (length (roles friendship-association)) 2))
 	(let ((carl-role
 	       (find-if #'(lambda(role)
@@ -733,7 +734,7 @@
 	  (is-true (reified-construct (reifier carl-role)))
 	  (is (= (length (psis (reifier carl-role))) 1))
 	  (is (string= (uri (first (psis (reifier carl-role))))
-		       (concatenate 'string tm-id "friend-role")))))))
+		       (concat tm-id "friend-role")))))))
   (elephant:close-store))
 
 

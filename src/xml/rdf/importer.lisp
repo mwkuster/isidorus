@@ -423,8 +423,7 @@
   (let ((topic-id (or about ID nodeID UUID))
 	(psi-uri (or about ID))
 	(ii-uri (unless (or about ID)
-		  (concatenate 'string *rdf2tm-blank-node-prefix* 
-			       (or nodeID UUID)))))
+		  (concat *rdf2tm-blank-node-prefix* (or nodeID UUID)))))
     (let ((top (get-item-by-id topic-id :xtm-id document-id
 			       :revision start-revision)))
       (if top

@@ -203,9 +203,9 @@
 (defgeneric (setf elem-type) (construct elem-type)
   (:documentation "Sets the passed elem-type on the passed cosntruct.")
   (:method ((construct SPARQL-Triple-Elem) (elem-type Symbol))
-    (unless (and (eql elem-type 'IRI)
-		 (eql elem-type 'VARIABLE)
-		 (eql elem-type 'LITERAL))
+    (when (and (not (eql elem-type 'IRI))
+	       (not (eql elem-type 'VARIABLE))
+	       (not (eql elem-type 'LITERAL)))
       (error (make-condition
 	      'bad-argument-error
 	      :message (format nil "Expected a one of the symbols ~a, but get ~a~%"
@@ -470,7 +470,7 @@
    or name. The subject is the owner topic and the predicate is the
    characteristic's type."
   (declare (Integer revision)
-	   (String literal-value literal-datatype))
+	   (String literal-datatype))
   (let ((chars
 	 (cond ((string= literal-datatype *xml-string*)
 		(remove-if #'(lambda(elem)
@@ -481,13 +481,13 @@
 			    (elephant:get-instances-by-value
 			     'NameC 'charvalue literal-value))))
 	       ((and (string= literal-datatype *xml-boolean*)
-		     (eql literal-value t))
+		     literal-value)
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) "true"))
 			   (elephant:get-instances-by-value
 			    'OccurrenceC 'charvalue "true")))
 	       ((and (string= literal-datatype *xml-boolean*)
-		     (eql literal-value nil))
+		     (not literal-value))
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) "false"))
 			   (elephant:get-instances-by-value

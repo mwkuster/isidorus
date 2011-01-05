@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :exporter
-  (:use :cl :cxml :elephant :datamodel :isidorus-threading)
+  (:use :cl :cxml :elephant :datamodel :isidorus-threading :base-tools)
   (:import-from :constants
                 *XTM2.0-NS*
 		*XTM1.0-NS*
@@ -72,11 +72,14 @@
 	     "")))
   (if (string= characteristic-type  "http://www.w3.org/2001/XMLSchema#anyURI")
       (cxml:with-element "t:resourceRef"
-	(cxml:attribute "xlink:href"
-			(let ((ref-topic (when (and (> (length characteristic-value) 0)
-						    (eql (elt characteristic-value 0) #\#))
-					   (get-item-by-id (subseq characteristic-value 1) :revision revision))))
-			  (if ref-topic (concatenate 'string "#" (topic-id ref-topic revision)) characteristic-value))))
+	(cxml:attribute
+	 "xlink:href"
+	 (let ((ref-topic (when (and (> (length characteristic-value) 0)
+				     (eql (elt characteristic-value 0) #\#))
+			    (get-item-by-id (subseq characteristic-value 1)
+					    :revision revision))))
+	   (if ref-topic (concat "#" (topic-id ref-topic revision))
+	       characteristic-value))))
       (cxml:with-element "t:resourceData"
 	(cxml:text characteristic-value)))))
 
@@ -94,7 +97,7 @@
 	   (type (or integer nil) revision))
   (cxml:with-element "t:instanceOf"
     (cxml:with-element "t:topicRef"
-      (cxml:attribute "xlink:href" (concatenate 'string "#" (topic-id topic revision))))))
+      (cxml:attribute "xlink:href" (concat "#" (topic-id topic revision))))))
 
 
 (defun to-subjectIdentity-elem-xtm1.0 (psis locator revision)

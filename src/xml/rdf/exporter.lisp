@@ -51,12 +51,12 @@
    of the type rdf:_n there will be returned rdf:li."
   (let ((rdf-len (length *rdf-ns*)))
     (let ((prep-uri (when (string-starts-with
-			   uri (concatenate 'string *rdf-ns* "_"))
+			   uri (concat *rdf-ns* "_"))
 		      (subseq uri (+ rdf-len 1)))))
       (if prep-uri
 	  (handler-case (progn
 			  (parse-integer prep-uri)
-			  (concatenate 'string *rdf-ns* "li"))
+			  (concat *rdf-ns* "li"))
 	    (condition () uri))
 	  uri))))
 
@@ -86,8 +86,7 @@
      (let ((ns (getf ns-list :prefix))
 	   (tag-name (getf ns-list :suffix)))
        (cxml:with-namespace ((get-ns-prefix ns) ns)
-	 (cxml:with-element (concatenate 'string (get-ns-prefix ns)
-					 ":" tag-name)
+	 (cxml:with-element (concat (get-ns-prefix ns) ":" tag-name)
 	   ,@body)))))
 
 
@@ -154,9 +153,8 @@
 		  *ns-map*)))
     (if ns-entry
 	(getf ns-entry :prefix)
-	(let ((new-name (concatenate
-			 'string "ns"
-			 (write-to-string (+ 1 (length *ns-map*))))))
+	(let ((new-name (concat "ns"
+				(write-to-string (+ 1 (length *ns-map*))))))
 	  (push (list :prefix new-name
 		      :uri ns-uri)
 		*ns-map*)
@@ -209,7 +207,7 @@
 (defun make-object-id (object)
   "Returns a string of the form id_<integer> which can be used
    as nodeID."
-  (concatenate 'string "id_" (write-to-string (elephant::oid object))))
+  (concat "id_" (write-to-string (elephant::oid object))))
 
 
 (defun make-topic-reference (topic)
@@ -221,7 +219,7 @@
 		      (if (reified-construct topic)
 			  (let ((psi (get-reifier-psi topic)))
 			    (if psi
-				(concatenate 'string "#" (get-reifier-uri topic))
+				(concat "#" (get-reifier-uri topic))
 				(uri (first (psis topic)))))
 			  (uri (first (psis topic)))))
       (cxml:attribute "rdf:nodeID" (make-object-id topic))))
@@ -597,7 +595,8 @@
 	  (if (reified-construct construct)
 	      (let ((reifier-uri (get-reifier-uri construct)))
 		(if reifier-uri
-		    (cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
+		    (cxml:attribute "rdf:about"
+				    (concat "#" (get-reifier-uri construct)))
 		    (cxml:attribute "rdf:about" (uri psi))))
 	      (cxml:attribute "rdf:about" (uri psi)))
 	  (cxml:attribute "rdf:nodeID" (make-object-id construct)))
@@ -632,7 +631,8 @@
 	  (if (reified-construct construct)
 	      (let ((reifier-uri (get-reifier-uri construct)))
 		(if reifier-uri
-		    (cxml:attribute "rdf:about" (concatenate 'string "#" (get-reifier-uri construct)))
+		    (cxml:attribute "rdf:about"
+				    (concat "#" (get-reifier-uri construct)))
 		    (cxml:attribute "rdf:about" (uri psi))))
 	      (cxml:attribute "rdf:about" (uri psi)))
 	  (cxml:attribute "rdf:nodeID" (make-object-id construct)))

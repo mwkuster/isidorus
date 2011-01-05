@@ -181,8 +181,8 @@
 		 (arg-list (bracket-scope cleaned-right-str))
 		 (cleaned-arg-list (clean-function-arguments arg-list))
 		 (modified-str
-		  (concatenate
-		   'string left-str "(" fun-name " " cleaned-arg-list ")"
+		  (concat
+		   left-str "(" fun-name " " cleaned-arg-list ")"
 		   (subseq right-str (+ (- (length right-str)
 					   (length cleaned-right-str))
 					(length arg-list))))))
@@ -240,11 +240,10 @@
 		 (left-scope (find-compare-left-scope left-str))
 		 (right-scope (find-compare-right-scope right-str))
 		 (modified-str
-		  (concatenate
-		   'string (subseq left-str 0 (- (length left-str)
-						 (length left-scope)))
-		   "(" op-str " " left-scope " " right-scope ")"
-		   (subseq right-str (length right-scope)))))
+		  (concat (subseq left-str 0 (- (length left-str)
+						(length left-scope)))
+			  "(" op-str " " left-scope " " right-scope ")"
+			  (subseq right-str (length right-scope)))))
 	    (set-compare-operators construct modified-str))))))
 
 
@@ -357,9 +356,9 @@
 		 (left-scope (find-*/-left-scope left-str))
 		 (right-scope (find-*/-right-scope right-str))
 		 (modified-str
-		  (concatenate
-		   'string (subseq left-str 0 (- (length left-str)
-						 (length left-scope)))
+		  (concat
+		   (subseq left-str 0 (- (length left-str)
+					 (length left-scope)))
 		   "(" op-str " " left-scope " " right-scope ")"
 		   (subseq right-str (length right-scope)))))
 	    (set-*-and-/-operators construct modified-str))))))
@@ -438,11 +437,10 @@
 		 (left-scope (find-+--left-scope left-str))
 		 (right-scope (find-+--right-scope right-str))
 		 (modified-str
-		  (concatenate
-		   'string (subseq left-str 0 (- (length left-str)
-						 (length left-scope)))
-		   "(" op-str " " left-scope " " right-scope ")"
-		   (subseq right-str (length right-scope)))))
+		  (concat (subseq left-str 0 (- (length left-str)
+						(length left-scope)))
+			  "(" op-str " " left-scope " " right-scope ")"
+			  (subseq right-str (length right-scope)))))
 	    (set-+-and---operators construct modified-str))))))
 
 
@@ -537,11 +535,11 @@
 		 (left-scope (find-or-and-left-scope left-str))
 		 (right-scope (find-or-and-right-scope right-str))
 		 (modified-str
-		  (concatenate 'string (subseq left-str 0 (- (length left-str)
-							     (length left-scope)))
-			       "(" (if (string= op-str "||") "or" "and") " "
-			       "(progn " left-scope ")" "(progn " right-scope ")) "
-			       (subseq right-str (length right-scope)))))
+		  (concat (subseq left-str 0 (- (length left-str)
+						(length left-scope)))
+			  "(" (if (string= op-str "||") "or" "and") " "
+			  "(progn " left-scope ")" "(progn " right-scope ")) "
+			  (subseq right-str (length right-scope)))))
 	    (when (or (= (length (trim-whitespace left-scope)) 0)
 		      (= (length (trim-whitespace right-scope)) 0))
 	      (error (make-condition
@@ -666,7 +664,7 @@
 			   (string-ends-with-one-of
 			    string-before (append (*supported-operators*) (list "("))))
 		       (let ((result (unary-operator-scope filter-string idx)))
-			 (push-string (concatenate 'string "(one" current-char " ")
+			 (push-string (concat "(one" current-char " ")
 				      result-string)
 			 (push-string (set-unary-operators construct
 							   (getf result :scope))
@@ -754,7 +752,7 @@
     (when fun-suffix
       (let* ((args (bracket-scope fun-suffix))
 	     (fun-name (string-until cleaned-str args)))
-	(concatenate 'string fun-name args)))))
+	(concat fun-name args)))))
 
 
 (defun get-filter-variable (str)
