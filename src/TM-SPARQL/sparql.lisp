@@ -8,9 +8,12 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :TM-SPARQL
-  (:use :cl :datamodel :base-tools :exceptions :constants)
+  (:use :cl :datamodel :base-tools :exceptions :constants
+	:TM-SPARQL-Constants :xml-importer :xml-constants
+	:isidorus-threading :xml-tools)
   (:export :SPARQL-Query
-	   :result))
+	   :result
+	   :init-tm-sparql))
 
 (in-package :TM-SPARQL)
 
@@ -18,6 +21,30 @@
 
 (defvar *equal-operators* nil "A Table taht contains tuples of 
                                classes and equality operators.")
+
+
+(defun init-tm-sparql (&optional (revision (get-revision)))
+  "Imports the file tmsparql_core_psis.xtm. core_psis.xtm has to be imported
+   before."
+  (with-writer-lock
+    (with-tm (revision "tmsparql.xtm" (concat *tms* "topic-map"))
+      (let ((core-dom (cxml:parse-file *tmsparql_core_psis.xtm*
+				       (cxml-dom:make-dom-builder)))
+	    (xtm-id (reverse
+		     (base-tools:string-until
+		      (reverse
+		       (pathname-name
+			xml-constants:*tmsparql_core_psis.xtm*)) "/"))))
+	(elephant:ensure-transaction (:txn-nosync t)
+	  (loop for top-elem across 
+	       (xpath-child-elems-by-qname (dom:document-element core-dom)
+					   *xtm2.0-ns* "topic")
+	     do (let ((top
+		       (from-topic-elem-to-stub top-elem revision
+						:xtm-id xtm-id)))
+		  (add-to-tm xml-importer::tm top))))))))
+
+
 
 (defun init-*equal-operators* ()
   (setf *equal-operators*
@@ -1164,8 +1191,5 @@
   ;; filters all entries that are not important for the result
   ;; => an intersection is invoked
   (reduce-results construct (make-result-lists construct))
-;  (dolist (triple (select-group construct))
-;    (dolist (filter (filters construct))
-;      (invoke-filter triple construct filter)))
   (process-filters construct)
   construct)

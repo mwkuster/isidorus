@@ -23,6 +23,7 @@
 		      :depends-on ("base-tools"))
                (:static-file "xml/xtm/core_psis.xtm")
 	       (:static-file "xml/rdf/rdf_core_psis.xtm")
+	       (:static-file "TM-SPARQL/tmsparql_core_psis.xtm")
 	       (:file "xml-constants" 
                       :depends-on ("xml/xtm/core_psis.xtm"
                                    "constants"))
@@ -40,14 +41,21 @@
                                             :depends-on ("exceptions")))
 			:depends-on ("constants" "base-tools"))
 	       (:module "TM-SPARQL"
-			:components ((:file "sparql")
+			:components ((:file "sparql_constants")
+				     (:file "sparql"
+					    :depends-on ("sparql_constants"))
 				     (:file "filter_wrappers"
 					    :depends-on ("sparql"))
 				     (:file "sparql_filter"
 					    :depends-on ("sparql" "filter_wrappers"))
 				     (:file "sparql_parser"
 					    :depends-on ("sparql" "sparql_filter")))
-			:depends-on ("constants" "base-tools" "model"))
+			:depends-on ("constants"
+				     "base-tools"
+				     "model"
+				     "xml-constants"
+				     "xml"
+				     "threading"))
 	       (:module "xml"
 			:components ((:module "xtm"
 					      :components ((:file "tools")

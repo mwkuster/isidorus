@@ -14,7 +14,8 @@
 		*isidorus-system*)
   (:export :*xml-component*
 	   :*core_psis.xtm*
-	   :*rdf_core_psis.xtm*))
+	   :*rdf_core_psis.xtm*
+	   :*tmsparql_core_psis.xtm*))
 
 (in-package :xml-constants)
 
@@ -28,3 +29,7 @@
 (defparameter *rdf_core_psis.xtm*
   (asdf:component-pathname
    (asdf:find-component *isidorus-system* "xml/rdf/rdf_core_psis.xtm")))
+
+(defparameter *tmsparql_core_psis.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *isidorus-system* "TM-SPARQL/tmsparql_core_psis.xtm")))
