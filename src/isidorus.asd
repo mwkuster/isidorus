@@ -44,6 +44,8 @@
 			:components ((:file "sparql_constants")
 				     (:file "sparql"
 					    :depends-on ("sparql_constants"))
+				     (:file "sparql_special_uris"
+					    :depends-on ("sparql"))
 				     (:file "filter_wrappers"
 					    :depends-on ("sparql"))
 				     (:file "sparql_filter"

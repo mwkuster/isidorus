@@ -43,6 +43,7 @@
 	   :FragmentC
 
 	   ;;methods, functions and macros
+	   :has-identifier
 	   :get-all-identifiers-of-construct
 	   :xtm-id
 	   :uri
@@ -153,6 +154,9 @@
 	   :rec-remf
 	   :get-all-topics
 	   :get-all-associations
+	   :get-all-occurrences
+	   :get-all-names
+	   :get-all-variants
 	   :get-all-tms
 
 	   ;;globals
@@ -684,6 +688,18 @@
 		  :function-symbol function-symbol))
 
 
+(defgeneric has-identifier (construct uri &key revision)
+  (:documentation "Returns an identifier if there is any identifier bound
+                   to the passed construct with the specified uri.")
+  (:method ((construct TopicMapConstructC) (uri String)
+	    &key (revision *TM-REVISION*))
+    (let ((all-ids
+	   (get-all-identifiers-of-construct construct :revision revision)))
+      (find-if #'(lambda(idc)
+		   (string= (uri idc) uri))
+	       all-ids))))
+
+
 (defgeneric get-most-recent-versioned-assoc (construct slot-symbol)
   (:documentation "Returns the most recent VersionedAssociationC
                    object.")
@@ -745,6 +761,18 @@
 
 (defun get-all-associations (&optional (revision *TM-REVISION*))
   (get-db-instances-by-class 'AssociationC :revision revision))
+
+
+(defun get-all-occurrences (&optional (revision *TM-REVISION*))
+  (get-db-instances-by-class 'OccurrenceC :revision revision))
+
+
+(defun get-all-names (&optional (revision *TM-REVISION*))
+  (get-db-instances-by-class 'NameC :revision revision))
+
+
+(defun get-all-variants (&optional (revision *TM-REVISION*))
+  (get-db-instances-by-class 'VariantC :revision revision))
 
 
 (defun get-all-tms (&optional (revision *TM-REVISION*))
@@ -980,7 +1008,7 @@
 
 (defgeneric check-for-duplicate-identifiers (construct &key revision)
   (:documentation "Check for possibly duplicate identifiers and signal an
-  duplicate-identifier-error is such duplicates are found"))
+                   duplicate-identifier-error is such duplicates are found"))
 
 
 (defgeneric get-all-identifiers-of-construct (construct &key revision)

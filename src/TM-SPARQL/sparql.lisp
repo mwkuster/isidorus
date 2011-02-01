@@ -15,6 +15,8 @@
 	   :result
 	   :init-tm-sparql))
 
+
+
 (in-package :TM-SPARQL)
 
 (defvar *empty-label* "_empty_label_symbol" "A label symobl for empyt prefix labels")
@@ -453,9 +455,11 @@
     (declare (Integer revision))
     (set-tm-constructs construct :revision revision)
     (when (not (iri-not-found-p construct)) ;there is only a result if all IRIs were found
-      (let ((results (or (filter-by-given-subject construct :revision revision)
-			 (filter-by-given-predicate construct :revision revision)
-			 (filter-by-given-object construct :revision revision))))
+      (let ((results (append
+		      (or (filter-by-given-subject construct :revision revision)
+			  (filter-by-given-predicate construct :revision revision)
+			  (filter-by-given-object construct :revision revision))
+		      (filter-by-special-uris construct :revision revision))))
 	(map 'list #'(lambda(result)
 		       (push (getf result :subject) (subject-result construct))
 		       (push (getf result :predicate) (predicate-result construct))
@@ -491,13 +495,9 @@
 				    :revision revision))))))
 
 
-(defun filter-by-characteristic-value (literal-value literal-datatype
-				       &key (revision *TM-REVISION*))
-  "Returns a triple where the passed value is a charvalue in a occurrence
-   or name. The subject is the owner topic and the predicate is the
-   characteristic's type."
-  (declare (Integer revision)
-	   (String literal-datatype))
+(defun return-characteristics (literal-value literal-datatype)
+  "Returns all characteristica that own the specified value."
+  (declare (String literal-datatype))
   (let ((chars
 	 (cond ((string= literal-datatype *xml-string*)
 		(remove-if #'(lambda(elem)
@@ -506,30 +506,53 @@
 			    (elephant:get-instances-by-value
 			     'OccurrenceC 'charvalue literal-value)
 			    (elephant:get-instances-by-value
+			     'VariantC 'charvalue literal-value)
+			    (elephant:get-instances-by-value
 			     'NameC 'charvalue literal-value))))
 	       ((and (string= literal-datatype *xml-boolean*)
 		     literal-value)
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) "true"))
-			   (elephant:get-instances-by-value
-			    'OccurrenceC 'charvalue "true")))
+			   (append (elephant:get-instances-by-value
+				    'VariantC 'charvalue "true")
+				   (elephant:get-instances-by-value
+				    'OccurrenceC 'charvalue "true"))))
 	       ((and (string= literal-datatype *xml-boolean*)
 		     (not literal-value))
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) "false"))
-			   (elephant:get-instances-by-value
-			    'OccurrenceC 'charvalue "false")))
+			   (append (elephant:get-instances-by-value
+				    'VariantC 'charvalue "true")
+				   (elephant:get-instances-by-value
+				    'OccurrenceC 'charvalue "false"))))
 	       ((or (string= literal-datatype *xml-double*)
 		    (string= literal-datatype *xml-decimal*)
 		    (string= literal-datatype *xml-integer*))
-		(let ((occs
-		       (remove-if #'(lambda(occ)
-				      (string/= (datatype occ) literal-datatype))
-				  (elephant:get-instances-by-value
-				   'OccurrenceC 'datatype literal-datatype))))
-		  (remove-if #'(lambda(occ)
-				 (not (literal= (charvalue occ) literal-value)))
-			     occs))))))
+		(let ((constructs
+		       (remove-if #'(lambda(con)
+				      (string/= (datatype con) literal-datatype))
+				  (append
+				   (elephant:get-instances-by-value
+				    'VariantC 'datatype literal-datatype)
+				   (elephant:get-instances-by-value
+				    'OccurrenceC 'datatype literal-datatype)))))
+		  (remove-if #'(lambda(con)
+				 (not (literal= (charvalue con) literal-value)))
+			     constructs))))))
+    ;;elephant returns names, occurences, and variants if any string
+    ;;value matches, so all duplicates have to be removed
+    (remove-duplicates chars)))
+
+
+(defun filter-by-characteristic-value (literal-value literal-datatype
+				       &key (revision *TM-REVISION*))
+  "Returns a triple where the passed value is a charvalue in a occurrence
+   or name. The subject is the owner topic and the predicate is the
+   characteristic's type.
+   (Variants are not considered because they are not typed, so they cannot
+   be referenced via a predicate)."
+  (declare (Integer revision)
+	   (String literal-datatype))
     (remove-null
      (map 'list #'(lambda(char)
 		    (let ((subj (when-do top (parent char :revision revision)
@@ -540,13 +563,10 @@
 			(list :subject (embrace-uri subj)
 			      :predicate (embrace-uri pred)
 			      :object (charvalue char)
-			      :literal-datatyp literal-datatype))))
-	  ;;elephant returns names, occurences, and variants if any string
-	  ;;value matches, so all duplicates have to be removed, additionaly
-	  ;;variants have to be remove completely
-	  (remove-if #'(lambda(obj)
-			 (typep obj 'VariantC))
-		     (remove-duplicates chars))))))
+			      :literal-datatype literal-datatype))))
+	  (remove-if #'(lambda(char)
+			 (typep char 'VariantC))
+		     (return-characteristics literal-value literal-datatype)))))
 
 
 (defgeneric filter-by-otherplayer (construct &key revision)
@@ -824,21 +844,37 @@
       (funcall operator value-1 value-2))))
 
 
+(defun filter-datatypable-by-value (construct literal-value literal-datatype)
+  "A helper that compares the datatypable's charvalue with the passed
+   literal value."
+  (declare (d::DatatypableC construct)
+	   (type (or Null String) literal-value literal-datatype))
+  (when (or (not literal-datatype)
+	    (string= (datatype construct) literal-datatype))
+    (if (not literal-value)
+	construct
+	(handler-case
+	    (let ((occ-value (cast-literal (charvalue construct)
+					   (datatype construct))))
+	      (when (literal= occ-value literal-value)
+		construct))
+	  (condition () nil)))))	      
+
+
+(defun filter-variant-by-value (variant literal-value literal-datatype)
+  "A helper that compares the occurrence's variant's with the passed
+   literal value."
+  (declare (VariantC variant)
+	   (type (or Null String) literal-value literal-datatype))
+  (filter-datatypable-by-value variant literal-value literal-datatype))
+
+
 (defun filter-occ-by-value (occurrence literal-value literal-datatype)
   "A helper that compares the occurrence's charvalue with the passed
    literal value."
   (declare (OccurrenceC occurrence)
 	   (type (or Null String) literal-value literal-datatype))
-  (when (or (not literal-datatype)
-	    (string= (datatype occurrence) literal-datatype))
-    (if (not literal-value)
-	occurrence
-	(handler-case
-	    (let ((occ-value (cast-literal (charvalue occurrence)
-					   (datatype occurrence))))
-	      (when (literal= occ-value literal-value)
-		occurrence))
-	  (condition () nil)))))	      
+  (filter-datatypable-by-value occurrence literal-value literal-datatype))
       
 
 (defgeneric filter-occurrences(construct type-top literal-value
