@@ -154,6 +154,7 @@
 	   :rec-remf
 	   :get-all-topics
 	   :get-all-associations
+	   :get-all-roles
 	   :get-all-occurrences
 	   :get-all-names
 	   :get-all-variants
@@ -761,6 +762,10 @@
 
 (defun get-all-associations (&optional (revision *TM-REVISION*))
   (get-db-instances-by-class 'AssociationC :revision revision))
+
+
+(defun get-all-roles (&optional (revision *TM-REVISION*))
+  (get-db-instances-by-class 'RoleC :revision revision))
 
 
 (defun get-all-occurrences (&optional (revision *TM-REVISION*))

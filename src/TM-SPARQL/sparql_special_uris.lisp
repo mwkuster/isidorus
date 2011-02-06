@@ -47,8 +47,7 @@
 		 (filter-for-roles construct :revision revision))
 		((and (has-identifier (value pred) *tms-player*)
 		      (typep subj-value 'd:RoleC))
-		 nil) ;TODO: implement
-		)))))
+		 (filter-for-player construct :revision revision)))))))
 
 
 (defgeneric filter-for-special-uris (construct &key revision)
@@ -64,6 +63,67 @@
     ;; *tms-role*
     ;; *tms-player*
     ))
+
+
+(defgeneric filter-for-player (construct &key revision)
+  (:documentation "Returns a list with triples where the subject
+                   represents a role and the object represents a player.")
+  (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
+      (unless (literal-p (object construct))
+	(let* ((subj (subject construct))
+	       (pred (predicate construct))
+	       (obj (object construct))
+	       (subj-uri (unless (variable-p subj)
+			   (when-do id (any-id (value subj) :revision revision)
+				    (embrace-uri (uri id)))))
+	       (pred-uri (unless (variable-p pred)
+			   (when-do id (any-id (value pred) :revision revision)
+				    (embrace-uri (uri id)))))
+	       (obj-uri (unless (variable-p obj)
+			  (when-do id (any-id (value obj) :revision revision)
+				   (embrace-uri (uri id))))))
+	  (cond ((and (not (variable-p subj))
+		      (not (variable-p obj)))
+		 (when (eql (player (value subj) :revision revision)
+			    (value obj))
+		   (list (list :subject subj-uri
+			       :predicate pred-uri
+			       :object obj-uri))))
+		((not (variable-p subj))
+		 (let ((player-top
+			(player (value subj) :revision revision)))
+		   (when player-top
+		     (list :subject subj-uri
+			   :predicate pred-uri
+			   :object (when-do id (any-id player-top :revision revision)
+					    (embrace-uri (uri id)))))))
+		((not (variable-p obj))
+		 (let ((parent-roles
+			(player-in-roles (value obj) :revision revision)))
+		   (loop for role in parent-roles
+		      collect (list :subject (when-do id (any-id role :revision revision)
+						      (embrace-uri id))
+				    :predicate pred-uri
+				    :object
+				    (when-do id (any-id (player role :revision revision)
+							:revision revision)
+					     (embrace-uri id))))))
+		(t ; only pred is given
+		 (let ((all-roles
+			(remove-null
+			 (map 'list #'(lambda(role)
+					(when (player role :revision revision)
+					  role))
+			      (get-all-roles revision)))))
+		   (loop for role in all-roles
+		      collect (list :subject
+				    (when-do id (any-id role :revision revision)
+					     (embrace-uri (uri id)))
+				    :predicate pred-uri
+				    :object
+				    (when-do id (any-id (player role :revision revision)
+							:revision revision)
+					     (embrace-uri id)))))))))))
 
 
 (defgeneric filter-for-roles (construct &key revision)
@@ -294,8 +354,8 @@
 
 
   (defgeneric filter-for-reifier (construct &key revision)
-    (:documentation "Returns a list with one triple representing a reifier
-                   and the corresponding reified construct.")
+    (:documentation "Returns a list with triples representing a reifier
+                     and the corresponding reified construct.")
     (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
       (unless (literal-p (object construct))
 	(let* ((subj (subject construct))
