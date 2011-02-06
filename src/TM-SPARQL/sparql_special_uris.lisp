@@ -12,7 +12,6 @@
 
 
 ;TODO: create a macro for "filter-for-scopes", "filter-for-reifier", ...
-;TODO: filter-by-special-uris
 ;TODO: change (embrace-uri String) to (embrace-construct TopicMapsConstructC)
 ;        that creates a blank node when there is no identifier available
 ;         => change also any-id, so if there is no identifier a blank node
@@ -37,7 +36,7 @@
 		      (typep subj-value 'd:ScopableC))
 		 (filter-for-special-uris construct :revision revision))
 		((and (has-identifier (value pred) *tms-value*)
-		      (typep subj-value 'd:TopicC))
+		      (typep subj-value 'd:CharacteristicC))
 		 (filter-for-values construct :revision revision))
 		((and (has-identifier (value pred) *tms-topicProperty*)
 		      (typep subj-value 'd:TopicC))
@@ -52,17 +51,43 @@
 
 (defgeneric filter-for-special-uris (construct &key revision)
   (:documentation "Returns a list of triples representing the subject
-                   and its objects correponding to the defined
+                   and its objects corresponding to the defined
                    special-uris, e.g. <subj> var <obj>.")
   (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
-    ;;TODO: implement => type-checking
-    ;; *tms-reifier*
-    ;; *tms-scope*
-    ;; *tms-value* => only when there is <occ|var|nam> ? <LITERAL>, otherwise the predicate is the type of the characteristic
-    ;; *tms-topicProperty* ??
-    ;; *tms-role*
-    ;; *tms-player*
-    ))
+    (let* ((subj (subject construct))
+	   (pred (predicate construct))
+	   (old-pred-value (value pred))
+	   (res-1
+	    (when (or (typep (value subj) 'd:ReifiableConstructC)
+		      (variable-p subj))
+	      (setf (value pred) (get-item-by-psi *tms-reifier* :revision revision))
+	      (filter-for-reifier construct :revision revision)
+	      (setf (value pred) old-pred-value)))
+	   (res-2
+	    (when (or (typep (value subj) 'd:ScopableC)
+		      (variable-p subj))
+	      (setf (value pred) (get-item-by-psi *tms-scope* :revision revision))
+	      (filter-for-scopes construct :revision revision)
+	      (setf (value pred) old-pred-value)))
+	   (res-3
+	    (when (or (typep (value subj) 'd:CharacteristicC)
+		      (variable-p subj))
+	      (setf (value pred) (get-item-by-psi *tms-value* :revision revision))
+	      (filter-for-values construct :revision revision)
+	      (setf (value pred) old-pred-value)))
+	   (res-4
+	    (when (or (typep (value subj) 'd:AssociationC)
+		      (variable-p subj))
+	      (setf (value pred) (get-item-by-psi *tms-role* :revision revision))
+	      (filter-for-values construct :revision revision)
+	      (setf (value pred) old-pred-value)))
+	   (res-5
+	    (when (or (typep (value subj) 'd:RoleC)
+		      (variable-p subj))
+	      (setf (value pred) (get-item-by-psi *tms-player* :revision revision))
+	      (filter-for-values construct :revision revision)
+	      (setf (value pred) old-pred-value))))
+      (append res-1 res-2 res-3 res-4 res-5))))
 
 
 (defgeneric filter-for-player (construct &key revision)
