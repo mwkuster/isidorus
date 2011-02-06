@@ -44,7 +44,7 @@
 		 (filter-for-topicProperties construct :revision revision))
 		((and (has-identifier (value pred) *tms-role*)
 		      (typep subj-value 'd:AssociationC))
-		 nil) ;TODO: implement
+		 (filter-for-roles construct :revision revision))
 		((and (has-identifier (value pred) *tms-player*)
 		      (typep subj-value 'd:RoleC))
 		 nil) ;TODO: implement
@@ -56,12 +56,70 @@
                    and its objects correponding to the defined
                    special-uris, e.g. <subj> var <obj>.")
   (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
-    ;;TODO: implement
+    ;;TODO: implement => type-checking
     ;; *tms-reifier*
     ;; *tms-scope*
     ;; *tms-value* => only when there is <occ|var|nam> ? <LITERAL>, otherwise the predicate is the type of the characteristic
     ;; *tms-topicProperty* ??
+    ;; *tms-role*
+    ;; *tms-player*
     ))
+
+
+(defgeneric filter-for-roles (construct &key revision)
+  (:documentation "Returns a list of triples where the subject represents
+                   an Association and the object represents a role.")
+  (:method((construct SPARQL-Triple) &key (revision *TM-REVISION*))
+    (unless (literal-p (object construct))
+      (let* ((subj (subject construct))
+	     (pred (predicate construct))
+	     (obj (object construct))
+	     (subj-uri (unless (variable-p subj)
+			 (when-do id (any-id (value subj) :revision revision)
+				  (embrace-uri (uri id)))))
+	     (pred-uri (unless (variable-p pred)
+			 (when-do id (any-id (value pred) :revision revision)
+				  (embrace-uri (uri id)))))
+	     (obj-uri (unless (variable-p obj)
+			(when-do id (any-id (value obj) :revision revision)
+				 (embrace-uri (uri id))))))
+	(cond ((and (not (variable-p subj))
+		    (not (variable-p obj)))
+	       (when (find obj (roles (value subj) :revision revision))
+		 (list (list :subject subj-uri
+			     :predicate pred-uri
+			     :object obj-uri))))
+	      ((not (variable-p subj))
+	       (loop for role in (roles (value subj) :revision revision)
+		  collect (list :subject subj-uri
+				:predicate pred-uri
+				:object (when-do id (any-id role :revision revision)
+						 (embrace-uri id)))))
+	      ((not (variable-p obj))
+	       (let ((parent-assoc (parent (value obj) :revision revision)))
+		 (when revision
+		   (list :subject (when-do id (any-id parent-assoc :revision revision)
+					   (embrace-uri id))
+			 :predicate pred-uri
+			 :object obj-uri))))
+	      (t ; only pred is given
+	       (let ((assocs
+		      (remove-null
+		       (map 'list #'(lambda(assoc)
+				      (when (roles assoc :revision revision)
+					assoc))
+			    (get-all-associations revision)))))
+		 (loop for assoc in assocs
+		      append (loop for role in (roles assoc :revision revision)
+				collect (list :subject
+					      (when-do id (any-id assoc
+								  :revision revision)
+						       (embrace-uri id))
+					      :predicate pred-uri
+					      :object
+					      (when-do id (any-id role
+								  :revision revision)
+						       (embrace-uri id))))))))))))
 
 
 (defgeneric filter-for-topicProperties (construct &key revision)
@@ -83,20 +141,21 @@
 				 (embrace-uri (uri id))))))
 	(cond ((and (not (variable-p subj))
 		    (not (variable-p obj)))
-	       (when (find obj (append (names subj :revision revision)
-				       (occurrences subj :revision revision)))
+	       (when (find obj (append (names (value subj) :revision revision)
+				       (occurrences (value subj) :revision revision)))
 		 (list (list :subject subj-uri
 			     :predicate pred-uri
 			     :object obj-uri))))
 	      ((not (variable-p subj))
-	       (loop for property in (append (names subj :revision revision)
-					     (occurrences subj :revision revision))
+	       (loop for property in (append
+				      (names (value subj) :revision revision)
+				      (occurrences (value subj) :revision revision))
 		  collect (list :subject subj-uri
 				:predicate pred-uri
 				:object (when-do id (any-id property :revision revision)
 						 (embrace-uri id)))))
 	      ((not (variable-p obj))
-	       (let ((parent-top (parent obj :revision revision)))
+	       (let ((parent-top (parent (value obj) :revision revision)))
 		 (when revision
 		   (list :subject (when-do id (any-id parent-top :revision revision)
 					   (embrace-uri id))
@@ -145,11 +204,11 @@
 		      (not (variable-p obj)))
 		 (when (or (and (typep subj 'NameC)
 				(string= literal-datatype *xml-string*)
-				(string= (charvalue subj) obj))
+				(string= (charvalue subj) (value obj)))
 			   (filter-datatypable-by-value subj obj literal-datatype))
 		   (list (list :subject subj-uri
 			       :predicate pred-uri
-			       :object obj
+			       :object (value obj)
 			       :literal-datatype literal-datatype))))
 		((not (variable-p subj))
 		 (list (list :subject subj-uri
@@ -157,7 +216,7 @@
 			     :object (charvalue subj)
 			     :literal-datatype (datatype subj))))
 		((not (variable-p obj))
-		 (loop for char in (return-characteristics obj literal-datatype)
+		 (loop for char in (return-characteristics (value obj) literal-datatype)
 		    collect (list :subject (when-do id (any-id char :revision revision)
 						    (embrace-uri id))
 				  :predicate pred-uri
@@ -194,12 +253,12 @@
 				   (embrace-uri (uri id))))))
 	  (cond ((and (not (variable-p subj))
 		      (not (variable-p obj)))
-		 (when (find obj (themes subj :revision revision))
+		 (when (find obj (themes (value subj) :revision revision))
 		   (list (list :subject subj-uri
 			       :predicate pred-uri
 			       :object obj-uri))))
 		((not (variable-p subj))
-		 (loop for scope in (themes subj :revision revision)
+		 (loop for scope in (themes (value subj) :revision revision)
 		    collect (list :subject subj-uri
 				  :predicate pred-uri
 				  :object (when-do id (any-id scope :revision revision)
