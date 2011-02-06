@@ -12,11 +12,6 @@
 
 
 ;TODO: create a macro for "filter-for-scopes", "filter-for-reifier", ...
-;TODO: change (embrace-uri String) to (embrace-construct TopicMapsConstructC)
-;        that creates a blank node when there is no identifier available
-;         => change also any-id, so if there is no identifier a blank node
-;            have to be returned
-;         => change all when-do statements that call any-id
 
 
 
@@ -99,14 +94,11 @@
 	       (pred (predicate construct))
 	       (obj (object construct))
 	       (subj-uri (unless (variable-p subj)
-			   (when-do id (any-id (value subj) :revision revision)
-				    (embrace-uri (uri id)))))
+			   (sparql-node (value subj) :revision revision)))
 	       (pred-uri (unless (variable-p pred)
-			   (when-do id (any-id (value pred) :revision revision)
-				    (embrace-uri (uri id)))))
+			   (sparql-node (value pred) :revision revision)))
 	       (obj-uri (unless (variable-p obj)
-			  (when-do id (any-id (value obj) :revision revision)
-				   (embrace-uri (uri id))))))
+			  (sparql-node (value obj) :revision revision))))
 	  (cond ((and (not (variable-p subj))
 		      (not (variable-p obj)))
 		 (when (eql (player (value subj) :revision revision)
@@ -120,19 +112,15 @@
 		   (when player-top
 		     (list :subject subj-uri
 			   :predicate pred-uri
-			   :object (when-do id (any-id player-top :revision revision)
-					    (embrace-uri (uri id)))))))
+			   :object (sparql-node player-top :revision revision)))))
 		((not (variable-p obj))
 		 (let ((parent-roles
 			(player-in-roles (value obj) :revision revision)))
 		   (loop for role in parent-roles
-		      collect (list :subject (when-do id (any-id role :revision revision)
-						      (embrace-uri id))
+		      collect (list :subject (sparql-node role :revision revision)
 				    :predicate pred-uri
-				    :object
-				    (when-do id (any-id (player role :revision revision)
-							:revision revision)
-					     (embrace-uri id))))))
+				    :object (sparql-node (player role :revision revision)
+							 :revision revision)))))
 		(t ; only pred is given
 		 (let ((all-roles
 			(remove-null
@@ -141,14 +129,10 @@
 					  role))
 			      (get-all-roles revision)))))
 		   (loop for role in all-roles
-		      collect (list :subject
-				    (when-do id (any-id role :revision revision)
-					     (embrace-uri (uri id)))
+		      collect (list :subject (sparql-node role :revision revision)
 				    :predicate pred-uri
-				    :object
-				    (when-do id (any-id (player role :revision revision)
-							:revision revision)
-					     (embrace-uri id)))))))))))
+				    :object (sparql-node (player role :revision revision)
+							 :revision revision))))))))))
 
 
 (defgeneric filter-for-roles (construct &key revision)
@@ -160,14 +144,11 @@
 	     (pred (predicate construct))
 	     (obj (object construct))
 	     (subj-uri (unless (variable-p subj)
-			 (when-do id (any-id (value subj) :revision revision)
-				  (embrace-uri (uri id)))))
+			 (sparql-node (value subj) :revision revision)))
 	     (pred-uri (unless (variable-p pred)
-			 (when-do id (any-id (value pred) :revision revision)
-				  (embrace-uri (uri id)))))
+			 (sparql-node (value pred) :revision revision)))
 	     (obj-uri (unless (variable-p obj)
-			(when-do id (any-id (value obj) :revision revision)
-				 (embrace-uri (uri id))))))
+			(sparql-node (value obj) :revision revision))))
 	(cond ((and (not (variable-p subj))
 		    (not (variable-p obj)))
 	       (when (find obj (roles (value subj) :revision revision))
@@ -178,13 +159,11 @@
 	       (loop for role in (roles (value subj) :revision revision)
 		  collect (list :subject subj-uri
 				:predicate pred-uri
-				:object (when-do id (any-id role :revision revision)
-						 (embrace-uri id)))))
+				:object (sparql-node role :revision revision))))
 	      ((not (variable-p obj))
 	       (let ((parent-assoc (parent (value obj) :revision revision)))
 		 (when revision
-		   (list :subject (when-do id (any-id parent-assoc :revision revision)
-					   (embrace-uri id))
+		   (list :subject (sparql-node parent-assoc :revision revision)
 			 :predicate pred-uri
 			 :object obj-uri))))
 	      (t ; only pred is given
@@ -196,15 +175,11 @@
 			    (get-all-associations revision)))))
 		 (loop for assoc in assocs
 		      append (loop for role in (roles assoc :revision revision)
-				collect (list :subject
-					      (when-do id (any-id assoc
-								  :revision revision)
-						       (embrace-uri id))
+				collect (list :subject (sparql-node
+							assoc :revision revision)
 					      :predicate pred-uri
-					      :object
-					      (when-do id (any-id role
-								  :revision revision)
-						       (embrace-uri id))))))))))))
+					      :object (sparql-node
+						       role :revision revision)))))))))))
 
 
 (defgeneric filter-for-topicProperties (construct &key revision)
@@ -216,14 +191,11 @@
 	     (pred (predicate construct))
 	     (obj (object construct))
 	     (subj-uri (unless (variable-p subj)
-			 (when-do id (any-id (value subj) :revision revision)
-				  (embrace-uri (uri id)))))
+			 (sparql-node (value subj) :revision revision)))
 	     (pred-uri (unless (variable-p pred)
-			 (when-do id (any-id (value pred) :revision revision)
-				  (embrace-uri (uri id)))))
+			 (sparql-node (value pred) :revision revision)))
 	     (obj-uri (unless (variable-p obj)
-			(when-do id (any-id (value obj) :revision revision)
-				 (embrace-uri (uri id))))))
+			(sparql-node (value obj) :revision revision))))
 	(cond ((and (not (variable-p subj))
 		    (not (variable-p obj)))
 	       (when (find obj (append (names (value subj) :revision revision)
@@ -237,13 +209,12 @@
 				      (occurrences (value subj) :revision revision))
 		  collect (list :subject subj-uri
 				:predicate pred-uri
-				:object (when-do id (any-id property :revision revision)
-						 (embrace-uri id)))))
+				:object
+				(sparql-node property :revision revision))))
 	      ((not (variable-p obj))
 	       (let ((parent-top (parent (value obj) :revision revision)))
 		 (when revision
-		   (list :subject (when-do id (any-id parent-top :revision revision)
-					   (embrace-uri id))
+		   (list :subject (sparql-node parent-top :revision revision)
 			 :predicate pred-uri
 			 :object obj-uri))))
 	      (t ; only pred is given
@@ -259,13 +230,11 @@
 		      append (loop for prop in (append
 						(names top :revision revision)
 						(occurrences top :revision revision))
-				collect (list :subject
-					      (when-do id (any-id top :revision revision)
-						       (embrace-uri id))
+				collect (list :subject (sparql-node
+							top :revision revision)
 					      :predicate pred-uri
-					      :object
-					      (when-do id (any-id prop :revision revision)
-						       (embrace-uri id))))))))))))
+					      :object (sparql-node
+						       prop :revision revision)))))))))))
 
 
   (defgeneric filter-for-values (construct &key revision)
@@ -280,11 +249,9 @@
 	       (obj (object construct))
 	       (literal-datatype (literal-datatype obj))
 	       (subj-uri (unless (variable-p subj)
-			   (when-do id (any-id (value subj) :revision revision)
-				    (embrace-uri (uri id)))))
+			   (sparql-node (value subj) :revision revision)))
 	       (pred-uri (unless (variable-p pred)
-			   (when-do id (any-id (value pred) :revision revision)
-				    (embrace-uri (uri id))))))
+			   (sparql-node(value pred) :revision revision))))
 	  (cond ((and (not (variable-p subj))
 		      (not (variable-p obj)))
 		 (when (or (and (typep subj 'NameC)
@@ -302,8 +269,7 @@
 			     :literal-datatype (datatype subj))))
 		((not (variable-p obj))
 		 (loop for char in (return-characteristics (value obj) literal-datatype)
-		    collect (list :subject (when-do id (any-id char :revision revision)
-						    (embrace-uri id))
+		    collect (list :subject (sparql-node char :revision revision)
 				  :predicate pred-uri
 				  :object (charvalue char)
 				  :literal-datatype (datatype char))))
@@ -312,8 +278,7 @@
 				      (get-all-occurrences revision)
 				      (get-all-variants revision))))
 		   (loop for char in chars
-		      collect (list :subject (when-do id (any-id char :revision revision)
-						      (embrace-uri id))
+		      collect (list :subject (sparql-node char :revision revision)
 				    :predicate pred-uri
 				    :object (charvalue char)
 				    :literal-datatype (datatype char))))))))))
@@ -328,14 +293,11 @@
 	       (pred (predicate construct))
 	       (obj (object construct))
 	       (subj-uri (unless (variable-p subj)
-			   (when-do id (any-id (value subj) :revision revision)
-				    (embrace-uri (uri id)))))
+			   (sparql-node (value subj) :revision revision)))
 	       (pred-uri (unless (variable-p pred)
-			   (when-do id (any-id (value pred) :revision revision)
-				    (embrace-uri (uri id)))))
+			   (sparql-node (value pred) :revision revision)))
 	       (obj-uri (unless (variable-p obj)
-			  (when-do id (any-id (value obj) :revision revision)
-				   (embrace-uri (uri id))))))
+			  (sparql-node (value obj) :revision revision))))
 	  (cond ((and (not (variable-p subj))
 		      (not (variable-p obj)))
 		 (when (find obj (themes (value subj) :revision revision))
@@ -346,14 +308,12 @@
 		 (loop for scope in (themes (value subj) :revision revision)
 		    collect (list :subject subj-uri
 				  :predicate pred-uri
-				  :object (when-do id (any-id scope :revision revision)
-						   (embrace-uri (uri id))))))
+				  :object (sparql-node scope :revision revision))))
 		((not (variable-p obj))
 		 (let ((scoped-constructs
 			(used-as-theme (value obj) :revision revision)))
 		   (loop for construct in scoped-constructs
-		      collect (list :subject (when-do id (any-id construct :revision revision)
-						      (embrace-uri (uri id)))
+		      collect (list :subject (sparql-node construct :revision revision)
 				    :predicate pred-uri
 				    :object obj-uri))))
 		(t ;only pred is given
@@ -369,68 +329,59 @@
 		   (loop for construct in scoped-constructs
 		      append (loop for scope in (themes construct :revision revision)
 				collect
-				  (list :subject (when-do id (any-id construct
-								     :revision revision)
-							  (embrace-uri id))
+				  (list :subject (sparql-node
+						  construct :revision revision)
 					:predicate pred-uri
-					:object (when-do id (any-id construct
-								    :revision revision)
-							 (embrace-uri id))))))))))))
+					:object (sparql-node
+						 construct :revision revision)))))))))))
 
 
-  (defgeneric filter-for-reifier (construct &key revision)
-    (:documentation "Returns a list with triples representing a reifier
+(defgeneric filter-for-reifier (construct &key revision)
+  (:documentation "Returns a list with triples representing a reifier
                      and the corresponding reified construct.")
-    (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
-      (unless (literal-p (object construct))
-	(let* ((subj (subject construct))
-	       (pred (predicate construct))
-	       (obj (object construct))
-	       (subj-uri (unless (variable-p subj)
-			   (when-do id (any-id (value subj) :revision revision)
-				    (embrace-uri (uri id)))))
-	       (pred-uri (unless (variable-p pred)
-			   (when-do id (any-id (value pred) :revision revision)
-				    (embrace-uri (uri id)))))
-	       (obj-uri (unless (variable-p obj)
-			  (when-do id (any-id (value obj) :revision revision)
-				   (embrace-uri (uri id))))))
-	  (cond ((and (not (variable-p subj))
-		      (not (variable-p obj)))
-		 (when (eql (reifier (value subj) :revision revision)
-			    (value obj))
-		   (list (list :subject subj-uri
+  (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
+    (unless (literal-p (object construct))
+      (let* ((subj (subject construct))
+	     (pred (predicate construct))
+	     (obj (object construct))
+	     (subj-uri (unless (variable-p subj)
+			 (sparql-node (value subj) :revision revision)))
+	     (pred-uri (unless (variable-p pred)
+			 (sparql-node (value pred) :revision revision)))
+	     (obj-uri (unless (variable-p obj)
+			(sparql-node (value obj) :revision revision))))
+	(cond ((and (not (variable-p subj))
+		    (not (variable-p obj)))
+	       (when (eql (reifier (value subj) :revision revision)
+			  (value obj))
+		 (list (list :subject subj-uri
+			     :predicate pred-uri
+			     :object obj-uri))))
+	      ((not (variable-p subj))
+	       (let ((reifier-top
+		      (reifier (value subj) :revision revision)))
+		 (when reifier-top
+		   (list :subject subj-uri
+			 :predicate pred-uri
+			 :object (sparql-node reifier-top :revision revision)))))
+	      ((not (variable-p obj))
+	       (let ((reified-cons
+		      (reified-construct (value obj) :revision revision)))
+		 (when reified-cons
+		   (list (list :subject
+			       (sparql-node reified-cons :revision revision)
 			       :predicate pred-uri
-			       :object obj-uri))))
-		((not (variable-p subj))
-		 (let ((reifier-top
-			(reifier (value subj) :revision revision)))
-		   (when reifier-top
-		     (list :subject subj-uri
-			   :predicate pred-uri
-			   :object (when-do id (any-id reifier-top :revision revision)
-					    (embrace-uri (uri id)))))))
-		((not (variable-p obj))
-		 (let ((reified-cons
-			(reified-construct (value obj) :revision revision)))
-		   (when reified-cons
-		     (list (list :subject
-				 (when-do id (any-id reified-cons :revision revision)
-					  (embrace-uri (uri id)))
-				 :predicate pred-uri
-				 :object obj-uri)))))
-		(t ; only pred is given
-		 (let ((topics
-			(remove-null
-			 (map 'list #'(lambda(top)
-					(when (reified-construct top :revision revision)
-					  top))
-			      (get-all-topics revision)))))
-		   (loop for top in topics
-		      collect (list :subject
-				    (when-do id (any-id (reified-construct
-							 top :revision revision))
-					     (embrace-uri (uri id)))
-				    :predicate pred-uri
-				    :object (when-do id (any-id top :revision revision)
-						     (embrace-uri (uri id))))))))))))
+			       :object obj-uri)))))
+	      (t ; only pred is given
+	       (let ((topics
+		      (remove-null
+		       (map 'list #'(lambda(top)
+				      (when (reified-construct top :revision revision)
+					top))
+			    (get-all-topics revision)))))
+		 (loop for top in topics
+		    collect (list :subject
+				  (sparql-node (reified-construct top :revision revision)
+					       :revision revision)
+				  :predicate pred-uri
+				  :object (sparql-node top :revision revision))))))))))

@@ -25,6 +25,20 @@
                                classes and equality operators.")
 
 
+
+(defgeneric sparql-node (construct &key revision)
+  (:documentation "Returns a string of the form <uri> or _t123 that represents
+                   a resource node or a blank node.")
+  (:method ((construct TopicMapConstructC) &key (revision d:*TM-REVISION*))
+    (declare (Integer revision))
+    (let ((uri-string (any-id construct :revision revision)))
+      (if uri-string
+	  (concat "<" uri-string ">")
+	  (let ((oid-string (write-to-string (elephant::oid construct)))
+		(pref (subseq (symbol-name (type-of construct)) 0 1)))
+	    (concat "_" (string-downcase pref) oid-string))))))
+
+
 (defun init-tm-sparql (&optional (revision (get-revision)))
   "Imports the file tmsparql_core_psis.xtm. core_psis.xtm has to be imported
    before."
@@ -470,14 +484,6 @@
 	     results)))))
 
 
-(defun embrace-uri(uri-string)
-  "Returns '<'uri-string'>' if uri-string is not a string uri-string
-   is returned as result."
-  (if (typep uri-string 'String)
-      (concat "<" uri-string ">")
-      uri-string))
-
-
 (defgeneric filter-by-given-object (construct &key revision)
   (:documentation "Returns a list representing a triple that is the result
                    of a given object.")
@@ -555,15 +561,16 @@
 	   (String literal-datatype))
     (remove-null
      (map 'list #'(lambda(char)
-		    (let ((subj (when-do top (parent char :revision revision)
-					 (any-id top :revision revision)))
-			  (pred (when-do top (instance-of char :revision revision)
-					 (any-id top :revision revision))))
-		      (when (and subj pred)
-			(list :subject (embrace-uri subj)
-			      :predicate (embrace-uri pred)
-			      :object (charvalue char)
-			      :literal-datatype literal-datatype))))
+		    (let ((subj-uri
+			   (when-do top (parent char :revision revision)
+				    (sparql-node top :revision revision)))
+			  (pred-uri
+			   (when-do top (instance-of char :revision revision)
+				    (sparql-node top :revision revision))))
+		      (list :subject subj-uri
+			    :predicate pred-uri
+			    :object (charvalue char)
+			    :literal-datatype literal-datatype)))
 	  (remove-if #'(lambda(char)
 			 (typep char 'VariantC))
 		     (return-characteristics literal-value literal-datatype)))))
@@ -576,26 +583,23 @@
   (:method ((construct TopicC) &key (revision *TM-REVISION*))
     (declare (Integer revision))
     (let ((roles-by-oplayer (player-in-roles construct :revision revision))
-	  (obj-uri (any-id construct :revision revision)))
+	  (obj-uri (sparql-node construct :revision revision)))
       (remove-null
        (map 'list
 	    #'(lambda(role)
-		(let* ((orole
-			(when-do assoc (parent role :revision revision)
-				 (when (= (length (roles assoc :revision revision))
-					  2)
-				   (find-if #'(lambda(r) (not (eql r role)))
-					    (roles assoc :revision revision)))))
-		       (pred-uri
-			(when-do type (instance-of role :revision revision)
-				 (any-id type :revision revision)))
-		       (subj-uri
+		(let ((orole
+		       (when-do assoc (parent role :revision revision)
+				(when (= (length (roles assoc :revision revision))
+					 2)
+				  (find-if #'(lambda(r) (not (eql r role)))
+					   (roles assoc :revision revision))))))
+		  (list :subject
 			(when-do plr (player orole :revision revision)
-				 (any-id plr :revision revision))))
-		  (when (and obj-uri pred-uri subj-uri)
-		    (list :subject (embrace-uri subj-uri)
-			  :predicate (embrace-uri pred-uri)
-			  :object (embrace-uri obj-uri)))))
+				 (sparql-node plr :revision revision))
+			:predicate
+			(when-do type (instance-of role :revision revision)
+				 (sparql-node type :revision revision))
+			:object obj-uri)))
 	    roles-by-oplayer)))))
 
 
@@ -639,29 +643,27 @@
 					     (value (object construct)))
 				    role))
 			roles-by-type))
-		  roles-by-type))
-	     (pred-uri (any-id (value (predicate construct)) :revision revision)))
+		  roles-by-type)))
 	(remove-null
 	 (map 'list
 	      #'(lambda(role)
-		  (let* ((obj-uri
-			  (when-do plr-top (player role :revision revision)
-				   (any-id plr-top :revision revision)))
-			 (assoc (parent role :revision revision))
+		  (let* ((assoc (parent role :revision revision))
 			 (orole (when (and assoc
 					   (= (length
 					       (roles assoc :revision revision))
 					      2))
 				  (find-if #'(lambda(r)
 					       (not (eql r role)))
-					   (roles assoc :revision revision))))
-			 (subj-uri
+					   (roles assoc :revision revision)))))
+		    (list :subject
 			  (when-do plr (player orole :revision revision)
-				   (any-id plr :revision revision))))
-		    (when (and subj-uri pred-uri obj-uri)
-		      (list :subject (embrace-uri subj-uri)
-			    :predicate (embrace-uri pred-uri)
-			    :object (embrace-uri obj-uri)))))
+				   (sparql-node plr :revision revision))
+			  :predicate
+			  (sparql-node (value (predicate construct))
+						 :revision revision)
+			  :object
+			  (when-do plr-top (player role :revision revision)
+				   (sparql-node plr-top :revision revision)))))
 	      roles-by-player))))))
 
 
@@ -700,17 +702,14 @@
 	(remove-null
 	 (map 'list
 	      #'(lambda(name)
-		  (let ((subj
-			 (when-do top (parent name :revision revision)
-				  (any-id top :revision revision)))
-			(pred
-			 (when-do top (instance-of name :revision revision)
-				  (any-id top :revision revision))))
-		    (when (and subj pred)
-		      (list :subject (embrace-uri subj)
-			    :predicate (embrace-uri pred)
-			    :object (charvalue name)
-			    :literal-datatype *xml-string*))))
+		  (list :subject
+			(when-do top (parent name :revision revision)
+				 (sparql-node top :revision revision))
+			:predicate
+			(when-do top (instance-of name :revision revision)
+				 (sparql-node top :revision revision))
+			:object (charvalue name)
+			:literal-datatype *xml-string*))
 	      names-by-literal))))))
 
 
@@ -740,17 +739,14 @@
 	(remove-null
 	 (map 'list
 	      #'(lambda(occ)
-		  (let ((subj
-			 (when-do top (parent occ :revision revision)
-				  (any-id top :revision revision)))
-			(pred
-			 (when-do top (instance-of occ :revision revision)
-				  (any-id top :revision revision))))
-		    (when (and subj pred)
-		      (list :subject (embrace-uri subj)
-			    :predicate (embrace-uri pred)
-			    :object (charvalue occ)
-			    :literal-datatype (datatype occ)))))
+		  (list :subject
+			(when-do top (parent occ :revision revision)
+				 (sparql-node top :revision revision))
+			:predicate
+			(when-do top (instance-of occ :revision revision)
+				 (sparql-node top :revision revision))
+			:object (charvalue occ)
+			:literal-datatype (datatype occ)))
 	      all-occs))))))
 
 
@@ -895,19 +891,16 @@
 		  #'(lambda(occ)
 		      (filter-occ-by-value occ literal-value literal-datatype))
 		  occs-by-type)))
-	   (subj-uri (when-do top-uri (any-id construct :revision revision)
-			      top-uri)))
+	   (subj-uri (sparql-node construct :revision revision)))
       (remove-null
        (map 'list #'(lambda(occ)
-		      (let ((pred-uri
-			     (when-do type-top
-				      (instance-of occ :revision revision)
-				      (any-id type-top :revision revision))))
-			(when pred-uri
-			  (list :subject (embrace-uri subj-uri)
-				:predicate (embrace-uri pred-uri)
-				:object (charvalue occ)
-				:literal-datatype (datatype occ)))))
+		      (list :subject subj-uri
+			    :predicate
+			    (when-do type-top
+				     (instance-of occ :revision revision)
+				     (sparql-node type-top :revision revision))
+			    :object (charvalue occ)
+			    :literal-datatype (datatype occ)))
 	    all-occs)))))
 
 
@@ -930,17 +923,15 @@
 			    :revision revision)
 			   (names construct :revision revision)))
 	   (all-names (intersection by-type by-literal))
-	   (subj-uri (any-id construct :revision revision)))
+	   (subj-uri (sparql-node construct :revision revision)))
       (remove-null
        (map 'list #'(lambda(name)
-		      (let ((pred-uri
-			     (when-do type-top (instance-of name :revision revision)
-				      (any-id type-top :revision revision))))
-			(when pred-uri
-			  (list :subject (embrace-uri subj-uri)
-				:predicate (embrace-uri pred-uri)
-				:object (charvalue name)
-				:literal-datatype *xml-string*))))
+		      (list :subject subj-uri
+			    :predicate
+			    (when-do type-top (instance-of name :revision revision)
+				     (sparql-node type-top :revision revision))
+			    :object (charvalue name)
+			    :literal-datatype *xml-string*))
 	    all-names)))))
 
 
@@ -975,7 +966,7 @@
     (let ((assocs
 	   (associations-of construct nil nil type-top player-top
 			    :revision revision))
-	  (subj-uri (any-id construct :revision revision)))
+	  (subj-uri (sparql-node construct :revision revision)))
       (remove-null ;only assocs with two roles can match!
        (map 'list
 	    #'(lambda(assoc)
@@ -995,17 +986,16 @@
 			    (when-do
 			     type-top (instance-of other-role
 						   :revision revision)
-			     (any-id type-top :revision revision))))
+			     (sparql-node type-top :revision revision))))
 			 
 			 (obj-uri
 			  (when other-role
 			    (when-do player-top (player other-role
 							:revision revision)
-				     (any-id player-top :revision revision)))))
-		    (when (and pred-uri obj-uri)
-		      (list :subject (embrace-uri subj-uri)
-			    :predicate (embrace-uri pred-uri)
-			    :object (embrace-uri obj-uri))))))
+				     (sparql-node player-top :revision revision)))))
+		    (list :subject subj-uri
+			  :predicate pred-uri
+			  :object obj-uri))))
 	    assocs)))))
 
 
