@@ -15,32 +15,25 @@
 
 
 
-
 (defgeneric filter-by-special-uris (construct &key revision)
   (:documentation "Returns lists representing triples that handles special
                    predicate uris defined in tmsparql.")
   (:method ((construct SPARQL-Triple) &key (revision d:*TM-REVISION*))
     (let ((pred (predicate construct))
-	  (subj-value (value (subject construct))))
+	  (pred-val (value (predicate construct))))
       (if (variable-p pred)
 	  (filter-for-special-uris construct :revision revision)
-	  (cond ((and (has-identifier (value pred) *tms-reifier*)
-		      (typep subj-value 'd:ReifiableConstructC))
+	  (cond ((has-identifier pred-val *tms-reifier*)
 		 (filter-for-reifier construct :revision revision))
-		((and (has-identifier (value pred) *tms-scope*)
-		      (typep subj-value 'd:ScopableC))
-		 (filter-for-special-uris construct :revision revision))
-		((and (has-identifier (value pred) *tms-value*)
-		      (typep subj-value 'd:CharacteristicC))
+		((has-identifier pred-val *tms-scope*)
+		 (filter-for-scopes construct :revision revision))
+		((has-identifier pred-val *tms-value*)
 		 (filter-for-values construct :revision revision))
-		((and (has-identifier (value pred) *tms-topicProperty*)
-		      (typep subj-value 'd:TopicC))
+		((has-identifier pred-val *tms-topicProperty*)
 		 (filter-for-topicProperties construct :revision revision))
-		((and (has-identifier (value pred) *tms-role*)
-		      (typep subj-value 'd:AssociationC))
+		((has-identifier pred-val *tms-role*)
 		 (filter-for-roles construct :revision revision))
-		((and (has-identifier (value pred) *tms-player*)
-		      (typep subj-value 'd:RoleC))
+		((has-identifier pred-val *tms-player*)
 		 (filter-for-player construct :revision revision)))))))
 
 
@@ -49,39 +42,38 @@
                    and its objects corresponding to the defined
                    special-uris, e.g. <subj> var <obj>.")
   (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
-    (let* ((subj (subject construct))
-	   (pred (predicate construct))
+    (let* ((pred (predicate construct))
 	   (old-pred-value (value pred))
 	   (res-1
-	    (when (or (typep (value subj) 'd:ReifiableConstructC)
-		      (variable-p subj))
+	    (progn
 	      (setf (value pred) (get-item-by-psi *tms-reifier* :revision revision))
-	      (filter-for-reifier construct :revision revision)
-	      (setf (value pred) old-pred-value)))
+	      (let ((val (filter-for-reifier construct :revision revision)))
+		(setf (value pred) old-pred-value)
+		val)))
 	   (res-2
-	    (when (or (typep (value subj) 'd:ScopableC)
-		      (variable-p subj))
+	    (progn
 	      (setf (value pred) (get-item-by-psi *tms-scope* :revision revision))
-	      (filter-for-scopes construct :revision revision)
-	      (setf (value pred) old-pred-value)))
+	      (let ((val (filter-for-scopes construct :revision revision)))
+		(setf (value pred) old-pred-value)
+		val)))
 	   (res-3
-	    (when (or (typep (value subj) 'd:CharacteristicC)
-		      (variable-p subj))
+	    (progn
 	      (setf (value pred) (get-item-by-psi *tms-value* :revision revision))
-	      (filter-for-values construct :revision revision)
-	      (setf (value pred) old-pred-value)))
+	      (let ((val (filter-for-values construct :revision revision)))
+		(setf (value pred) old-pred-value)
+		val)))
 	   (res-4
-	    (when (or (typep (value subj) 'd:AssociationC)
-		      (variable-p subj))
+	    (progn
 	      (setf (value pred) (get-item-by-psi *tms-role* :revision revision))
-	      (filter-for-values construct :revision revision)
-	      (setf (value pred) old-pred-value)))
+	      (let ((val (filter-for-roles construct :revision revision)))
+		(setf (value pred) old-pred-value)
+		val)))
 	   (res-5
-	    (when (or (typep (value subj) 'd:RoleC)
-		      (variable-p subj))
+	    (progn
 	      (setf (value pred) (get-item-by-psi *tms-player* :revision revision))
-	      (filter-for-values construct :revision revision)
-	      (setf (value pred) old-pred-value))))
+	      (let ((val (filter-for-player construct :revision revision)))
+		(setf (value pred) old-pred-value)
+		val))))
       (append res-1 res-2 res-3 res-4 res-5))))
 
 
@@ -99,40 +91,44 @@
 			   (sparql-node (value pred) :revision revision)))
 	       (obj-uri (unless (variable-p obj)
 			  (sparql-node (value obj) :revision revision))))
-	  (cond ((and (not (variable-p subj))
-		      (not (variable-p obj)))
-		 (when (eql (player (value subj) :revision revision)
-			    (value obj))
-		   (list (list :subject subj-uri
-			       :predicate pred-uri
-			       :object obj-uri))))
-		((not (variable-p subj))
-		 (let ((player-top
-			(player (value subj) :revision revision)))
-		   (when player-top
-		     (list :subject subj-uri
-			   :predicate pred-uri
-			   :object (sparql-node player-top :revision revision)))))
-		((not (variable-p obj))
-		 (let ((parent-roles
-			(player-in-roles (value obj) :revision revision)))
-		   (loop for role in parent-roles
-		      collect (list :subject (sparql-node role :revision revision)
-				    :predicate pred-uri
-				    :object (sparql-node (player role :revision revision)
-							 :revision revision)))))
-		(t ; only pred is given
-		 (let ((all-roles
-			(remove-null
-			 (map 'list #'(lambda(role)
-					(when (player role :revision revision)
-					  role))
-			      (get-all-roles revision)))))
-		   (loop for role in all-roles
-		      collect (list :subject (sparql-node role :revision revision)
-				    :predicate pred-uri
-				    :object (sparql-node (player role :revision revision)
-							 :revision revision))))))))))
+	  (when (and (or (typep (value subj) 'RoleC)
+			 (variable-p subj))
+		     (or (typep (value obj) 'TopicC)
+			 (variable-p obj)))
+	    (cond ((and (not (variable-p subj))
+			(not (variable-p obj)))
+		   (when (eql (player (value subj) :revision revision)
+			      (value obj))
+		     (list (list :subject subj-uri
+				 :predicate pred-uri
+				 :object obj-uri))))
+		  ((not (variable-p subj))
+		   (let ((player-top
+			  (player (value subj) :revision revision)))
+		     (when player-top
+		       (list :subject subj-uri
+			     :predicate pred-uri
+			     :object (sparql-node player-top :revision revision)))))
+		  ((not (variable-p obj))
+		   (let ((parent-roles
+			  (player-in-roles (value obj) :revision revision)))
+		     (loop for role in parent-roles
+			collect (list :subject (sparql-node role :revision revision)
+				      :predicate pred-uri
+				      :object (sparql-node (player role :revision revision)
+							   :revision revision)))))
+		  (t ; only pred is given
+		   (let ((all-roles
+			  (remove-null
+			   (map 'list #'(lambda(role)
+					  (when (player role :revision revision)
+					    role))
+				(get-all-roles revision)))))
+		     (loop for role in all-roles
+			collect (list :subject (sparql-node role :revision revision)
+				      :predicate pred-uri
+				      :object (sparql-node (player role :revision revision)
+							   :revision revision)))))))))))
 
 
 (defgeneric filter-for-roles (construct &key revision)
@@ -149,37 +145,41 @@
 			 (sparql-node (value pred) :revision revision)))
 	     (obj-uri (unless (variable-p obj)
 			(sparql-node (value obj) :revision revision))))
-	(cond ((and (not (variable-p subj))
-		    (not (variable-p obj)))
-	       (when (find obj (roles (value subj) :revision revision))
-		 (list (list :subject subj-uri
-			     :predicate pred-uri
-			     :object obj-uri))))
-	      ((not (variable-p subj))
-	       (loop for role in (roles (value subj) :revision revision)
-		  collect (list :subject subj-uri
-				:predicate pred-uri
-				:object (sparql-node role :revision revision))))
-	      ((not (variable-p obj))
-	       (let ((parent-assoc (parent (value obj) :revision revision)))
-		 (when revision
-		   (list :subject (sparql-node parent-assoc :revision revision)
-			 :predicate pred-uri
-			 :object obj-uri))))
-	      (t ; only pred is given
-	       (let ((assocs
-		      (remove-null
-		       (map 'list #'(lambda(assoc)
-				      (when (roles assoc :revision revision)
-					assoc))
-			    (get-all-associations revision)))))
-		 (loop for assoc in assocs
+	(when (and (or (variable-p subj)
+		       (typep (value subj) 'd:AssociationC))
+		   (or (variable-p obj)
+		       (typep (value subj) 'd:RoleC)))
+	  (cond ((and (not (variable-p subj))
+		      (not (variable-p obj)))
+		 (when (find obj (roles (value subj) :revision revision))
+		   (list (list :subject subj-uri
+			       :predicate pred-uri
+			       :object obj-uri))))
+		((not (variable-p subj))
+		 (loop for role in (roles (value subj) :revision revision)
+		    collect (list :subject subj-uri
+				  :predicate pred-uri
+				  :object (sparql-node role :revision revision))))
+		((not (variable-p obj))
+		 (let ((parent-assoc (parent (value obj) :revision revision)))
+		   (when revision
+		     (list :subject (sparql-node parent-assoc :revision revision)
+			   :predicate pred-uri
+			   :object obj-uri))))
+		(t ; only pred is given
+		 (let ((assocs
+			(remove-null
+			 (map 'list #'(lambda(assoc)
+					(when (roles assoc :revision revision)
+					  assoc))
+			      (get-all-associations revision)))))
+		   (loop for assoc in assocs
 		      append (loop for role in (roles assoc :revision revision)
 				collect (list :subject (sparql-node
 							assoc :revision revision)
 					      :predicate pred-uri
 					      :object (sparql-node
-						       role :revision revision)))))))))))
+						       role :revision revision))))))))))))
 
 
 (defgeneric filter-for-topicProperties (construct &key revision)
@@ -196,37 +196,42 @@
 			 (sparql-node (value pred) :revision revision)))
 	     (obj-uri (unless (variable-p obj)
 			(sparql-node (value obj) :revision revision))))
-	(cond ((and (not (variable-p subj))
-		    (not (variable-p obj)))
-	       (when (find obj (append (names (value subj) :revision revision)
-				       (occurrences (value subj) :revision revision)))
-		 (list (list :subject subj-uri
-			     :predicate pred-uri
-			     :object obj-uri))))
-	      ((not (variable-p subj))
-	       (loop for property in (append
-				      (names (value subj) :revision revision)
-				      (occurrences (value subj) :revision revision))
-		  collect (list :subject subj-uri
-				:predicate pred-uri
-				:object
-				(sparql-node property :revision revision))))
-	      ((not (variable-p obj))
-	       (let ((parent-top (parent (value obj) :revision revision)))
-		 (when revision
-		   (list :subject (sparql-node parent-top :revision revision)
-			 :predicate pred-uri
-			 :object obj-uri))))
-	      (t ; only pred is given
-	       (let ((topics
-		      (remove-null
-		       (map 'list #'(lambda(top)
-				      (when (append
-					     (names top :revision revision)
-					     (occurrences top :revision revision))
-					top))
-			    (get-all-topics revision)))))
-		 (loop for top in topics
+	(when (and (or (variable-p subj)
+		       (typep (value subj) 'd:TopicC))
+		   (or (variable-p obj)
+		       (typep (value obj) 'd:OccurrenceC)
+		       (typep (value obj) 'd:NameC)))
+	  (cond ((and (not (variable-p subj))
+		      (not (variable-p obj)))
+		 (when (find obj (append (names (value subj) :revision revision)
+					 (occurrences (value subj) :revision revision)))
+		   (list (list :subject subj-uri
+			       :predicate pred-uri
+			       :object obj-uri))))
+		((not (variable-p subj))
+		 (loop for property in (append
+					(names (value subj) :revision revision)
+					(occurrences (value subj) :revision revision))
+		    collect (list :subject subj-uri
+				  :predicate pred-uri
+				  :object
+				  (sparql-node property :revision revision))))
+		((not (variable-p obj))
+		 (let ((parent-top (parent (value obj) :revision revision)))
+		   (when revision
+		     (list :subject (sparql-node parent-top :revision revision)
+			   :predicate pred-uri
+			   :object obj-uri))))
+		(t ; only pred is given
+		 (let ((topics
+			(remove-null
+			 (map 'list #'(lambda(top)
+					(when (append
+					       (names top :revision revision)
+					       (occurrences top :revision revision))
+					  top))
+			      (get-all-topics revision)))))
+		   (loop for top in topics
 		      append (loop for prop in (append
 						(names top :revision revision)
 						(occurrences top :revision revision))
@@ -234,54 +239,64 @@
 							top :revision revision)
 					      :predicate pred-uri
 					      :object (sparql-node
-						       prop :revision revision)))))))))))
+						       prop :revision revision))))))))))))
 
 
-  (defgeneric filter-for-values (construct &key revision)
-    (:documentation "Returns a list of triples that represent a
+(defgeneric filter-for-values (construct &key revision)
+  (:documentation "Returns a list of triples that represent a
                    subject and its literal value as object.")
-    (:method ((construct SPARQL-Triple) &key revision)
-      (declare (ignorable revision))
-      (when (or (literal-p (object construct))
-		(variable-p (object construct)))
-	(let* ((subj (subject construct))
-	       (pred (predicate construct))
-	       (obj (object construct))
-	       (literal-datatype (literal-datatype obj))
-	       (subj-uri (unless (variable-p subj)
-			   (sparql-node (value subj) :revision revision)))
-	       (pred-uri (unless (variable-p pred)
-			   (sparql-node(value pred) :revision revision))))
-	  (cond ((and (not (variable-p subj))
-		      (not (variable-p obj)))
-		 (when (or (and (typep subj 'NameC)
-				(string= literal-datatype *xml-string*)
-				(string= (charvalue subj) (value obj)))
-			   (filter-datatypable-by-value subj obj literal-datatype))
-		   (list (list :subject subj-uri
-			       :predicate pred-uri
-			       :object (value obj)
-			       :literal-datatype literal-datatype))))
-		((not (variable-p subj))
+  (:method ((construct SPARQL-Triple) &key revision)
+    (declare (ignorable revision))
+    (let* ((subj (subject construct))
+	   (pred (predicate construct))
+	   (obj (object construct))
+	   (literal-datatype (literal-datatype obj))
+	   (subj-uri (unless (variable-p subj)
+		       (sparql-node (value subj) :revision revision)))
+	   (pred-uri (unless (variable-p pred)
+		       (sparql-node(value pred) :revision revision))))
+      (when (and (or (variable-p subj)
+		     (typep (value subj) 'd:OccurrenceC)
+		     (typep (value subj) 'd:NameC)
+		     (typep (value subj) 'd:VariantC))
+		 (or (variable-p obj)
+		     (literal-p obj)))
+	(cond ((and (not (variable-p subj))
+		    (not (variable-p obj)))
+	       (when (or (and (typep subj 'NameC)
+			      (string= literal-datatype *xml-string*)
+			      (string= (charvalue subj) (value obj)))
+			 (filter-datatypable-by-value subj obj literal-datatype))
 		 (list (list :subject subj-uri
 			     :predicate pred-uri
-			     :object (charvalue subj)
-			     :literal-datatype (datatype subj))))
-		((not (variable-p obj))
-		 (loop for char in (return-characteristics (value obj) literal-datatype)
+			     :object (value obj)
+			     :literal-datatype literal-datatype))))
+	      ((not (variable-p subj))
+	       (list (list :subject subj-uri
+			   :predicate pred-uri
+			   :object (charvalue subj)
+			   :literal-datatype (if (typep subj 'd:NameC)
+						 *xml-string*
+						 (datatype subj)))))
+	      ((not (variable-p obj))
+	       (loop for char in (return-characteristics (value obj) literal-datatype)
+		  collect (list :subject (sparql-node char :revision revision)
+				:predicate pred-uri
+				:object (charvalue char)
+				:literal-datatype (if (typep char 'd:NameC)
+						      *xml-string*
+						      (datatype char)))))
+	      (t ;only pred is given
+	       (let ((chars (append (get-all-names revision)
+				    (get-all-occurrences revision)
+				    (get-all-variants revision))))
+		 (loop for char in chars
 		    collect (list :subject (sparql-node char :revision revision)
 				  :predicate pred-uri
 				  :object (charvalue char)
-				  :literal-datatype (datatype char))))
-		(t ;only pred is given
-		 (let ((chars (append (get-all-names revision)
-				      (get-all-occurrences revision)
-				      (get-all-variants revision))))
-		   (loop for char in chars
-		      collect (list :subject (sparql-node char :revision revision)
-				    :predicate pred-uri
-				    :object (charvalue char)
-				    :literal-datatype (datatype char))))))))))
+				  :literal-datatype (if (typep char 'd:NameC)
+							*xml-string*
+							(datatype char)))))))))))
 
 
   (defgeneric filter-for-scopes (construct &key revision)
@@ -298,42 +313,46 @@
 			   (sparql-node (value pred) :revision revision)))
 	       (obj-uri (unless (variable-p obj)
 			  (sparql-node (value obj) :revision revision))))
-	  (cond ((and (not (variable-p subj))
-		      (not (variable-p obj)))
-		 (when (find obj (themes (value subj) :revision revision))
-		   (list (list :subject subj-uri
-			       :predicate pred-uri
-			       :object obj-uri))))
-		((not (variable-p subj))
-		 (loop for scope in (themes (value subj) :revision revision)
-		    collect (list :subject subj-uri
-				  :predicate pred-uri
-				  :object (sparql-node scope :revision revision))))
-		((not (variable-p obj))
-		 (let ((scoped-constructs
-			(used-as-theme (value obj) :revision revision)))
-		   (loop for construct in scoped-constructs
-		      collect (list :subject (sparql-node construct :revision revision)
+	  (when (and (or (variable-p subj)
+			 (typep (value subj) 'd:ScopableC))
+		     (or (variable-p obj)
+			 (typep (value obj) 'd:TopicC)))
+	    (cond ((and (not (variable-p subj))
+			(not (variable-p obj)))
+		   (when (find obj (themes (value subj) :revision revision))
+		     (list (list :subject subj-uri
+				 :predicate pred-uri
+				 :object obj-uri))))
+		  ((not (variable-p subj))
+		   (loop for scope in (themes (value subj) :revision revision)
+		      collect (list :subject subj-uri
 				    :predicate pred-uri
-				    :object obj-uri))))
-		(t ;only pred is given
-		 (let ((scoped-constructs
-			(remove-null
-			 (map 'list #'(lambda(construct)
-					(when (themes construct :revision revision)
-					  construct))
-			      (append (get-all-associations revision)
-				      (get-all-occurrences revision)
-				      (get-all-names revision)
-				      (get-all-variants))))))
-		   (loop for construct in scoped-constructs
-		      append (loop for scope in (themes construct :revision revision)
-				collect
-				  (list :subject (sparql-node
-						  construct :revision revision)
-					:predicate pred-uri
-					:object (sparql-node
-						 construct :revision revision)))))))))))
+				    :object (sparql-node scope :revision revision))))
+		  ((not (variable-p obj))
+		   (let ((scoped-constructs
+			  (used-as-theme (value obj) :revision revision)))
+		     (loop for construct in scoped-constructs
+			collect (list :subject (sparql-node construct :revision revision)
+				      :predicate pred-uri
+				      :object obj-uri))))
+		  (t ;only pred is given
+		   (let ((scoped-constructs
+			  (remove-null
+			   (map 'list #'(lambda(construct)
+					  (when (themes construct :revision revision)
+					    construct))
+				(append (get-all-associations revision)
+					(get-all-occurrences revision)
+					(get-all-names revision)
+					(get-all-variants))))))
+		     (loop for construct in scoped-constructs
+			append (loop for scope in (themes construct :revision revision)
+				  collect
+				    (list :subject (sparql-node
+						    construct :revision revision)
+					  :predicate pred-uri
+					  :object (sparql-node
+						   construct :revision revision))))))))))))
 
 
 (defgeneric filter-for-reifier (construct &key revision)
@@ -350,38 +369,42 @@
 			 (sparql-node (value pred) :revision revision)))
 	     (obj-uri (unless (variable-p obj)
 			(sparql-node (value obj) :revision revision))))
-	(cond ((and (not (variable-p subj))
-		    (not (variable-p obj)))
-	       (when (eql (reifier (value subj) :revision revision)
-			  (value obj))
-		 (list (list :subject subj-uri
-			     :predicate pred-uri
-			     :object obj-uri))))
-	      ((not (variable-p subj))
-	       (let ((reifier-top
-		      (reifier (value subj) :revision revision)))
-		 (when reifier-top
-		   (list :subject subj-uri
-			 :predicate pred-uri
-			 :object (sparql-node reifier-top :revision revision)))))
-	      ((not (variable-p obj))
-	       (let ((reified-cons
-		      (reified-construct (value obj) :revision revision)))
-		 (when reified-cons
-		   (list (list :subject
-			       (sparql-node reified-cons :revision revision)
+	(when (and (or (variable-p subj)
+		       (typep (value subj) 'd:ReifiableConstructC))
+		   (or (variable-p obj)
+		       (typep (value obj) 'd:TopicC)))
+	  (cond ((and (not (variable-p subj))
+		      (not (variable-p obj)))
+		 (when (eql (reifier (value subj) :revision revision)
+			    (value obj))
+		   (list (list :subject subj-uri
 			       :predicate pred-uri
-			       :object obj-uri)))))
-	      (t ; only pred is given
-	       (let ((topics
-		      (remove-null
-		       (map 'list #'(lambda(top)
-				      (when (reified-construct top :revision revision)
-					top))
-			    (get-all-topics revision)))))
-		 (loop for top in topics
-		    collect (list :subject
-				  (sparql-node (reified-construct top :revision revision)
-					       :revision revision)
-				  :predicate pred-uri
-				  :object (sparql-node top :revision revision))))))))))
+			       :object obj-uri))))
+		((not (variable-p subj))
+		 (let ((reifier-top
+			(reifier (value subj) :revision revision)))
+		   (when reifier-top
+		     (list :subject subj-uri
+			   :predicate pred-uri
+			   :object (sparql-node reifier-top :revision revision)))))
+		((not (variable-p obj))
+		 (let ((reified-cons
+			(reified-construct (value obj) :revision revision)))
+		   (when reified-cons
+		     (list (list :subject
+				 (sparql-node reified-cons :revision revision)
+				 :predicate pred-uri
+				 :object obj-uri)))))
+		(t ; only pred is given
+		 (let ((topics
+			(remove-null
+			 (map 'list #'(lambda(top)
+					(when (reified-construct top :revision revision)
+					  top))
+			      (get-all-topics revision)))))
+		   (loop for top in topics
+		      collect (list :subject
+				    (sparql-node (reified-construct top :revision revision)
+						 :revision revision)
+				    :predicate pred-uri
+				    :object (sparql-node top :revision revision)))))))))))

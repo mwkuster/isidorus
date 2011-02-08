@@ -36,7 +36,7 @@
 	  (concat "<" uri-string ">")
 	  (let ((oid-string (write-to-string (elephant::oid construct)))
 		(pref (subseq (symbol-name (type-of construct)) 0 1)))
-	    (concat "_" (string-downcase pref) oid-string))))))
+	    (concat "_:" (string-downcase pref) oid-string))))))
 
 
 (defun init-tm-sparql (&optional (revision (get-revision)))
