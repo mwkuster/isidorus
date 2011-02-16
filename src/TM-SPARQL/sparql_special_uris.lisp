@@ -11,13 +11,13 @@
 (in-package :TM-SPARQL)
 
 
-;TODO: create a macro for "filter-for-scopes", "filter-for-reifier", ...
-
-
-(defmacro with-triple-nodes (construct &body body)
-  `(let* ((subj (subject ,construct))
-	  (pred (predicate ,construct))
-	  (obj (object ,construct))
+(defmacro with-triple-nodes (triple-construct &body body)
+  "Generates the variables subj, pred, obj that references the triple's
+   nodes. Additionaly the variables subj-uri, pred-uri and obj-uri are
+   generated when the corresponding node is a resource-nodes."
+  `(let* ((subj (subject ,triple-construct))
+	  (pred (predicate ,triple-construct))
+	  (obj (object ,triple-construct))
 	  (subj-uri (unless (variable-p subj)
 		      (sparql-node (value subj) :revision revision)))
 	  (pred-uri (unless (variable-p pred)

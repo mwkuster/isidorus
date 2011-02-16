@@ -11,6 +11,20 @@ docs/json.ebnf -text
 docs/overview_feed.png -text svneol=unset#image/png
 docs/snapshots_feed.png -text svneol=unset#image/png
 docs/xtm_json.txt -text
+playground/abcl-test/.classpath -text
+playground/abcl-test/.project -text
+playground/abcl-test/.settings/org.eclipse.jdt.core.prefs -text
+playground/abcl-test/lib/abcl.jar -text
+playground/abcl-test/lisp-code/TM-SPARQL/filter_wrappers.lisp -text
+playground/abcl-test/lisp-code/TM-SPARQL/sparql.lisp -text
+playground/abcl-test/lisp-code/TM-SPARQL/sparql_constants.lisp -text
+playground/abcl-test/lisp-code/TM-SPARQL/sparql_filter.lisp -text
+playground/abcl-test/lisp-code/TM-SPARQL/sparql_parser.lisp -text
+playground/abcl-test/lisp-code/TM-SPARQL/sparql_special_uris.lisp -text
+playground/abcl-test/lisp-code/TM-SPARQL/tmsparql_core_psis.xtm -text
+playground/abcl-test/lisp-code/base-tools/base-tools.lisp -text
+playground/abcl-test/lisp-code/test-code/functions.lisp -text
+playground/abcl-test/src/program/Main.java -text
 playground/call-next-method.lisp -text
 playground/call-next-method_multiple-inheritance.lisp -text
 playground/ii_versioned_association.lisp -text

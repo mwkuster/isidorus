@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- ======================================================================= -->
+<!--  Isidorus                                                               -->
+<!--  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff          -->
+<!--                                                                         -->
+<!--  Isidorus is freely distributable under the LLGPL license.              -->
+<!--  This ajax module uses the frameworks PrototypeJs and Scriptaculous,    -->
+<!--  both are distributed under the MIT license.                            -->
+<!--  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt,   -->
+<!--  trunk/docs/LGPL-LICENSE.txt and in                                     -->
+<!--  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   -->
+<!-- ======================================================================= -->
+
+
+<!-- this file contains the special uri defined in tmsparql
+     (http://www.networkedplanet.com/ontopic/2009/11/making_topic_maps_sparql.html)
+     as topic with only a psi as element corresponding to those defined in
+     tmsparql -->
+
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+  <topic id="reifier">
+    <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/reifier"/>
+  </topic>
+
+  <topic id="role">
+    <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/role"/>
+  </topic>
+
+  <topic id="player">
+    <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/player"/>
+  </topic>
+
+  <topic id="topicProperty">
+    <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/topicProperty"/>
+  </topic>
+
+  <topic id="scope">
+    <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/scope"/>
+  </topic>
+
+  <topic id="value">
+    <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/value"/>
+  </topic>
+
+</topicMap>
