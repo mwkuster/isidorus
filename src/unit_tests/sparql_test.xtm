@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================= -->
+<!--  Isidorus                                                               -->
+<!--  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff          -->
+<!--                                                                         -->
+<!--  Isidorus is freely distributable under the LLGPL license.              -->
+<!--  This ajax module uses the frameworks PrototypeJs and Scriptaculous,    -->
+<!--  both are distributed under the MIT license.                            -->
+<!--  You can find a detailed description in trunk/docs/LLGPL-LICENSE.txt,   -->
+<!--  trunk/docs/LGPL-LICENSE.txt and in                                     -->
+<!--  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.                   -->
+<!-- ======================================================================= -->
+
+<tm:topicMap version="2.0" xmlns:tm="http://www.topicmaps.org/xtm/">
+  <tm:topic id="topictype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="occurrencetype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="associationtype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="written-by">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/written-by"/>
+    <tm:instanceOf><tm:topicRef href="#associationtype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="roletype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="written">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/written"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="writer">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/writer"/>
+    <tm:instanceOf><tm:topicRef href="#roletype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="nametype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="scopetype">
+    <tm:subjectIdentifier href="http://psi.topicmaps.org/tmcl/scope-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="author">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/author"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="poem">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/poem"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="first-name">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/first-name"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="last-name">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/first-name"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="title">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/title"/>
+    <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="display-name">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/display-name"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="de">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/de"/>
+    <tm:instanceOf><tm:topicRef href="#scopetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="date-of-birth">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/date-of-birth"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="date-of-death">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/date-of-death"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="poem-content">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/poem-content"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="years">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/years"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+  
+  <tm:topic id="isDead">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/isDead"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="reifier-type">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/reifier-type"/>
+    <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
+  </tm:topic>
+
+  
+  
+  <tm:topic id="goethe">
+    <tm:instanceOf><tm:topicRef href="#author"/></tm:instanceOf>
+    <tm:subjectIdentifier href="http://some.where/tmsparql/author/goethe"/>
+    <tm:itemIdentity href="http://some.where/ii/goethe"/>
+    <tm:name>
+      <tm:type><tm:topicRef href="#first-name"/></tm:type>
+      <tm:value>Johann Wolfgang</tm:value>
+    </tm:name>
+    <tm:name reifier="http://some.where/ii/goethe-name-reifier">
+      <tm:type><tm:topicRef href="#last-name"/></tm:type>
+      <tm:value>von Goethe</tm:value>
+      <tm:variant>
+	<tm:scope><tm:topicRef href="#display-name"/></tm:scope>
+	<tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Goethe</tm:resourceData>
+      </tm:variant>
+    </tm:name>
+    <tm:name>
+      <tm:itemIdentity href="http://some.where/ii/goethe-untyped-name"/>
+      <tm:value>Johann Wolfgang von Goethe</tm:value> <!-- untyped name -->
+    </tm:name>
+    <tm:occurrence reifier="http://some.where/ii/goethe-occ-reifier">
+      <tm:itemIdentity href="http://some.where/ii/goethe-occ"/>
+      <tm:type><tm:topicRef href="#date-of-birth"/></tm:type>
+      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#date">28.08.1749</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#date-of-death"/></tm:type>
+      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#integer">22.03.1832</tm:resourceData> <!-- bad data type -->
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#years"/></tm:type>
+      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#integer">82</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#isDead"/></tm:type>
+      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#boolean">true</tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:topic id="occ-reifier">
+    <tm:itemIdentity href="http://some.where/ii/goethe-occ-reifier"/>
+    <tm:instanceOf><tm:topicRef href="#reifier-type"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="goethe-name-reifier">
+    <tm:itemIdentity href="http://some.where/ii/goethe-name-reifier"/>
+    <tm:instanceOf><tm:topicRef href="#reifier-type"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="zauberlehrling">
+    <tm:subjectIdentifier href="http://some.where/psis/poem/zauberlehrling"/>
+    <tm:instanceOf>
+      <tm:topicRef href="#poem"/></tm:instanceOf>
+    <tm:name>
+      <tm:type><tm:topicRef href="#title"/></tm:type>
+      <tm:value>Der Zauberlehrling</tm:value>
+    </tm:name>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#poem-content"/></tm:type>
+      <tm:scope><tm:topicRef href="#de"/></tm:scope>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Hat der alte Hexenmeister
+	sich doch einmal wegbegeben!
+	...
+      </tm:resourceData>
+    </tm:occurrence>
+  </tm:topic>
+
+  <tm:association reifier="http://some.where/ii/association-reifier">
+    <tm:itemIdentity href="http://somw.where/ii/association"/>
+    <tm:type><tm:topicRef href="#written-by"/></tm:type>
+    <tm:role reifier="http://some.where/ii/role-reifier">
+      <tm:type><tm:topicRef href="#writer"/></tm:type>
+      <tm:topicRef href="#goethe"/>
+    </tm:role>
+    <tm:role>
+      <tm:type><tm:topicRef href="#written"/></tm:type>
+      <tm:topicRef href="#zauberlehrling"/>
+    </tm:role>
+  </tm:association>
+
+  <tm:topic id="association-reifier">
+    <tm:itemIdentity href="http://some.where/ii/association-reifier"/>
+    <tm:instanceOf><tm:topicRef href="#reifier-type"/></tm:instanceOf>
+  </tm:topic>
+
+  <tm:topic id="role-reifier">
+    <tm:itemIdentity href="http://some.where/ii/role-reifier"/>
+    <tm:instanceOf><tm:topicRef href="#reifier-type"/></tm:instanceOf>
+  </tm:topic>
+
+</tm:topicMap>
