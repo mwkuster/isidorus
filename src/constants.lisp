@@ -30,6 +30,7 @@
 	   :*xml-decimal*
 	   :*xml-double*
 	   :*xml-integer*
+	   :*xml-date*
 	   :*xml-uri*
 	   :*rdf2tm-ns*
 	   :*rdf-statement*
@@ -108,6 +109,8 @@
 (defparameter *xml-boolean* "http://www.w3.org/2001/XMLSchema#boolean")
 
 (defparameter *xml-integer* "http://www.w3.org/2001/XMLSchema#integer")
+
+(defparameter *xml-date* "http://www.w3.org/2001/XMLSchema#date")
 
 (defparameter *xml-decimal* "http://www.w3.org/2001/XMLSchema#decimal")
 

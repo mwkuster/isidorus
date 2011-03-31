@@ -502,7 +502,8 @@
 
 
 (defun return-characteristics (literal-value literal-datatype)
-  "Returns all characteristica that own the specified value."
+  "Returns all characteristica that own the specified value.
+   Note the type xsd:date is not supported and so handled as a string."
   (declare (String literal-datatype))
   (let ((chars
 	 (cond ((string= literal-datatype *xml-string*)
@@ -516,7 +517,8 @@
 			    (elephant:get-instances-by-value
 			     'NameC 'charvalue literal-value))))
 	       ((and (string= literal-datatype *xml-boolean*)
-		     literal-value)
+		     (or (and (stringp literal-value) (string= literal-value "true"))
+			 (and (typep literal-value 'Boolean) literal-value)))
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) "true"))
 			   (append (elephant:get-instances-by-value
@@ -524,7 +526,8 @@
 				   (elephant:get-instances-by-value
 				    'OccurrenceC 'charvalue "true"))))
 	       ((and (string= literal-datatype *xml-boolean*)
-		     (not literal-value))
+		     (or (and (stringp literal-value) (string= literal-value "false"))
+			 (and (typep literal-value 'Boolean) (not literal-value))))
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) "false"))
 			   (append (elephant:get-instances-by-value
@@ -541,9 +544,15 @@
 				   (elephant:get-instances-by-value
 				    'VariantC 'datatype literal-datatype)
 				   (elephant:get-instances-by-value
-				    'OccurrenceC 'datatype literal-datatype)))))
+				    'OccurrenceC 'datatype literal-datatype))))
+		      (user-val (if (stringp literal-value)
+				    (concat "\"\"\"" literal-value "\"\"\"^^"
+					    literal-datatype)
+				    literal-value)))
 		  (remove-if #'(lambda(con)
-				 (not (literal= (charvalue con) literal-value)))
+				 (not (literal= (concat "\"\"\"" (charvalue con)
+							"\"\"\"^^" (datatype con))
+						user-val)))
 			     constructs))))))
     ;;elephant returns names, occurences, and variants if any string
     ;;value matches, so all duplicates have to be removed
@@ -830,24 +839,53 @@
 	    (get-item-by-any-id (value construct) :revision revision)))))
 
 
+(defun split-literal-string (literal-string)
+  "Returns a list of the form (:value literal-value :datatype literal-type)
+   of a string literal-value^^literal-type."
+  (when (stringp literal-string)
+    (let ((str (cut-comment literal-string)))
+      (when (string-starts-with-one-of literal-string (list "\"" "'"))
+	(let* ((delimiter (cond ((string-starts-with str "'") "'")
+				((string-starts-with str "\"\"\"") "\"\"\"")
+				(t "\"")))
+	       (l-end (find-literal-end (subseq str (length delimiter)) delimiter))
+	       (l-value (subseq str (length delimiter) l-end))
+	       (l-rest (subseq str (+ (length delimiter) l-end)))
+	       (l-type (if (string-starts-with l-rest "^^")
+			   (subseq l-rest 2)
+			   *xml-string*)))
+	  (list :value l-value :datatype l-type))))))
+
+
 (defun literal= (value-1 value-2)
   "Returns t if both arguments are equal. The equality function is searched in
    the table *equal-operators*."
-  (when (or (and (numberp value-1) (numberp value-2))
-	    (typep value-1 (type-of value-2))
-	    (typep value-2 (type-of value-1)))
-    (let ((operator (get-equal-operator value-1)))
-      (funcall operator value-1 value-2))))
+  (let ((real-value-1 (let ((result (split-literal-string value-1)))
+			(if result
+			    (cast-literal (getf result :value)
+					  (getf result :datatype))
+			    value-1)))
+	(real-value-2 (let ((result (split-literal-string value-2)))
+			(if result
+			    (cast-literal (getf result :value)
+					  (getf result :datatype))
+			    value-2))))
+    (when (or (and (numberp real-value-1) (numberp real-value-2))
+	      (typep value-1 (type-of real-value-2))
+	      (typep value-2 (type-of real-value-1)))
+      (let ((operator (get-equal-operator real-value-1)))
+	(funcall operator real-value-1 real-value-2)))))
 
 
 (defun filter-datatypable-by-value (construct literal-value literal-datatype)
   "A helper that compares the datatypable's charvalue with the passed
    literal value."
   (declare (d::DatatypableC construct)
-	   (type (or Null String) literal-value literal-datatype))
+	   (type (or Null String) literal-datatype))
   (when (or (not literal-datatype)
 	    (string= (datatype construct) literal-datatype))
-    (if (not literal-value)
+    (if (and (not literal-value)
+	     (string/= literal-datatype *xml-boolean*))
 	construct
 	(handler-case
 	    (let ((occ-value (cast-literal (charvalue construct)
@@ -869,7 +907,7 @@
   "A helper that compares the occurrence's charvalue with the passed
    literal value."
   (declare (OccurrenceC occurrence)
-	   (type (or Null String) literal-value literal-datatype))
+	   (type (or Null String) literal-datatype))
   (filter-datatypable-by-value occurrence literal-value literal-datatype))
       
 
@@ -919,7 +957,8 @@
 	   (by-literal (if literal-value
 			   (names-by-value
 			    construct #'(lambda(name)
-					  (string= name literal-value))
+					  (literal= name literal-value))
+					  ;(string= name literal-value))
 			    :revision revision)
 			   (names construct :revision revision)))
 	   (all-names (intersection by-type by-literal))

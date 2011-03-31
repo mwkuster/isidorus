@@ -113,20 +113,23 @@
 
 (defun trim-whitespace-left (value)
   "Uses string-left-trim with a predefined character-list."
-  (declare (String value))
-  (string-left-trim *white-space* value))
+  (declare (type (or Null String) value))
+  (when value
+    (string-left-trim *white-space* value)))
 
 
 (defun trim-whitespace-right (value)
   "Uses string-right-trim with a predefined character-list."
-  (declare (String value))
-  (string-right-trim *white-space* value))
+  (declare (type (or Null String) value))
+  (when value
+    (string-right-trim *white-space* value)))
 
 
 (defun trim-whitespace (value)
   "Uses string-trim with a predefined character-list."
-  (declare (String value))
-  (string-trim *white-space* value))
+  (declare (type (or Null String) value))
+  (when value
+    (string-trim *white-space* value)))
 
 
 (defun string-starts-with (str prefix &key (ignore-case nil))

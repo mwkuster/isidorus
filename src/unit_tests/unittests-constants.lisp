@@ -30,6 +30,7 @@
 	   :*atom_test.xtm*
 	   :*atom-conf.lisp*
 	   :*poems.xtm*
+	   :*sparql_test.xtm*
 	   :*poems_light.rdf*
 	   :*poems_light.xtm*
 	   :*poems_light.xtm.txt*
@@ -104,6 +105,10 @@
 (defparameter *poems.xtm*
   (asdf:component-pathname
    (asdf:find-component *unit-tests-component* "poems.xtm")))
+
+(defparameter *sparql_test.xtm*
+  (asdf:component-pathname
+   (asdf:find-component *unit-tests-component* "sparql_test.xtm")))
 
 (defparameter *poems_light.rdf*
   (asdf:component-pathname

@@ -42,4 +42,7 @@
     <subjectIdentifier href="http://www.networkedplanet.com/tmsparql/value"/>
   </topic>
 
+  <topic id="rdf-type">
+    <subjectIdentifier href="http://www.w3.org/1999/02/22-rdf-syntax-ns#type"/>
+  </topic>
 </topicMap>

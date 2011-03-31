@@ -1625,7 +1625,63 @@ literal with some \\\"quoted\\\" words!"))
 			 "<http://some.where/psis/poem/erlkoenig>"
 			 "<http://some.where/psis/poem/zauberlehrling>")
 		   :test #'string=))))))
-    
+
+
+(test test-all-1
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "SELECT * WHERE {
+                  ?subj1 <http://some.where/tmsparql/first-name> \"Johann Wolfgang\".
+                  ?subj2 <http://some.where/tmsparql/last-name> 'von Goethe'^^"
+	              *xml-string* ".
+                  ?subj3 <http://some.where/tmsparql/date-of-birth> '28.08.1749'^^"
+                                           *xml-date* ".
+	          ?subj4 <http://some.where/tmsparql/date-of-death> '22.03.1832'^^"
+                                           *xml-date* ".
+                  ?subj5 <http://some.where/tmsparql/years> 82.0.
+                  ?subj6 <http://some.where/tmsparql/years> 82.
+                  ?subj7 <http://some.where/tmsparql/years> '82'^^" *xml-integer* ".
+	          ?subj8 <http://some.where/tmsparql/isDead> true.
+	          ?subj9 <http://some.where/tmsparql/isDead> 'true'^^" *xml-boolean* ".
+                  ?subj10 <http://some.where/tmsparql/isDead> 'false'^^" *xml-boolean* ".
+		  ?subj11 <http://some.where/tmsparql/isDead> false"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 11))
+      (map 'list #'(lambda(item)
+		     (cond ((or (string= (getf item :variable) "subj1")
+				(string= (getf item :variable) "subj2")
+				(string= (getf item :variable) "subj3")
+				(string= (getf item :variable) "subj4")
+				(string= (getf item :variable) "subj6")
+				(string= (getf item :variable) "subj7")
+				(string= (getf item :variable) "subj8")
+				(string= (getf item :variable) "subj9"))
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/tmsparql/author/goethe>")))
+			   ((or (string= (getf item :variable) "subj5")
+				(string= (getf item :variable) "subj10")
+				(string= (getf item :variable) "subj11"))
+			    (is-false (getf item :result)))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))
+    (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/topicProperty"
+				:revision 0))
+    (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/reifier"
+				:revision 0))
+    (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/role"
+				:revision 0))
+    (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/player"
+				:revision 0))
+    (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/scope"
+				:revision 0))
+    (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/value"
+				:revision 0))
+    (is-true (d:get-item-by-psi *rdf-type* :revision 0))))
+
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

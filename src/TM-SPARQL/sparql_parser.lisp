@@ -288,17 +288,21 @@
 	   (triple-delimiters
 	    (list ". " ";" " " (string #\tab)
 		  (string #\newline) "}"))
-	   (end-pos (search-first triple-delimiters
-				  trimmed-str)))
+	   (end-pos (search-first triple-delimiters trimmed-str)))
       (unless end-pos
 	(error (make-sparql-parser-condition
 		trimmed-str (original-query construct)
 		"'. ', , ';' ' ', '\\t', '\\n' or '}'")))
       (let* ((literal-number
-	      (read-from-string (subseq trimmed-str 0 end-pos)))
+	      (read-from-string
+	       (let ((str-value (subseq trimmed-str 0 end-pos)))
+		 (if (string-ends-with str-value ".")
+		     (progn (decf end-pos)
+			    (subseq str-value 0 (1- (length str-value))))
+		     str-value))))
 	     (number-type
 	      (if (search "." (subseq trimmed-str 0 end-pos))
-		  *xml-double* ;could also be an xml:decimal, since the doucble has
+		  *xml-double* ;could also be an xml:decimal, since the double has
 			       ;a bigger range it shouldn't matter
 		  *xml-integer*)))
 	(unless (numberp literal-number)

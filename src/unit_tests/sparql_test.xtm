@@ -73,7 +73,7 @@
   </tm:topic>
 
   <tm:topic id="last-name">
-    <tm:subjectIdentifier href="http://some.where/tmsparql/first-name"/>
+    <tm:subjectIdentifier href="http://some.where/tmsparql/last-name"/>
     <tm:instanceOf><tm:topicRef href="#nametype"/></tm:instanceOf>
   </tm:topic>
 
@@ -117,6 +117,11 @@
     <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
   </tm:topic>
 
+  <tm:topic id="isAlive">
+    <tm:subjectIdentifier href="http://some.where/tmsparql/isAlive"/>
+    <tm:instanceOf><tm:topicRef href="#occurrencetype"/></tm:instanceOf>
+  </tm:topic>
+
   <tm:topic id="reifier-type">
     <tm:subjectIdentifier href="http://some.where/tmsparql/reifier-type"/>
     <tm:instanceOf><tm:topicRef href="#topictype"/></tm:instanceOf>
@@ -147,19 +152,23 @@
     <tm:occurrence reifier="http://some.where/ii/goethe-occ-reifier">
       <tm:itemIdentity href="http://some.where/ii/goethe-occ"/>
       <tm:type><tm:topicRef href="#date-of-birth"/></tm:type>
-      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#date">28.08.1749</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">28.08.1749</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#date-of-death"/></tm:type>
-      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#integer">22.03.1832</tm:resourceData> <!-- bad data type -->
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">22.03.1832</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#years"/></tm:type>
-      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#integer">82</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#integer">82</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
       <tm:type><tm:topicRef href="#isDead"/></tm:type>
-      <tm:resourceData href="http://www.w3.org/2001/XMLSchema#boolean">true</tm:resourceData>
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#boolean">true</tm:resourceData>
+    </tm:occurrence>
+    <tm:occurrence>
+      <tm:type><tm:topicRef href="#isAlive"/></tm:type> <!-- redundancy: needed for checking booleans -->
+      <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#boolean">false</tm:resourceData>
     </tm:occurrence>
   </tm:topic>
 
