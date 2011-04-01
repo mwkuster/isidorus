@@ -16,10 +16,9 @@
 	   :init-tm-sparql))
 
 
-
 (in-package :TM-SPARQL)
 
-(defvar *empty-label* "_empty_label_symbol" "A label symobl for empyt prefix labels")
+(defvar *empty-label* "_empty_label_symbol" "A label symbol for empyt prefix labels")
 
 (defvar *equal-operators* nil "A Table taht contains tuples of 
                                classes and equality operators.")
@@ -779,7 +778,8 @@
 		 (filter-characteristics
 		  subj pred (value (object construct))
 		  (literal-datatype (object construct)) :revision revision)))
-	      ((iri-p (object construct))
+	      ((and (iri-p (object construct))
+		    (typep subj 'TopicC))
 	       (filter-associations subj pred (value (object construct))
 				    :revision revision)))))))
 

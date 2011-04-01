@@ -1744,12 +1744,59 @@ literal with some \\\"quoted\\\" words!"))
     (let* ((q-1 (concat
 		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
                   SELECT * WHERE {
-                   <http://some.where/ii/goethe-occ> tms:reifier ?obj1.
-                   ?subj1 tms:reifier <http://some.where/ii/goethe-name-reifier>"
+                   ?assoc tms:reifier <http://some.where/ii/association-reifier>.
+                   <http://some.where/ii/association> tms:role ?roles.
+                   ?assoc2 tms:role <http://some.where/ii/role-2>"
                  "}"))
-	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
-      (is-true (= (length r-1) 2))
-      )))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
+	   (role-1 (concat "_:r" (write-to-string
+				  (elephant::oid
+				   (first (roles
+					   (get-item-by-item-identifier 
+					    "http://some.where/ii/association"
+					    :revision 0)))))))
+	   (role-2 (concat "_:r" (write-to-string
+				  (elephant::oid
+				   (second (roles
+					    (get-item-by-item-identifier 
+					     "http://some.where/ii/association"
+					     :revision 0))))))))
+      (is-true (= (length r-1) 3))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "assoc")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/association>")))
+			    ((string= (getf item :variable) "roles")
+			    (is (or (string= (first (getf item :result))
+					     role-1)
+				    (string= (first (getf item :result))
+					     role-2)
+				    (string= (first (getf item :result))
+					     "<http://some.where/ii/role-2>")))
+			     (is (or (string= (second (getf item :result))
+					      role-1)
+				     (string= (second (getf item :result))
+					      role-2)
+				     (string= (second (getf item :result))
+					      "<http://some.where/ii/role-2>"))))
+			    ((string= (getf item :variable) "assoc2")
+			     (is (string= (first (getf item :result))
+					  "<http://some.where/ii/association>")))
+			    (t
+			     (is-true (format t "bad variable-name found")))))
+	   r-1))))
+
+
+
+
+
+;TODO:  tms:player, tms:topicProperty, tms:scope, tms:value, complex filter
+;TODO: "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+;       SELECT * WHERE {
+;        ?assoc tms:reifier <http://some.where/ii/association-reifier>.
+;        ?assoc tms:role ?roles}
+; => ?assoc = http://some.where/ii/association
+; => ?roles = (http://some.where/ii/role-2, _:r????)
 
 
 (defun run-sparql-tests ()

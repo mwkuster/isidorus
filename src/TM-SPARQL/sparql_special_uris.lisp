@@ -151,7 +151,7 @@
 	(when (and (or (variable-p subj)
 		       (typep (value subj) 'd:AssociationC))
 		   (or (variable-p obj)
-		       (typep (value subj) 'd:RoleC)))
+		       (typep (value obj) 'd:RoleC)))
 	  (cond ((and (not (variable-p subj))
 		      (not (variable-p obj)))
 		 (when (find obj (roles (value subj) :revision revision))

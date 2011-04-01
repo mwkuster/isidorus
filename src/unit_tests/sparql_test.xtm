@@ -201,13 +201,14 @@
   </tm:topic>
 
   <tm:association reifier="http://some.where/ii/association-reifier">
-    <tm:itemIdentity href="http://somw.where/ii/association"/>
+    <tm:itemIdentity href="http://some.where/ii/association"/>
     <tm:type><tm:topicRef href="#written-by"/></tm:type>
     <tm:role reifier="http://some.where/ii/role-reifier">
       <tm:type><tm:topicRef href="#writer"/></tm:type>
       <tm:topicRef href="#goethe"/>
     </tm:role>
     <tm:role>
+      <tm:itemIdentity href="http://some.where/ii/role-2"/>
       <tm:type><tm:topicRef href="#written"/></tm:type>
       <tm:topicRef href="#zauberlehrling"/>
     </tm:role>
