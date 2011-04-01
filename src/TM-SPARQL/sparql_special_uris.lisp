@@ -18,12 +18,15 @@
   `(let* ((subj (subject ,triple-construct))
 	  (pred (predicate ,triple-construct))
 	  (obj (object ,triple-construct))
-	  (subj-uri (unless (variable-p subj)
+	  (subj-uri (when (and (not (variable-p subj))
+			       (value subj))
 		      (sparql-node (value subj) :revision revision)))
-	  (pred-uri (unless (variable-p pred)
+	  (pred-uri (when (and (not (variable-p pred))
+			       (value pred))
 		      (sparql-node (value pred) :revision revision)))
 	  (obj-uri (when (and (not (variable-p obj))
-			      (not (literal-p obj)))
+			      (not (literal-p obj))
+			      (value obj))
 		     (sparql-node (value obj) :revision revision)))
 	  (literal-datatype (when (literal-p obj)
 			      (literal-datatype obj))))
@@ -386,7 +389,7 @@
 			      (get-all-topics revision)))))
 		   (loop for top in topics
 		      collect (list :subject
-				    (sparql-node (reified-construct top :revision revision)
-						 :revision revision)
-				    :predicate pred-uri
-				    :object (sparql-node top :revision revision)))))))))))
+					(sparql-node (reified-construct top :revision revision)
+						     :revision revision)
+					:predicate pred-uri
+					:object (sparql-node top :revision revision)))))))))))
