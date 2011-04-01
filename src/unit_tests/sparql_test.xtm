@@ -191,6 +191,7 @@
       <tm:value>Der Zauberlehrling</tm:value>
     </tm:name>
     <tm:occurrence>
+      <tm:itemIdentity href="http://some.where/ii/zb/occurrence"/>
       <tm:type><tm:topicRef href="#poem-content"/></tm:type>
       <tm:scope><tm:topicRef href="#de"/></tm:scope>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Hat der alte Hexenmeister

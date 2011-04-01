@@ -1858,6 +1858,30 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-7
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/ii/zb/occurrence> tms:scope ?scope.
+                   ?owner tms:scope <http://some.where/tmsparql/de>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 2))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "scope")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/tmsparql/de>")))
+			   ((string= (getf item :variable) "owner")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/zb/occurrence>")))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
+
+
 
 
 ;TODO: tms:scope, tms:value, complex filter
