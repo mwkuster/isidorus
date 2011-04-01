@@ -141,6 +141,7 @@
       <tm:type><tm:topicRef href="#last-name"/></tm:type>
       <tm:value>von Goethe</tm:value>
       <tm:variant>
+	<tm:itemIdentity href="http://some.where/ii/goethe-variant"/>
 	<tm:scope><tm:topicRef href="#display-name"/></tm:scope>
 	<tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">Goethe</tm:resourceData>
       </tm:variant>
@@ -159,6 +160,7 @@
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#date">22.03.1832</tm:resourceData>
     </tm:occurrence>
     <tm:occurrence>
+      <tm:itemIdentity href="http://some.where/ii/goethe-years-occ"/>
       <tm:type><tm:topicRef href="#years"/></tm:type>
       <tm:resourceData datatype="http://www.w3.org/2001/XMLSchema#integer">82</tm:resourceData>
     </tm:occurrence>

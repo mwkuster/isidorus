@@ -255,7 +255,7 @@
 		    (not (variable-p obj)))
 	       (when (or (and (typep subj 'NameC)
 			      (string= literal-datatype *xml-string*)
-			      (string= (charvalue subj) (value obj)))
+			      (string= (charvalue (value subj)) (value obj)))
 			 (filter-datatypable-by-value subj obj literal-datatype))
 		 (list (list :subject subj-uri
 			     :predicate pred-uri
@@ -264,10 +264,10 @@
 	      ((not (variable-p subj))
 	       (list (list :subject subj-uri
 			   :predicate pred-uri
-			   :object (charvalue subj)
-			   :literal-datatype (if (typep subj 'd:NameC)
+			   :object (charvalue (value subj))
+			   :literal-datatype (if (typep (value subj) 'd:NameC)
 						 *xml-string*
-						 (datatype subj)))))
+						 (datatype (value subj))))))
 	      ((not (variable-p obj))
 	       (loop for char in (return-characteristics (value obj) literal-datatype)
 		  collect (list :subject (sparql-node char :revision revision)

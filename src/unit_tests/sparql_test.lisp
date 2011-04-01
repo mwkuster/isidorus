@@ -1882,12 +1882,55 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-8
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/ii/goethe-untyped-name> tms:value ?obj1.
+                   <http://some.where/ii/goethe-occ> tms:value ?obj2.
+                   <http://some.where/ii/goethe-variant> tms:value ?obj3.
+                   ?subj1 tms:value 'Goethe'.
+                   ?subj2 tms:value '28.08.1749'^^http://www.w3.org/2001/XMLSchema#date.
+                   ?subj3 tms:value 'Johann Wolfgang von Goethe'.
+                   ?subj4 tms:value 82"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 7))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "obj1")
+			    (is (string= (first (getf item :result))
+					 "Johann Wolfgang von Goethe")))
+			   ((string= (getf item :variable) "obj2")
+			    (is (string= (first (getf item :result))
+					 "28.08.1749")))
+			   ((string= (getf item :variable) "obj3")
+			    (is (string= (first (getf item :result))
+					 "Goethe")))
+			   ((string= (getf item :variable) "subj1")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/goethe-variant>")))
+			   ((string= (getf item :variable) "subj2")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/goethe-occ>")))
+			   ((string= (getf item :variable) "subj3")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/goethe-untyped-name>")))
+			   ((string= (getf item :variable) "subj4")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/goethe-years-occ>")))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
 
 
-;TODO: tms:scope, tms:value, complex filter
-;      <obj> <pred> <subj>
-;      ?obj <pred> ?subj
-;      <subj> ?pred ?obj
+
+;TODO: tms:value, complex filter,
+;      <obj> <pred> <subj>,
+;      ?obj <pred> ?subj,
+;      <subj> ?pred ?obj,
 ;      ?subj ?pred <obj>
 ;TODO: PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
 ;      SELECT * WHERE {

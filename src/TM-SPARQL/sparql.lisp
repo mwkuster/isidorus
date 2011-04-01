@@ -505,7 +505,8 @@
    Note the type xsd:date is not supported and so handled as a string."
   (declare (String literal-datatype))
   (let ((chars
-	 (cond ((string= literal-datatype *xml-string*)
+	 (cond ((or (string= literal-datatype *xml-string*)
+		    (string= literal-datatype *xml-date*))
 		(remove-if #'(lambda(elem)
 			       (string/= (charvalue elem) literal-value))
 			   (append
