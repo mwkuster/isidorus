@@ -1788,11 +1788,44 @@ literal with some \\\"quoted\\\" words!"))
 
 
 
+(test test-all-5
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/ii/role-2> tms:player ?player.
+                   ?role tms:player <http://some.where/psis/poem/zauberlehrling>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 2))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "player")
+			    (is (string=
+				 (first (getf item :result))
+				 "<http://some.where/psis/poem/zauberlehrling>")))
+			   ((string= (getf item :variable) "role")
+			    (is (= (length (getf item :result)) 2))
+			    ;one role is the type-instance role
+			    (is (or (string= (first (getf item :result))
+					     "<http://some.where/ii/role-2>")
+				    (string= (second (getf item :result))
+					     "<http://some.where/ii/role-2>"))))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
 
 
-;TODO:  tms:player, tms:topicProperty, tms:scope, tms:value, complex filter
-;TODO: "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
-;       SELECT * WHERE {
+
+
+;TODO: tms:topicProperty, tms:scope, tms:value, complex filter
+;      <obj> <pred> <subj>
+;      ?obj <pred> ?subj
+;      <subj> ?pred ?obj
+;      ?subj ?pred <obj>
+;TODO: PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+;      SELECT * WHERE {
 ;        ?assoc tms:reifier <http://some.where/ii/association-reifier>.
 ;        ?assoc tms:role ?roles}
 ; => ?assoc = http://some.where/ii/association
