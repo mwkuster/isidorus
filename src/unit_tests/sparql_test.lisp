@@ -1787,7 +1787,6 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-
 (test test-all-5
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
@@ -1817,9 +1816,51 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-6
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/tmsparql/author/goethe> tms:topicProperty ?props.
+                   ?subj1 tms:topicProperty <http://some.where/ii/goethe-untyped-name>.
+                   ?subj2 tms:topicProperty <http://some.where/ii/goethe-occ>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
+	   (prop-ids
+	    (map 'list
+		 #'(lambda(prop)
+		     (if (item-identifiers prop :revision 0)
+			 (concat "<" (d:uri (first (item-identifiers
+						    prop :revision 0))) ">")
+			 (if (typep prop 'OccurrenceC)
+			     (concat "_:o" (write-to-string (elephant::oid prop)))
+			     (concat "_:n" (write-to-string (elephant::oid prop))))))
+		 (append (names (get-item-by-psi
+				 "http://some.where/tmsparql/author/goethe"
+				 :revision 0))
+			 (occurrences (get-item-by-psi
+				       "http://some.where/tmsparql/author/goethe"
+				       :revision 0))))))
+      (is-true (= (length r-1) 3))
+      (map 'list #'(lambda(item)
+		     (cond ((or (string= (getf item :variable) "subj1")
+				(string= (getf item :variable) "subj2"))
+			    (is (string=
+				 (first (getf item :result))
+				 "<http://some.where/tmsparql/author/goethe>")))
+			   ((string= (getf item :variable) "props")
+			    (is (= (length (getf item :result)) 8))
+			    (is-false (intersection prop-ids (getf item :result))))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
 
 
-;TODO: tms:topicProperty, tms:scope, tms:value, complex filter
+
+
+;TODO: tms:scope, tms:value, complex filter
 ;      <obj> <pred> <subj>
 ;      ?obj <pred> ?subj
 ;      <subj> ?pred ?obj
