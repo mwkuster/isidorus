@@ -751,7 +751,8 @@
       (if revision
 	  (remove-null
 	   (map 'list #'(lambda(inst)
-			  (if (typep inst 'CHaracteristicC)
+			  (if (or (typep inst 'CharacteristicC)
+				  (typep inst 'RoleC))
 			      (find-item-by-revision inst revision
 						     (parent inst :revision revision))
 			      (find-item-by-revision inst revision)))

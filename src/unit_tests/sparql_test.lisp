@@ -1852,7 +1852,8 @@ literal with some \\\"quoted\\\" words!"))
 				 "<http://some.where/tmsparql/author/goethe>")))
 			   ((string= (getf item :variable) "props")
 			    (is (= (length (getf item :result)) 8))
-			    (is-false (intersection prop-ids (getf item :result))))
+			    (is-false (set-exclusive-or prop-ids (getf item :result)
+							:test #'string=)))
 			   (t
 			    (is-true (format t "bad variable-name found")))))
 	   r-1))))
@@ -1945,10 +1946,123 @@ literal with some \\\"quoted\\\" words!"))
       (is-false r-1))))
 
 
+(test test-all-10
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   ?subj1 a ?obj1.
+                   ?subj2 tms:reifier ?obj2.
+                   ?subj3 tms:role ?obj3.
+                   ?subj4 tms:player ?obj4.
+                   ?subj5 tms:topicProperty ?obj5.
+                   ?subj6 tms:scope ?obj6.
+                   ?subj7 tms:value ?obj7"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is (= (length r-1) 14))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "subj1")
+			    (is (= (length (getf item :result)) 29)))
+			   ((string= (getf item :variable) "obj2")
+			    (is (= (length (getf item :result)) 4))
+			    (is-false (set-exclusive-or
+				       (getf item :result)
+				       (list "<http://some.where/ii/goethe-name-reifier>"
+					     "<http://some.where/ii/goethe-occ-reifier>"
+					     "<http://some.where/ii/association-reifier>"
+					     "<http://some.where/ii/role-reifier>")
+				       :test #'string=)))
+			   ((string= (getf item :variable) "subj3")
+			    (is (= (length (getf item :result)) 60))
+			    (is (find "<http://some.where/ii/association>"
+				      (getf item :result) :test #'string=)))
+			   ((string= (getf item :variable) "subj4")
+			    (is (= (length (getf item :result)) 60)))
+			   ((string= (getf item :variable) "subj5")
+			    (is (= (length (getf item :result)) 10)))
+			   ((string= (getf item :variable) "subj6")
+			    (is (= (length (getf item :result)) 2))
+			    (set-exclusive-or
+			     (getf item :result)
+			     (list "<http://some.where/ii/zb/occurrence>"
+				   "<http://some.where/ii/goethe-variant>")
+			     :test #'string=))
+			   ((string= (getf item :variable) "subj7")
+			    (is (= (length (getf item :result)) 11)))
+			   ((string= (getf item :variable) "obj1")
+			    (is (= (length (getf item :result)) 29)))
+			   ((string= (getf item :variable) "subj2")
+			    (is (= (length (getf item :result)) 4))
+			    (is-false
+			     (set-exclusive-or
+			      (getf item :result)
+			      (list
+			       "<http://some.where/ii/goethe-occ>"
+			       "<http://some.where/ii/association>"
+			       (concat
+				"_:r"
+				(write-to-string
+				 (elephant::oid
+				  (loop for role in
+				       (roles (get-item-by-item-identifier
+					       "http://some.where/ii/association"
+					       :revision 0) :revision 0)
+				     when (string=
+					   (uri (first
+						 (psis (player role :revision 0)
+						       :revision 0)))
+					   "http://some.where/tmsparql/author/goethe")
+				     return role))))
+			       (concat
+				"_:n"
+				(write-to-string
+				 (elephant::oid
+				  (loop for name in
+				       (names
+					(get-item-by-psi
+					 "http://some.where/tmsparql/author/goethe"
+					 :revision 0) :revision 0)
+				     when (string= (charvalue name) "von Goethe")
+				     return name)))))
+			      :test #'string=)))
+			   ((string= (getf item :variable) "obj3")
+			    (is (= (length (getf item :result)) 60))
+			    (is (find "<http://some.where/ii/role-2>"
+				      (getf item :result) :test #'string=)))
+			   ((string= (getf item :variable) "obj4")
+			    (is (= (length (getf item :result)) 60)))
+			   ((string= (getf item :variable) "obj5")
+			    (is (= (length (getf item :result)) 10)))
+			   ((string= (getf item :variable) "obj6")
+			    (is (= (length (getf item :result)) 2))
+			    (set-exclusive-or
+			     (getf item :result)
+			     (list "<http://some.where/tmsparql/display-name>"
+				   "<http://some.where/tmsparql/de>")))
+			   ((string= (getf item :variable) "obj7")
+			    (is (= (length (getf item :result)) 11))
+			    (set-exclusive-or
+			     (getf item :result)
+			     (list "Johann Wolfgang" "von Goethe"
+				   "Johann Wolfgang von Goethe" "Der Zauberlehrling"
+				   "28.08.1749" "22.03.1832" "82" "true" "false"
+				   "Hat der alte Hexenmeister
+	sich doch einmal wegbegeben!
+	...
+      ")
+			     :test #'string=))
+			    (t
+			     (is-true (format t "bad variable-name found")))))
+	   r-1))))
+
+
 
 
 ;TODO: complex filter,
-;      ?obj <pred> ?subj,
+;      complex relations between variables
 ;      <subj> ?pred ?obj,
 ;      ?subj ?pred <obj>
 ;TODO: PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
