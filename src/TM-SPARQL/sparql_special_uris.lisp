@@ -253,14 +253,19 @@
 		     (literal-p obj)))
 	(cond ((and (not (variable-p subj))
 		    (not (variable-p obj)))
-	       (when (or (and (typep subj 'NameC)
-			      (string= literal-datatype *xml-string*)
+	       (if (typep (value subj) 'NameC)
+		   (when (and (string= literal-datatype *xml-string*)
 			      (string= (charvalue (value subj)) (value obj)))
-			 (filter-datatypable-by-value subj obj literal-datatype))
-		 (list (list :subject subj-uri
-			     :predicate pred-uri
-			     :object (value obj)
-			     :literal-datatype literal-datatype))))
+		     (list (list :subject subj-uri
+				 :predicate pred-uri
+				 :object (value obj)
+				 :literal-datatype literal-datatype)))
+		   (when (filter-datatypable-by-value (value subj) (value obj)
+						      literal-datatype)
+		     (list (list :subject subj-uri
+				 :predicate pred-uri
+				 :object (value obj)
+				 :literal-datatype literal-datatype)))))
 	      ((not (variable-p subj))
 	       (list (list :subject subj-uri
 			   :predicate pred-uri

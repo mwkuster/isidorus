@@ -780,7 +780,9 @@
 		  subj pred (value (object construct))
 		  (literal-datatype (object construct)) :revision revision)))
 	      ((and (iri-p (object construct))
-		    (typep subj 'TopicC))
+		    (typep subj 'TopicC)
+		    (or (variable-p (object construct))
+			(typep (value (object construct)) 'TopicC)))
 	       (filter-associations subj pred (value (object construct))
 				    :revision revision)))))))
 

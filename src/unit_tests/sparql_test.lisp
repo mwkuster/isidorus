@@ -1926,9 +1926,28 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-9
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/tmsparql/author/goethe> a <http://some.where/tmsparql/author>.
+	           <http://some.where/ii/goethe-occ> tms:reifier <http://some.where/ii/goethe-occ-reifier>.
+                   <http://some.where/ii/association> tms:role <http://some.where/ii/role-2>.
+                   <http://some.where/ii/role-2> tms:player <http://some.where/psis/poem/zauberlehrling>.
+                   <http://some.where/tmsparql/author/goethe> tms:topicProperty <http://some.where/ii/goethe-untyped-name>.
+                   <http://some.where/ii/goethe-variant> tms:scope <http://some.where/tmsparql/display-name>.
+                   <http://some.where/ii/goethe-untyped-name> tms:value 'Johann Wolfgang von Goethe'"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-false r-1))))
 
-;TODO: tms:value, complex filter,
-;      <obj> <pred> <subj>,
+
+
+
+;TODO: complex filter,
 ;      ?obj <pred> ?subj,
 ;      <subj> ?pred ?obj,
 ;      ?subj ?pred <obj>
