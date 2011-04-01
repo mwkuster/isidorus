@@ -2075,6 +2075,7 @@ literal with some \\\"quoted\\\" words!"))
                  "}"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
       (is-true (= (length r-1) 12))
+      
       (format t "~a~%" r-1))))
 
 
