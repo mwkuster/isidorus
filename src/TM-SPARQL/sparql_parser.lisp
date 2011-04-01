@@ -144,7 +144,14 @@
 					 :elem-type 'IRI
 					 :value *type-psi*)))
 	    ((string-starts-with trimmed-str "<")
-	     (parse-base-suffix-pair construct trimmed-str))
+	     (let ((result (parse-base-suffix-pair construct trimmed-str)))
+	       (if (and (not (variable-p (getf result :value)))
+			(string= (value (getf result :value)) *rdf-type*))
+		   (list :next-query (getf result :next-query)
+			 :value (make-instance 'SPARQL-Triple-Elem
+					       :elem-type 'IRI
+					       :value *type-psi*))
+		   result)))
 	    ((or (string-starts-with trimmed-str "?")
 		 (string-starts-with trimmed-str "$"))
 	     (let ((result
@@ -166,8 +173,14 @@
 			     trimmed-str (original-query construct)
 			     "an IRI of the form prefix:suffix or <iri> but found a literal.")))
 		   (parse-literal-elem construct trimmed-str))
-		 (parse-prefix-suffix-pair construct trimmed-str)))))))
-
+		 (let ((result (parse-prefix-suffix-pair construct trimmed-str)))
+		   (if (and (not (variable-p (getf result :value)))
+			    (string= (value (getf result :value)) *rdf-type*))
+		       (list :next-query (getf result :next-query)
+			     :value (make-instance 'SPARQL-Triple-Elem
+						   :elem-type 'IRI
+						   :value *type-psi*))
+		       result))))))))
 
 (defgeneric parse-literal-elem (construct query-string)
   (:documentation "A helper-function that returns a literal vaue of the form
@@ -338,7 +351,7 @@
   (:method ((construct SPARQL-Query) (query-string String))
     (let* ((trimmed-str (cut-comment query-string))
 	   (delimiters (list "." ";" "}" "<" " " (string #\newline)
-			     (string #\tab) "#"))
+			     (string #\tab))) ; "#"))
 	   (end-pos (search-first delimiters trimmed-str))
 	   (elem-str (when end-pos
 		       (subseq trimmed-str 0 end-pos)))

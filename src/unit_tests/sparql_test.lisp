@@ -1635,7 +1635,7 @@ literal with some \\\"quoted\\\" words!"))
 		 "SELECT * WHERE {
                   ?subj1 <http://some.where/tmsparql/first-name> \"Johann Wolfgang\".
                   ?subj2 <http://some.where/tmsparql/last-name> 'von Goethe'^^"
-	              *xml-string* ".
+	                                   *xml-string* ".
                   ?subj3 <http://some.where/tmsparql/date-of-birth> '28.08.1749'^^"
                                            *xml-date* ".
 	          ?subj4 <http://some.where/tmsparql/date-of-death> '22.03.1832'^^"
@@ -1681,6 +1681,32 @@ literal with some \\\"quoted\\\" words!"))
     (is-true (d:get-item-by-psi "http://www.networkedplanet.com/tmsparql/value"
 				:revision 0))
     (is-true (d:get-item-by-psi *rdf-type* :revision 0))))
+
+
+(test test-all-2
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX pref:<http://www.w3.org/1999/02/>
+                  SELECT * WHERE {
+                  ?subj1 a <http://some.where/tmsparql/author> .
+                  ?subj2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://some.where/tmsparql/author> .
+                  ?subj3 <http://psi.topicmaps.org/iso13250/model/type> <http://some.where/tmsparql/author> .
+	          ?subj4 pref:22-rdf-syntax-ns#type <http://some.where/tmsparql/author>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 4))
+      (map 'list #'(lambda(item)
+		     (cond ((or (string= (getf item :variable) "subj1")
+				(string= (getf item :variable) "subj2")
+				(string= (getf item :variable) "subj3")
+				(string= (getf item :variable) "subj4"))
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/tmsparql/author/goethe>")))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
 
 
 (defun run-sparql-tests ()
