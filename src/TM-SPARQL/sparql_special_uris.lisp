@@ -114,16 +114,19 @@
 		   (let ((player-top
 			  (player (value subj) :revision revision)))
 		     (when player-top
-		       (list :subject subj-uri
-			     :predicate pred-uri
-			     :object (sparql-node player-top :revision revision)))))
+		       (list
+			(list
+			 :subject subj-uri
+			 :predicate pred-uri
+			 :object (sparql-node player-top :revision revision))))))
 		  ((not (variable-p obj))
 		   (let ((parent-roles
 			  (player-in-roles (value obj) :revision revision)))
 		     (loop for role in parent-roles
-			collect (list :subject (sparql-node role :revision revision)
-				      :predicate pred-uri
-				      :object (sparql-node (player role :revision revision)
+			collect (list
+				 :subject (sparql-node role :revision revision)
+				 :predicate pred-uri
+				 :object (sparql-node (player role :revision revision)
 							   :revision revision)))))
 		  (t ; only pred is given
 		   (let ((all-roles
@@ -163,9 +166,10 @@
 		((not (variable-p obj))
 		 (let ((parent-assoc (parent (value obj) :revision revision)))
 		   (when revision
-		     (list :subject (sparql-node parent-assoc :revision revision)
-			   :predicate pred-uri
-			   :object obj-uri))))
+		     (list
+		      (list :subject (sparql-node parent-assoc :revision revision)
+			    :predicate pred-uri
+			    :object obj-uri)))))
 		(t ; only pred is given
 		 (let ((assocs
 			(remove-null
@@ -211,9 +215,10 @@
 		((not (variable-p obj))
 		 (let ((parent-top (parent (value obj) :revision revision)))
 		   (when revision
-		     (list :subject (sparql-node parent-top :revision revision)
-			   :predicate pred-uri
-			   :object obj-uri))))
+		     (list
+		      (list :subject (sparql-node parent-top :revision revision)
+			    :predicate pred-uri
+			    :object obj-uri)))))
 		(t ; only pred is given
 		 (let ((topics
 			(remove-null
@@ -353,9 +358,10 @@
 		 (let ((reifier-top
 			(reifier (value subj) :revision revision)))
 		   (when reifier-top
-		     (list :subject subj-uri
-			   :predicate pred-uri
-			   :object (sparql-node reifier-top :revision revision)))))
+		     (list
+		      (list :subject subj-uri
+			    :predicate pred-uri
+			    :object (sparql-node reifier-top :revision revision))))))
 		((not (variable-p obj))
 		 (let ((reified-cons
 			(reified-construct (value obj) :revision revision)))

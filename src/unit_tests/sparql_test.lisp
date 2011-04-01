@@ -1709,5 +1709,48 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-3
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/ii/goethe-occ> tms:reifier ?obj1.
+                   ?subj1 tms:reifier <http://some.where/ii/goethe-name-reifier>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 2))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "subj1")
+			    (is (string=
+				 (first (getf item :result))
+				 (concat "_:n"
+					 (write-to-string
+					  (elephant::oid
+					   (d:get-item-by-content "von Goethe")))))))
+			   ((string= (getf item :variable) "obj1")
+			    (is (string= (first (getf item :result))
+					 "<http://some.where/ii/goethe-occ-reifier>")))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
+
+
+(test test-all-4
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/ii/goethe-occ> tms:reifier ?obj1.
+                   ?subj1 tms:reifier <http://some.where/ii/goethe-name-reifier>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 2))
+      )))
+
+
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

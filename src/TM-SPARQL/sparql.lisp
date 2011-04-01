@@ -769,14 +769,16 @@
 	     (pred (when (iri-p (predicate construct))
 		     (value (predicate construct)))))
 	(cond ((variable-p (object construct))
-	       (append (filter-characteristics
-			subj pred nil nil :revision revision)
-		       (filter-associations
-			subj pred nil :revision revision)))
+	       (when (typep subj 'TopicC)
+		 (append (filter-characteristics
+			  subj pred nil nil :revision revision)
+			 (filter-associations
+			  subj pred nil :revision revision))))
 	      ((literal-p (object construct))
-	       (filter-characteristics
-		subj pred (value (object construct))
-		(literal-datatype (object construct)) :revision revision))
+	       (when (typep subj 'TopicC)
+		 (filter-characteristics
+		  subj pred (value (object construct))
+		  (literal-datatype (object construct)) :revision revision)))
 	      ((iri-p (object construct))
 	       (filter-associations subj pred (value (object construct))
 				    :revision revision)))))))

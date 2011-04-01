@@ -749,10 +749,13 @@
 						 (typep inst class-symbol))
 					     db-instances)))
       (if revision
-	  (remove-if #'null
-		     (map 'list #'(lambda(inst)
-				    (find-item-by-revision inst revision))
-			  filtered-instances))
+	  (remove-null
+	   (map 'list #'(lambda(inst)
+			  (if (typep inst 'CHaracteristicC)
+			      (find-item-by-revision inst revision
+						     (parent inst :revision revision))
+			      (find-item-by-revision inst revision)))
+		filtered-instances))
 	  filtered-instances))))
 
 
@@ -809,15 +812,17 @@
 
 (defun get-item-by-content (content &key (revision *TM-REVISION*))
   "Finds characteristics by their (atomic) content."
-  (flet
-      ((get-existing-instances (class-symbol)
-         (delete-if-not
-	  #'(lambda (constr)
-	      (find-item-by-revision constr revision))
-	  (elephant:get-instances-by-value class-symbol 'charvalue content))))
-    (nconc (get-existing-instances 'OccurenceC)
-           (get-existing-instances 'NameC)
-	   (get-existing-instances 'VariantC))))
+  (let ((constructs
+	 (nconc (elephant:get-instances-by-value 'NameC 'Charvalue content)
+		(elephant:get-instances-by-value 'OccurrenceC 'Charvalue content)
+		(elephant:get-instances-by-value 'VariantC 'Charvalue content))))
+    (first
+     (remove-if
+      #'(lambda(construct)
+	  (or (string/= (charvalue construct) content)
+	      (not (find-item-by-revision construct revision
+					  (parent construct :revision revision)))))
+      constructs))))
 
 
 (defmacro with-revision (revision &rest body)
@@ -1152,6 +1157,24 @@
   (:method ((construct VersionedConstructC))
     (when (find 0 (versions construct) :key #'end-revision)
       construct)))
+
+
+(defmethod find-most-recent-revision ((construct CharacteristicC))
+  (loop for c-assoc in (slot-p construct 'parent)
+     when (find-most-recent-revision c-assoc)
+     return construct))
+
+
+(defmethod find-most-recent-revision ((construct PointerC))
+  (loop for p-assoc in (slot-p construct 'identified-construct)
+     when (find-most-recent-revision p-assoc)
+     return construct))
+
+
+(defmethod find-most-recent-revision ((construct RoleC))
+  (loop for r-assoc in (slot-p construct 'parent)
+     when (find-most-recent-revision r-assoc)
+     return construct))
 
 
 (defun add-version-info(construct start-revision)
