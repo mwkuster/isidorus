@@ -2059,6 +2059,24 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-11
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
+		   <http://some.where/ii/association> ?pred2 ?obj2.
+                   <http://some.where/ii/role-2> ?pred3 ?obj3.
+                   <http://some.where/ii/goethe-untyped-name> ?pred4 ?obj4.
+                   <http://some.where/ii/goethe-occ> ?pred5 ?obj5.
+                   <http://some.where/ii/goethe-variant> ?pred6 ?obj6"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 12))
+      (format t "~a~%" r-1))))
+
 
 
 ;TODO: complex filter,

@@ -242,17 +242,17 @@
     (push triple (slot-value construct 'select-group))))
 
 
-(defgeneric (setf elem-type) (construct elem-type)
+(defgeneric (setf elem-type) (value construct)
   (:documentation "Sets the passed elem-type on the passed cosntruct.")
-  (:method ((construct SPARQL-Triple-Elem) (elem-type Symbol))
-    (when (and (not (eql elem-type 'IRI))
-	       (not (eql elem-type 'VARIABLE))
-	       (not (eql elem-type 'LITERAL)))
+  (:method ((value Symbol) (construct SPARQL-Triple-Elem))
+    (when (and (not (eql value 'IRI))
+	       (not (eql value 'VARIABLE))
+	       (not (eql value 'LITERAL)))
       (error (make-condition
 	      'bad-argument-error
 	      :message (format nil "Expected a one of the symbols ~a, but get ~a~%"
-			       '('IRI 'VARIABLE 'LITERAL) elem-type))))
-    (setf (slot-value construct 'elem-type) elem-type)))
+			       '('IRI 'VARIABLE 'LITERAL) value))))
+    (setf (slot-value construct 'elem-type) value)))
 
 
 (defgeneric add-prefix (construct prefix-label prefix-value)
@@ -771,9 +771,9 @@
 	(cond ((variable-p (object construct))
 	       (when (typep subj 'TopicC)
 		 (append (filter-characteristics
-			  subj pred nil nil :revision revision)
-			 (filter-associations
-			  subj pred nil :revision revision))))
+				     subj pred nil nil :revision revision)
+				    (filter-associations
+				     subj pred nil :revision revision))))
 	      ((literal-p (object construct))
 	       (when (typep subj 'TopicC)
 		 (filter-characteristics

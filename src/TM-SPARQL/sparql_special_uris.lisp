@@ -58,6 +58,7 @@
                    and its objects corresponding to the defined
                    special-uris, e.g. <subj> var <obj>.")
   (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
+    (setf (elem-type (predicate construct)) 'IRI)
     (let* ((pred (predicate construct))
 	   (old-pred-value (value pred))
 	   (res-1
@@ -90,6 +91,7 @@
 	      (let ((val (filter-for-player construct :revision revision)))
 		(setf (value pred) old-pred-value)
 		val))))
+      (setf (elem-type (predicate construct)) 'VARIABLE)
       (append res-1 res-2 res-3 res-4 res-5))))
 
 
