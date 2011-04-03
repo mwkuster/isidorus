@@ -16,7 +16,8 @@
 	 :unittests-constants
 	 :fixtures
 	 :d
-	 :constants)
+	 :constants
+	 :tm-sparql-constants)
   (:export :run-sparql-tests
 	   :sparql-tests
 	   :test-prefix-and-base
@@ -2075,14 +2076,105 @@ literal with some \\\"quoted\\\" words!"))
                  "}"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
       (is-true (= (length r-1) 12))
-      
-      (format t "~a~%" r-1))))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "pred1")
+			    ;one name without a type so it is not listed
+			    (is (= (length (getf item :result)) 9)))
+			   ((string= (getf item :variable) "pred2")
+			    (is (= (length (getf item :result)) 3))
+			    (is-false (set-exclusive-or
+				       (getf item :result)
+				       (list (concat "<" *tms-role* ">")
+					     (concat "<" *tms-reifier* ">"))
+				       :test #'string=)))
+			   ((string= (getf item :variable) "pred3")
+			    (is (= (length (getf item :result)) 1))
+			    (is (string= (first (getf item :result))
+					 (concat "<" *tms-player* ">"))))
+			   ((string= (getf item :variable) "pred4")
+			    (is (= (length (getf item :result)) 1))
+			    (is (string= (first (getf item :result))
+					 (concat "<" *tms-value* ">"))))
+			   ((string= (getf item :variable) "pred5")
+			    (is (= (length (getf item :result)) 2))
+			    (is-false (set-exclusive-or
+				       (getf item :result)
+				       (list (concat "<" *tms-value* ">")
+					     (concat "<" *tms-reifier* ">"))
+				       :test #'string=)))
+			   ((string= (getf item :variable) "pred6")
+			    (is (= (length (getf item :result)) 2))
+			    (is-false (set-exclusive-or
+				       (getf item :result)
+				       (list (concat "<" *tms-value* ">")
+					     (concat "<" *tms-scope* ">"))
+				       :test #'string=)))
+			   ((string= (getf item :variable) "obj1")
+			    (is (= (length (getf item :result)) 9))
+			    (is-false (set-exclusive-or
+				       (getf item :result)
+				       (list "Johann Wolfgang" "von Goethe"
+					     "28.08.1749" "22.03.1832" "82"
+					     "true" "false"
+					     "<http://some.where/tmsparql/author>"
+					     "<http://some.where/psis/poem/zauberlehrling>")
+				       :test #'string=)))
+			   ((string= (getf item :variable) "obj2")
+			    (is (= (length (getf item :result)) 3))
+			    (is-false
+			     (set-exclusive-or
+			      (getf item :result)
+			      (list
+			       "<http://some.where/ii/association-reifier>"
+			       "<http://some.where/ii/role-2>"
+			       (concat
+				"_:r"
+				(write-to-string
+				 (elephant::oid
+				  (loop for role in
+				       (roles
+					(get-item-by-item-identifier
+					 "http://some.where/ii/association"
+					 :revision 0))
+				     when (string=
+					   (uri (first (psis (player role
+								     :revision 0))))
+					   "http://some.where/tmsparql/author/goethe")
+				     return role)))))
+			      :test #'string=)))
+			   ((string= (getf item :variable) "obj3")
+			    (is (= (length (getf item :result)) 1))
+			    (is (string=
+				 (first (getf item :result))
+				 "<http://some.where/psis/poem/zauberlehrling>")))
+			   ((string= (getf item :variable) "obj4")
+			    (is (= (length (getf item :result)) 1))
+			    (is (string= (first (getf item :result))
+					 "Johann Wolfgang von Goethe")))
+			   ((string= (getf item :variable) "obj5")
+			    (is (= (length (getf item :result)) 2))
+			    (is-false
+			     (set-exclusive-or
+			      (getf item :result)
+			      (list "28.08.1749"
+				    "<http://some.where/ii/goethe-occ-reifier>")
+			      :test #'string=)))
+			   ((string= (getf item :variable) "obj6")
+			   (is (= (length (getf item :result)) 2))
+			    (is-false
+			     (set-exclusive-or
+			      (getf item :result)
+			      (list "Goethe"
+				    "<http://some.where/tmsparql/display-name>")
+			      :test #'string=)))
+			   (t
+			    (is-true (format t "bad variable-name found")))))
+	   r-1))))
 
 
 
 ;TODO: complex filter,
 ;      complex relations between variables
-;      <subj> ?pred ?obj,
 ;      ?subj ?pred <obj>
 ;TODO: PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
 ;      SELECT * WHERE {

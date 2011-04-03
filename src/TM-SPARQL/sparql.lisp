@@ -576,10 +576,11 @@
 			  (pred-uri
 			   (when-do top (instance-of char :revision revision)
 				    (sparql-node top :revision revision))))
-		      (list :subject subj-uri
-			    :predicate pred-uri
-			    :object (charvalue char)
-			    :literal-datatype literal-datatype)))
+		      (when (and subj-uri pred-uri)
+			(list :subject subj-uri
+			      :predicate pred-uri
+			      :object (charvalue char)
+			      :literal-datatype literal-datatype))))
 	  (remove-if #'(lambda(char)
 			 (typep char 'VariantC))
 		     (return-characteristics literal-value literal-datatype)))))
@@ -602,13 +603,14 @@
 					 2)
 				  (find-if #'(lambda(r) (not (eql r role)))
 					   (roles assoc :revision revision))))))
-		  (list :subject
-			(when-do plr (player orole :revision revision)
-				 (sparql-node plr :revision revision))
-			:predicate
-			(when-do type (instance-of role :revision revision)
-				 (sparql-node type :revision revision))
-			:object obj-uri)))
+		  (when orole
+		    (list :subject
+			  (when-do plr (player orole :revision revision)
+				   (sparql-node plr :revision revision))
+			  :predicate
+			  (when-do type (instance-of role :revision revision)
+				   (sparql-node type :revision revision))
+			  :object obj-uri))))
 	    roles-by-oplayer)))))
 
 
@@ -664,15 +666,16 @@
 				  (find-if #'(lambda(r)
 					       (not (eql r role)))
 					   (roles assoc :revision revision)))))
-		    (list :subject
-			  (when-do plr (player orole :revision revision)
-				   (sparql-node plr :revision revision))
-			  :predicate
-			  (sparql-node (value (predicate construct))
-						 :revision revision)
-			  :object
-			  (when-do plr-top (player role :revision revision)
-				   (sparql-node plr-top :revision revision)))))
+		    (when (and orole assoc)
+		      (list :subject
+			    (when-do plr (player orole :revision revision)
+				     (sparql-node plr :revision revision))
+			    :predicate
+			    (sparql-node (value (predicate construct))
+					 :revision revision)
+			    :object
+			    (when-do plr-top (player role :revision revision)
+				     (sparql-node plr-top :revision revision))))))
 	      roles-by-player))))))
 
 
@@ -711,14 +714,16 @@
 	(remove-null
 	 (map 'list
 	      #'(lambda(name)
-		  (list :subject
-			(when-do top (parent name :revision revision)
-				 (sparql-node top :revision revision))
-			:predicate
-			(when-do top (instance-of name :revision revision)
-				 (sparql-node top :revision revision))
-			:object (charvalue name)
-			:literal-datatype *xml-string*))
+		  (when (and (parent name :revision revision)
+			     (instance-of name :revision revision))
+		    (list :subject
+			  (sparql-node (parent name :revision revision)
+				       :revision revision)
+			  :predicate
+			  (sparql-node (instance-of name :revision revision)
+				       :revision revision)
+			  :object (charvalue name)
+			  :literal-datatype *xml-string*)))
 	      names-by-literal))))))
 
 
@@ -748,14 +753,16 @@
 	(remove-null
 	 (map 'list
 	      #'(lambda(occ)
-		  (list :subject
-			(when-do top (parent occ :revision revision)
-				 (sparql-node top :revision revision))
-			:predicate
-			(when-do top (instance-of occ :revision revision)
-				 (sparql-node top :revision revision))
-			:object (charvalue occ)
-			:literal-datatype (datatype occ)))
+		  (when (and (parent occ :revision revision)
+			     (instance-of occ :revision revision))
+		    (list :subject
+			  (sparql-node (parent occ :revision revision)
+				       :revision revision)
+			  :predicate
+			  (sparql-node (instance-of occ :revision revision)
+				       :revision revision)
+			  :object (charvalue occ)
+			  :literal-datatype (datatype occ))))
 	      all-occs))))))
 
 
@@ -771,9 +778,9 @@
 	(cond ((variable-p (object construct))
 	       (when (typep subj 'TopicC)
 		 (append (filter-characteristics
-				     subj pred nil nil :revision revision)
-				    (filter-associations
-				     subj pred nil :revision revision))))
+			  subj pred nil nil :revision revision)
+			 (filter-associations
+			  subj pred nil :revision revision))))
 	      ((literal-p (object construct))
 	       (when (typep subj 'TopicC)
 		 (filter-characteristics
@@ -937,13 +944,13 @@
 	   (subj-uri (sparql-node construct :revision revision)))
       (remove-null
        (map 'list #'(lambda(occ)
-		      (list :subject subj-uri
-			    :predicate
-			    (when-do type-top
-				     (instance-of occ :revision revision)
-				     (sparql-node type-top :revision revision))
-			    :object (charvalue occ)
-			    :literal-datatype (datatype occ)))
+		      (when (instance-of occ :revision revision)
+			(list :subject subj-uri
+			      :predicate (sparql-node
+					  (instance-of occ :revision revision)
+					  :revision revision)
+			      :object (charvalue occ)
+			      :literal-datatype (datatype occ))))
 	    all-occs)))))
 
 
@@ -968,15 +975,15 @@
 			   (names construct :revision revision)))
 	   (all-names (intersection by-type by-literal))
 	   (subj-uri (sparql-node construct :revision revision)))
-      (remove-null
-       (map 'list #'(lambda(name)
-		      (list :subject subj-uri
-			    :predicate
-			    (when-do type-top (instance-of name :revision revision)
-				     (sparql-node type-top :revision revision))
-			    :object (charvalue name)
-			    :literal-datatype *xml-string*))
-	    all-names)))))
+      (map 'list #'(lambda(name)
+		     (when (instance-of name :revision revision)
+		       (list :subject subj-uri
+			     :predicate (sparql-node
+					 (instance-of name :revision revision)
+					 :revision revision)
+			     :object (charvalue name)
+			     :literal-datatype *xml-string*)))
+	   all-names))))
 
 
 (defgeneric filter-characteristics (construct type-top literal-value
@@ -1037,9 +1044,10 @@
 			    (when-do player-top (player other-role
 							:revision revision)
 				     (sparql-node player-top :revision revision)))))
-		    (list :subject subj-uri
-			  :predicate pred-uri
-			  :object obj-uri))))
+		    (when (and subj-uri pred-uri obj-uri)
+		      (list :subject subj-uri
+			    :predicate pred-uri
+			    :object obj-uri)))))
 	    assocs)))))
 
 
@@ -1065,6 +1073,8 @@
     (remove-null
      (loop for triple in (select-group construct)
 	append (remove-null
+		;;TODO: replace remove-null by a function that check if any of the
+                ;;      list items is nil, if so the entire list should be nil
 		(list
 		 (when (variable-p (subject triple))
 		   (list :variable (value (subject triple))
@@ -1102,7 +1112,7 @@
 (defgeneric variable-intersection (variable-name result-lists)
   (:documentation "Returns a list with all results of the passed variable
                    that are contained in the result-lists. All results is
-                   an intersection of all paratial results.")
+                   an intersection of all partial results.")
   (:method ((variable-name String) (result-lists List))
     (let* ((all-values (results-for-variable variable-name result-lists))
 	   (list-1 (when (>= (length all-values) 1)
@@ -1135,7 +1145,7 @@
   (:method ((construct SPARQL-Query) (result-lists List))
     (map 'list #'(lambda(triple)
 		   (reduce-triple triple result-lists))
-	 (select-group construct))))
+    (select-group construct))))
 
 
 (defgeneric reduce-triple(construct result-lists)
@@ -1153,6 +1163,7 @@
 		     (delete-rows construct (getf entry :variable)
 				  (getf entry :result)))
 	   intersections))))
+
 
 
 (defgeneric delete-rows (construct variable-name dont-touch-values)
@@ -1173,17 +1184,15 @@
 		  (object-result construct)))))
       (when var-elem
 	(let* ((rows-to-hold
-		(remove-null
-		 (map 'list #'(lambda(res)
-				(when (cond
-					((stringp res)
-					 (find res dont-touch-values :test #'string=))
-					((numberp res)
-					 (find res dont-touch-values :test #'=))
-					(t
-					 (find res dont-touch-values)))
-				  (position res var-elem)))
-		      var-elem)))
+		(loop for idx to (max 0 (1- (length var-elem)))
+		   when  (cond
+			   ((stringp (elt var-elem idx))
+			    (find (elt var-elem idx) dont-touch-values :test #'string=))
+			   ((numberp (elt var-elem idx))
+			    (find (elt var-elem idx) dont-touch-values :test #'=))
+			   (t
+			    (find (elt var-elem idx) dont-touch-values)))
+		   collect idx))
 	       (new-result-list
 		(map 'list
 		     #'(lambda(row-idx)
