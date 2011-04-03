@@ -93,9 +93,16 @@
 	      (setf (value pred) (get-item-by-psi *tms-player* :revision revision))
 	      (let ((val (filter-for-player construct :revision revision)))
 		(setf (value pred) old-pred-value)
+		val)))
+	   (res-6
+	    (progn
+	      (setf (value pred) (get-item-by-psi *tms-topicProperty*
+						  :revision revision))
+	      (let ((val (filter-for-topicProperties construct :revision revision)))
+		(setf (value pred) old-pred-value)
 		val))))
       (setf (elem-type (predicate construct)) 'VARIABLE)
-      (append res-1 res-2 res-3 res-4 res-5))))
+      (append res-1 res-2 res-3 res-4 res-5 res-6))))
 
 
 (defgeneric filter-for-player (construct &key revision)

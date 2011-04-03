@@ -495,7 +495,8 @@
 	     (filter-by-characteristic-value (value (object construct))
 					     (literal-datatype (object construct))
 					     :revision revision))
-	    ((iri-p (object construct))
+	    ((and (iri-p (object construct))
+		  (typep (value (object construct)) 'TopicC))
 	     (filter-by-otherplayer (value (object construct))
 				    :revision revision))))))
 
@@ -1073,8 +1074,6 @@
     (remove-null
      (loop for triple in (select-group construct)
 	append (remove-null
-		;;TODO: replace remove-null by a function that check if any of the
-                ;;      list items is nil, if so the entire list should be nil
 		(list
 		 (when (variable-p (subject triple))
 		   (list :variable (value (subject triple))

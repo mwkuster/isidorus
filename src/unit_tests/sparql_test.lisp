@@ -2079,7 +2079,7 @@ literal with some \\\"quoted\\\" words!"))
       (map 'list #'(lambda(item)
 		     (cond ((string= (getf item :variable) "pred1")
 			    ;one name without a type so it is not listed
-			    (is (= (length (getf item :result)) 9)))
+			    (is (= (length (getf item :result)) 17)))
 			   ((string= (getf item :variable) "pred2")
 			    (is (= (length (getf item :result)) 3))
 			    (is-false (set-exclusive-or
@@ -2110,15 +2110,26 @@ literal with some \\\"quoted\\\" words!"))
 					     (concat "<" *tms-scope* ">"))
 				       :test #'string=)))
 			   ((string= (getf item :variable) "obj1")
-			    (is (= (length (getf item :result)) 9))
-			    (is-false (set-exclusive-or
-				       (getf item :result)
-				       (list "Johann Wolfgang" "von Goethe"
-					     "28.08.1749" "22.03.1832" "82"
-					     "true" "false"
-					     "<http://some.where/tmsparql/author>"
-					     "<http://some.where/psis/poem/zauberlehrling>")
-				       :test #'string=)))
+			    (is (= (length (getf item :result)) 17))
+			    (is-true (find "Johann Wolfgang" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "von Goethe" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "true" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "false" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "28.08.1749" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "22.03.1832" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "82" (getf item :result)
+					   :test #'string=))
+			    (is-true (find "<http://some.where/tmsparql/author>"
+					   (getf item :result) :test #'string=))
+			    (is-true
+			     (find "<http://some.where/psis/poem/zauberlehrling>"
+				   (getf item :result) :test #'string=)))
 			   ((string= (getf item :variable) "obj2")
 			    (is (= (length (getf item :result)) 3))
 			    (is-false
@@ -2172,10 +2183,124 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-12
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
+                  SELECT * WHERE {
+                   ?subj1 ?pred1 <http://some.where/tmsparql/author/goethe>.
+                   ?subj2 ?pred2 <http://some.where/ii/goethe-variant>.
+                   ?subj3 ?pred3 <http://some.where/ii/goethe-untyped-name>.
+                   ?subj4 ?pred4 <http://some.where/ii/goethe-occ>.
+                   ?subj5 ?pred5 <http://some.where/ii/association>.
+                   ?subj6 ?pred6 <http://some.where/ii/role-2>.
+                   ?subj7 ?pred7 <http://some.where/tmsparql/display-name>.
+                   ?subj8 ?pred8 <http://some.where/ii/role-reifier>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 16))
+      (map 'list #'(lambda(item)
+		     (cond ((string= (getf item :variable) "pred1")
+			    (is (= (length (getf item :result)) 4))
+			    (is-false
+			     (set-exclusive-or
+			      (list (concat "<" *instance-psi* ">")
+				    "<http://some.where/tmsparql/writer>"
+				    (concat "<" *tms-player* ">"))
+			      (getf item :result) :test #'string=)))
+			   ((string= (getf item :variable) "obj1")
+			    (is (= (length (getf item :result)) 4))
+			    (is-false
+			     (set-exclusive-or
+			      (list "<http://some.where/tmsparql/author>"
+				    "<http://some.where/psis/poem/zauberlehrling>"
+				    (concat
+				     "_:r"
+				     (write-to-string
+				      (elephant::oid
+				       (first
+					(player-in-roles
+					 (get-item-by-psi
+					  "http://some.where/tmsparql/author/goethe"
+					  :revision 0) :revision 0)))))
+				    (concat
+				     "_:r"
+				     (write-to-string
+				      (elephant::oid
+				       (second
+					(player-in-roles
+					 (get-item-by-psi
+					  "http://some.where/tmsparql/author/goethe"
+					  :revision 0) :revision 0))))))
+			      (getf item :result) :test #'string=)))
+			    ((or (string= (getf item :variable) "pred2")
+				 (string= (getf item :variable) "pred5"))
+			     (is-false (getf item :result)))
+			    ((or (string= (getf item :variable) "subj2")
+				 (string= (getf item :variable) "obj5"))
+			     (is-false (getf item :result)))
+			    ((or (string= (getf item :variable) "pred3")
+				 (string= (getf item :variable) "pred4"))
+			     (is (= (length (getf item :result)) 1))
+			     (is (string= (first (getf item :result))
+					  (concat "<" *tms-topicProperty* ">"))))
+			    ((or (string= (getf item :variable) "subj3")
+				 (string= (getf item :variable) "obj4"))
+			     (is (= (length (getf item :result)) 1))
+			     (is (string= (first (getf item :result))
+					  "<http://some.where/tmsparql/author/goethe>")))
+			    ((string= (getf item :variable) "pred6")
+			     (is (= (length (getf item :result)) 1))
+			     (is (string= (first (getf item :result))
+					  (concat "<" *tms-role* ">"))))
+			    ((string= (getf item :variable) "subj6")
+			     (is (= (length (getf item :result)) 1))
+			     (is (string= (first (getf item :result))
+					  "<http://some.where/ii/association>")))
+			    ((string= (getf item :variable) "pred7")
+			     (is (= (length (getf item :result)) 3))
+			     (is-false (set-exclusive-or
+					(list (concat "<" *tms-player* ">")
+					      (concat "<" *tms-scope* ">")
+					      (concat "<" *instance-psi* ">"))
+					(getf item :result) :test #'string=)))
+			    ((string= (getf item :variable) "subj7")
+			     (is (= (length (getf item :result)) 3))
+			     (is (find "<http://psi.topicmaps.org/tmcl/scope-type>"
+				       (getf item :result) :test #'string=))
+			     (is (find "<http://some.where/ii/goethe-variant>"
+				       (getf item :result) :test #'string=)))
+			    ((string= (getf item :variable) "pred8")
+			     (is (= (length (getf item :result)) 3))
+			     (is-false (set-exclusive-or
+					(list (concat "<" *tms-player* ">")
+					      (concat "<" *tms-reifier* ">")
+					      (concat "<" *instance-psi* ">"))
+					(getf item :result) :test #'string=)))
+			    ((string= (getf item :variable) "subj8")
+			     (is (= (length (getf item :result)) 3))
+			     (set-exclusive-or
+			      (list "http://some.where/tmsparql/reifier-type"
+				    (concat
+				     "_:r"
+				     (write-to-string
+				      (elephant::oid
+				       (first
+					(player-in-roles
+					 (get-item-by-item-identifier
+					  "http://some.where/ii/role-reifier"
+					  :revision 0) :revision 0))))))
+			      (getf item :result) :test #'string=))))
+	   r-1))))
 
-;TODO: complex filter,
-;      complex relations between variables
-;      ?subj ?pred <obj>
+
+
+
+
+;TODO: test complex filters,
+;      test complex relations between variables
 ;TODO: PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
 ;      SELECT * WHERE {
 ;        ?assoc tms:reifier <http://some.where/ii/association-reifier>.
