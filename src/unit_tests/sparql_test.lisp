@@ -2079,6 +2079,7 @@ literal with some \\\"quoted\\\" words!"))
       (map 'list #'(lambda(item)
 		     (cond ((string= (getf item :variable) "pred1")
 			    ;one name without a type so it is not listed
+			    ;as regular triple but as tms:topicProperty
 			    (is (= (length (getf item :result)) 17)))
 			   ((string= (getf item :variable) "pred2")
 			    (is (= (length (getf item :result)) 3))
@@ -2297,17 +2298,49 @@ literal with some \\\"quoted\\\" words!"))
 
 
 
+(test test-all-13
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "PREFIX tms:<" *tms* ">
+                  SELECT * WHERE {
+                   ?assoc tms:reifier <http://some.where/ii/association-reifier>.
+                   ?assoc tms:role ?roles.
+                   ?roles tms:reifier <http://some.where/ii/role-reifier>"
+                 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      (is-true (= (length r-1) 2))
+      (map 'list #'(lambda(item)
+		     (cond
+		       ((string= (getf item :variable) "assoc")
+			(is (= (length (getf item :result)) 1))
+			(is (string= (first (getf item :result))
+				     "<http://some.where/ii/association>")))
+		       ((string= (getf item :variable) "roles")
+			(is (= (length (getf item :result)) 1))
+			(is
+			 (string=
+			  (first (getf item :result))
+			  (concat
+			   "_:r"
+			   (write-to-string
+			    (elephant::oid
+			     (loop for role in
+				  (roles
+				   (get-item-by-item-identifier
+				    "http://some.where/ii/association"
+				    :revision 0) :revision 0)
+				when (string=
+				      (uri (first (psis (player role :revision 0)
+							:revision 0)))
+				      "http://some.where/tmsparql/author/goethe")
+				return role)))))))))
+	   r-1))))
 
 
-;TODO: test complex filters,
-;      test complex relations between variables
-;TODO: PREFIX tms:<http://www.networkedplanet.com/tmsparql/>
-;      SELECT * WHERE {
-;        ?assoc tms:reifier <http://some.where/ii/association-reifier>.
-;        ?assoc tms:role ?roles}
-; => ?assoc = http://some.where/ii/association
-; => ?roles = (http://some.where/ii/role-2, _:r????)
 
+;TODO: test complex filters
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))
