@@ -2339,6 +2339,52 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-all-14
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "SELECT * WHERE {
+                   <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
+                    FILTER ?obj1 = 'von Goethe' || ?obj1 = '82'
+                   #FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
+		   #FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
+                   #FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
+		   #FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
+                 "
+}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+
+
+
+      ;;TODO: use all stored literal datatype information if existent and
+      ;;      cast the values to the actual objects
+      ;;      or
+      ;;      write all string values to the results in a quoted form,
+      ;;      it is also needed to escapte quotes in the actual string value
+      ;;      the filter is called with read-from-string, so a "12" will evaluate
+      ;;      to 12 and "\"abc\"" to "abc
+
+      (map 'list #'(lambda(triple)
+		     (format t "~a - ~a - ~a~%"
+			     (tm-sparql::subject-result triple)
+			     (tm-sparql::predicate-result triple)
+			     (tm-sparql::object-result triple)))
+	   (tm-sparql::select-group (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
+
+
+
+      (is-true (= (length r-1) 2))
+      (map 'list #'(lambda(item)
+		     (cond
+		       ((string= (getf item :variable) "pred1")
+			nil)
+		       ((string= (getf item :variable) "obj1")
+			nil)))
+	   r-1)
+      (format t "~a~%" r-1))))
+
+
 
 ;TODO: test complex filters
 

@@ -437,25 +437,35 @@
 	   (Integer pos))
   (let ((result nil))
     (dotimes (idx (length filter-string) result)
-      (let ((current-char (subseq filter-string idx (1+ idx))))
-	(cond ((or (string= current-char "'")
-		   (string= current-char "\""))
-	       (let* ((l-result (get-literal (subseq filter-string idx)))
-		      (next-idx
-		       (when l-result
-			 (- (length filter-string)
-			    (length (getf l-result :next-string))))))
-		 (when (and next-idx (< pos next-idx))
-		   (setf result t)
-		   (setf idx (length filter-string)))
-		 (when (<= pos idx)
-		   (setf idx (length filter-string)))))
-	      (t
-	       (when (<= pos idx)
-		 (setf idx (length filter-string)))))))))
+      (let* ((current-str (subseq filter-string idx))
+	     (delimiter (cond ((string-starts-with current-str "'''")
+			       "'''")
+			      ((string-starts-with current-str "'")
+			       "'")
+			      ((string-starts-with current-str "\"\"\"")
+			       "\"\"\"")
+			      ((string-starts-with current-str "\"")
+			       "\""))))
+	(when delimiter
+	  (let* ((end-pos
+		  (let ((result
+			 (search-first (list delimiter) 
+				       (subseq current-str (length delimiter)))))
+		    (when result
+		      (+ (length delimiter) result))))
+		 (quoted-str (when end-pos
+			       (subseq current-str (length delimiter) end-pos)))
+		 (start-pos idx))
+	    (incf idx (+ (* 2 (length delimiter)) (length quoted-str)))
+	    (if (and (>= pos start-pos)
+		     (<= pos (+ start-pos end-pos)))
+		(progn
+		  (setf result t)
+		  (setf idx (length filter-string)))
+		(incf idx (+ (* 2 (length delimiter)) (length quoted-str))))))))))
 
 
-(defun search-first-unclosed-paranthesis (str &key ignore-literals)
+(defun search-first-unclosed-paranthesis (str &key (ignore-literals t))
   "Returns the idx of the first ( that is not closed, the search is
    started from the end of the string.
    If ignore-literals is set to t all paranthesis that are within
@@ -467,12 +477,14 @@
     (do ((idx (1- (length str)))) ((< idx 0))
       (let ((current-char (subseq str idx (1+ idx))))
 	(cond ((string= current-char ")")
-	       (when (or ignore-literals
-			 (not (in-literal-string-p str idx)))
+	       (when (or (not ignore-literals)
+			 (and ignore-literals
+			      (not (in-literal-string-p str idx))))
 		 (decf open-brackets)))
 	      ((string= current-char "(")
-	       (when (or ignore-literals
-			 (not (in-literal-string-p str idx)))
+	       (when (or (not ignore-literals)
+			 (and ignore-literals
+			      (not (in-literal-string-p str idx))))
 		 (incf open-brackets)
 		 (when (> open-brackets 0)
 		   (setf result-idx idx)
@@ -481,7 +493,7 @@
     result-idx))
 
 
-(defun search-first-unopened-paranthesis (str &key ignore-literals)
+(defun search-first-unopened-paranthesis (str &key (ignore-literals t))
   "Returns the idx of the first paranthesis that is not opened in str.
    If ignore-literals is set to t all mparanthesis that are within
    \", \"\"\", ' and ''' are ignored."
@@ -492,13 +504,15 @@
     (dotimes (idx (length str))
       (let ((current-char (subseq str idx (1+ idx))))
 	(cond ((string= current-char "(")
-	       (when (or ignore-literals
-			 (not (in-literal-string-p str idx)))
+	       (when (or (not ignore-literals)
+			 (and ignore-literals
+			      (not (in-literal-string-p str idx))))
 		 (decf closed-brackets)
 		 (setf result-idx nil)))
 	      ((string= current-char ")")
-	       (when (or ignore-literals
-			 (not (in-literal-string-p str idx)))
+	       (when (or (not ignore-literals)
+			 (and ignore-literals
+			      (not (in-literal-string-p str idx))))
 		 (incf closed-brackets)
 		 (when (> closed-brackets 0)
 		   (setf result-idx idx)

@@ -377,6 +377,9 @@
   (:documentation "Processes all filters by calling invoke-filter.")
   (:method ((construct SPARQL-Query))
     (dolist (filter (filters construct))
+
+      (format t ">>>~a<<<~%" filter) ;TODO: remove
+
       (let* ((filter-variable-names
 	      (get-variables-from-filter-string filter))
 	     (filter-variable-values nil)

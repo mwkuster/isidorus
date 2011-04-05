@@ -38,7 +38,10 @@
     (if (string-starts-with trimmed-str "#")
         (let ((next-query (string-after trimmed-str (string #\newline))))
 	  (if next-query
-	      next-query
+	      (let ((cleaned-next-query (cut-comment next-query)))
+		(if (string= next-query cleaned-next-query)
+		    next-query
+		    (cut-comment next-query)))
 	      ""))
 	trimmed-str)))
 
