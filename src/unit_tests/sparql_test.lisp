@@ -40,7 +40,21 @@
 	   :test-set-compare-operators
 	   :test-set-functions
 	   :test-module-1
-	   :test-module-2))
+	   :test-module-2
+	   :test-all-1
+	   :test-all-2
+	   :test-all-3
+	   :test-all-4
+	   :test-all-5
+	   :test-all-6
+	   :test-all-7
+	   :test-all-8
+	   :test-all-9
+	   :test-all-10
+	   :test-all-11
+	   :test-all-12
+	   :test-all-13
+	   :test-all-14))
 
 
 (in-package :sparql-test)
@@ -219,7 +233,7 @@ literal with some \\\"quoted\\\" words!\"@en.")
     (let ((res (tm-sparql::parse-literal-elem dummy-object query-6)))
       (is (string= (getf res :next-query)
 		   (concat "." (string #\newline))))
-      (is (eql (tm-sparql::value (getf res :value)) 123.4))
+      (is (eql (tm-sparql::value (getf res :value)) 123.4d0))
       (is-false (tm-sparql::literal-lang (getf res :value)))
       (is (string= (tm-sparql::literal-datatype (getf res :value))
 		   *xml-double*))
@@ -2049,12 +2063,12 @@ literal with some \\\"quoted\\\" words!"))
 			     (getf item :result)
 			     (list "Johann Wolfgang" "von Goethe"
 				   "Johann Wolfgang von Goethe" "Der Zauberlehrling"
-				   "28.08.1749" "22.03.1832" "82" "true" "false"
+				   "28.08.1749" "22.03.1832" 82 t nil
 				   "Hat der alte Hexenmeister
 	sich doch einmal wegbegeben!
 	...
       ")
-			     :test #'string=))
+			     :test #'tm-sparql::literal=))
 			    (t
 			     (is-true (format t "bad variable-name found")))))
 	   r-1))))
@@ -2346,31 +2360,22 @@ literal with some \\\"quoted\\\" words!"))
     (let* ((q-1 (concat
 		 "SELECT * WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
-                    FILTER ?obj1 = 'von Goethe' || ?obj1 = '82'
-                   #FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
-		   #FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
-                   #FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
-		   #FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
+                    FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
+                   FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
+		   FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
+                   FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
+		   FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
                  "
 }"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
 
 
-
-      ;;TODO: use all stored literal datatype information if existent and
-      ;;      cast the values to the actual objects
-      ;;      or
-      ;;      write all string values to the results in a quoted form,
-      ;;      it is also needed to escapte quotes in the actual string value
-      ;;      the filter is called with read-from-string, so a "12" will evaluate
-      ;;      to 12 and "\"abc\"" to "abc
-
       (map 'list #'(lambda(triple)
-		     (format t "~a - ~a - ~a(~a)~%"
+		     (format t "~a - ~a - ~a[~a]~%"
 			     (tm-sparql::subject-result triple)
 			     (tm-sparql::predicate-result triple)
 			     (tm-sparql::object-result triple)
-			     (tm-sparql::literal-datatype triple)))
+			     (tm-sparql::object-datatype triple)))
 	   (tm-sparql::select-group (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
 
 
@@ -2388,6 +2393,8 @@ literal with some \\\"quoted\\\" words!"))
 
 
 ;TODO: test complex filters
+;TODO: check if object results are in the actual object-represenrtation and not as string
+;TODO: rename test-all-? test-module-?
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

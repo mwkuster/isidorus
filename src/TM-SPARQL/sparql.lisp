@@ -106,7 +106,7 @@
 		     :initform nil
 		     :documentation "Contains the datatype of the literal,
                                      e.g. xml:string"))
-  (:documentation "Represents one element of an RDF-triple."))
+  (:documentation "Represents one element of an RDF-triple.")) 
 
 
 (defclass SPARQL-Triple()
@@ -147,9 +147,14 @@
 	   :documentation "Represents the subject of an RDF-triple.")
    (object-result :initarg :object-result
 		  :accessor object-result
-		  :type T
+		  :type List
 		  :initform nil
-		  :documentation "Contains the result of the object triple elem."))
+		  :documentation "Contains the result of the object triple elem.")
+   (object-datatype :initarg :object-datatype
+		    :accessor object-datatype
+		    :type List
+		    :initform nil
+		    :documentation "Conations the corresponding value's datatype."))
   (:documentation "Represents an entire RDF-triple."))
 
 
@@ -377,9 +382,6 @@
   (:documentation "Processes all filters by calling invoke-filter.")
   (:method ((construct SPARQL-Query))
     (dolist (filter (filters construct))
-
-      (format t ">>>~a<<<~%" filter) ;TODO: remove
-
       (let* ((filter-variable-names
 	      (get-variables-from-filter-string filter))
 	     (filter-variable-values nil)
@@ -453,14 +455,18 @@
 		(push
 		 (list :subject (elt (subject-result triple) idx)
 		       :predicate (elt (predicate-result triple) idx)
-		       :object (elt (object-result triple) idx))
+		       :object (elt (object-result triple) idx)
+		       :object-datatype (elt (object-datatype triple) idx))
 		 new-values)))
 	    (setf (subject-result triple)
 		  (map 'list #'(lambda(elem) (getf elem :subject)) new-values))
 	    (setf (predicate-result triple)
 		  (map 'list #'(lambda(elem) (getf elem :predicate)) new-values))
 	    (setf (object-result triple)
-		  (map 'list #'(lambda(elem) (getf elem :object)) new-values))))))
+		  (map 'list #'(lambda(elem) (getf elem :object)) new-values))
+	    (setf (object-datatype triple)
+		  (map 'list #'(lambda(elem) (getf elem :object-datatype))
+		       new-values))))))
     construct))
 
 
@@ -477,13 +483,11 @@
 			  (filter-by-given-object construct :revision revision))
 		      (filter-by-special-uris construct :revision revision))))
 	(map 'list #'(lambda(result)
-		       ;(format t "-->~a<--~%" result) ;TODO: remove
 		       (push (getf result :subject) (subject-result construct))
 		       (push (getf result :predicate) (predicate-result construct))
-		       (push (getf result :object) (object-result construct)))
-	     ;;literal-datatype is not used and is not returned, since
-	     ;;the values are returned as object of their specific type, e.g.
-	     ;;integer, boolean, string, ...
+		       (push (getf result :object) (object-result construct))
+		       (push (getf result :literal-datatype)
+			     (object-datatype construct)))
 	     results)))))
 
 
@@ -1064,11 +1068,36 @@
 			 (all-variables construct)
 			 (variables construct))))
 	   (cleaned-results (make-result-lists construct)))
-      (map 'list #'(lambda(response-variable)
-		     (list :variable response-variable
-			   :result (variable-intersection response-variable
+      (let ((result
+	     (map 'list #'(lambda(response-variable)
+			    (let ((result
+				   (variable-intersection response-variable
 							  cleaned-results)))
-	   response-variables))))
+			      (list :variable response-variable
+				    :result (getf result :result)
+				    :literal-datatype
+				    (getf result :literal-datatype))))
+		  response-variables)))
+	(cast-result-values result)))))
+
+
+(defun cast-result-values (result-values)
+  "Casts all literal values that are represented as a string to
+   the actual datatype."
+  (declare (List result-values))
+  (loop for set-idx to (1- (length result-values))
+     collect (let ((value-set (getf (elt result-values set-idx) :result))
+		   (type-set (getf (elt result-values set-idx) :literal-datatype))
+		   (var-name (getf (elt result-values set-idx) :variable)))
+	       (list :variable var-name
+		     :result
+		     (loop for value-idx to (1- (length value-set))
+			when (elt type-set value-idx)
+			collect (cast-literal (elt value-set value-idx)
+					      (elt type-set value-idx))
+			else
+			collect (elt value-set value-idx))))))
+
 
 
 (defgeneric make-result-lists (construct)
@@ -1087,6 +1116,7 @@
 			 :result (predicate-result triple)))
 		 (when (variable-p (object triple))
 		   (list :variable (value (object triple))
+			 :literal-datatype (object-datatype triple)
 			 :result (object-result triple)))))))))
 
 
@@ -1130,14 +1160,22 @@
 (defun recursive-intersection (list-1 list-2 more-lists)
   "Returns an intersection of al the passed lists."
   (declare (List list-1 list-2))
-  (let ((current-result
-	 (intersection list-1 list-2
-		       :test #'(lambda(val-1 val-2)
-				 (if (and (stringp val-1) (stringp val-2))
-				     (string= val-1 val-2)
-				     (eql val-1 val-2))))))
+  (let* ((current-result
+	  (intersection (getf list-1 :result) (getf list-2 :result)
+			:test #'(lambda(val-1 val-2)
+				  (if (and (stringp val-1) (stringp val-2))
+				      (string= val-1 val-2)
+				      (eql val-1 val-2)))))
+	 (current-datatypes
+	  (map 'list #'(lambda(result-entry)
+			 (let ((pos (position result-entry (getf list-1 :result)
+					      :test #'string=)))
+			   (when (getf list-1 :literal-datatype)
+			     (elt (getf list-1 :literal-datatype) pos))))
+	       current-result)))
     (if (not more-lists)
-	current-result
+	(list :result current-result
+	      :literal-datatype current-datatypes)
 	(recursive-intersection current-result (first more-lists)
 				(rest more-lists)))))
 
@@ -1157,10 +1195,13 @@
   (:method ((construct SPARQL-Triple) (result-lists List))
     (let* ((triple-variables (variables construct))
 	   (intersections
-	    (map 'list #'(lambda(var)
-			   (list :variable var
-				 :result (variable-intersection
-					  var result-lists)))
+	    (map 'list
+		 #'(lambda(var)
+		     (let ((result (variable-intersection
+				    var result-lists)))
+		       (list :variable var
+			     :result (getf result :result)
+			     :literal-datatype (getf result :literal-datatype))))
 		 triple-variables)))
       (map 'list #'(lambda(entry)
 		     (delete-rows construct (getf entry :variable)
@@ -1197,11 +1238,14 @@
 			    (find (elt var-elem idx) dont-touch-values)))
 		   collect idx))
 	       (new-result-list
-		(map 'list
-		     #'(lambda(row-idx)
-			 (list :subject (elt (subject-result construct) row-idx)
-			       :predicate (elt (predicate-result construct) row-idx)
-			       :object (elt (object-result construct) row-idx)))
+		(map
+		 'list
+		 #'(lambda(row-idx)
+		     (list
+		      :subject (elt (subject-result construct) row-idx)
+		      :predicate (elt (predicate-result construct) row-idx)
+		      :object (elt (object-result construct) row-idx)
+		      :object-datatype (elt (object-datatype construct) row-idx)))
 		     rows-to-hold)))
 	  (setf (subject-result construct)
 		(map 'list #'(lambda(entry)
@@ -1211,7 +1255,10 @@
 			       (getf entry :predicate)) new-result-list))
 	  (setf (object-result construct)
 		(map 'list #'(lambda(entry)
-			       (getf entry :object)) new-result-list)))))))
+			       (getf entry :object)) new-result-list))
+	  (setf (object-datatype construct)
+		(map 'list #'(lambda(entry)
+			       (getf entry :object-datatype)) new-result-list)))))))
 
 
 (defgeneric results-for-variable (variable-name result-lists)
@@ -1224,7 +1271,8 @@
 			   result-lists))
 	   (values
 	    (map 'list #'(lambda(entry)
-			   (getf entry :result))
+			   (list :result (getf entry :result)
+				 :literal-datatype (getf entry :literal-datatype)))
 		 cleaned-result-lists)))
       values)))
 
@@ -1244,7 +1292,7 @@
 	((string= literal-type *xml-decimal*)
 	 (cast-literal-to-decimal literal-value))
 	(t ; return the value as a string
-	 literal-value)))
+	 (concat "\"\"\"" literal-value "\"\"\"^^" literal-type))))
 
 
 (defun cast-literal-to-decimal (literal-value)
