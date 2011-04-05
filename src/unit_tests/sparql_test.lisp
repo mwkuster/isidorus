@@ -2391,7 +2391,7 @@ literal with some \\\"quoted\\\" words!"))
       (format t "~a~%" r-1))))
 
 
-
+;TODO: cast literal-values when called in filters
 ;TODO: test complex filters
 ;TODO: check if object results are in the actual object-represenrtation and not as string
 ;TODO: rename test-all-? test-module-?

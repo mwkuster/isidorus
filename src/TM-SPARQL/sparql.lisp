@@ -1176,7 +1176,9 @@
     (if (not more-lists)
 	(list :result current-result
 	      :literal-datatype current-datatypes)
-	(recursive-intersection current-result (first more-lists)
+	(recursive-intersection (list :result current-result
+				      :literal-datatype current-datatypes)
+				(first more-lists)
 				(rest more-lists)))))
 
 
