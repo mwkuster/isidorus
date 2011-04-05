@@ -477,6 +477,7 @@
 			  (filter-by-given-object construct :revision revision))
 		      (filter-by-special-uris construct :revision revision))))
 	(map 'list #'(lambda(result)
+		       ;(format t "-->~a<--~%" result) ;TODO: remove
 		       (push (getf result :subject) (subject-result construct))
 		       (push (getf result :predicate) (predicate-result construct))
 		       (push (getf result :object) (object-result construct)))
@@ -1235,33 +1236,86 @@
   (cond ((string= literal-type *xml-string*)
 	 literal-value)
 	((string= literal-type *xml-boolean*)
-	 (when (and (string/= literal-value "false")
-		    (string/= literal-value "true"))
-	   (error (make-condition
-		   'sparql-parser-error
-		   :message (format nil "Could not cast from ~a to ~a"
-				    literal-value literal-type))))
-	 (if (string= literal-value "false")
-	     nil
-	     t))
+	 (cast-literal-to-boolean literal-value))
 	((string= literal-type *xml-integer*)
-	 (handler-case (parse-integer literal-value)
-	   (condition ()
-	     (error (make-condition
-		   'sparql-parser-error
-		   :message (format nil "Could not cast from ~a to ~a"
-				    literal-value literal-type))))))
-	((or (string= literal-type *xml-decimal*) ;;both types are
-	     (string= literal-type *xml-double*)) ;;handled the same way
-	 (let ((value (read-from-string literal-value)))
-	   (unless (numberp value)
-	     (error (make-condition
-		   'sparql-parser-error
-		   :message (format nil "Could not cast from ~a to ~a"
-				    literal-value literal-type))))
-	   value))
+	 (cast-literal-to-integer literal-value))
+	((string= literal-type *xml-double*)
+	 (cast-literal-to-double literal-value))
+	((string= literal-type *xml-decimal*)
+	 (cast-literal-to-decimal literal-value))
 	(t ; return the value as a string
 	 literal-value)))
+
+
+(defun cast-literal-to-decimal (literal-value)
+  "A helper function that casts the passed string value of the literal
+   value to an decimal value."
+  (let ((bad-string
+	 (loop for idx to (1- (length literal-value))
+	    when (and (not (digit-char-p (elt literal-value idx)))
+		      (not (eql (elt literal-value idx) #\.)))
+	    return t)))
+    (when bad-string
+      (error (make-condition
+	      'sparql-parser-error
+	      :message (format nil "Could not cast from ~a to ~a"
+			       literal-value *xml-decimal*)))))
+  ;decimals are handled as single floats
+  (if (find #\. literal-value)
+      (read-from-string literal-value)
+      (read-from-string (concat literal-value ".0"))))
+
+
+(defun cast-literal-to-double (literal-value)
+  "A helper function that casts the passed string value of the literal
+   value to an decimal value."
+  (let ((modified-str ""))
+    (loop for idx to (1- (length literal-value))
+       when (eql (char-downcase (elt literal-value idx)) #\e)
+       do (push-string "d" modified-str)
+       else
+       do (push-string (string (elt literal-value idx)) modified-str))
+    (let ((value
+	   (cond ((or (string= "+INF" modified-str)
+		      (string= "INF" modified-str))
+		  sb-ext:double-float-positive-infinity)
+		 ((string= "-INF" modified-str)
+		  sb-ext:double-float-negative-infinity)
+		 ((find #\d (string-downcase modified-str))
+		  (read-from-string modified-str))
+		 (t
+		  (read-from-string (concat modified-str "d0"))))))
+      (if (typep value 'double-float)
+	  value
+	  (error (make-condition
+		  'sparql-parser-error
+		  :message (format nil "Could not cast from ~a to ~a"
+				   literal-value *xml-double*)))))))
+
+
+(defun cast-literal-to-integer (literal-value)
+  "A helper function that casts the passed string value of the literal
+   value to an integer value."
+  (handler-case (parse-integer literal-value)
+    (condition ()
+      (error (make-condition
+	      'sparql-parser-error
+	      :message (format nil "Could not cast from ~a to ~a"
+			       literal-value *xml-integer*))))))
+  
+
+(defun cast-literal-to-boolean (literal-value)
+  "A helper function that casts the passed string value of the literal
+   value to t or nil."
+  (when (and (string/= literal-value "false")
+	     (string/= literal-value "true"))
+    (error (make-condition
+	    'sparql-parser-error
+	    :message (format nil "Could not cast from ~a to ~a"
+			     literal-value *xml-boolean*))))
+  (if (string= literal-value "false")
+      nil
+      t))
 
 
 (defmethod initialize-instance :after ((construct SPARQL-Query) &rest args)

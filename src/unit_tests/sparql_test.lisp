@@ -2366,10 +2366,11 @@ literal with some \\\"quoted\\\" words!"))
       ;;      to 12 and "\"abc\"" to "abc
 
       (map 'list #'(lambda(triple)
-		     (format t "~a - ~a - ~a~%"
+		     (format t "~a - ~a - ~a(~a)~%"
 			     (tm-sparql::subject-result triple)
 			     (tm-sparql::predicate-result triple)
-			     (tm-sparql::object-result triple)))
+			     (tm-sparql::object-result triple)
+			     (tm-sparql::literal-datatype triple)))
 	   (tm-sparql::select-group (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
 
 
