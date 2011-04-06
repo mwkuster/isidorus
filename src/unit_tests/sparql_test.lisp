@@ -41,20 +41,20 @@
 	   :test-set-functions
 	   :test-module-1
 	   :test-module-2
-	   :test-all-1
-	   :test-all-2
-	   :test-all-3
-	   :test-all-4
-	   :test-all-5
-	   :test-all-6
-	   :test-all-7
-	   :test-all-8
-	   :test-all-9
-	   :test-all-10
-	   :test-all-11
-	   :test-all-12
-	   :test-all-13
-	   :test-all-14))
+	   :test-module-3
+	   :test-module-4
+	   :test-module-5
+	   :test-module-6
+	   :test-module-7
+	   :test-module-8
+	   :test-module-9
+	   :test-module-10
+	   :test-module-11
+	   :test-module-12
+	   :test-module-13
+	   :test-module-14
+	   :test-module-15
+	   :test-module-16))
 
 
 (in-package :sparql-test)
@@ -1603,7 +1603,7 @@ literal with some \\\"quoted\\\" words!"))
 	      (is-false (set-exclusive-or
 			 (getf (second result-2) :result)
 			 (list "Johann Wolfgang" "von Goethe"
-			       "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe")
+			       (concat "\"\"\"http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe\"\"\"^^" *xml-uri*))
 			 :test #'string=)))
 	    (progn 
 	      (is (= (length (getf (second result-2) :result)) 0))
@@ -1612,7 +1612,7 @@ literal with some \\\"quoted\\\" words!"))
 	      (is-false (set-exclusive-or
 			 (getf (first result-2) :result)
 			 (list "Johann Wolfgang" "von Goethe"
-			       "http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe")
+			       (concat "\"\"\"http://de.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe\"\"\"^^" *xml-uri*))
 			 :test #'string=))))))))
 
 
@@ -1642,7 +1642,7 @@ literal with some \\\"quoted\\\" words!"))
 		   :test #'string=))))))
 
 
-(test test-all-1
+(test test-module-3
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1698,7 +1698,7 @@ literal with some \\\"quoted\\\" words!"))
     (is-true (d:get-item-by-psi *rdf-type* :revision 0))))
 
 
-(test test-all-2
+(test test-module-4
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1724,7 +1724,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-3
+(test test-module-5
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1752,7 +1752,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-4
+(test test-module-6
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1802,7 +1802,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-5
+(test test-module-7
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1831,7 +1831,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-6
+(test test-module-8
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1874,7 +1874,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-7
+(test test-module-9
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1898,7 +1898,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-8
+(test test-module-10
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1921,7 +1921,8 @@ literal with some \\\"quoted\\\" words!"))
 					 "Johann Wolfgang von Goethe")))
 			   ((string= (getf item :variable) "obj2")
 			    (is (string= (first (getf item :result))
-					 "28.08.1749")))
+					 (concat "\"\"\"28.08.1749\"\"\"^^"
+						 *xml-date*))))
 			   ((string= (getf item :variable) "obj3")
 			    (is (string= (first (getf item :result))
 					 "Goethe")))
@@ -1942,7 +1943,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-9
+(test test-module-11
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -1961,7 +1962,7 @@ literal with some \\\"quoted\\\" words!"))
       (is-false r-1))))
 
 
-(test test-all-10
+(test test-module-12
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -2074,7 +2075,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-11
+(test test-module-13
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -2127,24 +2128,27 @@ literal with some \\\"quoted\\\" words!"))
 			   ((string= (getf item :variable) "obj1")
 			    (is (= (length (getf item :result)) 17))
 			    (is-true (find "Johann Wolfgang" (getf item :result)
-					   :test #'string=))
+					   :test #'tm-sparql::literal=))
 			    (is-true (find "von Goethe" (getf item :result)
-					   :test #'string=))
-			    (is-true (find "true" (getf item :result)
-					   :test #'string=))
-			    (is-true (find "false" (getf item :result)
-					   :test #'string=))
-			    (is-true (find "28.08.1749" (getf item :result)
-					   :test #'string=))
-			    (is-true (find "22.03.1832" (getf item :result)
-					   :test #'string=))
-			    (is-true (find "82" (getf item :result)
-					   :test #'string=))
+					   :test #'tm-sparql::literal=))
+			    (is-true (find t (getf item :result)
+					   :test #'tm-sparql::literal=))
+			    (is-true (position nil (getf item :result)
+					       :test #'tm-sparql::literal=))
+			    (is-true (find (concat "'28.08.1749'^^" *xml-date*)
+					   (getf item :result)
+					   :test #'tm-sparql::literal=))
+			    (is-true (find (concat "'22.03.1832'^^" *xml-date*)
+					   (getf item :result)
+					   :test #'tm-sparql::literal=))
+			    (is-true (find 82 (getf item :result)
+					   :test #'tm-sparql::literal=))
 			    (is-true (find "<http://some.where/tmsparql/author>"
-					   (getf item :result) :test #'string=))
+					   (getf item :result)
+					   :test #'tm-sparql::literal=))
 			    (is-true
 			     (find "<http://some.where/psis/poem/zauberlehrling>"
-				   (getf item :result) :test #'string=)))
+				   (getf item :result) :test #'tm-sparql::literal=)))
 			   ((string= (getf item :variable) "obj2")
 			    (is (= (length (getf item :result)) 3))
 			    (is-false
@@ -2182,9 +2186,9 @@ literal with some \\\"quoted\\\" words!"))
 			    (is-false
 			     (set-exclusive-or
 			      (getf item :result)
-			      (list "28.08.1749"
+			      (list (concat "'28.08.1749'^^" *xml-date*)
 				    "<http://some.where/ii/goethe-occ-reifier>")
-			      :test #'string=)))
+			      :test #'tm-sparql::literal=)))
 			   ((string= (getf item :variable) "obj6")
 			   (is (= (length (getf item :result)) 2))
 			    (is-false
@@ -2198,7 +2202,7 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-12
+(test test-module-14
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -2312,7 +2316,7 @@ literal with some \\\"quoted\\\" words!"))
 
 
 
-(test test-all-13
+(test test-module-15
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
@@ -2353,14 +2357,14 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
-(test test-all-14
+(test test-module-16
   "Tests the entire module with the file sparql_test.xtm"
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
     (let* ((q-1 (concat
 		 "SELECT * WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
-                    FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
+                   FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
                    FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
 		   FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
                    FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
@@ -2393,8 +2397,6 @@ literal with some \\\"quoted\\\" words!"))
 
 ;TODO: cast literal-values when called in filters
 ;TODO: test complex filters
-;TODO: check if object results are in the actual object-represenrtation and not as string
-;TODO: rename test-all-? test-module-?
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))

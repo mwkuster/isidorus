@@ -195,12 +195,15 @@
       (let ((search-idx (search-first (list string-to-replace) main-string)))
 	(if (not search-idx)
 	    main-string
-	    (let ((modified-string
-		   (concat (subseq main-string 0 search-idx)
-			   new-string
-			   (subseq main-string
-				   (+ search-idx (length string-to-replace))))))
-	      (string-replace modified-string string-to-replace new-string))))))
+	    (let* ((leading-part (subseq main-string 0 search-idx))
+		   (trailing-part
+		    (subseq main-string
+			    (+ search-idx (length string-to-replace))))
+		   (modified-string
+		    (concat leading-part new-string trailing-part)))
+	      (if (search-first (list string-to-replace) trailing-part)
+		  (string-replace modified-string string-to-replace new-string)
+		  modified-string))))))
 
 
 

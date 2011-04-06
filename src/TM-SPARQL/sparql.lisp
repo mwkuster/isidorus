@@ -589,7 +589,7 @@
 			(list :subject subj-uri
 			      :predicate pred-uri
 			      :object (charvalue char)
-			      :literal-datatype literal-datatype))))
+			      :literal-datatype literal-datatype))))	  
 	  (remove-if #'(lambda(char)
 			 (typep char 'VariantC))
 		     (return-characteristics literal-value literal-datatype)))))
@@ -909,8 +909,10 @@
 	     (string/= literal-datatype *xml-boolean*))
 	construct
 	(handler-case
-	    (let ((occ-value (cast-literal (charvalue construct)
-					   (datatype construct))))
+	    (let ((occ-value
+		   (cast-literal (charvalue construct)
+				 (datatype construct)
+				 :back-as-string-when-unsupported t)))
 	      (when (literal= occ-value literal-value)
 		construct))
 	  (condition () nil)))))	      
@@ -1279,10 +1281,12 @@
       values)))
 
 
-(defun cast-literal (literal-value literal-type)
+(defun cast-literal (literal-value literal-type
+		     &key (back-as-string-when-unsupported nil))
   "A helper function that casts the passed string value of the literal
    corresponding to the passed literal-type."
-  (declare (String literal-value literal-type))
+  (declare (String literal-value literal-type)
+	   (Boolean back-as-string-when-unsupported))
   (cond ((string= literal-type *xml-string*)
 	 literal-value)
 	((string= literal-type *xml-boolean*)
@@ -1294,7 +1298,9 @@
 	((string= literal-type *xml-decimal*)
 	 (cast-literal-to-decimal literal-value))
 	(t ; return the value as a string
-	 (concat "\"\"\"" literal-value "\"\"\"^^" literal-type))))
+	 (if back-as-string-when-unsupported
+	     literal-value
+	     (concat "\"\"\"" literal-value "\"\"\"^^" literal-type)))))
 
 
 (defun cast-literal-to-decimal (literal-value)

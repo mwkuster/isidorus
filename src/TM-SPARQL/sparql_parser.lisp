@@ -230,7 +230,8 @@
 	   (l-lang (getf result-2 :lang))
 	   (next-query (getf result-2 :next-query)))
       (list :next-query next-query :lang l-lang :type l-type
-	    :value (cast-literal l-value l-type)))))
+	    :value (cast-literal l-value l-type
+				 :back-as-string-when-unsupported t)))))
 
 
 (defgeneric separate-literal-lang-or-type (construct query-string)
