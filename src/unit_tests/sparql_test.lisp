@@ -2406,7 +2406,8 @@ literal with some \\\"quoted\\\" words!"))
 		 "SELECT * WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
                    FILTER isLITERAL(?obj1) && !isLITERAL(?pred1) && ?obj1 = 'von Goethe' || ?obj1 = 82
-                   FILTER ?pred1 = $pred1 && $obj1 = $obj1 && ?pred1 != ?obj1"
+                   FILTER ?pred1 = $pred1 && $obj1 = $obj1 && ?pred1 != ?obj1
+		   FILTER ?obj1 >= 82 || ?obj1 = 'von Goethe'"
 		 "}"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
       ;(is-true (= (length r-1) 2))
