@@ -39,7 +39,7 @@
 
 
 (defparameter *allowed-filter-calls*
-  (append (list "one+" "one-" "progn" "or" "and" "not" "/=" "="
+  (append (list "one+" "one-" "progn" "or" "and" "not" "!=" "="
 		">" ">=" "<" "<=" "+" "-" "*" "/")
 	  *supported-functions*))
 

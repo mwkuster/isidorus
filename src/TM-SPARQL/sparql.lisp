@@ -417,29 +417,26 @@
     (dolist (filter (filters construct))
       (let* ((filter-variable-names
 	      (get-variables-from-filter-string filter))
-	     (filter-variable-values nil)
-	     (true-values nil))
+	     (filter-variable-values nil))
 	(dolist (var-name filter-variable-names)
 	  (setf filter-variable-values
 		(make-variable-values construct var-name filter-variable-values)))
 	(setf filter-variable-values
 	      (cast-variable-values construct filter-variable-values))
 	(dolist (filter (filters construct))
-	  (dolist (var-elem filter-variable-values)
-	    
-	    ;(format t "~%~%>>~a<<~%~%" (to-lisp-code var-elem filter)); TODO: remove
-
-	    (when (eval (read-from-string (to-lisp-code var-elem filter)))
-	      (map 'list #'(lambda(list-elem)
-			     (push list-elem true-values))
-		   var-elem))))
-	(let ((values-to-remove
-	       (return-false-values filter-variable-values
-				    (remove-duplicates true-values
-						       :test #'variable-list=))))
-	  (dolist (to-del values-to-remove)
-	    (delete-rows-by-value construct (getf to-del :variable-name)
-				  (getf to-del :variable-value))))))
+	  (let ((true-values nil))
+	    (dolist (var-elem filter-variable-values)
+	      (when (eval (read-from-string (to-lisp-code var-elem filter)))
+		(map 'list #'(lambda(list-elem)
+			       (push list-elem true-values))
+		     var-elem)))
+	    (let ((values-to-remove
+		   (return-false-values filter-variable-values
+					(remove-duplicates true-values
+							   :test #'variable-list=))))
+	      (dolist (to-del values-to-remove)
+		(delete-rows-by-value construct (getf to-del :variable-name)
+				      (getf to-del :variable-value))))))))
     construct))
 
 

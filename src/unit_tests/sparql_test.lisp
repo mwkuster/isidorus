@@ -54,7 +54,8 @@
 	   :test-module-13
 	   :test-module-14
 	   :test-module-15
-	   :test-module-16))
+	   :test-module-16
+	   :test-module-17))
 
 
 (in-package :sparql-test)
@@ -2397,10 +2398,21 @@ literal with some \\\"quoted\\\" words!"))
 	   r-1))))
 
 
+(test test-module-17
+  "Tests the entire module with the file sparql_test.xtm"
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (tm-sparql:init-tm-sparql)
+    (let* ((q-1 (concat
+		 "SELECT * WHERE {
+                   <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
+                   FILTER isLITERAL(?obj1) && !isLITERAL(?pred1) && ?obj1 = 'von Goethe' || ?obj1 = 82
+                   FILTER ?pred1 = $pred1 && $obj1 = $obj1 && ?pred1 != ?obj1"
+		 "}"))
+	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
+      ;(is-true (= (length r-1) 2))
+      (format t "~a~%" r-1))))
 
 
-
-;TODO: test complex filters
 
 (defun run-sparql-tests ()
   (it.bese.fiveam:run! 'sparql-test:sparql-tests))
