@@ -2229,7 +2229,7 @@ literal with some \\\"quoted\\\" words!"))
 				    "<http://some.where/tmsparql/writer>"
 				    (concat "<" *tms-player* ">"))
 			      (getf item :result) :test #'string=)))
-			   ((string= (getf item :variable) "obj1")
+			   ((string= (getf item :variable) "subj1")
 			    (is (= (length (getf item :result)) 4))
 			    (is-false
 			     (set-exclusive-or
@@ -2258,7 +2258,7 @@ literal with some \\\"quoted\\\" words!"))
 				 (string= (getf item :variable) "pred5"))
 			     (is-false (getf item :result)))
 			    ((or (string= (getf item :variable) "subj2")
-				 (string= (getf item :variable) "obj5"))
+				 (string= (getf item :variable) "subj5"))
 			     (is-false (getf item :result)))
 			    ((or (string= (getf item :variable) "pred3")
 				 (string= (getf item :variable) "pred4"))
@@ -2266,7 +2266,7 @@ literal with some \\\"quoted\\\" words!"))
 			     (is (string= (first (getf item :result))
 					  (concat "<" *tms-topicProperty* ">"))))
 			    ((or (string= (getf item :variable) "subj3")
-				 (string= (getf item :variable) "obj4"))
+				 (string= (getf item :variable) "subj4"))
 			     (is (= (length (getf item :result)) 1))
 			     (is (string= (first (getf item :result))
 					  "<http://some.where/tmsparql/author/goethe>")))
@@ -2311,9 +2311,11 @@ literal with some \\\"quoted\\\" words!"))
 					 (get-item-by-item-identifier
 					  "http://some.where/ii/role-reifier"
 					  :revision 0) :revision 0))))))
-			      (getf item :result) :test #'string=))))
+			      (getf item :result) :test #'string=))
+			    (t
+			     (is-true (format t "bad variable-name found ~a"
+					      (getf item :variable))))))
 	   r-1))))
-
 
 
 (test test-module-15
@@ -2353,7 +2355,10 @@ literal with some \\\"quoted\\\" words!"))
 				      (uri (first (psis (player role :revision 0)
 							:revision 0)))
 				      "http://some.where/tmsparql/author/goethe")
-				return role)))))))))
+				return role)))))))
+		       (t
+			(is-true (format t "bad variable-name found ~a"
+					 (getf item :variable))))))
 	   r-1))))
 
 
@@ -2364,24 +2369,35 @@ literal with some \\\"quoted\\\" words!"))
     (let* ((q-1 (concat
 		 "SELECT * WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
-                   #FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
-                   FILTER ?obj1 = 'von Goethe'^^" *xml-string* " || ?obj1 = '82'^^" *xml-integer* "
-		   #FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
-                   #FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
-		   #FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
-		 "
-}"))
+                   FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
+                   FILTER ?obj1 = 'von Goethe' || ?obj1 = '82'^^" *xml-integer* "
+		   FILTER (?obj1 = 'von Goethe'^^" *xml-string* " || 82 = ?obj1)
+                   FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
+		   FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
+		 "}"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
-
       (is-true (= (length r-1) 2))
       (map 'list #'(lambda(item)
 		     (cond
 		       ((string= (getf item :variable) "pred1")
-			nil)
+			(is (= (length (getf item :result)) 2))
+			(is (find "<http://some.where/tmsparql/last-name>"
+				  (getf item :result) :test #'string=))
+			(is (find "<http://some.where/tmsparql/years>"
+				  (getf item :result) :test #'string=)))
 		       ((string= (getf item :variable) "obj1")
-			nil)))
-	   r-1)
-      (format t "~a~%" r-1))))
+			(is (= (length (getf item :result)) 2))
+			(is (find 82 (getf item :result) :test #'tm-sparql::literal=))
+			(is (find "von Goethe" (getf item :result)
+				  :test #'tm-sparql::literal=)))
+		       (t
+			(is-true (format t "bad variable-name found ~a"
+					 (getf item :variable))))))
+			
+	   r-1))))
+
+
+
 
 
 ;TODO: test complex filters
