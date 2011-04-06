@@ -297,6 +297,28 @@
       (push variable-name (variables construct)))))
 
 
+
+(defgeneric cast-variable-values(construct variable-value-list)
+  (:documentation "Casts all values contained in the variable value list
+                   to the corresponding type that is also stored in the
+                   variable-value list.")
+  (:method ((construct SPARQL-Query) (variable-value-list List))
+    (map 'list
+	 #'(lambda(item)
+	     (map 'list
+		  #'(lambda(inner-item)
+		      (list :variable-name (getf inner-item :variable-name)
+			    :variable-value
+			    (if (and (getf inner-item :variable-value)
+				     (getf inner-item :literal-datatype))
+				(cast-literal (getf inner-item :variable-value)
+					      (getf inner-item :literal-datatype)
+					      :back-as-string-when-unsupported t)
+				(getf inner-item :variable-value))))
+		  item))
+	 variable-value-list)))
+
+
 (defgeneric make-variable-values(construct variable-name existing-results)
   (:documentation "Returns a list of values that are bound to the passed
                    variable. The first occurrence of the given variable
@@ -310,29 +332,40 @@
 	       when (and (variable-p (subject triple))
 			 (string= (value (subject triple)) variable-name))
 	       return (progn (setf found-p t)
-			     (subject-result triple))
+			     (list :result (subject-result triple)))
 	       when (and (variable-p (predicate triple))
 			 (string= (value (predicate triple)) variable-name))
 	       return (progn (setf found-p t)
-			     (predicate-result triple))
+			     (list :result (predicate-result triple)))
 	       when (and (variable-p (object triple))
 			 (string= (value (object triple))
 				  variable-name))
 	       return (progn (setf found-p t)
-			     (object-result triple))))
+			     (list :result (object-result triple)
+				   :literal-datatype (object-datatype triple)))))
 	   (new-results nil))
       (if (not found-p)
 	  existing-results
 	  (if existing-results
-	      (dolist (result results new-results)
+	      (dotimes (idx (length (getf results :result)) new-results)
 		(dolist (old-result existing-results)
-		  (push (append old-result (list (list :variable-name variable-name
-						       :variable-value result)))
+		  (push (append old-result
+				(list
+				 (list :variable-name variable-name
+				       :literal-datatype
+				       (when (getf results :literal-datatype)
+					 (elt (getf results :literal-datatype) idx))
+				       :variable-value
+				       (elt (getf results :result) idx))))
 			new-results)))
-	      (map 'list #'(lambda(result)
-			     (list (list :variable-name variable-name
-					 :variable-value result)))
-		   results))))))
+	      (loop for idx to (1- (length (getf results :result)))
+		 collect (list
+			  (list :variable-name variable-name
+				:literal-datatype
+				(when (getf results :literal-datatype)
+				  (elt (getf results :literal-datatype) idx))
+				:variable-value
+				(elt (getf results :result) idx)))))))))
 
 
 (defun to-lisp-code (variable-values filter)
@@ -389,16 +422,24 @@
 	(dolist (var-name filter-variable-names)
 	  (setf filter-variable-values
 		(make-variable-values construct var-name filter-variable-values)))
+	(setf filter-variable-values
+	      (cast-variable-values construct filter-variable-values))
 	(dolist (filter (filters construct))
 	  (dolist (var-elem filter-variable-values)
+
+	    ;(format t "~a~%==>~a~%~%" (to-lisp-code var-elem filter)
+	    ;(eval (read-from-string (to-lisp-code var-elem filter)))) ;TODO: remove
+
 	    (when (eval (read-from-string (to-lisp-code var-elem filter)))
 	      (map 'list #'(lambda(list-elem)
 			     (push list-elem true-values))
 		   var-elem))))
+	;(format t "tv: -->~a<--~%" true-values) ;TODO: remove
 	(let ((values-to-remove
 	       (return-false-values filter-variable-values
 				    (remove-duplicates true-values
 						       :test #'variable-list=))))
+	  ;(format t "vr: -->~a<--~%" values-to-remove) ;TODO: remove
 	  (dolist (to-del values-to-remove)
 	    (delete-rows-by-value construct (getf to-del :variable-name)
 				  (getf to-del :variable-value))))))
@@ -415,8 +456,18 @@
 	  (local-results
 	   (cond ((eql what :subject) (subject-result construct))
 		 ((eql what :predicate) (predicate-result construct))
-		 ((eql what :object) (object-result construct))))
-	  (is-variable
+		 ((eql what :object)
+		  (if (object-datatype construct)
+		      (loop for idx to (1- (length (object-result construct)))
+			 when (elt (object-datatype construct) idx)
+			 collect (cast-literal
+				  (elt (object-result construct) idx)
+				  (elt (object-datatype construct) idx)
+				  :back-as-string-when-unsupported t)
+			 else
+			 collect (elt (object-result construct) idx))
+		      (object-result construct)))))
+	  (variable-p
 	   (cond ((eql what :subject)
 		  (and (variable-p (subject construct))
 		       (value (subject construct))))
@@ -426,7 +477,7 @@
 		 ((eql what :object)
 		  (and (variable-p (object construct))
 		       (value (object construct)))))))
-      (when is-variable
+      (when variable-p
 	(remove-null
 	 (dotimes (idx (length local-results))
 	   (when (literal= variable-value (elt local-results idx))

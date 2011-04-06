@@ -2365,22 +2365,22 @@ literal with some \\\"quoted\\\" words!"))
 		 "SELECT * WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
                    FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
-                   FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
-		   FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
-                   FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
-		   FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
-                 "
+                   #FILTER ?obj1 = 'von Goethe' || ?obj1 = '82'^^" *xml-integer* "
+		   #FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
+                   #FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
+		   #FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
+		 "
 }"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
 
 
-      (map 'list #'(lambda(triple)
-		     (format t "~a - ~a - ~a[~a]~%"
-			     (tm-sparql::subject-result triple)
-			     (tm-sparql::predicate-result triple)
-			     (tm-sparql::object-result triple)
-			     (tm-sparql::object-datatype triple)))
-	   (tm-sparql::select-group (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
+      ;(map 'list #'(lambda(triple)
+      ;(format t "~a - ~a - ~a[~a]~%"
+      ;(tm-sparql::subject-result triple)
+      ;(tm-sparql::predicate-result triple)
+      ;(tm-sparql::object-result triple)
+      ;(tm-sparql::object-datatype triple)))
+      ;(tm-sparql::select-group (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
 
 
 
