@@ -106,8 +106,10 @@
 	   (original-filter-string
 	    (subseq query-string 0 (- (length query-string)
 				      (length next-query))))
+	   (filter-string-casted-constants
+	    (cast-literal-constants construct filter-string))
 	   (filter-string-unary-ops
-	    (set-unary-operators construct filter-string))
+	    (set-unary-operators construct filter-string-casted-constants))
 	   (filter-string-or-and-ops
 	    (set-or-and-operators construct filter-string-unary-ops
 				  original-filter-string))
@@ -119,8 +121,55 @@
 	    (set-functions construct filter-string-compare-ops)))
       (add-filter construct
 		  (scan-filter-for-deprecated-calls
-		   construct filter-string-functions original-filter-string))
+		   construct filter-string-functions filter-string))
       (parse-group construct next-query))))
+
+
+(defgeneric cast-literal-constants (construct filter-string)
+  (:documentation "Casts all constants of the form 'string-value'^^datatype to an
+                   object of the specified type. If the specified type is not
+                   supported the return value is the string-value without a
+                   type specifier.")
+  (:method ((construct SPARQL-Query) (filter-string String))
+    (let ((first-pos (search-first (list "'" "\"") filter-string)))
+      (if (not first-pos)
+	  filter-string
+	  (let* ((delimiters
+		  (append (white-space) *supported-brackets* (list "}")))
+		 (result (get-literal (subseq filter-string first-pos)))
+		 (literal-value (getf result :literal))
+		 (next-string (getf result :next-string))
+		 (lang
+		  (when (string-starts-with next-string "@")
+		    (let ((end-pos (search-first delimiters next-string)))
+		      (when end-pos
+			(subseq next-string 0 end-pos)))))
+		 (type
+		  (when (string-starts-with next-string "^^")
+		    (let ((end-pos
+			   (let ((pos (search-first delimiters next-string)))
+			     (if pos
+				 pos
+				 (length next-string)))))
+		      (when end-pos
+			(subseq next-string 2 end-pos)))))
+		 (modified-literal-value
+		  (if type
+		      (if (> (length literal-value) 0)
+			  (string-trim (list (elt literal-value 0)) literal-value)
+			  literal-value)
+		      literal-value)))
+	    (concat (subseq filter-string 0 first-pos)
+		    (if type
+			(write-to-string
+			 (cast-literal modified-literal-value type
+				       :back-as-string-when-unsupported t))
+			modified-literal-value)
+		    (cast-literal-constants
+		     construct
+		     (subseq next-string (cond (lang (length lang))
+					       (type (+ 2 (length type)))
+					       (t 0))))))))))
 
 
 (defgeneric scan-filter-for-deprecated-calls (construct filter-string
@@ -695,7 +744,7 @@
   (declare (String filter-string)
 	   (Integer idx))
   (let* ((string-after (subseq filter-string (1+ idx)))
-	 (cleaned-str (cut-comment string-after)))
+	 (cleaned-str (trim-whitespace-left string-after)))
     (cond ((string-starts-with cleaned-str "(")
 	   (let ((result (bracket-scope cleaned-str)))
 	     (list :next-query (string-after cleaned-str result)
@@ -741,14 +790,14 @@
    that is the scope of the function, i.e. the function name and all its
    variable including the closing )."
   (declare (String str))
-  (let* ((cleaned-str (cut-comment str))
+  (let* ((cleaned-str (trim-whitespace-left str))
 	 (after-fun
 	  (remove-null (map 'list #'(lambda(fun)
 				      (when (string-starts-with cleaned-str fun)
 					(string-after str fun)))
 			    *supported-functions*)))
 	 (fun-suffix (when after-fun
-		       (cut-comment (first after-fun)))))
+		       (trim-whitespace-left (first after-fun)))))
     (when fun-suffix
       (let* ((args (bracket-scope fun-suffix))
 	     (fun-name (string-until cleaned-str args)))
@@ -864,11 +913,6 @@
 		   (setf idx (- (1- (length query-string))
 				(length (getf result :next-string))))
 		   (push-string (getf result :literal) filter-string)))
-		((string= "#" current-char)
-		 (let ((comment-string
-			(string-until (subseq query-string idx)
-				      (string #\newline))))
-		   (setf idx (+ idx (length comment-string)))))
 		((and (string= current-char (string #\newline))
 		      (= 0 open-brackets))
 		 (setf result

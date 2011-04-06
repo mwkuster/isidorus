@@ -280,7 +280,7 @@
   "Returns the end of the literal corresponding to the passed delimiter
    string. The query-string must start after the opening literal delimiter.
    The return value is an int that represents the start index of closing
-   delimiter. delimiter must be either \", ', or '''.
+   delimiter. delimiter must be either \", ', \"\"\", or '''.
    If the returns value is nil, there is no closing delimiter."
   (declare (String query-string delimiter)
 	   (Integer overall-pos))
@@ -297,7 +297,7 @@
 (defun get-literal-quotation (str)
   "Returns ', ''', \" or \"\"\" when the string starts with a literal delimiter."
   (cond ((string-starts-with str "'''")
-	 "'")
+	 "'''")
 	((string-starts-with str "\"\"\"")
 	 "\"\"\"")
 	((string-starts-with str "'")

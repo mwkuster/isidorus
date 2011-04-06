@@ -426,20 +426,17 @@
 	      (cast-variable-values construct filter-variable-values))
 	(dolist (filter (filters construct))
 	  (dolist (var-elem filter-variable-values)
-
-	    ;(format t "~a~%==>~a~%~%" (to-lisp-code var-elem filter)
-	    ;(eval (read-from-string (to-lisp-code var-elem filter)))) ;TODO: remove
+	    
+	    ;(format t "~%~%>>~a<<~%~%" (to-lisp-code var-elem filter)); TODO: remove
 
 	    (when (eval (read-from-string (to-lisp-code var-elem filter)))
 	      (map 'list #'(lambda(list-elem)
 			     (push list-elem true-values))
 		   var-elem))))
-	;(format t "tv: -->~a<--~%" true-values) ;TODO: remove
 	(let ((values-to-remove
 	       (return-false-values filter-variable-values
 				    (remove-duplicates true-values
 						       :test #'variable-list=))))
-	  ;(format t "vr: -->~a<--~%" values-to-remove) ;TODO: remove
 	  (dolist (to-del values-to-remove)
 	    (delete-rows-by-value construct (getf to-del :variable-name)
 				  (getf to-del :variable-value))))))

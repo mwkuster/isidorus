@@ -177,7 +177,7 @@
     (cond (type-suffix type-suffix)
 	  ((integerp x) constants::*xml-integer*)
 	  ((floatp x) constants::*xml-decimal*)
-	  ((numberp x) constants::*xml-double*)
+	  ((typep x 'double-float) constants::*xml-double*)
 	  ((stringp x) constants::*xml-string*)
 	  (t (type-of x)))))
 

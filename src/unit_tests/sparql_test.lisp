@@ -1546,9 +1546,9 @@ literal with some \\\"quoted\\\" words!"))
     (with-revision 0
       (let* ((query-1
 	      "BASE <http://some.where/psis/poem/>
-              SELECT $subject ?predicate WHERE{
-               ?subject $predicate <zauberlehrling> .
-               FILTER (STR(?predicate) = 'http://some.where/base-psis/written')}")
+               SELECT $subject ?predicate WHERE{
+                ?subject $predicate <zauberlehrling> .
+                FILTER (STR(?predicate) = 'http://some.where/base-psis/written')}")
 	     (query-2 "SELECT ?object ?subject WHERE{
                         <http://some.where/psis/author/goethe> ?predicate ?object .
                         FILTER (isLITERAL(?object) &&
@@ -2364,25 +2364,14 @@ literal with some \\\"quoted\\\" words!"))
     (let* ((q-1 (concat
 		 "SELECT * WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
-                   FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
-                   #FILTER ?obj1 = 'von Goethe' || ?obj1 = '82'^^" *xml-integer* "
+                   #FILTER ?obj1 = 'von Goethe' || ?obj1 = 82
+                   FILTER ?obj1 = 'von Goethe'^^" *xml-string* " || ?obj1 = '82'^^" *xml-integer* "
 		   #FILTER (?obj1 = 'von Goethe' || 82 = ?obj1)
                    #FILTER (?obj1 = 'von Goethe') || (82 = ?obj1)
 		   #FILTER ((?obj1 = 'von Goethe') || (82 = ?obj1))"
 		 "
 }"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
-
-
-      ;(map 'list #'(lambda(triple)
-      ;(format t "~a - ~a - ~a[~a]~%"
-      ;(tm-sparql::subject-result triple)
-      ;(tm-sparql::predicate-result triple)
-      ;(tm-sparql::object-result triple)
-      ;(tm-sparql::object-datatype triple)))
-      ;(tm-sparql::select-group (make-instance 'TM-SPARQL:SPARQL-Query :query q-1)))
-
-
 
       (is-true (= (length r-1) 2))
       (map 'list #'(lambda(item)
@@ -2395,7 +2384,6 @@ literal with some \\\"quoted\\\" words!"))
       (format t "~a~%" r-1))))
 
 
-;TODO: cast literal-values when called in filters
 ;TODO: test complex filters
 
 (defun run-sparql-tests ()
