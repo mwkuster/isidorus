@@ -368,6 +368,38 @@
 				(elt (getf results :result) idx)))))))))
 
 
+;(defun to-lisp-code (variable-values filter)
+;  "Concatenates all variable names and elements with the filter expression
+;   in a let statement and returns a string representing the corresponding
+;   lisp code."
+;  (declare (List variable-values))
+;  (let ((result "")
+;	(cleanup-str ""))
+;    (dolist (var-elem variable-values)
+;      (push-string
+;       (concat "(defvar ?" (getf var-elem :variable-name) " "
+;	       (write-to-string (getf var-elem :variable-value)) ")")
+;       result)
+;      (push-string
+;       (concat "(defvar $" (getf var-elem :variable-name) " "
+;	       (write-to-string (getf var-elem :variable-value)) ")")
+;       result))
+;    (push-string "(let* ((true t)(false nil)" result)
+;    (push-string (concat "(result " filter "))") result)
+;    (push-string "(declare (Ignorable true false " result)
+;    (push-string "))" result)
+;    (dolist (var-elem variable-values)
+;      (push-string (concat "(makunbound '?" (getf var-elem :variable-name) ")")
+;		   cleanup-str)
+;      (push-string (concat "(makunbound '$" (getf var-elem :variable-name) ")")
+;		   cleanup-str))
+;    (push-string "(in-package :cl-user)" cleanup-str)
+;    (push-string cleanup-str result)
+;    (push-string "result)" result)
+;    (concat "(handler-case (progn " result ") (condition () (progn " cleanup-str
+;	    "nil)))")))
+
+
 (defun to-lisp-code (variable-values filter)
   "Concatenates all variable names and elements with the filter expression
    in a let statement and returns a string representing the corresponding
@@ -384,6 +416,12 @@
     (push-string (concat "(result " filter "))") result)
     (push-string "(declare (Ignorable true false " result)
     (when variable-values
+      (dolist (var-elem variable-values)
+	(push-string (concat "?" (getf var-elem :variable-name) " ") result)
+	(push-string (concat "$" (getf var-elem :variable-name) " ") result))
+      (push-string ")" result))
+    (when variable-values
+      (push-string "(Special " result)
       (dolist (var-elem variable-values)
 	(push-string (concat "?" (getf var-elem :variable-name) " ") result)
 	(push-string (concat "$" (getf var-elem :variable-name) " ") result)))

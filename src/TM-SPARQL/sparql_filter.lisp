@@ -235,10 +235,14 @@
 			     (let* ((var-start
 				     (search-first (list "?" "$") cleaned-arg-list))
 				    (var-end
-				     (when var-start
-				       (search-first
-					(list ")")
-					(subseq cleaned-arg-list var-start)))))
+				     (let ((val
+					    (when var-start
+					      (search-first
+					       (list ")")
+					       (subseq cleaned-arg-list var-start)))))
+				       (if val
+					   val
+					   (length (subseq cleaned-arg-list var-start))))))
 			       (when (and var-start var-end)
 				 (concat (subseq cleaned-arg-list 0 var-start)
 					 "\"" (subseq cleaned-arg-list var-start
