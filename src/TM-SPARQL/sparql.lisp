@@ -394,14 +394,22 @@
 (defun return-false-values (all-values true-values)
   "Returns a list that contains all values from all-values that
    are not contained in true-values."
-  (let ((local-all-values
-	 (remove-duplicates (reduce #'(lambda(x y) (append x y)) all-values)
-			    :test #'variable-list=))
-	(results nil))
-    (dolist (value local-all-values)
-      (when (not (find value true-values :test #'variable-list=))
-	(push value results)))
-    results))
+  (cond ((not all-values)
+	 nil)
+	((not true-values)
+	 (let ((local-all-values
+		(remove-duplicates (reduce #'(lambda(x y) (append x y)) all-values)
+				   :test #'variable-list=)))
+	   local-all-values))
+	(t
+	 (let ((local-all-values
+		(remove-duplicates (reduce #'(lambda(x y) (append x y)) all-values)
+				   :test #'variable-list=))
+	       (results nil))
+	   (dolist (value local-all-values)
+	     (when (not (find value true-values :test #'variable-list=))
+	       (push value results)))
+	   results))))
 
 
 (defun variable-list= (x y)
@@ -413,14 +421,15 @@
 
 (defgeneric process-filters (construct)
   (:documentation "Processes all filters by calling invoke-filter.")
-  (:method ((construct SPARQL-Query))      
+  (:method ((construct SPARQL-Query))
     (dolist (filter (filters construct))
-      (let* ((filter-variable-names
-	      (get-variables-from-filter-string filter))
-	     (filter-variable-values nil))
+      (let ((filter-variable-names (get-variables-from-filter-string filter))
+	    (filter-variable-values nil))
 	(dolist (var-name filter-variable-names)
 	  (setf filter-variable-values
 		(make-variable-values construct var-name filter-variable-values)))
+	(setf filter-variable-values
+	      (remove-duplicates-from-variable-list construct filter-variable-values))
 	(setf filter-variable-values
 	      (cast-variable-values construct filter-variable-values))
 	(let ((true-values nil))
@@ -435,8 +444,41 @@
 							 :test #'variable-list=))))
 	    (dolist (to-del values-to-remove)
 	      (delete-rows-by-value construct (getf to-del :variable-name)
-				    (getf to-del :variable-value)))))))
-    construct))
+				    (getf to-del :variable-value)))))))))
+
+
+(defgeneric remove-duplicates-from-variable-list (construct variable-list)
+  (:documentation "Removes all duplicates from the passed variable list")
+  (:method ((construct SPARQL-QUERY) (variable-list LIST))
+    (remove-duplicates
+     variable-list
+     :test #'(lambda(x y)
+	       (when (= (length x) (length y))
+		 (let ((result nil))
+		   (dotimes (idx (length x) result)
+		     (let ((cx (elt x idx))
+			   (cy (elt y idx)))
+		       (when (or (string/= (getf cx :variable-name)
+					   (getf cy :variable-name))
+				 (and (getf cx :literal-datatype)
+				      (getf cy :literal-datatype)
+				      (string/= (getf cx :literal-datatype)
+						(getf cy :literal-datatype)))
+				 (and (getf cx :literal-datatype)
+				      (not (getf cy :literal-datatype)))
+				 (and (not (getf cx :literal-datatype))
+				      (getf cy :literal-datatype))
+				 (and (getf cx :variable-value)
+				      (getf cy :variable-value)
+				      (string/= (getf cx :variable-value)
+						(getf cy :variable-value)))
+				 (and (getf cx :variable-value)
+				      (not (getf cy :variable-value)))
+				 (and (not (getf cx :variable-value))
+				      (getf cy :variable-value)))
+			 (setf idx (length x))))
+		     (when (= idx (max 0 (1- (length x))))
+		       (setf result t)))))))))
 
 
 (defgeneric idx-of (construct variable-name variable-value &key what)

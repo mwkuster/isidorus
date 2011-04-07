@@ -152,8 +152,12 @@
     (ppcre:scan scanner local-str)))
 
 
+(defun filter-functions::write-to-symbol (name-string)
+  (common-lisp:intern (common-lisp:string-upcase name-string)))
+
+
 (defun filter-functions::bound(x)
-  (boundp x))
+  (boundp (filter-functions::write-to-symbol x)))
 
 
 (defun filter-functions::isLITERAL(x)

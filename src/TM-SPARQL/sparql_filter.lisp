@@ -230,11 +230,27 @@
 		 (arg-list (bracket-scope cleaned-right-str))
 		 (cleaned-arg-list (clean-function-arguments arg-list))
 		 (modified-str
-		  (concat
-		   left-str "(" fun-name " " cleaned-arg-list ")"
-		   (subseq right-str (+ (- (length right-str)
-					   (length cleaned-right-str))
-					(length arg-list))))))
+		  (let ((modified-arg-list
+			 (if (string= fun-name "BOUND")
+			     (let* ((var-start
+				     (search-first (list "?" "$") cleaned-arg-list))
+				    (var-end
+				     (when var-start
+				       (search-first
+					(list ")")
+					(subseq cleaned-arg-list var-start)))))
+			       (when (and var-start var-end)
+				 (concat (subseq cleaned-arg-list 0 var-start)
+					 "\"" (subseq cleaned-arg-list var-start
+						      (+ var-start var-end))
+					 "\"" (subseq cleaned-arg-list
+						      (+ var-start var-end)))))
+			     cleaned-arg-list)))
+		    (concat
+		     left-str "(" fun-name " " modified-arg-list ")"
+		     (subseq right-str (+ (- (length right-str)
+					     (length cleaned-right-str))
+					  (length arg-list)))))))
 	    (set-functions construct modified-str))))))
 
 
@@ -1000,20 +1016,33 @@
   (let ((variables nil))
     (dotimes (idx (length filter-string))
       (let ((current-string (subseq filter-string idx)))
-	(when (and (or (string-starts-with current-string "?")
-		       (string-starts-with current-string "$"))
-		   (not (in-literal-string-p filter-string idx)))
-	  (let ((end-pos
-		 (let ((inner-value
-			(search-first
-			 (append (list " " "?" "$" "." ",")
-				 (*supported-operators*)
-				 *supported-brackets*
-				 (map 'list #'string (white-space)))
-			 (subseq current-string 1))))
-		   (if inner-value
-		       (1+ inner-value)
-		       (length current-string)))))
-	    (push (subseq current-string 1 end-pos) variables)
-	    (incf idx end-pos)))))
+	(cond ((and (or (string-starts-with current-string "?")
+			(string-starts-with current-string "$"))
+		    (not (in-literal-string-p filter-string idx)))
+	       (let ((end-pos
+		      (let ((inner-value
+			     (search-first
+			      (append (list " " "?" "$" "." ",")
+				      (*supported-operators*)
+				      *supported-brackets*
+				      (map 'list #'string (white-space)))
+			      (subseq current-string 1))))
+			(if inner-value
+			    (1+ inner-value)
+			    (length current-string)))))
+		 (push (subseq current-string 1 end-pos) variables)
+		 (incf idx end-pos)))
+	      ;BOUND needs a separate hanlding since all variables
+	      ;      were written into strings so they have to be
+              ;      searched different
+	      ((and (string-starts-with current-string "BOUND ")
+		    (not (in-literal-string-p filter-string idx)))
+	       (let* ((next-str (subseq current-string (length "BOUND ")))
+		      (literal (when (string-starts-with next-str "\"")
+				 (let ((val (get-literal next-str)))
+				   (when val
+				     (getf val :literal))))))
+		 (when (and literal (> (length literal) 3)) ;"?.." | "$.."
+		   (push (subseq (string-trim (list #\") literal) 1) variables))
+		 (incf idx (+ (length "BOUND ") (length literal))))))))
     (remove-duplicates variables :test #'string=)))
