@@ -352,12 +352,8 @@
 		  (search-first (list "\"" "'") (subseq main-string 0 first-pos)
 				:from-end from-end))
 		 (next-str
-		  (if from-end
-		      
-
+		  (if from-end		      
 		      (subseq main-string 0 literal-start)
-		      
-		      
 		      (let* ((sub-str (subseq main-string literal-start))
 			     (literal-result (get-literal sub-str)))
 			(getf literal-result :next-string)))))
@@ -441,31 +437,25 @@
   (let ((result nil))
     (dotimes (idx (length filter-string) result)
       (let* ((current-str (subseq filter-string idx))
-	     (delimiter (cond ((string-starts-with current-str "'''")
-			       "'''")
-			      ((string-starts-with current-str "'")
-			       "'")
-			      ((string-starts-with current-str "\"\"\"")
-			       "\"\"\"")
-			      ((string-starts-with current-str "\"")
-			       "\""))))
+	     (delimiter (get-literal-quotation current-str)))
 	(when delimiter
 	  (let* ((end-pos
 		  (let ((result
-			 (search-first (list delimiter) 
-				       (subseq current-str (length delimiter)))))
-		    (when result
+			 (find-literal-end (subseq current-str (length delimiter))
+				    delimiter)))
+		  (when result
 		      (+ (length delimiter) result))))
 		 (quoted-str (when end-pos
 			       (subseq current-str (length delimiter) end-pos)))
 		 (start-pos idx))
-	    (incf idx (+ (* 2 (length delimiter)) (length quoted-str)))
-	    (if (and (>= pos start-pos)
-		     (<= pos (+ start-pos end-pos)))
-		(progn
-		  (setf result t)
-		  (setf idx (length filter-string)))
-		(incf idx (+ (* 2 (length delimiter)) (length quoted-str))))))))))
+	    (when quoted-str
+	      (incf idx (+ (* 2 (length delimiter)) (length quoted-str)))
+	      (if (and (>= pos start-pos)
+		       (< pos (+ start-pos end-pos)))
+		  (progn
+		    (setf result t)
+		    (setf idx (length filter-string)))
+		  (incf idx (+ (* 2 (length delimiter)) (length quoted-str)))))))))))
 
 
 (defun search-first-unclosed-paranthesis (str &key (ignore-literals t))

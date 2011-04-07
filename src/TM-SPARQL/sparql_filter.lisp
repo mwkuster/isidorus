@@ -350,12 +350,24 @@
 	      (+ inner-value (1+ (length (name-after-paranthesis
 					  (subseq left-string inner-value))))))))
 	 (paranthesis-pair-idx
-	  (let* ((cleaned-str (trim-whitespace-right left-string))
-		 (bracket-scope (reverse-bracket-scope cleaned-str)))
-	    (when bracket-scope
-	      (- (- (length left-string)
-		    (- (length left-string) (length cleaned-str)))
-		 (length bracket-scope)))))
+	  (let ((value
+		 (let* ((cleaned-str (trim-whitespace-right left-string))
+			(bracket-scope (reverse-bracket-scope cleaned-str)))
+		   (when bracket-scope
+		     (- (- (length left-string)
+			   (- (length left-string) (length cleaned-str)))
+			(length bracket-scope))))))
+	    (when value ;search a functionname: FUN(...)
+	      (let* ((str-before (subseq left-string 0 value))
+		     (c-str-before (trim-whitespace-right str-before)))
+		(if (string-ends-with-one-of c-str-before *supported-functions*)
+		    (loop for fun-name in *supported-functions*
+		       when (string-ends-with c-str-before fun-name)
+		       return (- value
+				 (+ (- (length str-before)
+				       (length c-str-before))
+				    (length fun-name))))
+		    value)))))
 	 (start-idx (or first-bracket paranthesis-pair-idx 0)))
     (subseq left-string start-idx)))
 

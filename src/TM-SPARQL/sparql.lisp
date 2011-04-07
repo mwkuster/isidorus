@@ -368,38 +368,6 @@
 				(elt (getf results :result) idx)))))))))
 
 
-;(defun to-lisp-code (variable-values filter)
-;  "Concatenates all variable names and elements with the filter expression
-;   in a let statement and returns a string representing the corresponding
-;   lisp code."
-;  (declare (List variable-values))
-;  (let ((result "")
-;	(cleanup-str ""))
-;    (dolist (var-elem variable-values)
-;      (push-string
-;       (concat "(defvar ?" (getf var-elem :variable-name) " "
-;	       (write-to-string (getf var-elem :variable-value)) ")")
-;       result)
-;      (push-string
-;       (concat "(defvar $" (getf var-elem :variable-name) " "
-;	       (write-to-string (getf var-elem :variable-value)) ")")
-;       result))
-;    (push-string "(let* ((true t)(false nil)" result)
-;    (push-string (concat "(result " filter "))") result)
-;    (push-string "(declare (Ignorable true false " result)
-;    (push-string "))" result)
-;    (dolist (var-elem variable-values)
-;      (push-string (concat "(makunbound '?" (getf var-elem :variable-name) ")")
-;		   cleanup-str)
-;      (push-string (concat "(makunbound '$" (getf var-elem :variable-name) ")")
-;		   cleanup-str))
-;    (push-string "(in-package :cl-user)" cleanup-str)
-;    (push-string cleanup-str result)
-;    (push-string "result)" result)
-;    (concat "(handler-case (progn " result ") (condition () (progn " cleanup-str
-;	    "nil)))")))
-
-
 (defun to-lisp-code (variable-values filter)
   "Concatenates all variable names and elements with the filter expression
    in a let statement and returns a string representing the corresponding
@@ -1409,22 +1377,24 @@
 		     &key (back-as-string-when-unsupported nil))
   "A helper function that casts the passed string value of the literal
    corresponding to the passed literal-type."
-  (declare (String literal-value literal-type)
+  (declare (String literal-value)
+	   (type (or String null) literal-type)
 	   (Boolean back-as-string-when-unsupported))
-  (cond ((string= literal-type *xml-string*)
-	 literal-value)
-	((string= literal-type *xml-boolean*)
-	 (cast-literal-to-boolean literal-value))
-	((string= literal-type *xml-integer*)
-	 (cast-literal-to-integer literal-value))
-	((string= literal-type *xml-double*)
-	 (cast-literal-to-double literal-value))
-	((string= literal-type *xml-decimal*)
-	 (cast-literal-to-decimal literal-value))
-	(t ; return the value as a string
-	 (if back-as-string-when-unsupported
-	     literal-value
-	     (concat "\"\"\"" literal-value "\"\"\"^^" literal-type)))))
+  (let ((local-literal-type (if literal-type literal-type *xml-string*)))
+    (cond ((string= local-literal-type *xml-string*)
+	   literal-value)
+	  ((string= local-literal-type *xml-boolean*)
+	   (cast-literal-to-boolean literal-value))
+	  ((string= local-literal-type *xml-integer*)
+	   (cast-literal-to-integer literal-value))
+	  ((string= local-literal-type *xml-double*)
+	   (cast-literal-to-double literal-value))
+	  ((string= local-literal-type *xml-decimal*)
+	   (cast-literal-to-decimal literal-value))
+	  (t ; return the value as a string
+	   (if back-as-string-when-unsupported
+	       literal-value
+	       (concat "\"\"\"" literal-value "\"\"\"^^" local-literal-type))))))
 
 
 (defun cast-literal-to-decimal (literal-value)

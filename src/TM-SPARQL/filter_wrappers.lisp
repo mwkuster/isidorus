@@ -187,10 +187,11 @@
 
 
 (defun filter-functions::str(x)
-  (if (stringp x)
-      (if (and (base-tools:string-starts-with x "<")
-	       (base-tools:string-ends-with x ">")
-	       (base-tools:absolute-uri-p (subseq x 1 (1- (length x)))))
-	  (subseq x 1 (1- (length x)))
-	  x)
-      (write-to-string x)))
+  ;(if (stringp x) ;TODO: remove
+  ;(if (and (base-tools:string-starts-with x "<")
+  ;(base-tools:string-ends-with x ">")
+  ;(base-tools:absolute-uri-p (subseq x 1 (1- (length x)))))
+  ;(subseq x 1 (1- (length x)))
+  ;x)
+  ;(write-to-string x)))
+  (write-to-string x))

@@ -1549,7 +1549,7 @@ literal with some \\\"quoted\\\" words!"))
 	      "BASE <http://some.where/psis/poem/>
                SELECT $subject ?predicate WHERE{
                 ?subject $predicate <zauberlehrling> .
-                FILTER (STR(?predicate) = 'http://some.where/base-psis/written')}")
+                FILTER (STR(?predicate) = '\"<http://some.where/base-psis/written>\"')}")
 	     (query-2 "SELECT ?object ?subject WHERE{
                         <http://some.where/psis/author/goethe> ?predicate ?object .
                         FILTER (isLITERAL(?object) &&
@@ -2408,7 +2408,9 @@ literal with some \\\"quoted\\\" words!"))
                    FILTER isLITERAL(?obj1) && !isLITERAL(?pred1) && ?obj1 = 'von Goethe' || ?obj1 = 82
                    FILTER ?pred1 = $pred1 && $obj1 = $obj1 && ?pred1 != ?obj1
 		   FILTER ?obj1 >= 82 || ?obj1 = 'von Goethe'
-                   FILTER BOUND(?obj1) && !BOUND(?obj2) && BOUND(?pred1)"
+                   FILTER BOUND(?obj1) && !BOUND(?obj2) && BOUND(?pred1)
+		   FILTER (DATATYPE(?obj1) = '" *xml-string* "' || DATATYPE(?obj1) = '" *xml-integer* "') && !(DATATYPE(?obj1) = '" *xml-double* "')
+                   FILTER STR(?obj1) = '82' || ?obj1='von Goethe'"
 		 "}"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
       ;(is-true (= (length r-1) 2))
