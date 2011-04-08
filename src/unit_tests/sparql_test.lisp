@@ -2403,18 +2403,45 @@ literal with some \\\"quoted\\\" words!"))
   (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
     (tm-sparql:init-tm-sparql)
     (let* ((q-1 (concat
-		 "SELECT * WHERE {
+		 "SELECT ?pred1 ?obj3 ?obj1 WHERE {
                    <http://some.where/tmsparql/author/goethe> ?pred1 ?obj1.
                    FILTER isLITERAL(?obj1) && !isLITERAL(?pred1) && ?obj1 = 'von Goethe' || ?obj1 = 82
                    FILTER ?pred1 = $pred1 && $obj1 = $obj1 && ?pred1 != ?obj1
 		   FILTER ?obj1 >= 82 || ?obj1 = 'von Goethe'
                    FILTER BOUND(?obj1) && !BOUND(?obj2) && BOUND(?pred1)
 		   FILTER (DATATYPE(?obj1) = '" *xml-string* "' || DATATYPE(?obj1) = '" *xml-integer* "') && !(DATATYPE(?obj1) = '" *xml-double* "')
-                   FILTER STR(?obj1) = '82' || ?obj1='von Goethe'"
+                   FILTER STR(?obj1) = '82' || ?obj1='von Goethe'
+                   FILTER ?obj1 = 82 || REGEX(STR(?obj1), 'von G.*')
+                   ?subj3 <" *tms-value* "> ?obj3.
+                   FILTER REGEX(?obj3, 'e.+e.+')"
 		 "}"))
 	   (r-1 (tm-sparql:result (make-instance 'TM-SPARQL:SPARQL-Query :query q-1))))
-      ;(is-true (= (length r-1) 2))
-      (format t "~a~%" r-1))))
+      (is-true (= (length r-1) 3))
+      (map 'list #'(lambda(item)
+		     (cond
+		       ((string= (getf item :variable) "pred1")
+			(is (= (length (getf item :result)) 2))
+			(is (find "<http://some.where/tmsparql/last-name>"
+				  (getf item :result) :test #'string=))
+			(is (find "<http://some.where/tmsparql/years>"
+				  (getf item :result) :test #'string=)))
+		       ((string= (getf item :variable) "obj1")
+			(is (= (length (getf item :result)) 2))
+			(is (find 82 (getf item :result) :test #'tm-sparql::literal=))
+			(is (find "von Goethe" (getf item :result)
+				  :test #'tm-sparql::literal=)))
+		       ((string= (getf item :variable) "obj3")
+			(is (= (length (getf item :result)) 2))
+			(is-true (find "Der Zauberlehrling" (getf item :result)
+				  :test #'string=))
+			(is-true (find "Hat der alte Hexenmeister
+	sich doch einmal wegbegeben!
+	..." (getf item :result) :test #'string=)))
+		       (t
+			(is-true (format t "bad variable-name found ~a"
+					 (getf item :variable))))))
+	   
+	   r-1))))
 
 
 

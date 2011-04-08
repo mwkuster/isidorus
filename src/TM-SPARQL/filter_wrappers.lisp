@@ -10,7 +10,7 @@
 
 (defpackage :filter-functions
   (:use :base-tools :constants :tm-sparql)
-  (:import-from :cl progn handler-case let))
+  (:import-from :cl progn handler-case let condition))
 
 
 (defun filter-functions::normalize-value (value)
@@ -149,7 +149,8 @@
 				:case-insensitive-mode case-insensitive
 				:multi-line-mode multi-line
 				:single-line-mode single-line)))
-    (ppcre:scan scanner local-str)))
+    (when (ppcre:scan scanner local-str)
+      t)))
 
 
 (defun filter-functions::write-to-symbol (name-string)
@@ -187,11 +188,4 @@
 
 
 (defun filter-functions::str(x)
-  ;(if (stringp x) ;TODO: remove
-  ;(if (and (base-tools:string-starts-with x "<")
-  ;(base-tools:string-ends-with x ">")
-  ;(base-tools:absolute-uri-p (subseq x 1 (1- (length x)))))
-  ;(subseq x 1 (1- (length x)))
-  ;x)
-  ;(write-to-string x)))
-  (write-to-string x))
+   (write-to-string x))

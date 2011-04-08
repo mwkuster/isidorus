@@ -511,13 +511,13 @@
 	  (variable-p
 	   (cond ((eql what :subject)
 		  (and (variable-p (subject construct))
-		       (value (subject construct))))
+		       (string= (value (subject construct)) variable-name)))
 		 ((eql what :predicate)
 		  (and (variable-p (predicate construct))
-		       (value (predicate construct))))
+		       (string=  (value (predicate construct)) variable-name)))
 		 ((eql what :object)
 		  (and (variable-p (object construct))
-		       (value (object construct)))))))
+		       (string= (value (object construct)) variable-name))))))
       (when variable-p
 	(remove-null
 	 (dotimes (idx (length local-results))
