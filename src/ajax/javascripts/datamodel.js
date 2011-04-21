@@ -549,7 +549,8 @@ var IdentifierC = Class.create(ContainerC, {"initialize" : function($super, cont
 					    },
 					    "toJSON" : function(unique, removeNull){
 						var content = this.getContent(unique, removeNull);
-						return content.length === 0 ? "null" : content.toJSON();
+						if(!content || content.length === 0) return "null";
+						return content.toJSON();
 					    },
 					    "isValid" : function(){
 						var allIdentifiers = new Array();
@@ -2665,8 +2666,8 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       this.__createFromContent__(contents);
 						   }
                                                    catch(err){
-                                               	       alert("From RoleContainerC(): " + err);
-                                                   }
+						       alert("From RoleContainerC(): " + err);
+						   }
                                                },
 					       "__orderContentsToRoles__" : function(contents, roleContainer, usedContents, alreadyUsedRoles){
 						   if(!roleContainer || roleContainer.length === 0){
@@ -2920,31 +2921,31 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   var cContents = contents;
 						   var usedContents = new Array();
 						   var alreadyUsedRoles = new Array();
-						       
+						      
 						   // --- searches for associaitonrole-constraints and roleplayer-constraints
 						   var ret = this.__orderContentsToRoles__(cContents, this.__arContainer__.__frames__, usedContents, alreadyUsedRoles);
 						   cContents = ret.contents;
 						   usedContents = ret.usedContents;
 						   alreadyUsedRoles = ret.alreadyUsedRoles;
-
+						 
 						   // --- searches for otherrole-constraints
 						   ret = this.__orderContentsToRoles__(cContents, this.__orContainer__.__frames__, usedContents, alreadyUsedRoles);
 						   cContents = ret.contents;
 						   usedContents = ret.usedContents;
 						   alreadyUsedRoles = ret.alreadyUsedRoles;
-						   
+						  
 						   // --- creates additional roles (associationrole-constraints)
 						   ret = this.__createAdditionalRolesFromContents__(cContents, usedContents, alreadyUsedRoles, true);
 						   cContents = ret.contents;
 						   usedContents = ret.usedContents;
 						   alreadyUsedRoles = ret.alreadyUsedRoles;
-
+						  
 						   // --- creates additional roles (associationrole-constraints)
 						   ret = this.__createAdditionalRolesFromContents__(cContents, usedContents, alreadyUsedRoles, false);
 						   cContents = ret.contents;
 						   usedContents = ret.usedContents;
 						   alreadyUsedRoles = ret.alreadyUsedRoles;
-
+						  
 						   this.__createNewRolesFromContents__(cContents);
 					       },
 					       "resetValues" : function(associationRoleConstraints, rolePlayerConstraints, otherRoleConstraints){
@@ -2994,8 +2995,11 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   var roleMin = associationRoleConstraint.cardMin === 0 ? 1 : parseInt(associationRoleConstraint.cardMin);
 						   var roleMinOrg = parseInt(associationRoleConstraint.cardMin);
 						   for(var i = 0; i !== rolePlayerConstraints.length; ++i){
+						       // if no player is available for a rolePlayerConstraint the constraint is ignored and no warning is thrown
+						       if(!rolePlayerConstraints[i].players || rolePlayerConstraints[i].players.length < playerMin) continue;
+						       
+
 						       var playerMin = rolePlayerConstraints[i].cardMin === 0 ? 1 : parseInt(rolePlayerConstraints[i].cardMin);
-						       if(rolePlayerConstraints[i].players.length < playerMin) throw "From __makeRolesFromARC__(): not enough players(=" + rolePlayerConstraints[i].players.length + ") to reach card-min(=" + playerMin + ") of roletype\"" + roleType.flatten()[0] + "\"!";
 						       for(var k = 0; k !== playerMin; ++k){
 							   // --- creates a new role
 							   var selectedPlayers = new Array();
@@ -3022,7 +3026,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       for(var i= 0; i !== rolePlayerConstraints.length; ++i){
 							   // existing roles --> all roles that owns a player which is selected of those listed in the roleplayer-constraint
 							   var existingRoles = this.getExistingRoles(roleType, rolePlayerConstraints[i].players, this.__arContainer__.__frames__);
-							   var availablePlayers = rolePlayerConstraints[i].players;
+							   var availablePlayers = (rolePlayerConstraints[i].players ? rolePlayerConstraints[i].players : new Array());
 							   if(existingRoles.length < rolePlayerConstraints[i].cardMax && availablePlayers.length > existingRoles.length){
 							       var currentAvailablePlayers = rolePlayerConstraints[i].players;
 							       var cleanedPlayers = cleanPlayers(allAvailablePlayers, currentAvailablePlayers);
@@ -3047,7 +3051,9 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 							       ++currentlyCreated;
 							   }
 						       }
-						       if(currentlyCreated === 0) throw "Not enough players to create all needed roles of the type \"" + roleType.flatten()[0] + "\"!";
+
+						       // not enough roles created so an association with zero roles can be made
+						       if(currentlyCreated === 0) break;
 						   };
 						   this.__checkARCButtons__(currentRoles, allAvailablePlayers, associationRoleConstraint);
 						   for(var i = 0; i !== currentRoles.length; ++i){
@@ -3064,7 +3070,11 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						       var cOtherRoleType = orpcs[i].otherRoleType;
 						       var cMin = orpcs[i].cardMin === 0 ? 1 : parseInt(orpcs[i].cardMin);
 						       var cMinOrg = parseInt(orpcs[i].cardMin);
-						       if(!cOtherPlayers || cOtherPlayers.length < cMin) throw "from __makeRolesFromORC__(): not enough players(=" + cOtherPlayers.length + ") for roletype + \"" + cOtherRoleType.flatten()[0] + "\"!";
+
+						       // if there are not enough other players  the constraint is ignored and no error message is thrown
+						       if(!cOtherPlayers || cOtherPlayers.length < cMin) continue;
+
+
 						       var existingRoles = this.getExistingRoles(cOtherRoleType, cOtherPlayers, this.__orContainer__.__frames__);
 						       for(var j = 0; j < cMin - existingRoles.length; ++j){
 							   // --- removes all players that are already selected from the
@@ -3471,7 +3481,7 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
                                                    var orcs = this.__otherRoleConstraints__;
                                                    var rpcs = this.__rolePlayerConstraints__;
 						   
-						   // --- checks if there exist any constraints
+						   // --- checks if there exist aniy constraints
 						   if(!arcs || arcs.length === 0){
 						       this.showError("No association-constraints found for this association!");
 						       return false;
@@ -3485,20 +3495,24 @@ var RoleContainerC = Class.create(ContainerC, {"initialize" : function($super, c
 						   // --- collects all used roles depending on associationrole-constraints
 						   var allAroles = new Array();
 						   var allAroles2 = new Array();
-						   for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
-						       this.__arContainer__.__frames__[i].hideError();
-						       if(this.__arContainer__.__frames__[i].isUsed() === true){
-							   allAroles.push(this.__arContainer__.__frames__[i]);
-							   allAroles2.push(this.__arContainer__.__frames__[i]);
+						   if(this.__arContainer__ && this.__arContainer__.__frames__){
+						       for(var i = 0; this.__arContainer__.__frames__ && i !== this.__arContainer__.__frames__.length; ++i){
+							   this.__arContainer__.__frames__[i].hideError();
+							   if(this.__arContainer__.__frames__[i].isUsed() === true){
+							       allAroles.push(this.__arContainer__.__frames__[i]);
+							       allAroles2.push(this.__arContainer__.__frames__[i]);
+							   }
 						       }
 						   }
 						   
 						   // --- collects all used roles depending on otherrole-constraints
 						   var allOroles = new Array();
-						   for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i){
-						       this.__orContainer__.__frames__[i].hideError();
-						       if(this.__orContainer__.__frames__[i].isUsed() === true)
-							   allOroles.push(this.__orContainer__.__frames__[i]);
+						   if(this.__orContainer__ && this.__orContainer__.__frames__){
+						       for(var i = 0; i !== this.__orContainer__.__frames__.length; ++i){
+							   this.__orContainer__.__frames__[i].hideError();
+							   if(this.__orContainer__.__frames__[i].isUsed() === true)
+							       allOroles.push(this.__orContainer__.__frames__[i]);
+						       }
 						   }
 						   
 						   // --- checks all associationrole-constraints

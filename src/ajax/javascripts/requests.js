@@ -10,6 +10,13 @@
 //+  trunk/src/ajax/javascripts/external/MIT-LICENSE.txt.
 //+-----------------------------------------------------------------------------
 
+
+// --- replaces every / character that is not prefixed by a \ character
+function escapeSlashInJSON(jsonString){
+    return jsonString.replace(/([^\\])\//g, '$1\\/').replace(/([^\\])\//g, '$1\\/');
+}
+
+
 // --- Sets a timeout function which alerts a message.
 function setAjaxTimeout(time, url)
 {
@@ -208,7 +215,7 @@ function commitFragment(json, onSuccessHandler, onFailureHandler)
 	
 	new Ajax.Request(COMMIT_URL, {
 	    "method" : "post",
-	    "postBody" : json,
+	    "postBody" : escapeSlashInJSON(json),
 	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
 	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }
@@ -228,7 +235,7 @@ function commitDeletedObject(json, onSuccessHandler, onFailureHandler)
 	var timeFun = setAjaxTimeout(TIMEOUT, COMMIT_URL);
 	new Ajax.Request(MARK_AS_DELETED_URL, {
 	    "method" : "delete",
-	    "postBody" : json,
+	    "postBody" : escapeSlashInJSON(json),
 	    "onSuccess" : createXHRHandler(onSuccessHandler, timeFun),
 	    "onFailure" : createXHRHandler(onFailure, timeFun)});
     }

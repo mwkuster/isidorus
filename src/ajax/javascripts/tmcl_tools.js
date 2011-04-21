@@ -163,6 +163,7 @@ function extractPlayersOfConstraints(anyConstraints){
     if(!anyConstraints || anyConstraints.length === 0) return players;
 
     for(var i = 0; i !== anyConstraints.length; ++i){
+	if(!anyConstraints[i].players) return players;
 	for(var j = 0; j !== anyConstraints[i].players.length; ++j){
 	    players.push(anyConstraints[i].players[j])
 	}

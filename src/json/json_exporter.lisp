@@ -36,8 +36,9 @@
 	     (or (eql what 'psis)
 		 (eql what 'item-identifiers)
 		 (eql what 'locators)))
-    (let ((items 
-	   (map 'list #'uri (funcall what parent-construct :revision revision))))
+    (let ((items
+	   (map 'list #'uri
+		(funcall what parent-construct :revision revision))))
       (json:encode-json-to-string items))))
 
 

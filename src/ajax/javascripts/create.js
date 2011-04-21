@@ -130,7 +130,8 @@ function makeFragment(context, psis, constraints, contents){
 	    alert("The fragment wasn't committed - Please correct your input data!");
 	    return;
 	}
-	
+
+
 	// --- if the validation succeeded the fragment will be sent to the server
 	var tPsis = topic.getContent().subjectIdentifiers;
 	if(!tPsis || tPsis.length === 0) tPsis = "null";
@@ -150,6 +151,7 @@ function makeFragment(context, psis, constraints, contents){
 	    referencedTopics = referencedTopics.concat(aStubs);
 	}
 
+
 	function onSuccessHandler(topicStubs){
 	    var tsStr = "null";
 	    if(topicStubs && topicStubs.length !== 0){
@@ -160,17 +162,19 @@ function makeFragment(context, psis, constraints, contents){
 		}
 		tsStr += "]";
 	    }
+    
 	    var jTopic = "\"topic\":" + topic.toJSON();
 	    var jTopicStubs = "\"topicStubs\":" + tsStr;
 	    var jAssociations = "\"associations\":" + (associations ? associations.toJSON().gsub("\\[\"" + CURRENT_TOPIC_ESCAPED + "\"\\]", tPsis) : "null");
 	    var jTmId = "\"tmIds\":" + tmId.toJSON();
 	    var json = "{" + jTopic + "," + jTopicStubs + "," + jAssociations + "," + jTmId + "}";
+
 	    commitFragment(json, function(xhr){ alert("The fragment was committed succesfully!"); }, null);
 	}
-	
+		
 	function onErrorHandler(){
 	    // --- currently there is not needed a special handling for errors
-	    // --- occurred during this operation
+	    // --- occurring during this operation
 	}
 	getTopicStubs(referencedTopics, onSuccessHandler, onErrorHandler);
     });

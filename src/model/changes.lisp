@@ -37,10 +37,11 @@ engine for this Topic Map"
   (:documentation "Finds all associations for a topic.")
   (:method ((instance TopicC) &key (revision *TM-REVISION*))
     (declare (type (or integer null) revision))
-    (remove-duplicates 
-     (map 'list #'(lambda(role)
-		    (parent role :revision revision))
-	  (player-in-roles instance :revision revision)))))
+    (remove-null
+     (remove-duplicates 
+      (map 'list #'(lambda(role)
+		     (parent role :revision revision))
+	   (player-in-roles instance :revision revision))))))
 
 
 (defgeneric find-associations (instance &key revision)

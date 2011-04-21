@@ -548,7 +548,7 @@
     (let ((topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*
 				      :revision 0))
 	  (topictype-constraint (json-tmcl::is-type-constrained :revision 0)))
-      (format t "~%initialize cache: ")
+      (format t "~%initializing cache: ")
       (map 'list #'(lambda(top)
 		     (format t ".")
 		     (push-to-cache top topictype topictype-constraint))
@@ -576,7 +576,7 @@
 
 (defun init-fragments ()
   "Creates fragments of all topics that have a PSI."
-  (format t "create fragments: ")
+  (format t "creating fragments: ")
   (map 'list #'(lambda(top)
 		 (let ((psis-of-top (psis top)))
 		   (when psis-of-top
