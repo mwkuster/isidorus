@@ -200,16 +200,23 @@
 				     "base-tools"
 				     "TM-SPARQL"))
 	       (:module "json"
-	                :components ((:file "json_exporter"
-					    :depends-on ("json_tmcl_constants"))
-				     (:file "json_importer")
-				     (:file "json_tmcl_validation"
-					    :depends-on ("json_tmcl_constants" "json_exporter" "json_importer"))
-				     (:file "json_tmcl_constants")
-				     (:file "json_tmcl"
-					    :depends-on ("json_tmcl_validation" "json_importer"))
-				     (:file "json_delete_interface"
-					    :depends-on ("json_importer")))
+			:components ((:module "isidorus-json"
+					      :components ((:file "json_exporter"
+								  :depends-on ("json_tmcl_constants"))
+							   (:file "json_importer")
+							   (:file "json_tmcl_validation"
+								  :depends-on ("json_tmcl_constants" "json_exporter" "json_importer"))
+							   (:file "json_tmcl_constants")
+							   (:file "json_tmcl"
+								  :depends-on ("json_tmcl_validation" "json_importer"))
+							   (:file "json_delete_interface"
+								  :depends-on ("json_importer"))))
+				     (:module "JTM"
+					      :components ((:file "jtm_tools")
+							   (:file "jtm_importer"
+								  :depends-on ("jtm_tools"))
+							   (:file "jtm_exporter"
+								  :depends-on ("jtm_tools")))))
 	                :depends-on ("base-tools"
 				     "model"
 				     "xml"
