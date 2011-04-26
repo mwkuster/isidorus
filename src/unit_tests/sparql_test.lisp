@@ -450,11 +450,11 @@ literal with some \\\"quoted\\\" words!"))
 	(is (= (length (tm-sparql::select-group q-obj-2)) 1))
 	(is-true q-obj-3)
 	(is (= (length (tm-sparql::select-group q-obj-3)) 1))
-	(is-false (tm-sparql::subject-result
+	(is-true (tm-sparql::subject-result
 		   (first (tm-sparql::select-group q-obj-1))))
-	(is-false (tm-sparql::predicate-result
+	(is-true (tm-sparql::predicate-result
 		   (first (tm-sparql::select-group q-obj-1))))
-	(is-false (tm-sparql::object-result
+	(is-true (tm-sparql::object-result
 		   (first (tm-sparql::select-group q-obj-1))))
 	(is (= (length (tm-sparql::subject-result
 			(first (tm-sparql::select-group q-obj-2)))) 2))

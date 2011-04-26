@@ -572,7 +572,8 @@
       (let ((results (append
 		      (or (filter-by-given-subject construct :revision revision)
 			  (filter-by-given-predicate construct :revision revision)
-			  (filter-by-given-object construct :revision revision))
+			  (filter-by-given-object construct :revision revision)
+			  (filter-by-variable-triple construct :revision revision))
 		      (filter-by-special-uris construct :revision revision))))
 	(map 'list #'(lambda(result)
 		       (push (getf result :subject) (subject-result construct))
@@ -581,6 +582,29 @@
 		       (push (getf result :literal-datatype)
 			     (object-datatype construct)))
 	     results)))))
+
+
+(defgeneric filter-by-variable-triple (construct &key revision)
+  (:documentation "Returns all graphs that match a triple consisting
+                   only of variables.")
+  (:method ((construct SPARQL-Triple) &key (revision *TM-REVISION*))
+    (when (and (variable-p (subject construct))
+	       (variable-p (predicate construct))
+	       (variable-p (object construct)))
+      (let ((all-possible-subjects
+	     (append (get-all-topics revision)
+		     (get-all-occurrences revision)
+		     (get-all-names revision)
+		     (get-all-variants revision)
+		     (get-all-associations revision)
+		     (get-all-roles revision))))
+	(remove-null
+	 (loop for subj in all-possible-subjects
+	    append (when (typep subj 'TopicC)
+		     (append (filter-characteristics
+			      subj nil nil nil :revision revision)
+			     (filter-associations
+			      subj nil nil :revision revision)))))))))
 
 
 (defgeneric filter-by-given-object (construct &key revision)
