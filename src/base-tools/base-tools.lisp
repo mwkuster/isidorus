@@ -42,7 +42,8 @@
 	   :find-literal-end
 	   :get-literal-quotation
 	   :get-literal
-	   :return-if-starts-with))
+	   :return-if-starts-with
+	   :prefix-of-uri))
 
 (in-package :base-tools)
 
@@ -528,3 +529,36 @@
 		(string-ends-with cleaned-str try :ignore-case ignore-case)
 		(string-starts-with cleaned-str try :ignore-case ignore-case))
        return try)))
+
+
+(defun prefix-of-uri (uri)
+  "Returns the prefix of the passed URI until the last / or # is reached.
+   Note / or # that are placed on the last idx of the string are ignored, e.g.
+   http://eg.org/ or http://eg.org//."
+  (let* ((after-scheme (string-after uri "://"))
+	 (prepared-after-scheme (when after-scheme
+				  (cut-uri-end after-scheme))))
+    (when prepared-after-scheme
+      (let ((pos-#
+	     (let ((val (search-first (list "#") prepared-after-scheme :from-end t)))
+	       (when val
+		 (+ val (- (length uri) (length prepared-after-scheme))))))
+	    (pos-/
+	     (let ((val (search-first (list "/") prepared-after-scheme :from-end t)))
+	       (when val
+		 (+ val (- (length uri) (length prepared-after-scheme)))))))
+      	(cond ((and pos-# pos-/)
+	       (if (> pos-# pos-/)
+		   (subseq uri 0 pos-#)
+		   (subseq uri 0 (1- pos-/))))
+	      (pos-#
+	       (subseq uri 0 pos-#))
+	      (pos-/
+	       (subseq uri 0 (1- pos-/))))))))
+
+
+(defun cut-uri-end (uri)
+  "Cuts the passed uri if it ends with '/+' or '#+'."
+  (if (string-ends-with-one-of uri (list "#" "/"))
+      (cut-uri-end (subseq uri 0 (1- (length uri))))
+      uri))

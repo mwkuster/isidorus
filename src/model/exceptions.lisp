@@ -19,7 +19,8 @@
 	   :tm-reference-error
 	   :bad-type-error
 	   :sparql-parser-error
-	   :bad-argument-error))
+	   :bad-argument-error
+	   :JTM-error))
 
 (in-package :exceptions)
 
@@ -136,3 +137,10 @@
     :accessor result-object))
   (:documentation "Thrown if a bad result object with respect to the expected
                    type was found."))
+
+
+(define-condition JTM-error (error)
+  ((message :initarg :message
+	    :accessor message))
+  (:documentation "Thrown if any error occurs during JTM serialisation
+                   or deserialisation."))
