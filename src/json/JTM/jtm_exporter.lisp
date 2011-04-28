@@ -31,6 +31,8 @@
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
 	   (Integer revision))
+  (unless (get-all-identifiers-of-construct construct :revision revision)
+    (error (make-condition 'JTM-error :message (format nil "The topic ~a has no identifiers" construct))))
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes))))

@@ -19,6 +19,7 @@
    :unittests-constants
    :fixtures)
   (:export :test-create-prefixes
+	   :test-identifiers-to-jtm
 	   :test-topic-reference))
 
 
@@ -87,8 +88,8 @@
 				  (make-instance 'PersistentIdC
 						 :uri "http://some.where/example#psi-2")
 				  (make-instance 'PersistentIdC
-						 :uri "http://some.wherepexample#psi-3"))
-				 :item-idenitfiers
+						 :uri "http://some.where/example#psi-3"))
+				 :item-identifiers
 				 (list
 				  (make-instance 'ItemIdentifierC
 						 :uri "http://some.where/example#ii-2")
@@ -135,4 +136,133 @@
 		    :prefixes (list (list :pref "pref_1"
 					  :value "http://any.pref/example#psi-2")))
 		   "\"si:http:\\/\\/some.where\\/example#psi-2\"")))))
-				 
+
+
+(test test-identifiers-to-jtm
+  "Tests the function export-identifiers-to-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (let ((top-1 (make-construct 'TopicC
+				 :start-revision 100
+				 :psis
+				 (list
+				  (make-construct 'PersistentIdC
+						  :uri "http://some.where/example/psi-1"))))
+	  (top-2 (make-construct 'TopicC
+				 :start-revision 100
+				 :item-identifiers
+				 (list
+				  (make-construct 'ItemIdentifierC
+						  :uri "http://some.where/example/ii-1"))))
+	  (top-3 (make-construct 'TopicC
+				 :start-revision 100
+				 :locators
+				 (list
+				  (make-construct 'SubjectLocatorC
+						  :uri "http://some.where/example/sl-1"))))
+	  (top-5 (make-construct 'TopicC
+				 :start-revision 100
+				 :psis
+				 (list
+				  (make-instance 'PersistentIdC
+						 :uri "http://some.where/example#psi-2")
+				  (make-instance 'PersistentIdC
+						 :uri "http://some.where/example#psi-3"))
+				 :item-identifiers
+				 (list
+				  (make-instance 'ItemIdentifierC
+						 :uri "http://some.where/example#ii-2")
+				  (make-instance 'ItemIdentifierC
+						 :uri "http://some.where/example#ii-3"))
+				 :locators
+				 (list
+				  (make-instance 'SubjectLocatorC
+						 :uri "http://some.where/example#sl-2")
+				  (make-instance 'SubjectLocatorC
+						 :uri "http://some.where/example#sl-3"))))
+	  (name-1 (make-construct 'NameC
+				  :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct
+				    'ItemIdentifierC
+				    :uri "http://some.where/example/ii-5"))))
+	  (prefixes (list (list :pref "pref_1" :value "http://some.where/example#")
+			  (list :pref "pref_2" :value "http://some.where/")
+			  (list :pref "pref_3" :value "http://any.prefix/"))))
+      (is (string= (jtm::export-identifiers-to-jtm top-1 :revision 0
+						   :identifier-type 'PersistentIdC)
+		   "[\"http:\\/\\/some.where\\/example\\/psi-1\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-1 :revision 0
+						   :identifier-type 'PersistentIdC
+						   :prefixes prefixes)
+		   "[\"[pref_2:example\\/psi-1]\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-1 :revision 0
+						   :identifier-type 'SubjectLocatorC)
+		   "null"))
+      (is (string= (jtm::export-identifiers-to-jtm top-1 :revision 0)
+		   "null"))
+      (is (string= (jtm::export-identifiers-to-jtm top-2 :revision 0)
+		   "[\"http:\\/\\/some.where\\/example\\/ii-1\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-2 :revision 0
+						   :prefixes prefixes)
+		   "[\"[pref_2:example\\/ii-1]\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-2 :revision 0
+						   :identifier-type 'SubjectLocatorC)
+		   "null"))
+      (is (string= (jtm::export-identifiers-to-jtm top-2 :revision 0
+						   :identifier-type 'PersistentIdC)
+		   "null"))
+      (is (string= (jtm::export-identifiers-to-jtm top-3 :revision 0
+						   :identifier-type 'SubjectLocatorC)
+		   "[\"http:\\/\\/some.where\\/example\\/sl-1\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-3 :revision 0
+						   :identifier-type 'SubjectLocatorC
+						   :prefixes prefixes)
+		   "[\"[pref_2:example\\/sl-1]\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-3 :revision 0
+						   :identifier-type 'PersistentIdC)
+		   "null"))
+      (is (string= (jtm::export-identifiers-to-jtm top-3 :revision 0)
+		   "null"))
+      (signals exceptions:JTM-error
+	(jtm::export-identifiers-to-jtm top-3 :revision 0 :identifier-type 'AnyType))
+      (is (string= (jtm::export-identifiers-to-jtm top-5 :revision 0
+						   :identifier-type 'PersistentIdC)
+		   "[\"http:\\/\\/some.where\\/example#psi-2\",\"http:\\/\\/some.where\\/example#psi-3\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-5 :revision 0
+						   :identifier-type 'PersistentIdC
+						   :prefixes prefixes)
+		   "[\"[pref_1:psi-2]\",\"[pref_1:psi-3]\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-5 :revision 0
+						   :identifier-type 'SubjectLocatorC)
+		   "[\"http:\\/\\/some.where\\/example#sl-2\",\"http:\\/\\/some.where\\/example#sl-3\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-5 :revision 0
+						   :identifier-type 'SubjectLocatorC
+						   :prefixes prefixes)
+		   "[\"[pref_1:sl-2]\",\"[pref_1:sl-3]\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-5 :revision 0)
+		   "[\"http:\\/\\/some.where\\/example#ii-2\",\"http:\\/\\/some.where\\/example#ii-3\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm top-5 :revision 0
+						   :prefixes prefixes)
+		   "[\"[pref_1:ii-2]\",\"[pref_1:ii-3]\"]"))
+      
+      (is (string= (jtm::export-identifiers-to-jtm
+		    top-5 :revision 0
+		    :prefixes (list (list :pref "pref_1"
+					  :value "http://some.where/example#psi-2")))
+		   "[\"http:\\/\\/some.where\\/example#ii-2\",\"http:\\/\\/some.where\\/example#ii-3\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm
+		    top-5 :revision 0
+		    :prefixes (list (list :pref "pref_1"
+					  :value "http://any.pref/example#psi-2")))
+		   "[\"http:\\/\\/some.where\\/example#ii-2\",\"http:\\/\\/some.where\\/example#ii-3\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm name-1 :revision 0)
+		   "[\"http:\\/\\/some.where\\/example\\/ii-5\"]"))
+      (is (string= (jtm::export-identifiers-to-jtm name-1 :revision 0
+						   :prefixes prefixes)
+		   "[\"[pref_2:example\\/ii-5]\"]")))))
+
+
+;TODO: *export-type-..
+;      *export-scopes-...
+;      *export-reifier-...
