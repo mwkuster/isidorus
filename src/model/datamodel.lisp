@@ -3952,6 +3952,11 @@
     (when (and (TopicIdentificationC-p class-symbol)
 	       (not xtm-id))
       (error (make-missing-argument-condition (format nil "~axtm-id must be set" err) 'xtm-id 'make-pointer)))
+    (when (and uri (IdentifierC-p class-symbol))
+      (let ((existing-identifier
+	     (elephant:get-instance-by-value class-symbol 'uri uri)))
+	(when (and existing-identifier (not (typep existing-identifier class-symbol)))
+	  (error (make-duplicate-identifier-condition (format nil "From make-pointer(): cannot create ~a with the uri ~a, since the identifier ~a with this uri already exists (merging is only supported for identifiers of the same type)" class-symbol uri existing-identifier) uri)))))
     (let ((identifier
 	   (let ((existing-pointer
 		  (remove-if
