@@ -30,7 +30,7 @@
   "Exports a topic as JTM string."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (type (or Null Integer) revision))
+	   (Integer revision))
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes))))
@@ -79,16 +79,26 @@
   "Exports any given object of the type IdentifierC"
   (declare (Ignorable item-type-p parent-p revision prefixes-p)
 	   (List prefixes))
-  (let ((possible-prefix
-	 (when prefixes
-	   (loop for item in prefixes
-	      when (string-starts-with (uri construct) (getf item :value))
-	      return item))))
-    (if possible-prefix
-	(json:encode-json-to-string
-	 (concat "[" (getf possible-prefix :pref) ":"
-		 (subseq (uri construct) (length (getf possible-prefix :value)))))
-	(json:encode-json-to-string (uri construct)))))
+  (json:encode-json-to-string (identifier-to-curie construct :prefixes prefixes)))
+
+
+(defgeneric identifier-to-curie (construct &key prefixes)
+  (:documentation "Returns a string of the form [pref:identifier-suffix].
+                   If prefixes is empty the return value is the uri-string
+                   of the passed identifier.")
+  (:method ((construct IdentifierC) &key prefixes)
+    (declare (List prefixes))
+    (let ((possible-prefix
+	   (when prefixes
+	     (loop for item in prefixes
+		when (and (string-starts-with (uri construct) (getf item :value))
+			  (> (length (uri construct)) (length (getf item :value))))
+		return item))))
+      (if possible-prefix
+	  (concat "[" (getf possible-prefix :pref) ":"
+		  (subseq (uri construct) (length (getf possible-prefix :value)))
+		  "]")
+	  (uri construct)))))
 
 
 (defgeneric export-identifiers-to-jtm (construct &key identifier-type prefixes
@@ -99,7 +109,7 @@
 	    prefixes  (revision *TM-REVISION*))
     (declare (Symbol identifier-type)
 	     (List prefixes)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (let ((ids
 	   (funcall (cond ((eql identifier-type 'PersistentIdC)
 			   #'psis)
@@ -108,8 +118,8 @@
 			  ((eql identifier-type 'ItemIdentifierC)
 			   #'item-identifiers)
 			  (t
-			   (make-condition 'JTM-error
-					   :message (format nil "From export-identifiers-to-jtm(): identifier type must be one of 'PersistentIdC, 'ItemIdentifierC, or 'SubjectLocatorC, but is: ~a" identifier-type))))
+			   (error (make-condition 'JTM-error
+						  :message (format nil "From export-identifiers-to-jtm(): identifier type must be one of 'PersistentIdC, 'ItemIdentifierC, or 'SubjectLocatorC, but is: ~a" identifier-type)))))
 		    construct :revision revision)))
       (if ids
 	  (let ((values "["))
@@ -126,7 +136,7 @@
   "Exports any given object bof the type NameC"
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (type (or Null Integer) revision))       
+	   (Integer revision))       
   (let ((prefix-value (when prefixes-p
 		    (concat "\"prefixes\":"
 			    (export-prefix-list-to-jtm prefixes) "," )))
@@ -166,7 +176,7 @@
   (:method ((construct ReifiableConstructC) &key prefixes
 	    (revision *TM-REVISION*))
     (declare (List prefixes)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (if (reifier construct :revision revision)
 	(export-topic-reference-to-jtm
 	 (reifier construct :revision revision) :prefixes prefixes
@@ -200,10 +210,10 @@
 	    (revision *TM-REVISION*))
     (declare (List prefixes)
 	     (Boolean error-if-nil)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (let ((type (instance-of construct :revision revision)))
       (when (and error-if-nil (not type))
-	(make-condition 'JTM-error :message (format nil "From export-type-to-jtm(): the construct ~a is not bound to a type" construct)))
+	(error (make-condition 'JTM-error :message (format nil "From export-type-to-jtm(): the construct ~a is not bound to a type" construct))))
       (if type
 	  (export-topic-reference-to-jtm construct :prefixes prefixes
 					 :revision revision)
@@ -220,24 +230,26 @@
                    topic does not have any identifiers a JTM-error is thrown.")
   (:method ((construct TopicC) &key prefixes(revision *TM-REVISION*))
     (declare (List prefixes)
-	     (type (or Null Integer) revision))
-    (cond ((psis construct :revision revision)
-	   (concat "\"si:"
-		   (export-to-jtm (first (psis construct :revision revision))
-				  :prefixes prefixes)
-		   "\""))
-	  ((locators construct :revision revision)
-	   (concat "\"sl:"
-		   (export-to-jtm (first (locators construct :revision revision))
-				  :prefixes prefixes)
-		   "\""))
-	  ((item-identifiers construct :revision revision)
-	   (concat "\"ii:"
-		   (export-to-jtm (first (item-identifiers construct :revision revision))
-				  :prefixes prefixes)
-		   "\""))
-	  (t
-	   (make-condition 'JTM-error :message (format nil "From export-topic-reference-to-jtm(): the topic ~a has no identifiers" construct))))))
+	     (Integer revision))
+    (let ((result
+	   (cond ((psis construct :revision revision)
+		  (concat "si:"
+			  (identifier-to-curie
+			   (first (psis construct :revision revision))
+			   :prefixes prefixes)))
+		 ((locators construct :revision revision)
+		  (concat "sl:"
+			  (identifier-to-curie
+			   (first (locators construct :revision revision))
+			   :prefixes prefixes)))
+		 ((item-identifiers construct :revision revision)
+		  (concat "ii:"
+			  (identifier-to-curie
+			   (first (item-identifiers construct :revision revision))
+			   :prefixes prefixes)))
+		 (t
+		  (error (make-condition 'JTM-error :message (format nil "From export-topic-reference-to-jtm(): the topic ~a has no identifiers" construct)))))))
+      (json:encode-json-to-string result))))
 
 
 (defgeneric export-parent-reference-to-jtm (construct &key prefixes revision)
@@ -247,7 +259,7 @@
                    item-identifier of the parent is returned.")
   (:method ((construct ReifiableConstructC) &key prefixes (revision *TM-REVISION*))
     (declare (List prefixes)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (let ((parent
 	   (cond ((and (or (typep construct 'TopicC)
 			   (typep construct 'AssociationC))
@@ -257,13 +269,13 @@
 		      (typep construct 'RoleC))
 		  (parent construct :revision revision)))))
       (unless parent
-	(make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the passed construct ~a is not bound to parent" construct)))
+	(error (make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the passed construct ~a is not bound to parent" construct))))
       (if (typep parent 'TopicC)
 	  (export-topic-reference-to-jtm parent :prefixes prefixes
 					 :revision revision)
 	  (progn
 	    (unless (item-identifiers parent :revision revision)
-	      (make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the parent [~a] of the passed construct [~a] is not bound to an item-identifier" parent construct)))
+	      (error (make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the parent [~a] of the passed construct [~a] is not bound to an item-identifier" parent construct))))
 	    (concat "\"ii:"
 		    (export-to-jtm (first (item-identifiers parent :revision revision))
 				   :prefixes prefixes)
@@ -275,7 +287,7 @@
   "Exports any object of the type VariantC as JTM-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (type (or Null Integer) revision))       
+	   (Integer revision))       
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes) ",")))
@@ -310,7 +322,7 @@
 	    prefixes prefixes-p (revision *TM-REVISION*))
     (declare (Boolean item-type-p parent-p prefixes-p)
 	     (List prefixes)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (if (variants construct :revision revision)
 	(let ((result "["))
 	  (loop for var in (variants construct :revision revision)
@@ -331,7 +343,7 @@
 	    prefixes prefixes-p (revision *TM-REVISION*))
     (declare (Boolean item-type-p parent-p prefixes-p)
 	     (List prefixes)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (if (variants construct :revision revision)
 	(let ((result "["))
 	  (loop for name in (names construct :revision revision)
@@ -350,7 +362,7 @@
   "Exports any object of the type OccurrenceC as JTM-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (type (or Null Integer) revision))       
+	   (Integer revision))       
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes) ",")))
@@ -389,7 +401,7 @@
 	    prefixes prefixes-p (revision *TM-REVISION*))
     (declare (Boolean item-type-p parent-p prefixes-p)
 	     (List prefixes)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
     (if (occurrences construct :revision revision)
 	(let ((result "["))
 	  (loop for occ in (occurrences construct :revision revision)
@@ -425,7 +437,7 @@
   "Exports any object of type RoleC as JTM-role-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (type (or Null Integer) revision))
+	   (Integer revision))
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes) ",")))
@@ -449,7 +461,7 @@
 	(role-player
 	 (progn
 	   (unless (player construct :revision revision)
-	     (make-condition 'JTM-error :message "From export-to-jtm(): the role [~a] is not bound to a player" construct))
+	     (error (make-condition 'JTM-error :message "From export-to-jtm(): the role [~a] is not bound to a player" construct)))
 	   (concat "\"player\":"
 		   (export-topic-reference-to-jtm
 		    (player construct :revision revision) :prefixes prefixes
@@ -485,7 +497,7 @@
   "Exports any object of type AssociationC as JTM-association-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (type (or Null Integer) revision))
+	   (Integer revision))
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes) ",")))
@@ -521,7 +533,7 @@
 			  (parent-p nil) prefixes prefixes-p (revision 0))
   (declare (Boolean prefixes-p)
 	   (Ignorable parent-p item-type-p prefixes)
-	   (type (or Null Integer) revision))
+	   (Integer revision))
   (let* ((prefixes-list
 	  (create-prefix-list-of-fragment construct :revision revision))
 	 (prefixes-value (export-prefix-list-to-jtm prefixes-list))
@@ -545,7 +557,7 @@
   (:documentation "Returns a list of the following structure:
                    ((:pref 'pref_1' :value 'uri-pref') (...)).")
   (:method ((construct FragmentC) &key (revision *TM-REVISION*))
-    (declare (type (or Null Integer) revision))
+    (declare (Integer revision))
     (create-prefix-list (append (list (topic construct))
 				(referenced-topics construct))
 			(associations construct) nil :revision revision)))
@@ -556,7 +568,7 @@
   (:method ((topics List) &key prefixes parent-p (revision *TM-REVISION*))
     (declare (List prefixes)
 	     (Boolean parent-p)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
       (if topics
 	  (let ((result "["))
 	    (loop for top in topics
@@ -575,7 +587,7 @@
   (:method ((associations List) &key prefixes parent-p (revision *TM-REVISION*))
     (declare (List prefixes)
 	     (Boolean parent-p)
-	     (type (or Null Integer) revision))
+	     (Integer revision))
       (if associations
 	  (let ((result "["))
 	    (loop for assoc in associations

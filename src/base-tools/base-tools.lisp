@@ -542,19 +542,19 @@
       (let ((pos-#
 	     (let ((val (search-first (list "#") prepared-after-scheme :from-end t)))
 	       (when val
-		 (+ val (- (length uri) (length prepared-after-scheme))))))
+		 (+ val (- (length uri) (length after-scheme))))))
 	    (pos-/
 	     (let ((val (search-first (list "/") prepared-after-scheme :from-end t)))
 	       (when val
-		 (+ val (- (length uri) (length prepared-after-scheme)))))))
-      	(cond ((and pos-# pos-/)
+		 (+ val (- (length uri) (length after-scheme)))))))
+	(cond ((and pos-# pos-/)
 	       (if (> pos-# pos-/)
-		   (subseq uri 0 pos-#)
-		   (subseq uri 0 (1- pos-/))))
+		   (subseq uri 0 (1+ pos-#))
+		   (subseq uri 0 (1+ pos-/))))
 	      (pos-#
-	       (subseq uri 0 pos-#))
+	       (subseq uri 0 (1+ pos-#)))
 	      (pos-/
-	       (subseq uri 0 (1- pos-/))))))))
+	       (subseq uri 0 (1+ pos-/))))))))
 
 
 (defun cut-uri-end (uri)

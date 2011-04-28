@@ -8,7 +8,8 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :jtm
-  (:use :cl :json :datamodel :base-tools :isidorus-threading)
+  (:use :cl :json :datamodel :base-tools :isidorus-threading
+	:constants :exceptions)
   (:export :import-from-jtm
 	   :export-as-jtm
 	   :export-as-jtm-string))
@@ -38,7 +39,7 @@
    jtm-format must be set either to '1.0 or '1.1."
   (declare (type (or Null String) tm-id)
 	   (Symbol jtm-format)
-	   (type (or Null Integer) revision))
+	   (Integer revision))
   (with-reader-lock
     (let ((tm 
 	   (when tm-id
@@ -86,34 +87,35 @@
    export-as-jtm-string."
   (declare (type (or Null String) jtm-path tm-id)
 	   (Symbol jtm-format)
-	   (type (or Null Integer) revision))
+	   (Integer revision))
   (with-open-file (stream jtm-path :direction :output)
     (format stream (export-as-jtm-string :tm-id tm-id :revision revision
 					 :jtm-format jtm-format))))
 
 
-(defun create-prefix-list (topics associations topic-map &key revision)
+(defun create-prefix-list (topics associations topic-map &key
+			   (revision *TM-REVISION*))
   "Returns a list of the following structure: ((:pref 'pref_1'
    :value 'uri-pref') (...))."
   (declare (List topics associations)
-	   (TopicMapC topic-map)
-	   (type (or Null Integer)))
+	   (type (or Null TopicMapC) topic-map)
+	   (Integer revision))
   (let ((identifiers
 	 (append (loop for topic in topics
 		    append
 		      (append
-		       (item-identifiers topic :revision revision)
-		       (locators topic :revision revision)
-		       (item-identifiers topic :revision revision)
+		       (get-all-identifiers-of-construct topic :revision revision)
 		       (loop for name in (names topic :revision revision)
 			  append (append
 				  (item-identifiers name :revision revision)
 				  (loop for variant in
 				       (variants name :revision revision)
-				     append (item-identifiers
-					     variant :revision revision))))
-		       (loop for occurrence in (occurrences topic :revision revision)
-			  append (item-identifiers occurrence :revision revision))))
+				     append (append
+					     (item-identifiers
+					      variant :revision revision)))))
+		       (loop for occ in (occurrences topic :revision revision)
+			  append (append
+				  (item-identifiers occ :revision revision)))))
 		 (loop for assoc in associations
 		    append (append
 			    (item-identifiers assoc :revision revision)
@@ -126,9 +128,14 @@
 	    (remove-null (map 'list  #'(lambda(id)
 					 (prefix-of-uri (uri id)))
 			      identifiers)) :test #'string=)))
-      (loop for idx to (length prefixes)
-	 collect (list :pref (concat "pref_" (write-to-string (1+ idx)))
-		       :value (elt prefixes idx))))))
+      (let ((result
+	     (append
+	      (loop for idx to (1- (length prefixes))
+		 collect (list :pref (concat "pref_" (write-to-string (1+ idx)))
+			       :value (elt prefixes idx)))
+	      (list (list :pref "xsd" :value *xsd-ns*)))))
+	(sort result #'(lambda(x y)
+			 (> (length (getf x :value)) (length (getf y :value)))))))))
 
 
 (defun export-prefix-list-to-jtm (prefix-list)

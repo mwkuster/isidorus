@@ -68,7 +68,8 @@
 	   :*tm2rdf-associationtype-property*
 	   :*tm2rdf-player-property*
 	   :*rdf2tm-blank-node-prefix*
-	   :*tm2rdf-reifier-property*))
+	   :*tm2rdf-reifier-property*
+	   :*xsd-ns*))
 	   
 
 (in-package :constants)
@@ -191,3 +192,5 @@
 (defparameter *tm2rdf-player-property* (concat *tm2rdf-ns* "player"))
 
 (defparameter *tm2rdf-reifier-property* (concat *tm2rdf-ns* "reifier"))
+
+(defparameter *xsd-ns* "http://www.w3.org/2001/XMLSchema#")
