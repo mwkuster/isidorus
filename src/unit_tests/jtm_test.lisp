@@ -26,7 +26,8 @@
 	   :run-jtm-tests
 	   :test-instance-ofs-to-jtm
 	   :test-export-to-jtm-variant
-	   :test-export-to-jtm-name))
+	   :test-export-to-jtm-name
+	   :test-export-to-jtm-occurrence))
 
 
 (in-package :jtm-test)
@@ -610,6 +611,54 @@
       (is (string= jtm-str-2
 		   "{\"version\":\"1.0\",\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"item_type\":\"name\",\"scope\":null,\"variants\":null,\"reifier\":null}")))))
 
+
+
+(test test-export-to-jtm-occurrence
+  "Tests the function export-to-jtm bound to NameC and the function
+   export-construct-as-jtm-string also bound to NameC."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((top-1 (make-construct 'TopicC :start-revision 100
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/psi-1"))))
+	   (top-2 (make-construct 'TopicC :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-1"))))
+	   (occ-1 (make-construct 'OccurrenceC :start-revision 100
+				   :item-identifiers
+				   (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-2"))
+				   :themes (list top-1)
+				   :instance-of top-2
+				   :reifier top-3
+				   :charvalue "occ-1"
+				   :parent top-1))
+	   (occ-2 (make-construct 'OccurrenceC :start-revision 100
+				   :charvalue "http://any.uri"
+				   :datatype *xml-uri*
+				   :instance-of top-1))
+	   (jtm-1 (jtm::export-to-jtm occ-1 :item-type-p nil :revision 0))
+	   (jtm-2 (jtm::export-to-jtm occ-2 :item-type-p nil :revision 0))
+	   (jtm-str-1 (export-construct-as-jtm-string occ-1 :revision 0))
+	   (jtm-str-2 (export-construct-as-jtm-string
+		       occ-2 :jtm-format :1.0 :parent-p nil :revision 0)))
+      (is (string= jtm-1
+		   (concat "{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-2\"],\"datatype\":" (json:encode-json-to-string *xml-string* ) ",\"type\":\"sl:http:\\/\\/some.where\\/sl-1\",\"value\":\"occ-1\",\"scope\":[\"si:http:\\/\\/some.where\\/psi-1\"],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-1\"}")))
+      (is (string= jtm-2
+		   (concat "{\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-uri* ) ",\"type\":\"si:http:\\/\\/some.where\\/psi-1\",\"value\":\"http:\\/\\/any.uri\",\"scope\":null,\"reifier\":null}")))
+      (is (string= jtm-str-1
+		   (concat "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_1:ii-2]\"],\"datatype\":" (json:encode-json-to-string *xml-string* ) ",\"type\":\"sl:[pref_1:sl-1]\",\"value\":\"occ-1\",\"item_type\":\"occurrence\",\"parent\":[\"si:[pref_1:psi-1]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":\"ii:[pref_1:ii-1]\"}")))
+      (is (string= jtm-str-2
+		   (concat "{\"version\":\"1.0\",\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-uri* ) ",\"type\":\"si:http:\\/\\/some.where\\/psi-1\",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"occurrence\",\"scope\":null,\"reifier\":null}"))))))
 
 
 (defun run-jtm-tests()
