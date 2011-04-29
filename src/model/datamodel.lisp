@@ -3340,7 +3340,7 @@
     (let ((merged-reifier-topic
 	   (if (reifier construct :revision revision)
 	       (merge-constructs (reifier construct :revision revision)
-				 reifier-topic)
+				 reifier-topic :revision revision)
 	       reifier-topic)))
       (let ((all-constructs (map 'list #'reifiable-construct
 				 (slot-p reifier-topic 'reified-construct))))
@@ -3349,7 +3349,8 @@
 		 (let ((merged-reified
 			(merge-constructs
 			 (reified-construct merged-reifier-topic
-					    :revision revision) construct)))
+					    :revision revision) construct
+					    :revision revision)))
 		   (setf merged-construct merged-reified)))
 		((find construct all-constructs)
 		 (let ((reifier-assoc
@@ -4114,7 +4115,7 @@
 	       merged-reified))
 	    (source-reified
 	     (private-delete-reifier source source-reified :revision revision)
-	     (add-reifier  source-reified destination :revision revision)
+	     (add-reifier source-reified destination :revision revision)
 	     source-reified)
 	    (destination-reified
 	     (add-reifier destination-reified destination :revision revision)
@@ -4202,27 +4203,28 @@
 			     (used-as-theme older-topic :revision revision)
 			     (player-in-roles older-topic :revision revision)))
     (let ((parent (when (or (typep construct 'RoleC)
-			    (typep construct 'CharacteristicC))
+			  (typep construct 'CharacteristicC))
 		    (parent construct :revision revision))))
-      (let ((all-other (cond ((typep construct 'OccurrenceC)
-			      (occurrences parent :revision revision))
-			     ((typep construct 'NameC)
-			      (names parent :revision revision))
-			     ((typep construct 'VariantC)
-			      (variants parent :revision revision))
-			     ((typep construct 'RoleC)
-			      (roles parent :revision revision)))))
-	(let ((all-equivalent
-	       (remove-if
-		#'null
-		(map 'list #'(lambda(other)
-			       (when (strictly-equivalent-constructs
-				      construct other :revision revision)
-				 other))
-		     all-other))))
-	  (when all-equivalent
-	    (merge-all-constructs (append all-equivalent (list construct))
-				  :revision revision))))))
+      (when parent
+	(let ((all-other (cond ((typep construct 'OccurrenceC)
+				(occurrences parent :revision revision))
+			       ((typep construct 'NameC)
+				(names parent :revision revision))
+			       ((typep construct 'VariantC)
+				(variants parent :revision revision))
+			       ((typep construct 'RoleC)
+				(roles parent :revision revision)))))
+	  (let ((all-equivalent
+		 (remove-if
+		  #'null
+		  (map 'list #'(lambda(other)
+				 (when (strictly-equivalent-constructs
+					construct other :revision revision)
+				   other))
+		       all-other))))
+	    (when all-equivalent
+	      (merge-all-constructs (append all-equivalent (list construct))
+				    :revision revision)))))))
   (merge-changed-associations older-topic :revision revision))
   
 
@@ -4396,7 +4398,7 @@
 	    (add-to-tm tm older-assoc))
 	  (private-delete-type newer-assoc (instance-of newer-assoc :revision revision)
 		       :revision revision)
-	  (move-referenced-constructs newer-assoc older-assoc)
+	  (move-referenced-constructs newer-assoc older-assoc :revision revision)
 	  (dolist (newer-role (roles newer-assoc :revision revision))
 	    (let ((equivalent-role
 		   (find-if #'(lambda(older-role)

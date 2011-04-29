@@ -247,6 +247,7 @@
        :tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"
        :xtm-id "reification-xtm"
        :xtm-format '1.0)
+      (setf *TM-REVISION* 0)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
       (let ((homer
@@ -313,6 +314,7 @@
        :xtm-id "reification-xtm")
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+      (setf *TM-REVISION* 0)
       (let ((homer
 	     (identified-construct
 	      (elephant:get-instance-by-value 'PersistentIdC 'uri "http://simpsons.tv/homer")))
@@ -376,6 +378,7 @@
     (with-fixture initialize-destination-db (dir)
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
+      (setf *TM-REVISION* 0)
       (xml-importer:import-xtm *reification_xtm1.0.xtm* dir
        :tm-id tm-id
        :xtm-id "reification-xtm"
@@ -467,6 +470,7 @@
     (with-fixture initialize-destination-db (dir)
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
+      (setf *TM-REVISION* 0)
       (xml-importer:import-xtm *reification_xtm2.0.xtm* dir
        :tm-id tm-id
        :xtm-id "reification-xtm")
@@ -552,6 +556,7 @@
 		 "<arcs:arc4 rdf:resource=\"fifth-node\" />"
 		 "</rdf:Description>"
 		 "</rdf:RDF>")))
+    (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
     (let ((dom-1 (cxml:parse doc-1 (cxml-dom:make-dom-builder))))
       (is-true dom-1)
@@ -637,6 +642,7 @@
 	(tm-id "http://test-tm/")
 	(revision-1 100)
 	(document-id "doc-id"))
+    (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
     (rdf-importer:rdf-importer
      *reification.rdf* db-dir :tm-id tm-id
@@ -669,6 +675,7 @@
 	(tm-id "http://test-tm/")
 	(revision-1 100)
 	(document-id "doc-id"))
+    (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
     (rdf-importer:rdf-importer
      *reification.rdf* db-dir :tm-id tm-id
@@ -707,6 +714,7 @@
 	(tm-id "http://test-tm/")
 	(revision-1 100)
 	(document-id "doc-id"))
+    (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
     (rdf-importer:rdf-importer
      *reification.rdf* db-dir :tm-id tm-id
@@ -744,6 +752,7 @@
       ((dir "data_base")
        (output-file "__out__.rdf")
        (tm-id "http://simpsons.tv"))
+    (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
@@ -816,6 +825,7 @@
       ((dir "data_base")
        (output-file "__out__.rdf")
        (tm-id "http://simpsons.tv"))
+    (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
@@ -878,6 +888,7 @@
       ((dir "data_base")
        (output-file "__out__.rdf")
        (tm-id "http://simpsons.tv"))
+    (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
@@ -912,6 +923,7 @@
       ((dir "data_base")
        (output-file "__out__.rdf")
        (tm-id "http://simpsons.tv"))
+    (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
@@ -969,6 +981,7 @@
       ((dir "data_base")
        (output-file "__out__.rdf")
        (tm-id "http://simpsons.tv"))
+    (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)

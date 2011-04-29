@@ -14,6 +14,21 @@
 	   :export-as-jtm
 	   :export-as-jtm-string))
 
+
+;TODO: implement: *export-topic-as-jtm-string
+;                 *export-topic-as-jtm
+;                 *export-association-as-jtm-string
+;                 *export-association-as-jtm
+;                 *export-name-as-jtm-string
+;                 *export-name-as-jtm
+;                 *export-variant-as-jtm-string
+;                 *export-variant-as-jtm
+;                 *export-occurrence-as-jtm-string
+;                 *export-occurrence-as-jtm
+;                 *export-role-as-jtm-string
+;                 *export-role-as-jtm
+; export-all the named functions
+
 (in-package :jtm)
 
 (defvar *jtm-xtm* "jtm-xtm"); Represents the currently active TM of the JTM-Importer

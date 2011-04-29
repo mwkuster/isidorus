@@ -217,8 +217,7 @@
       (when (and error-if-nil (not type))
 	(error (make-condition 'JTM-error :message (format nil "From export-type-to-jtm(): the construct ~a is not bound to a type" construct))))
       (if type
-	  (export-topic-reference-to-jtm construct :prefixes prefixes
-					 :revision revision)
+	  (export-topic-reference-to-jtm type :prefixes prefixes :revision revision)
 	  "null"))))
 
 
