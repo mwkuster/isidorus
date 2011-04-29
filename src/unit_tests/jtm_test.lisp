@@ -20,7 +20,8 @@
    :fixtures)
   (:export :test-create-prefixes
 	   :test-identifiers-to-jtm
-	   :test-topic-reference))
+	   :test-topic-reference
+	   :test-type-scopes-reifier-to-jtm))
 
 
 (in-package :jtm-test)
@@ -263,6 +264,75 @@
 		   "[\"[pref_2:example\\/ii-5]\"]")))))
 
 
-;TODO: *export-type-..
-;      *export-scopes-...
-;      *export-reifier-...
+
+(test test-type-scopes-reifier-to-jtm
+  "Tests the functions export-type-to-jtm, export-scopes-to-jtm,
+   and export-reifier-to-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((top-1 (make-construct 'TopicC
+				  :start-revision 100
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/example/psi-1"))))
+	   (top-2 (make-construct 'TopicC
+				  :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/example/sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100))
+	   (name-1 (make-construct 'NameC :start-revision 100
+				   :charvalue "name-1"
+				   :instance-of top-1))
+	   (name-2 (make-construct 'NameC :start-revision 100
+				   :charvalue "name-2"))
+	   (name-3 (make-construct 'NameC :start-revision 100
+				   :charvalue "name-3"
+				   :instance-of top-3))
+	   (occ-1 (make-construct 'OccurrenceC :start-revision 100
+				  :charvalue "occ-1"
+				  :themes (list top-1 top-2)))
+	   (occ-2 (make-construct 'OccurrenceC :start-revision 100
+				  :charvalue (list top-1 top-2)))
+	   (occ-3 (make-construct 'OccurrenceC :start-revision 100
+				  :charvalue "occ-3"
+				  :themes (list top-1 top-3 top-2)))
+	   (assoc-1 (make-construct 'AssociationC :start-revision 100
+				    :reifier top-1))
+	   (name-4 (make-construct 'NameC :start-revision 100
+				   :charvalue "name-4"))
+	   (occ-4 (make-construct 'OccurrenceC :start-revision 100
+				  :charvalue "occ-4"
+				  :reifier top-3))
+	   (prefixes (list (list :pref "pref_1" :value "http://some.where/example/"))))
+      (is (string= (jtm::export-type-to-jtm name-1 :revision 0)
+		   "\"si:http:\\/\\/some.where\\/example\\/psi-1\""))
+      (is (string= (jtm::export-type-to-jtm name-1 :revision 0 :prefixes prefixes)
+		   "\"si:[pref_1:psi-1]\""))
+      (is (string= (jtm::export-type-to-jtm name-2 :revision 0 :prefixes prefixes
+					    :error-if-nil nil)
+		   "null"))
+      (signals exceptions:JTM-error (jtm::export-type-to-jtm name-3 :revision 0))
+      (is (or (string= (jtm::export-scopes-to-jtm occ-1 :revision 0)
+		       "[\"si:http:\\/\\/some.where\\/example\\/psi-1\",\"sl:http:\\/\\/some.where\\/example\\/sl-1\"]")
+	      (string= (jtm::export-scopes-to-jtm occ-1 :revision 0)
+		       "[\"sl:http:\\/\\/some.where\\/example\\/sl-1\",\"si:http:\\/\\/some.where\\/example\\/psi-1\"]")))
+      (is (or (string= (jtm::export-scopes-to-jtm occ-1 :revision 0
+						  :prefixes prefixes)
+		       "[\"si:[pref_1:psi-1]\",\"sl:[pref_1:sl-1]\"]")
+	      (string= (jtm::export-scopes-to-jtm occ-1 :revision 0
+						  :prefixes prefixes)
+		       "[\"sl:[pref_1:sl-1]\",\"si:[pref_1:psi-1]\"]")))
+      (is (string= (jtm::export-scopes-to-jtm occ-2 :revision 0)
+		   "null"))
+      (signals exceptions:JTM-error (jtm::export-scopes-to-jtm occ-3 :revision 0))
+      (is (string= (jtm::export-reifier-to-jtm assoc-1 :revision 0)
+		   "\"si:http:\\/\\/some.where\\/example\\/psi-1\""))
+      (is (string= (jtm::export-reifier-to-jtm name-4 :revision 0)
+		   "null"))
+      (signals exceptions::JTM-error (jtm::export-reifier-to-jtm occ-4 :revision 0)))))
+
+
+;TODO: *export-parent-reference-to-jtm
+;      *export-instance-ofs
