@@ -36,7 +36,7 @@
     (error (make-condition 'JTM-error :message (format nil "The topic ~a has no identifiers" construct))))
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
-				(export-prefix-list-to-jtm prefixes))))
+				(export-prefix-list-to-jtm prefixes) ",")))
 	(top-psis
 	 (concat "\"subject_identifiers\":"
 		 (export-identifiers-to-jtm
@@ -67,12 +67,12 @@
 	 (concat "\"names\":"
 		 (export-names-to-jtm
 		  construct :item-type-p nil :prefixes prefixes
-		  :prefixes-p prefixes-p :revision revision) ","))
+		  :prefixes-p nil :revision revision) ","))
 	(top-occs
 	 (concat "\"occurrences\":"
 		 (export-occurrences-to-jtm
 		  construct :item-type-p nil :prefixes prefixes
-		  :prefixes-p prefixes-p :revision revision))))
+		  :prefixes-p nil :revision revision))))
     (concat "{" prefix-value top-psis top-sls top-iis instance-ofs item-type
 	    top-parent top-names top-occs "}")))
 
@@ -364,7 +364,7 @@
     (declare (Boolean item-type-p parent-p prefixes-p)
 	     (List prefixes)
 	     (Integer revision))
-    (if (variants construct :revision revision)
+    (if (names construct :revision revision)
 	(let ((result "["))
 	  (loop for name in (names construct :revision revision)
 	     do (push-string

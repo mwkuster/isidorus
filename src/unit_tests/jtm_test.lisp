@@ -27,7 +27,8 @@
 	   :test-instance-ofs-to-jtm
 	   :test-export-to-jtm-variant
 	   :test-export-to-jtm-name
-	   :test-export-to-jtm-occurrence))
+	   :test-export-to-jtm-occurrence
+	   :test-export-to-jtm-topic))
 
 
 (in-package :jtm-test)
@@ -614,8 +615,8 @@
 
 
 (test test-export-to-jtm-occurrence
-  "Tests the function export-to-jtm bound to NameC and the function
-   export-construct-as-jtm-string also bound to NameC."
+  "Tests the function export-to-jtm bound to OccurrenceC and the function
+   export-construct-as-jtm-string also bound to OccurrenceC."
   (with-fixture with-empty-db ("data_base")
     (let* ((top-1 (make-construct 'TopicC :start-revision 100
 				  :psis
@@ -660,6 +661,118 @@
       (is (string= jtm-str-2
 		   (concat "{\"version\":\"1.0\",\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-uri* ) ",\"type\":\"si:http:\\/\\/some.where\\/psi-1\",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"occurrence\",\"scope\":null,\"reifier\":null}"))))))
 
+
+(test test-export-to-jtm-topic
+  "Tests the function export-to-jtm bound to TopicC and the function
+   export-construct-as-jtm-string also bound to TopicC."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((top-1 (make-construct 'TopicC :start-revision 100
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/psi-1")
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/psi-2"))
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-4"))
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/sl-2"))))
+	   (top-2 (make-construct 'TopicC :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-1"))))
+	   (occ-1 (make-construct 'OccurrenceC :start-revision 100
+				   :item-identifiers
+				   (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-2"))
+				   :themes (list top-1)
+				   :instance-of top-2
+				   :reifier top-3
+				   :charvalue "occ-1"
+				   :parent top-1))
+	   (occ-2 (make-construct 'OccurrenceC :start-revision 100
+				   :charvalue "http://any.uri"
+				   :datatype *xml-uri*
+				   :instance-of top-1
+				   :parent top-1))
+	   (name-1 (make-construct 'NameC :start-revision 100
+				   :charvalue "name-1"
+				   :parent top-1))
+	   (var-1 (make-construct 'VariantC :start-revision 100
+				  :themes (list top-2 top-3)
+				  :charvalue "var-1"))
+	   (name-2 (make-construct 'NameC :start-revision 100
+				   :charvalue  "name-2"
+				   :themes (list top-2 top-3)
+				   :variants (list var-1)
+				   :parent top-1))
+	   (tm (make-construct 'TopicMapC :start-revision 100
+			       :item-identifiers
+			       (list
+				(make-construct 'ItemIdentifierC
+						:uri "http://some.where/ii-3"))))
+	   (tt (make-construct 'TopicC :start-revision 100
+			       :psis
+			       (list
+				(make-construct 'PersistentIdC :start-revision 100
+						:uri *type-psi*))))
+	   (it (make-construct 'TopicC :start-revision 100
+			       :psis
+			       (list
+				(make-construct 'PersistentIdC :start-revision 100
+						:uri *instance-psi*))))
+	   (tit (make-construct 'TopicC :start-revision 100
+				:psis
+				(list
+				 (make-construct 'PersistentIdC :start-revision 100
+						 :uri *type-instance-psi*))))
+	   (jtm-1 (jtm::export-to-jtm top-1 :item-type-p nil :revision 0))
+	   (jtm-str-1 (export-construct-as-jtm-string
+			   top-1 :revision 0 :parent-p nil))
+	   (jtm-2 (progn
+		    (add-to-tm tm top-1)
+		    (make-construct 'AssociationC :start-revision 100
+				    :instance-of tit
+				    :roles (list (list :player top-1
+						       :start-revision 100
+						       :instance-of it)
+						 (list :player top-2
+						       :start-revision 100
+						       :instance-of tt)))
+		    (make-construct 'AssociationC :start-revision 100
+				    :instance-of tit
+				    :roles (list (list :player top-1
+						       :start-revision 100
+						       :instance-of it)
+						 (list :player top-3
+						       :start-revision 100
+						       :instance-of tt)))
+		    (jtm::export-to-jtm top-1 :item-type-p nil :revision 0)))
+	   (jtm-str-2 (export-construct-as-jtm-string
+		       top-1 :jtm-format :1.0 :revision 0))
+	   (prefixes (list (list :pref "pref_1" :value *xsd-ns*)
+			   (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_2" :value "http://some.where/"))))
+      (or occ-1 occ-2 name-1 name-2) ;only to avoid compilation warnings
+      (is (string= jtm-1
+		   (concat "{\"subject_identifiers\":[\"http:\\/\\/some.where\\/psi-1\",\"http:\\/\\/some.where\\/psi-2\"],\"subject_locators\":[\"http:\\/\\/some.where\\/sl-2\"],\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-4\"],\"instance_of\":null,\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "]}")))
+      (is (string= jtm-2
+		   (concat "{\"subject_identifiers\":[\"http:\\/\\/some.where\\/psi-1\",\"http:\\/\\/some.where\\/psi-2\"],\"subject_locators\":[\"http:\\/\\/some.where\\/sl-2\"],\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-4\"],\"instance_of\":[\"sl:http:\\/\\/some.where\\/sl-1\",\"ii:http:\\/\\/some.where\\/ii-1\"],\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "]}")))
+      (is (string= jtm-str-1
+		   (concat "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"subject_identifiers\":[\"[pref_2:psi-1]\",\"[pref_2:psi-2]\"],\"subject_locators\":[\"[pref_2:sl-2]\"],\"item_identifiers\":[\"[pref_2:ii-4]\"],\"instance_of\":null,\"item_type\":\"topic\",\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "]}")))
+      (is (string= jtm-str-2
+		   (concat "{\"version\":\"1.0\",\"subject_identifiers\":[\"http:\\/\\/some.where\\/psi-1\",\"http:\\/\\/some.where\\/psi-2\"],\"subject_locators\":[\"http:\\/\\/some.where\\/sl-2\"],\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-4\"],\"instance_of\":[\"sl:http:\\/\\/some.where\\/sl-1\",\"ii:http:\\/\\/some.where\\/ii-1\"],\"item_type\":\"topic\",\"parent\":[\"ii:http:\\/\\/some.where\\/ii-3\"],\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "]}"))))))
 
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."
