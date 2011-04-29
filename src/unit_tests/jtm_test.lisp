@@ -23,7 +23,8 @@
 	   :test-topic-reference
 	   :test-type-scopes-reifier-to-jtm
 	   :test-parent-reference-to-jtm
-	   :run-jtm-tests))
+	   :run-jtm-tests
+	   :test-instance-ofs-to-jtm))
 
 
 (in-package :jtm-test)
@@ -424,7 +425,80 @@
 		   "\"ii:[pref_1:ii-3]\"")))))
 
 
-;TODO: *export-instance-ofs
+(test test-instance-ofs-to-jtm
+  "Tests the function export-instance-ofs-to-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((top-1 (make-construct 'TopicC :start-revision 100
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/example#psi-1"))))
+	   (top-2 (make-construct 'TopicC :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/example#sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/example#ii-1"))))
+	   (top-4 (make-construct 'TopicC :start-revision 100))
+	   (top-5 (make-construct 'TopicC :start-revision 100))
+       	   (tit (make-construct 'TopicC :start-revision 100
+				:psis (list (make-construct
+					     'PersistentIdC
+					     :uri *type-instance-psi*))))
+	   (it (make-construct 'TopicC :start-revision 100
+			       :psis (list (make-construct 'PersistentIdC
+							   :uri *instance-psi*))))
+	   (tt (make-construct 'TopicC :start-revision 100
+			       :psis (list (make-construct 'PersistentIdC
+							   :uri *type-psi*))))
+	   (prefixes (list (list :pref "pref_1" :value "http://some.where/"))))
+      (make-construct 'AssociationC :start-revision 100
+		      :roles (list (list :player top-1 :instance-of tt
+					 :start-revision 100)
+				   (list :player top-4 :instance-of it
+					 :start-revision 100))
+		      :instance-of tit)
+      (make-construct 'AssociationC :start-revision 100
+		      :roles (list (list :player top-2 :instance-of tt
+					 :start-revision 100)
+				   (list :player top-4 :instance-of it
+					 :start-revision 100))
+		      :instance-of tit)
+      (make-construct 'AssociationC :start-revision 100
+		      :roles (list (list :player top-3 :instance-of tt
+					 :start-revision 100)
+				   (list :player top-5 :instance-of it
+					 :start-revision 100))
+		      :instance-of tit)
+      (setf *TM-REVISION* 0)
+      (is (string= (jtm::export-instance-ofs-to-jtm top-5)
+		   "[\"ii:http:\\/\\/some.where\\/example#ii-1\"]"))
+      (is (string= (jtm::export-instance-ofs-to-jtm top-5 :prefixes prefixes)
+		   "[\"ii:[pref_1:example#ii-1]\"]"))
+      (is (string= (jtm::export-instance-ofs-to-jtm top-1)
+		   "null"))
+      (is (or (string= (jtm::export-instance-ofs-to-jtm top-4)
+		       "[\"si:http:\\/\\/some.where\\/example#psi-1\",\"sl:http:\\/\\/some.where\\/example#sl-1\"]")
+	      (string= (jtm::export-instance-ofs-to-jtm top-4)
+		       "[\"sl:http:\\/\\/some.where\\/example#sl-1\",\"si:http:\\/\\/some.where\\/example#psi-1\"]")))
+      (is (or (string= (jtm::export-instance-ofs-to-jtm top-4 :prefixes prefixes)
+		       "[\"si:[pref_1:example#psi-1]\",\"sl:[pref_1:example#sl-1]\"]")
+	      (string= (jtm::export-instance-ofs-to-jtm top-4 :prefixes prefixes)
+		       "[\"sl:[pref_1:example#sl-1]\",\"si:[pref_1:example#psi-1]\"]")))
+      (make-construct 'AssociationC :start-revision 100
+		      :roles (list (list :player top-4 :instance-of tt
+					 :start-revision 100)
+				   (list :player top-5 :instance-of it
+					 :start-revision 100))
+		      :instance-of tit)
+      (signals exceptions:JTM-error (jtm::export-instance-ofs-to-jtm top-5)))))
+
+
+
 
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."
