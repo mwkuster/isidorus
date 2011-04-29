@@ -28,7 +28,8 @@
 	   :test-export-to-jtm-variant
 	   :test-export-to-jtm-name
 	   :test-export-to-jtm-occurrence
-	   :test-export-to-jtm-topic))
+	   :test-export-to-jtm-topic
+	   :test-export-to-jtm-role))
 
 
 (in-package :jtm-test)
@@ -714,7 +715,7 @@
 				  :charvalue "var-1"))
 	   (name-2 (make-construct 'NameC :start-revision 100
 				   :charvalue  "name-2"
-				   :themes (list top-2 top-3)
+				   :themes (list top-2)
 				   :variants (list var-1)
 				   :parent top-1))
 	   (tm (make-construct 'TopicMapC :start-revision 100
@@ -772,7 +773,66 @@
       (is (string= jtm-str-1
 		   (concat "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"subject_identifiers\":[\"[pref_2:psi-1]\",\"[pref_2:psi-2]\"],\"subject_locators\":[\"[pref_2:sl-2]\"],\"item_identifiers\":[\"[pref_2:ii-4]\"],\"instance_of\":null,\"item_type\":\"topic\",\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes :prefixes-p nil) "]}")))
       (is (string= jtm-str-2
-		   (concat "{\"version\":\"1.0\",\"subject_identifiers\":[\"http:\\/\\/some.where\\/psi-1\",\"http:\\/\\/some.where\\/psi-2\"],\"subject_locators\":[\"http:\\/\\/some.where\\/sl-2\"],\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-4\"],\"instance_of\":[\"sl:http:\\/\\/some.where\\/sl-1\",\"ii:http:\\/\\/some.where\\/ii-1\"],\"item_type\":\"topic\",\"parent\":[\"ii:http:\\/\\/some.where\\/ii-3\"],\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "]}"))))))
+		   (concat "{\"version\":\"1.0\",\"subject_identifiers\":[\"http:\\/\\/some.where\\/psi-1\",\"http:\\/\\/some.where\\/psi-2\"],\"subject_locators\":[\"http:\\/\\/some.where\\/sl-2\"],\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-4\"],\"item_type\":\"topic\",\"parent\":[\"ii:http:\\/\\/some.where\\/ii-3\"],\"names\":[" (jtm::export-to-jtm (first (names top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (names top-1 :revision 0)) :item-type-p nil :revision 0) "],\"occurrences\":[" (jtm::export-to-jtm (first (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "," (jtm::export-to-jtm (second (occurrences top-1 :revision 0)) :item-type-p nil :revision 0) "]}"))))))
+
+
+(test test-export-to-jtm-role
+  "Tests the function export-to-jtm bound to RoleC and the function
+   export-construct-as-jtm-string also bound to RoleC."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((top-1 (make-construct 'TopicC :start-revision 100
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/psi-1"))))
+	   (top-2 (make-construct 'TopicC :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-1"))))
+	   (top-4 (make-construct 'TopicC :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/sl-2"))))
+	   (assoc-1 (make-construct 'AssociationC :start-revision 100
+				    :item-identifiers
+				    (list
+				     (make-construct 'ItemIdentifierC
+						     :uri "http://some.where/ii-2"))))
+	   (role-1 (make-construct 'RoleC :start-revision 100
+				   :player top-1
+				   :instance-of top-2
+				   :item-identifiers
+				   (list 
+				    (make-construct 'ItemIdentifierC
+						    :uri "http://some.where/ii-3")
+				    (make-construct 'ItemIdentifierC
+						    :uri "http://some.where/ii-4"))
+				   :reifier top-4
+				   :parent assoc-1))
+	   (role-2 (make-construct 'RoleC :start-revision 100
+				   :player top-2
+				   :instance-of top-3))
+	   (jtm-1 (jtm::export-to-jtm role-1 :item-type-p nil :revision 0))
+	   (jtm-2 (jtm::export-to-jtm role-2 :item-type-p nil :revision 0))
+	   (jtm-str-1 (export-construct-as-jtm-string role-1 :revision 0))
+	   (jtm-str-2 (export-construct-as-jtm-string
+		       role-2 :jtm-format :1.0 :parent-p nil :revision 0)))
+      (is (string= jtm-1
+		   "{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-3\",\"http:\\/\\/some.where\\/ii-4\"],\"type\":\"sl:http:\\/\\/some.where\\/sl-1\",\"reifier\":\"sl:http:\\/\\/some.where\\/sl-2\",\"player\":\"si:http:\\/\\/some.where\\/psi-1\"}"))
+      (is (string= jtm-2
+		   "{\"item_identifiers\":null,\"type\":\"ii:http:\\/\\/some.where\\/ii-1\",\"reifier\":null,\"player\":\"sl:http:\\/\\/some.where\\/sl-1\"}"))
+      (is (string= jtm-str-1
+		   "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_1:ii-3]\",\"[pref_1:ii-4]\"],\"type\":\"sl:[pref_1:sl-1]\",\"item_type\":\"role\",\"parent\":[\"ii:[pref_1:ii-2]\"],\"reifier\":\"sl:[pref_1:sl-2]\",\"player\":\"si:[pref_1:psi-1]\"}"))
+      (is (string= jtm-str-2
+		   "{\"version\":\"1.0\",\"item_identifiers\":null,\"type\":\"ii:http:\\/\\/some.where\\/ii-1\",\"item_type\":\"role\",\"reifier\":null,\"player\":\"sl:http:\\/\\/some.where\\/sl-1\"}")))))
+
 
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."

@@ -55,8 +55,13 @@
 			     ((eql jtm-format :1.0) nil)
 			     (t (error (make-condition 'JTM-error :message (format nil "From export-construct-as-jtm-string(): jtm-format must be set to :1.1 or :1.0, but is ~a" jtm-format))))))
 	   (version (concat "\"" (symbol-name jtm-format) "\""))
-	   (json-str (export-to-jtm construct :parent-p parent-p :prefixes prefixes
-				    :prefixes-p prefixes-p :revision revision)))
+	   (json-str
+	    (if (typep construct 'TopicC)
+		(export-to-jtm construct :parent-p parent-p :prefixes prefixes
+			       :prefixes-p prefixes-p :revision revision
+			       :instance-of-p (eql jtm-format :1.1))
+		(export-to-jtm construct :parent-p parent-p :prefixes prefixes
+			       :prefixes-p prefixes-p :revision revision))))
       (concat "{\"version\":" version "," (subseq json-str 1)))))
 
 
@@ -79,11 +84,18 @@
 			     (topics tm))
 		  (get-all-topics revision)))
 	     (tm-assocs
-	      (if tm
-		  (delete-if #'(lambda(assoc)
-				 (not (find-item-by-revision assoc revision)))
-			     (associations tm))
-		  (get-all-associations revision)))
+	      (let ((assocs
+		     (if tm
+			 (delete-if #'(lambda(assoc)
+					(not (find-item-by-revision assoc revision)))
+				    (associations tm))
+			 (get-all-associations revision))))
+		(if version-1.1-p
+		    assocs
+		    (set-difference
+		     assocs
+		     (loop for top in tm-tops
+			append (instance-of-associations top :revision revision))))))
 	     (prefixes
 	      (when version-1.1-p
 		(create-prefix-list-for-tm tm-tops tm-assocs tm :revision revision)))

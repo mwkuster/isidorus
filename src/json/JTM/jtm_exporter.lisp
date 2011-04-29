@@ -12,7 +12,7 @@
 
 
 (defgeneric export-to-jtm (construct &key item-type-p parent-p prefixes
-				     prefixes-p revision)
+				     prefixes-p revision &allow-other-keys)
   (:documentation "Exports the given construct in JTM notation.
                    If item-type-p is t the corresponding item-type
                    will be also set. If parent-p is t the corresponding
@@ -27,7 +27,7 @@
 
 (defmethod export-to-jtm ((construct TopicC) &key (item-type-p t)
 			  (parent-p nil) prefixes prefixes-p
-			  (revision *TM-REVISION*))
+			  (revision *TM-REVISION*) (instance-of-p t))
   "Exports a topic as JTM string."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
@@ -53,9 +53,10 @@
 		  construct :identifier-type 'ItemIdentifierC :prefixes prefixes
 		  :revision revision) ","))
 	(instance-ofs
-	 (concat "\"instance_of\":"
-		 (export-instance-ofs-to-jtm construct :prefixes prefixes
-					     :revision revision) ","))
+	 (when instance-of-p
+	   (concat "\"instance_of\":"
+		   (export-instance-ofs-to-jtm construct :prefixes prefixes
+					       :revision revision) ",")))
 	(item-type (when item-type-p
 		     (concat "\"item_type\":\"" item_type-topic "\",")))
 	(top-parent
@@ -477,7 +478,7 @@
 						    :revision revision) ",")))
 	(role-reifier (concat "\"reifier\":"
 			      (export-reifier-to-jtm construct :prefixes prefixes
-						     :revision revision)))
+						     :revision revision) ","))
 	(role-player
 	 (progn
 	   (unless (player construct :revision revision)
@@ -553,6 +554,8 @@
 (defmethod export-to-jtm ((construct FragmentC) &key (item-type-p t)
 			  (parent-p nil) prefixes prefixes-p 
 			  (revision *TM-REVISION*))
+  "Note if prefixes-p is set to nil the export format is JTM 1.0.
+   If prefixes-p is set to t the export format is JTM 1.1."
   (declare (Boolean prefixes-p)
 	   (Ignorable parent-p item-type-p prefixes)
 	   (Integer revision))
@@ -560,14 +563,27 @@
 	  (create-prefix-list-of-fragment construct :revision revision))
 	 (prefixes-value
 	  (concat "\"prefixes\":" (export-prefix-list-to-jtm prefixes-list)))
-	 (frag-tops (concat "\"topics\":"
-			    (export-topics-to-jtm
-			     (topics construct) :prefixes prefixes-list
-			     :revision revision)))
-	 (frag-assocs (concat "\"associations\":"
-			      (export-associations-to-jtm
-			       (associations construct) :prefixes prefixes-list
-			       :revision revision)))
+	 (frag-tops
+	  (concat "\"topics\":"
+		  (export-topics-to-jtm
+		   (append
+		    (referenced-topics construct)
+		    (list (topic construct))
+		    (unless prefixes-p
+		      (remove-null
+		       (list
+			(get-item-by-psi *type-instance-psi* :revision revision)
+			(get-item-by-psi *instance-psi* :revision revision)
+			(get-item-by-psi *type-psi* :revision revision)))))
+		   :prefixes prefixes-list :revision revision)))
+	 (frag-assocs
+	  (concat "\"associations\":"
+		  (export-associations-to-jtm
+		   (append
+		    (associations construct)
+		    (unless prefixes-p
+		      (instance-of-associations (topic construct) :revision revision))
+		    :prefixes prefixes-list :revision revision))))
 	 (item-type (concat "\"item_type\":\"" item_type-topicmap "\","))
 	 (version (concat "\"version\":" (if prefixes-p "\"1.1\"" "\"1.0\"") ","))
 	 (iis "\"item_identifiers\":null,")
