@@ -277,10 +277,10 @@
 	  (progn
 	    (unless (item-identifiers parent :revision revision)
 	      (error (make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the parent [~a] of the passed construct [~a] is not bound to an item-identifier" parent construct))))
-	    (concat "\"ii:"
-		    (export-to-jtm (first (item-identifiers parent :revision revision))
-				   :prefixes prefixes)
-		    "\""))))))
+	    (json:encode-json-to-string
+	     (concat "ii:" (identifier-to-curie
+			    (first (item-identifiers parent :revision revision))
+			    :prefixes prefixes))))))))
 
 
 (defmethod export-to-jtm ((construct VariantC) &key (item-type-p t)

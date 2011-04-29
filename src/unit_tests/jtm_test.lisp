@@ -21,7 +21,9 @@
   (:export :test-create-prefixes
 	   :test-identifiers-to-jtm
 	   :test-topic-reference
-	   :test-type-scopes-reifier-to-jtm))
+	   :test-type-scopes-reifier-to-jtm
+	   :test-parent-reference-to-jtm
+	   :run-jtm-tests))
 
 
 (in-package :jtm-test)
@@ -334,5 +336,96 @@
       (signals exceptions::JTM-error (jtm::export-reifier-to-jtm occ-4 :revision 0)))))
 
 
-;TODO: *export-parent-reference-to-jtm
-;      *export-instance-ofs
+
+
+(test test-parent-reference-to-jtm
+  "Tests the function export-parent-reference-to-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((var-1 (make-construct 'VariantC :start-revision 100
+				  :charvalue "var-1"))
+	   (var-2 (make-construct 'VariantC :start-revision 100))
+	   (name-1 (make-construct 'NameC :start-revision 100
+				   :item-identifiers
+				   (list (make-construct
+					  'ItemIdentifierC
+					  :uri "http://some.where/example/ii-1"))
+				    :charvalue "name-1"
+				    :variants (list var-1)))
+	   (name-2 (make-construct 'NameC :start-revision 100
+				    :charvalue "name-2"))
+	   (occ-1 (make-construct 'OccurrenceC :start-revision 100
+				  :charvalue "occ-1"))
+	   (top-1 (make-construct 'TopicC :start-revision 100
+				  :names (list name-1)
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/example/psi-1"))))
+	   (top-2 (make-construct 'TopicC :start-revision 100
+				  :occurrences (list occ-1)
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/example/sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100
+				  :names (list name-2)))
+	   (assoc-1 (make-construct 'AssociationC :start-revision 100
+				    :item-identifiers
+				    (list (make-construct
+					   'ItemIdentifierC
+					   :uri "http://some.where/example/ii-3"))
+				    :roles (list (list :player top-1
+						       :start-revision 100))))
+	   (tm (make-construct 'TopicMapC :start-revision 100
+			       :topics (list top-3)
+			       :associations (list assoc-1)
+			       :item-identifiers
+			       (list (make-construct
+				      'ItemIdentifierC
+				      :uri "http://some.where/example/ii-2"))))
+	   (assoc-2 (make-construct 'AssociationC :start-revision 100
+				    :roles (list (list :player top-2
+						       :start-revision 100))))
+	   (role-1 (first (roles assoc-1 :revision 0)))
+	   (role-2 (first (roles assoc-2 :revision 0)))
+	   (prefixes (list (list :pref "pref_1" :value "http://some.where/example/"))))
+      (setf *TM-REVISION* 0)
+      (is (string= (jtm::export-parent-reference-to-jtm top-3)
+		   "\"ii:http:\\/\\/some.where\\/example\\/ii-2\""))
+      (is (string= (jtm::export-parent-reference-to-jtm top-3 :prefixes prefixes)
+		   "\"ii:[pref_1:ii-2]\""))
+      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm top-1))
+      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm assoc-2))
+      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm tm))
+      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm name-2))
+      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm var-2))
+      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm role-2))
+      (is-true role-1)
+      (is-true role-2)
+      (is (string= (jtm::export-parent-reference-to-jtm var-1)
+		   "\"ii:http:\\/\\/some.where\\/example\\/ii-1\""))
+      (is (string= (jtm::export-parent-reference-to-jtm var-1 :prefixes prefixes)
+		   "\"ii:[pref_1:ii-1]\""))
+      (is (string= (jtm::export-parent-reference-to-jtm name-1)
+		   "\"si:http:\\/\\/some.where\\/example\\/psi-1\""))
+      (is (string= (jtm::export-parent-reference-to-jtm name-1 :prefixes prefixes)
+		   "\"si:[pref_1:psi-1]\""))
+      (is (string= (jtm::export-parent-reference-to-jtm occ-1)
+		   "\"sl:http:\\/\\/some.where\\/example\\/sl-1\""))
+      (is (string= (jtm::export-parent-reference-to-jtm occ-1 :prefixes prefixes)
+		   "\"sl:[pref_1:sl-1]\""))
+      (is (string= (jtm::export-parent-reference-to-jtm assoc-1)
+		   "\"ii:http:\\/\\/some.where\\/example\\/ii-2\""))
+      (is (string= (jtm::export-parent-reference-to-jtm assoc-1 :prefixes prefixes)
+		   "\"ii:[pref_1:ii-2]\""))
+      (is (string= (jtm::export-parent-reference-to-jtm role-1)
+		   "\"ii:http:\\/\\/some.where\\/example\\/ii-3\""))
+      (is (string= (jtm::export-parent-reference-to-jtm role-1 :prefixes prefixes)
+		   "\"ii:[pref_1:ii-3]\"")))))
+
+
+;TODO: *export-instance-ofs
+
+(defun run-jtm-tests()
+  "Runs all tests of this test-suite."
+  (it.bese.fiveam:run! 'jtm-tests))
