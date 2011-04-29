@@ -134,7 +134,7 @@
 	  "null"))))
 
 
-(defmethod export-to-jtm ((construct NameC) &key item-type-p parent-p
+(defmethod export-to-jtm ((construct NameC) &key (item-type-p t) parent-p
 		       prefixes prefixes-p (revision *TM-REVISION*))
   "Exports any given object bof the type NameC"
   (declare (Boolean item-type-p parent-p prefixes-p)
@@ -165,7 +165,7 @@
 	(vars (concat "\"variants\":"
 		      (export-variants-to-jtm
 		       construct :item-type-p nil :prefixes prefixes
-		       :prefixes-p prefixes-p :revision revision) ","))
+		       :prefixes-p nil :revision revision) ","))
 	(name-reifier (concat "\"reifier\":"
 			      (export-reifier-to-jtm construct :prefixes prefixes
 						     :revision revision))))
@@ -193,7 +193,13 @@
   (:method ((construct ScopableC) &key prefixes (revision *TM-REVISION*))
     (declare (List prefixes)
 	     (Integer revision))
-    (let ((scope-tops (themes construct :revision revision)))
+    (let ((scope-tops
+	   (if (and (typep construct 'VariantC)
+		    (parent construct :revision revision))
+	       (set-difference (themes construct :revision revision)
+			       (themes (parent construct :revision revision)
+				       :revision revision))
+	       (themes construct :revision revision))))
       (if scope-tops
 	  (let ((result "["))
 	    (loop for top in scope-tops
@@ -539,7 +545,7 @@
 	(assoc-roles
 	 (concat "\"roles\":"
 		 (export-roles-to-jtm construct :prefixes prefixes
-				      :prefixes-p prefixes-p :revision revision))))
+				      :prefixes-p nil :revision revision))))
     (concat "{" prefix-value iis type item-type assoc-parent assoc-reifier
 	    scopes assoc-roles "}")))
 

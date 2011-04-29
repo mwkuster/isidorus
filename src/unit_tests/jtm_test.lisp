@@ -25,7 +25,8 @@
 	   :test-parent-references-to-jtm
 	   :run-jtm-tests
 	   :test-instance-ofs-to-jtm
-	   :test-export-to-jtm-variant))
+	   :test-export-to-jtm-variant
+	   :test-export-to-jtm-name))
 
 
 (in-package :jtm-test)
@@ -553,6 +554,62 @@
       (is (string= jtm-str-2
 		   (concat "{\"version\":\"1.0\",\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-3\"],\"datatype\":" (json:encode-json-to-string *xml-uri*) ",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"variant\",\"scope\":[\"sl:http:\\/\\/some.where\\/sl-1\"],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-2\"}"))))))
     
+
+(test test-export-to-jtm-name
+  "Tests the function export-to-jtm bound to NameC and the function
+   export-construct-as-jtm-string also bound to NameC."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((top-1 (make-construct 'TopicC :start-revision 100
+				  :psis
+				  (list
+				   (make-construct 'PersistentIdC
+						   :uri "http://some.where/psi-1"))))
+	   (top-2 (make-construct 'TopicC :start-revision 100
+				  :locators
+				  (list
+				   (make-construct 'SubjectLocatorC
+						   :uri "http://some.where/sl-1"))))
+	   (top-3 (make-construct 'TopicC :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-1"))))
+	   (var-1 (make-construct 'VariantC :start-revision 100
+				  :themes (list top-2)
+				  :charvalue "var-1"))
+	   (var-2 (make-construct 'VariantC :start-revision 100
+				  :themes (list top-2)
+				  :charvalue "var-2"))
+	   (name-1 (make-construct 'NameC :start-revision 100
+				   :item-identifiers
+				   (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-2"))
+				   :themes (list top-1)
+				   :instance-of top-2
+				   :reifier top-3
+				   :charvalue "name-1"
+				   :parent top-1
+				   :variants (list var-1 var-2)))
+	   (name-2 (make-construct 'NameC :start-revision 100
+				   :charvalue "name-2"))
+	   (jtm-1 (jtm::export-to-jtm name-1 :item-type-p nil :revision 0))
+	   (jtm-2 (jtm::export-to-jtm name-2 :item-type-p nil :revision 0))
+	   (jtm-str-1 (export-construct-as-jtm-string name-1 :revision 0))
+	   (jtm-str-2 (export-construct-as-jtm-string
+		       name-2 :jtm-format :1.0 :parent-p nil :revision 0))
+	   (prefixes (list (list :pref "pref_1" :value *xsd-ns*)
+			   (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_2" :value "http://some.where/"))))
+      (is (string= jtm-1
+		   (concat "{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-2\"],\"value\":\"name-1\",\"type\":\"sl:http:\\/\\/some.where\\/sl-1\",\"scope\":[\"si:http:\\/\\/some.where\\/psi-1\"],\"variants\":[" (jtm::export-to-jtm var-1 :item-type-p nil :revision 0) "," (jtm::export-to-jtm var-2 :item-type-p nil :revision 0) "],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-1\"}")))
+      (is (string= jtm-2
+		   "{\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"scope\":null,\"variants\":null,\"reifier\":null}"))
+      (is (string= jtm-str-1
+		   (concat "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_2:ii-2]\"],\"value\":\"name-1\",\"type\":\"sl:[pref_2:sl-1]\",\"item_type\":\"name\",\"parent\":[\"si:[pref_2:psi-1]\"],\"scope\":[\"si:[pref_2:psi-1]\"],\"variants\":[" (jtm::export-to-jtm var-1 :item-type-p nil :revision 0 :prefixes prefixes) "," (jtm::export-to-jtm var-2 :item-type-p nil :revision 0 :prefixes prefixes) "],\"reifier\":\"ii:[pref_2:ii-1]\"}")))
+      (is (string= jtm-str-2
+		   "{\"version\":\"1.0\",\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"item_type\":\"name\",\"scope\":null,\"variants\":null,\"reifier\":null}")))))
+
 
 
 (defun run-jtm-tests()

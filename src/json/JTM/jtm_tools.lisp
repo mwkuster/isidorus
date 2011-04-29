@@ -170,12 +170,15 @@
 
 (defun create-prefix-list-of-identifiers (identifiers)
   "Returns a list of the following structure: ((:pref 'pref_1'
-   :value 'uri-pref') (...))."
+   :value 'uri-pref') (...)) the list identifiers can own items of
+   the type IdentifierC and of the form (list :pref 'pref' :value 'value')."
   (declare (List identifiers))
   (let ((prefixes
 	 (remove-duplicates
 	  (remove-null (map 'list  #'(lambda(id)
-				       (prefix-of-uri (uri id)))
+				       (if (typep id 'IdentifierC)
+					   (prefix-of-uri (uri id))
+					   (getf id :value)))
 			    identifiers)) :test #'string=)))
     (let ((result
 	   (append
