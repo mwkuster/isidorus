@@ -22,9 +22,10 @@
 	   :test-identifiers-to-jtm
 	   :test-topic-reference
 	   :test-type-scopes-reifier-to-jtm
-	   :test-parent-reference-to-jtm
+	   :test-parent-references-to-jtm
 	   :run-jtm-tests
-	   :test-instance-ofs-to-jtm))
+	   :test-instance-ofs-to-jtm
+	   :test-export-to-jtm-variant))
 
 
 (in-package :jtm-test)
@@ -47,7 +48,7 @@
 	   (goethe-assocs (map 'list #'(lambda(role)
 					  (parent role :revision 0))
 				(player-in-roles goethe :revision 0)))
-	   (prefixes (jtm::create-prefix-list (list goethe) goethe-assocs
+	   (prefixes (jtm::create-prefix-list-for-tm (list goethe) goethe-assocs
 					      goethe-tm :revision 0)))
       (is (= (length prefixes) 4))
       (is-false
@@ -339,8 +340,8 @@
 
 
 
-(test test-parent-reference-to-jtm
-  "Tests the function export-parent-reference-to-jtm."
+(test test-parent-references-to-jtm
+  "Tests the function export-parent-references-to-jtm."
   (with-fixture with-empty-db ("data_base")
     (let* ((var-1 (make-construct 'VariantC :start-revision 100
 				  :charvalue "var-1"))
@@ -391,38 +392,38 @@
 	   (role-2 (first (roles assoc-2 :revision 0)))
 	   (prefixes (list (list :pref "pref_1" :value "http://some.where/example/"))))
       (setf *TM-REVISION* 0)
-      (is (string= (jtm::export-parent-reference-to-jtm top-3)
-		   "\"ii:http:\\/\\/some.where\\/example\\/ii-2\""))
-      (is (string= (jtm::export-parent-reference-to-jtm top-3 :prefixes prefixes)
-		   "\"ii:[pref_1:ii-2]\""))
-      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm top-1))
-      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm assoc-2))
-      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm tm))
-      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm name-2))
-      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm var-2))
-      (signals exceptions:JTM-error (jtm::export-parent-reference-to-jtm role-2))
+      (is (string= (jtm::export-parent-references-to-jtm top-3)
+		   "[\"ii:http:\\/\\/some.where\\/example\\/ii-2\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm top-3 :prefixes prefixes)
+		   "[\"ii:[pref_1:ii-2]\"]"))
+      (signals exceptions:JTM-error (jtm::export-parent-references-to-jtm top-1))
+      (signals exceptions:JTM-error (jtm::export-parent-references-to-jtm assoc-2))
+      (signals exceptions:JTM-error (jtm::export-parent-references-to-jtm tm))
+      (signals exceptions:JTM-error (jtm::export-parent-references-to-jtm name-2))
+      (signals exceptions:JTM-error (jtm::export-parent-references-to-jtm var-2))
+      (signals exceptions:JTM-error (jtm::export-parent-references-to-jtm role-2))
       (is-true role-1)
       (is-true role-2)
-      (is (string= (jtm::export-parent-reference-to-jtm var-1)
-		   "\"ii:http:\\/\\/some.where\\/example\\/ii-1\""))
-      (is (string= (jtm::export-parent-reference-to-jtm var-1 :prefixes prefixes)
-		   "\"ii:[pref_1:ii-1]\""))
-      (is (string= (jtm::export-parent-reference-to-jtm name-1)
-		   "\"si:http:\\/\\/some.where\\/example\\/psi-1\""))
-      (is (string= (jtm::export-parent-reference-to-jtm name-1 :prefixes prefixes)
-		   "\"si:[pref_1:psi-1]\""))
-      (is (string= (jtm::export-parent-reference-to-jtm occ-1)
-		   "\"sl:http:\\/\\/some.where\\/example\\/sl-1\""))
-      (is (string= (jtm::export-parent-reference-to-jtm occ-1 :prefixes prefixes)
-		   "\"sl:[pref_1:sl-1]\""))
-      (is (string= (jtm::export-parent-reference-to-jtm assoc-1)
-		   "\"ii:http:\\/\\/some.where\\/example\\/ii-2\""))
-      (is (string= (jtm::export-parent-reference-to-jtm assoc-1 :prefixes prefixes)
-		   "\"ii:[pref_1:ii-2]\""))
-      (is (string= (jtm::export-parent-reference-to-jtm role-1)
-		   "\"ii:http:\\/\\/some.where\\/example\\/ii-3\""))
-      (is (string= (jtm::export-parent-reference-to-jtm role-1 :prefixes prefixes)
-		   "\"ii:[pref_1:ii-3]\"")))))
+      (is (string= (jtm::export-parent-references-to-jtm var-1)
+		   "[\"ii:http:\\/\\/some.where\\/example\\/ii-1\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm var-1 :prefixes prefixes)
+		   "[\"ii:[pref_1:ii-1]\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm name-1)
+		   "[\"si:http:\\/\\/some.where\\/example\\/psi-1\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm name-1 :prefixes prefixes)
+		   "[\"si:[pref_1:psi-1]\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm occ-1)
+		   "[\"sl:http:\\/\\/some.where\\/example\\/sl-1\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm occ-1 :prefixes prefixes)
+		   "[\"sl:[pref_1:sl-1]\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm assoc-1)
+		   "[\"ii:http:\\/\\/some.where\\/example\\/ii-2\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm assoc-1 :prefixes prefixes)
+		   "[\"ii:[pref_1:ii-2]\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm role-1)
+		   "[\"ii:http:\\/\\/some.where\\/example\\/ii-3\"]"))
+      (is (string= (jtm::export-parent-references-to-jtm role-1 :prefixes prefixes)
+		   "[\"ii:[pref_1:ii-3]\"]")))))
 
 
 (test test-instance-ofs-to-jtm
@@ -498,6 +499,60 @@
       (signals exceptions:JTM-error (jtm::export-instance-ofs-to-jtm top-5)))))
 
 
+(test test-export-to-jtm-variant
+  "Tests the function export-to-jtm bound to VariantC and the function
+   export-construct-as-jtm-string also bound to VariantC."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((name-1 (make-construct 'NameC :start-revision 100
+				   :item-identifiers
+				   (list
+				    (make-construct 'ItemIdentifierC
+						    :uri "http://some.where/ii-1"))
+				   :charvalue "name-1"))
+	   (top-1
+	    (make-construct 'TopicC :start-revision 100
+			    :psis
+			    (list (make-construct 'PersistentIdC
+						  :uri "http://some.where/psi-1"))))
+	   (top-2
+	    (make-construct 'TopicC :start-revision 100
+			    :locators
+			    (list (make-construct 'SubjectLocatorC
+						  :uri "http://some.where/sl-1"))))
+	   (top-3
+	    (make-construct 'TopicC :start-revision 100
+			    :item-identifiers
+			    (list (make-construct 'ItemIdentifierC
+						  :uri "http://some.where/ii-2"))))
+	   (var-1 (make-construct 'VariantC :start-revision 100
+				  :charvalue "var-1"
+				  :datatype *xml-string*
+				  :themes (list top-1)
+				  :parent name-1))
+	   (var-2 (make-construct 'VariantC :start-revision 100
+				  :item-identifiers
+				  (list
+				   (make-construct 'ItemIdentifierC
+						   :uri "http://some.where/ii-3"))
+				  :charvalue "http://any.uri"
+				  :themes (list top-2)
+				  :reifier top-3
+				  :datatype *xml-uri*))
+	   (jtm-1 (jtm::export-to-jtm var-1 :item-type-p nil :revision 0))
+	   (jtm-2 (jtm::export-to-jtm var-2 :item-type-p nil :revision 0))
+	   (jtm-str-1 (export-construct-as-jtm-string var-1 :revision 0))
+	   (jtm-str-2 (export-construct-as-jtm-string
+		       var-2 :jtm-format :1.0 :parent-p nil :revision 0)))
+
+      (is (string= jtm-1
+		   (concat "{\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-string*) ",\"value\":\"var-1\",\"scope\":[\"si:http:\\/\\/some.where\\/psi-1\"],\"reifier\":null}")))
+      (is (string= jtm-2
+		   (concat "{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-3\"],\"datatype\":" (json:encode-json-to-string *xml-uri*) ",\"value\":\"http:\\/\\/any.uri\",\"scope\":[\"sl:http:\\/\\/some.where\\/sl-1\"],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-2\"}")))
+      (is (string= jtm-str-1
+		   (concat "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-string*) ",\"value\":\"var-1\",\"item_type\":\"variant\",\"parent\":[\"ii:[pref_1:ii-1]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":null}")))
+      (is (string= jtm-str-2
+		   (concat "{\"version\":\"1.0\",\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-3\"],\"datatype\":" (json:encode-json-to-string *xml-uri*) ",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"variant\",\"scope\":[\"sl:http:\\/\\/some.where\\/sl-1\"],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-2\"}"))))))
+    
 
 
 (defun run-jtm-tests()

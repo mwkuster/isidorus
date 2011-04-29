@@ -26,7 +26,8 @@
 
 
 (defmethod export-to-jtm ((construct TopicC) &key (item-type-p t)
-			  (parent-p nil) prefixes prefixes-p (revision 0))
+			  (parent-p nil) prefixes prefixes-p
+			  (revision *TM-REVISION*))
   "Exports a topic as JTM string."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
@@ -56,12 +57,12 @@
 		 (export-instance-ofs-to-jtm construct :prefixes prefixes
 					     :revision revision) ","))
 	(item-type (when item-type-p
-		     (concat "\"item_type\":" item_type-topic ",")))
+		     (concat "\"item_type\":\"" item_type-topic "\",")))
 	(top-parent
 	 (when parent-p
 	   (concat "\"parent\":"
-		   (export-parent-reference-to-jtm construct :prefixes prefixes
-						   :revision revision) ",")))
+		   (export-parent-references-to-jtm construct :prefixes prefixes
+						    :revision revision) ",")))
 	(top-names
 	 (concat "\"names\":"
 		 (export-names-to-jtm
@@ -152,12 +153,12 @@
 					  :error-if-nil nil :revision revision)
 		      ","))
 	(item-type (when item-type-p
-		     (concat "\"item_type\":" item_type-name ",")))
+		     (concat "\"item_type\":\"" item_type-name "\",")))
 	(name-parent
 	 (when parent-p
 	   (concat "\"parent\":"
-		   (export-parent-reference-to-jtm construct :prefixes prefixes
-						   :revision revision) ",")))
+		   (export-parent-references-to-jtm construct :prefixes prefixes
+						    :revision revision) ",")))
 	(scopes (concat "\"scope\":"
 			(export-scopes-to-jtm
 			 construct :prefixes prefixes :revision revision) ","))
@@ -253,7 +254,7 @@
       (json:encode-json-to-string result))))
 
 
-(defgeneric export-parent-reference-to-jtm (construct &key prefixes revision)
+(defgeneric export-parent-references-to-jtm (construct &key prefixes revision)
   (:documentation "Returns an identifier that is the reference of the given
                    construct's parent. If the parent is a topic
                    export-topic-reference-to-jtm is called otherwise an
@@ -261,34 +262,46 @@
   (:method ((construct ReifiableConstructC) &key prefixes (revision *TM-REVISION*))
     (declare (List prefixes)
 	     (Integer revision))
-    (let ((parent
-	   (cond ((and (or (typep construct 'TopicC)
-			   (typep construct 'AssociationC))
-		       (in-topicmaps construct :revision revision))
-		  (first (in-topicmaps construct :revision revision)))
-		 ((or (typep construct 'CharacteristicC)
-		      (typep construct 'RoleC))
-		  (parent construct :revision revision)))))
-      (unless parent
-	(error (make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the passed construct ~a is not bound to parent" construct))))
-      (if (typep parent 'TopicC)
-	  (export-topic-reference-to-jtm parent :prefixes prefixes
-					 :revision revision)
-	  (progn
-	    (unless (item-identifiers parent :revision revision)
-	      (error (make-condition 'JTM-error :message (format nil "From export-parent-reference-to-jtm(): the parent [~a] of the passed construct [~a] is not bound to an item-identifier" parent construct))))
-	    (json:encode-json-to-string
-	     (concat "ii:" (identifier-to-curie
-			    (first (item-identifiers parent :revision revision))
-			    :prefixes prefixes))))))))
+    (let ((parents
+	   (cond ((or (typep construct 'TopicC)
+		      (typep construct 'AssociationC))
+		  (in-topicmaps construct :revision revision))
+		 ((and (or (typep construct 'CharacteristicC)
+			   (typep construct 'RoleC))
+		       (parent construct :revision revision))
+		  (list (parent construct :revision revision))))))
+      (unless parents
+	(error (make-condition 'JTM-error :message (format nil "From export-parent-references-to-jtm(): the passed construct ~a is not bound to parent" construct))))
+      (let ((result "["))
+	(loop for parent in parents
+	   do (if (not (get-all-identifiers-of-construct parent
+							 :revision revision))
+		  (error (make-condition 'JTM-error :message "From export-parent-references-to-jtm(): the parent ~a has no identifiers, but must have at least one" parent))
+		  (cond ((typep parent 'TopicC)
+			 (push-string
+			  (concat
+			   (export-topic-reference-to-jtm
+			    parent :prefixes prefixes
+			    :revision revision) ",") result))
+			(t
+			 (push-string
+			  (concat 
+			   (json:encode-json-to-string
+			    (concat "ii:" (identifier-to-curie
+					   (first (item-identifiers
+						   parent :revision revision))
+					   :prefixes prefixes))) ",") result)))))
+	(concat (subseq result 0 (1- (length result))) "]")))))
 
 
 (defmethod export-to-jtm ((construct VariantC) &key (item-type-p t)
-			  parent-p prefixes prefixes-p (revision 0))
+			  parent-p prefixes prefixes-p (revision *TM-REVISION*))
   "Exports any object of the type VariantC as JTM-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
-	   (Integer revision))       
+	   (Integer revision))
+  (unless (themes construct :revision revision)
+    (error (make-condition 'JTM-error :message (format nil "The variant ~a has no topic set as theme, at least one is required" construct))))
   (let ((prefix-value (when prefixes-p
 			(concat "\"prefixes\":"
 				(export-prefix-list-to-jtm prefixes) ",")))
@@ -300,12 +313,12 @@
 	(datatype (concat "\"datatype\":"
 			  (json:encode-json-to-string (datatype construct)) ","))
 	(item-type (when item-type-p
-		     (concat "\"item_type\":" item_type-variant ",")))
+		     (concat "\"item_type\":\"" item_type-variant "\",")))
 	(var-parent
 	 (when parent-p
 	   (concat "\"parent\":"
-		   (export-parent-reference-to-jtm construct :prefixes prefixes
-						   :revision revision) ",")))
+		   (export-parent-references-to-jtm construct :prefixes prefixes
+						    :revision revision) ",")))
 	(scopes (concat "\"scope\":"
 			(export-scopes-to-jtm
 			 construct :prefixes prefixes :revision revision) ","))
@@ -359,7 +372,7 @@
 
 
 (defmethod export-to-jtm ((construct OccurrenceC) &key (item-type-p t)
-			  parent-p prefixes prefixes-p (revision 0))
+			  parent-p prefixes prefixes-p (revision *TM-REVISION*))
   "Exports any object of the type OccurrenceC as JTM-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
@@ -379,12 +392,12 @@
 					  :revision revision)
 		      ","))
 	(item-type (when item-type-p
-		     (concat "\"item_type\":" item_type-occurrence ",")))
+		     (concat "\"item_type\":\"" item_type-occurrence "\",")))
 	(occ-parent
 	 (when parent-p
 	   (concat "\"parent\":"
-		   (export-parent-reference-to-jtm construct :prefixes prefixes
-						   :revision revision) ",")))
+		   (export-parent-references-to-jtm construct :prefixes prefixes
+						    :revision revision) ",")))
 	(scopes (concat "\"scope\":"
 			(export-scopes-to-jtm
 			 construct :prefixes prefixes :revision revision) ","))
@@ -434,7 +447,7 @@
 
 
 (defmethod export-to-jtm ((construct RoleC) &key (item-type-p t)
-			  (parent-p nil) prefixes prefixes-p (revision 0))
+			  (parent-p nil) prefixes prefixes-p (revision *TM-REVISION*))
   "Exports any object of type RoleC as JTM-role-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
@@ -450,12 +463,12 @@
 					  :revision revision)
 		      ","))
 	(item-type (when item-type-p
-		     (concat "\"item_type\":" item_type-role ",")))
+		     (concat "\"item_type\":\"" item_type-role "\",")))
 	(role-parent 
 	 (when parent-p
 	   (concat "\"parent\":"
-		   (export-parent-reference-to-jtm construct :prefixes prefixes
-						   :revision revision) ",")))
+		   (export-parent-references-to-jtm construct :prefixes prefixes
+						    :revision revision) ",")))
 	(role-reifier (concat "\"reifier\":"
 			      (export-reifier-to-jtm construct :prefixes prefixes
 						     :revision revision)))
@@ -494,7 +507,8 @@
 
 
 (defmethod export-to-jtm ((construct AssociationC) &key (item-type-p t)
-			  (parent-p nil) prefixes prefixes-p (revision 0))
+			  (parent-p nil) prefixes prefixes-p
+			  (revision *TM-REVISION*))
   "Exports any object of type AssociationC as JTM-association-object."
   (declare (Boolean item-type-p parent-p prefixes-p)
 	   (List prefixes)
@@ -510,12 +524,12 @@
 					  :revision revision)
 		      ","))
 	(item-type (when item-type-p
-		     (concat "\"item_type\":" item_type-association ",")))
+		     (concat "\"item_type\":\"" item_type-association "\",")))
 	(assoc-parent
 	 (when parent-p
 	   (concat "\"parent\":"
-		   (export-parent-reference-to-jtm construct :prefixes prefixes
-						   :revision revision) ",")))
+		   (export-parent-references-to-jtm construct :prefixes prefixes
+						    :revision revision) ",")))
 	(assoc-reifier (concat "\"reifier\":"
 			       (export-reifier-to-jtm construct :prefixes prefixes
 						      :revision revision)))
@@ -531,13 +545,15 @@
 
 
 (defmethod export-to-jtm ((construct FragmentC) &key (item-type-p t)
-			  (parent-p nil) prefixes prefixes-p (revision 0))
+			  (parent-p nil) prefixes prefixes-p 
+			  (revision *TM-REVISION*))
   (declare (Boolean prefixes-p)
 	   (Ignorable parent-p item-type-p prefixes)
 	   (Integer revision))
   (let* ((prefixes-list
 	  (create-prefix-list-of-fragment construct :revision revision))
-	 (prefixes-value (export-prefix-list-to-jtm prefixes-list))
+	 (prefixes-value
+	  (concat "\"prefixes\":" (export-prefix-list-to-jtm prefixes-list)))
 	 (frag-tops (concat "\"topics\":"
 			    (export-topics-to-jtm
 			     (topics construct) :prefixes prefixes-list
@@ -546,7 +562,7 @@
 			      (export-associations-to-jtm
 			       (associations construct) :prefixes prefixes-list
 			       :revision revision)))
-	 (item-type (concat "\"item_type\":" item_type-topicmap ","))
+	 (item-type (concat "\"item_type\":\"" item_type-topicmap "\","))
 	 (version (concat "\"version\":" (if prefixes-p "\"1.1\"" "\"1.0\"") ","))
 	 (iis "\"item_identifiers\":null,")
 	 (frag-reifier "\"reifier\":null"))
@@ -559,9 +575,9 @@
                    ((:pref 'pref_1' :value 'uri-pref') (...)).")
   (:method ((construct FragmentC) &key (revision *TM-REVISION*))
     (declare (Integer revision))
-    (create-prefix-list (append (list (topic construct))
-				(referenced-topics construct))
-			(associations construct) nil :revision revision)))
+    (create-prefix-list-for-tm (append (list (topic construct))
+				       (referenced-topics construct))
+			       (associations construct) nil :revision revision)))
 
 
 (defgeneric export-topics-to-jtm (topics &key prefixes parent-p revision)
