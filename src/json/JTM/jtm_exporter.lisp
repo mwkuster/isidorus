@@ -491,14 +491,14 @@
 	    role-player "}")))
 
 
-(defgeneric export-roles-to-jtm (construct &key prefixes prefixes-p
-					   parent-p revision)
+(defgeneric export-roles-to-jtm (construct &key item-type-p parent-p prefixes
+					   prefixes-p revision)
   (:documentation "Exports a json array of roles serialised
                    as JTM-role-objects.")
-  (:method ((construct AssociationC) &key parent-p prefixes prefixes-p
+  (:method ((construct AssociationC) &key parent-p prefixes item-type-p prefixes-p
 	    (revision *TM-REVISION*))
     (declare (List prefixes)
-	     (Boolean prefixes-p parent-p)
+	     (Boolean prefixes-p parent-p item-type-p)
 	     (Integer revision))
     (let ((assoc-roles (roles construct :revision revision)))
       (if assoc-roles
@@ -507,7 +507,8 @@
 	       do (push-string
 		   (concat (export-to-jtm
 			    role :prefixes prefixes :prefixes-p prefixes-p
-			    :parent-p parent-p :revision revision) ",")
+			    :parent-p parent-p :item-type-p item-type-p
+			    :revision revision) ",")
 		   result))
 	    (concat (subseq result 0 (1- (length result))) "]"))
 	  "null"))))
@@ -539,13 +540,13 @@
 						    :revision revision) ",")))
 	(assoc-reifier (concat "\"reifier\":"
 			       (export-reifier-to-jtm construct :prefixes prefixes
-						      :revision revision)))
+						      :revision revision) ","))
 	(scopes (concat "\"scope\":"
 			(export-scopes-to-jtm
 			 construct :prefixes prefixes :revision revision) ","))
 	(assoc-roles
 	 (concat "\"roles\":"
-		 (export-roles-to-jtm construct :prefixes prefixes
+		 (export-roles-to-jtm construct :prefixes prefixes :item-type-p nil
 				      :prefixes-p nil :revision revision))))
     (concat "{" prefix-value iis type item-type assoc-parent assoc-reifier
 	    scopes assoc-roles "}")))

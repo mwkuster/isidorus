@@ -115,8 +115,14 @@
 	     (assocs (concat "\"associations\":"
 			     (export-associations-to-jtm tm-assocs :prefixes prefixes
 							 :revision revision)))
-	     (item-type (concat "\"item_type\":" item_type-topicmap)))
-	(concat "{" version prefix-value iis topics assocs item-type "}")))))
+	     (item-type (concat "\"item_type\":" item_type-topicmap ","))
+	     (tm-reifier
+	      (concat "\"reifier\":"
+		      (if tm
+			  (export-reifier-to-jtm tm :prefixes prefixes
+						 :revision revision)
+			  "null"))))
+	(concat "{" version prefix-value iis topics assocs item-type tm-reifier"}")))))
 	     
 	     
 
