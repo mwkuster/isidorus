@@ -110,11 +110,13 @@
 			   tm :identifier-type 'ItemIdentifierC :prefixes prefixes
 			   :revision revision) ","))
 	     (topics (concat "\"topics\":"
-			     (export-topics-to-jtm tm-tops :prefixes prefixes
-						   :revision revision)))
+			     (export-topics-to-jtm
+			      tm-tops :prefixes prefixes :instance-of-p version-1.1-p
+			      :item-type-p nil :revision revision)))
 	     (assocs (concat "\"associations\":"
-			     (export-associations-to-jtm tm-assocs :prefixes prefixes
-							 :revision revision)))
+			     (export-associations-to-jtm
+			      tm-assocs :prefixes prefixes
+			      :item-type-p nil :revision revision)))
 	     (item-type (concat "\"item_type\":" item_type-topicmap ","))
 	     (tm-reifier
 	      (concat "\"reifier\":"
