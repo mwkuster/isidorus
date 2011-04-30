@@ -30,7 +30,8 @@
 	   :test-export-to-jtm-occurrence
 	   :test-export-to-jtm-topic
 	   :test-export-to-jtm-role
-	   :test-export-to-jtm-association))
+	   :test-export-to-jtm-association
+	   :test-export-to-jtm-fragment))
 
 
 (in-package :jtm-test)
@@ -900,6 +901,26 @@
 		   (concat "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_2:ii-2]\",\"[pref_2:ii-3]\"],\"type\":\"si:[pref_2:psi-1]\",\"item_type\":\"association\",\"parent\":[\"ii:[pref_2:ii-4]\"],\"reifier\":null,\"scope\":[\"si:[pref_2:psi-1]\"],\"roles\":[" (jtm::export-to-jtm (first (roles assoc-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes) "," (jtm::export-to-jtm (second (roles assoc-1 :revision 0)) :item-type-p nil :revision 0 :prefixes prefixes) "]}")))
       (is (string= jtm-str-2
 		   (concat "{\"version\":\"1.0\",\"item_identifiers\":null,\"type\":\"si:http:\\/\\/some.where\\/psi-1\",\"item_type\":\"association\",\"reifier\":\"sl:http:\\/\\/some.where\\/sl-1\",\"scope\":null,\"roles\":[" (jtm::export-to-jtm (first (roles assoc-2 :revision 0)) :item-type-p nil :revision 0)"]}"))))))
+
+
+(test test-export-to-jtm-fragment
+  "Tests the function export-to-jtm bound to FragmentC and the function
+   export-construct-as-jtm-string also bound to FragmentC."
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (let* ((fragment
+	    (d::create-latest-fragment-of-topic
+	     "http://some.where/tmsparql/author/goethe"))
+	   (jtm-1 (jtm::export-to-jtm fragment :item-type-p nil :revision 0))
+	   (jtm-str-1 (export-construct-as-jtm-string fragment :revision 0))
+	   (jtm-str-2 (export-construct-as-jtm-string
+		       fragment :jtm-format :1.0 :parent-p nil :revision 0))
+	   (prefixes (list (list :pref "pref_1" :value *xsd-ns*)
+			   (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_2" :value "http://some.where/"))))
+
+      (format t "~a~%~%~a" jtm-str-1 jtm-str-2)
+      )))
+      
 
 
 (defun run-jtm-tests()

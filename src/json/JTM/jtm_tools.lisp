@@ -46,7 +46,7 @@
   (declare (Symbol jtm-format)
 	   (Integer revision)
 	   (Boolean parent-p)
-	   (ReifiableConstructC construct))
+	   (type (or ReifiableConstructC FragmentC) construct))
   (with-reader-lock
     (let* ((prefixes
 	    (when (eql jtm-format :1.1)
@@ -206,6 +206,15 @@
 	    (list (list :pref "xsd" :value *xsd-ns*)))))
       (sort result #'(lambda(x y)
 		       (> (length (getf x :value)) (length (getf y :value))))))))
+
+
+
+(defmethod create-prefix-list-for-construct ((construct FragmentC) &key
+					     (revision *TM-REVISION*))
+  (declare (Integer revision))
+  (create-prefix-list-for-tm (append (list (topic construct))
+				     (referenced-topics construct))
+			     (associations construct) nil :revision revision))
 
 
 (defmethod create-prefix-list-for-construct ((construct VariantC) &key
