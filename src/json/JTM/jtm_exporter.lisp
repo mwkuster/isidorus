@@ -557,8 +557,8 @@
 			  (revision *TM-REVISION*))
   "Note if prefixes-p is set to nil the export format is JTM 1.0.
    If prefixes-p is set to t the export format is JTM 1.1."
-  (declare (Boolean prefixes-p)
-	   (Ignorable parent-p item-type-p prefixes)
+  (declare (Boolean prefixes-p item-type-p)
+	   (Ignorable parent-p prefixes)
 	   (Integer revision))
   (let* ((prefixes-list
 	  (when prefixes-p
@@ -592,7 +592,8 @@
 		      (instance-of-associations (topic construct) :revision revision)))
 		   :prefixes prefixes-list :revision revision :item-type-p nil)
 		  ","))
-	 (item-type (concat "\"item_type\":\"" item_type-topicmap "\","))
+	 (item-type (when item-type-p
+		      (concat "\"item_type\":\"" item_type-topicmap "\",")))
 	 (iis "\"item_identifiers\":null,")
 	 (frag-reifier "\"reifier\":null"))
     (concat "{" prefixes-value frag-tops frag-assocs item-type

@@ -914,12 +914,71 @@
 	   (jtm-str-1 (export-construct-as-jtm-string fragment :revision 0))
 	   (jtm-str-2 (export-construct-as-jtm-string
 		       fragment :jtm-format :1.0 :parent-p nil :revision 0))
-	   (prefixes (list (list :pref "pref_1" :value *xsd-ns*)
-			   (list :pref "xsd" :value *xsd-ns*)
-			   (list :pref "pref_2" :value "http://some.where/"))))
-
-      (format t "~a~%~%~a" jtm-str-1 jtm-str-2)
-      )))
+	   (prefixes (list
+		      (list :pref "pref_1"
+			    :value "http://some.where/tmsparql/author/")
+		      (list :pref "xsd" :value *xsd-ns*)
+		      (list :pref "pref_3" :value "http://some.where/psis/poem/")
+		      (list :pref "pref_2" :value "http://some.where/tmsparql/")
+		      (list :pref "pref_4" :value "http://some.where/ii/zb/")
+		      (list :pref "pref_5" :value "http://some.where/ii/"))))
+      (is (string= jtm-1
+		   (concat "{\"topics\":"
+			   (jtm::export-topics-to-jtm
+			    (append (d:referenced-topics fragment)
+				    (list (d:topic fragment))
+				    (list
+				     (d:get-item-by-psi *type-instance-psi*
+							:revision 0)
+				     (d:get-item-by-psi *instance-psi*
+							:revision 0)
+				     (d:get-item-by-psi *type-psi*
+							:revision 0)))
+			    :item-type-p nil :parent-p nil :prefixes nil
+			    :revision 0 :instance-of-p nil)
+			   ",\"associations\":"
+			   (jtm::export-associations-to-jtm
+			    (append
+			     (d:associations fragment)
+			     (instance-of-associations (topic fragment) :revision 0))
+			    :item-type-p nil :parent-p nil :prefixes nil :revision 0)
+			   ",\"item_identifiers\":null,\"reifier\":null}")))
+      (is (string= jtm-str-1
+		   (concat "{\"version\":\"1.1\",\"prefixes\":"
+			   (jtm::export-prefix-list-to-jtm prefixes)
+			   ",\"topics\":"
+			   (jtm::export-topics-to-jtm
+			    (append (d:referenced-topics fragment)
+				    (list (d:topic fragment)))
+			    :item-type-p nil :parent-p nil :prefixes prefixes
+			    :revision 0 :instance-of-p t)
+			   ",\"associations\":"
+			   (jtm::export-associations-to-jtm
+			    (d:associations fragment)
+			    :item-type-p nil :parent-p nil
+			    :prefixes prefixes :revision 0)
+			   ",\"item_type\":\"topicmap\",\"item_identifiers\":null,\"reifier\":null}")))
+      (is (string= jtm-str-2
+		   (concat "{\"version\":\"1.0\",\"topics\":"
+			   (jtm::export-topics-to-jtm
+			    (append (d:referenced-topics fragment)
+				    (list (d:topic fragment))
+				    (list
+				     (d:get-item-by-psi *type-instance-psi*
+							:revision 0)
+				     (d:get-item-by-psi *instance-psi*
+							:revision 0)
+				     (d:get-item-by-psi *type-psi*
+							:revision 0)))
+			    :item-type-p nil :parent-p nil :prefixes nil
+			    :revision 0 :instance-of-p nil)
+			   ",\"associations\":"
+			   (jtm::export-associations-to-jtm
+			    (append
+			     (d:associations fragment)
+			     (instance-of-associations (topic fragment) :revision 0))
+			    :item-type-p nil :parent-p nil :prefixes nil :revision 0)
+			   ",\"item_type\":\"topicmap\",\"item_identifiers\":null,\"reifier\":null}"))))))
       
 
 
