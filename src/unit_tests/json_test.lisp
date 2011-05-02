@@ -565,7 +565,7 @@
 	(is-true (and core-tm test-tm))
 	(is (= (length (topics core-tm)) 13))
 	(is (= (length (associations core-tm)) 0))
-	(is (= (length (topics test-tm)) 2))
+	(is (= (length (topics test-tm)) (+ 2 3)))
 	(is (= (length (associations test-tm)) 1))))))
 
 
@@ -648,7 +648,7 @@
 	(is-true (and core-tm test-tm))
 	(is (= (length (topics core-tm)) 13))
 	(is (= (length (associations core-tm)) 0))
-	(is (= (length (topics test-tm)) 17))
+	(is (= (length (topics test-tm)) (+ 17 3)))
 	(is (= (length (associations test-tm)) 5))))))
 
 
@@ -1243,7 +1243,10 @@
 			    "http://www.topicmaps.org/xtm/1.0/core.xtm#sort")
 			   (string=
 			    psi
-			    "http://www.topicmaps.org/xtm/1.0/core.xtm#display"))
+			    "http://www.topicmaps.org/xtm/1.0/core.xtm#display")
+			   (string= psi constants:*type-instance-psi*)
+			   (string= psi constants:*type-psi*)
+			   (string= psi constants:*instance-psi*))
 		       (progn
 			 (is (= (length (in-topicmaps topic :revision rev-0)) 2))
 			 (is (or (string=

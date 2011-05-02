@@ -714,7 +714,7 @@
 	  (is (eql (reifier tm-1)
 		   (d:get-item-by-item-identifier
 		    "http://some.where/poems/topicMap-reifier")))
-	  (is (= (length (d:topics tm-1)) 9))
+	  (is (= (length (d:topics tm-1)) (+ 9 3)))
 	  (is (= (length (d:associations tm-1)) (+ 1 3)))
 	  (is (= (length (d:in-topicmaps (d:get-item-by-id "schiller"))) 1))
 	  (is (eql (first (d:in-topicmaps (d:get-item-by-id "schiller"))) tm-1))
@@ -744,7 +744,7 @@
 		(first (elephant:get-instances-by-value
 			'd:ItemIdentifierC 'd:uri tm-id-1)))))
 	  (is-true tm-1)
-	  (is (= (length (topics tm-1)) 8))
+	  (is (= (length (topics tm-1)) (+ 8 3)))
 	  (is (= (length (associations tm-1)) (+ 1 2)))
 	  (is (eql (reifier tm-1)
 		   (get-item-by-psi "#tm-reifier"))))))))
