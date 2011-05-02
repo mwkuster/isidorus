@@ -31,11 +31,22 @@
 	   :test-export-to-jtm-topic
 	   :test-export-to-jtm-role
 	   :test-export-to-jtm-association
-	   :test-export-to-jtm-fragment))
+	   :test-export-to-jtm-fragment
+	   :test-export-as-jtm))
 
 
 (in-package :jtm-test)
 
+
+(defun read-file (file-path)
+  "A helper function that reads a file and returns the content as a string."
+  (with-open-file (stream file-path)
+    (let ((file-string ""))
+      (do ((l (read-line stream) (read-line stream nil 'eof)))
+	  ((eq l 'eof))
+	(base-tools:push-string (base-tools::concat l (string #\newline)) file-string))
+      (subseq file-string 0 (max 0 (1- (length file-string)))))))
+  
 
 (def-suite jtm-tests
      :description "tests various functions of the jtm module")
@@ -979,7 +990,170 @@
 			     (instance-of-associations (topic fragment) :revision 0))
 			    :item-type-p nil :parent-p nil :prefixes nil :revision 0)
 			   ",\"item_type\":\"topicmap\",\"item_identifiers\":null,\"reifier\":null}"))))))
-      
+
+
+(test test-export-as-jtm
+  "Tests the function export-as-jtm."
+  (with-fixture with-tm-filled-db ("data_base" *sparql_test.xtm*)
+    (let ((jtm-path-1 
+	   (merge-pathnames
+	    (asdf:component-pathname
+	     (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	    "out_sparql_xtm_1.jtm"))
+	  (jtm-path-2
+	   (merge-pathnames
+	    (asdf:component-pathname
+	     (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	    "out_sparql_xtm_2.jtm"))
+	  (jtm-path-3
+	   (merge-pathnames
+	    (asdf:component-pathname
+	     (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	    "out_sparql_xtm_3.jtm"))
+	  (jtm-path-4
+	   (merge-pathnames
+	    (asdf:component-pathname
+	     (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	    "out_sparql_xtm_4.jtm")))
+      (handler-case (delete-file jtm-path-1) (condition () nil))
+      (handler-case (delete-file jtm-path-2) (condition () nil))
+      (handler-case (delete-file jtm-path-3) (condition () nil))
+      (handler-case (delete-file jtm-path-4) (condition () nil))
+      (export-as-jtm jtm-path-1 :tm-id nil :revision 0 :jtm-format :1.1)
+      (export-as-jtm jtm-path-2 :tm-id nil :revision 0 :jtm-format :1.0)
+      (export-as-jtm jtm-path-3 :tm-id fixtures::tm-id :revision 0 :jtm-format :1.1)
+      (export-as-jtm jtm-path-4 :tm-id fixtures::tm-id :revision 0 :jtm-format :1.0)
+      (let ((jtm-str-1 (read-file jtm-path-1))
+	    (jtm-str-2 (read-file jtm-path-2))
+	    (jtm-str-3 (read-file jtm-path-3))
+	    (jtm-str-4 (read-file jtm-path-4))
+	    (prefixes (list
+		       (list :pref "pref_1"
+			     :value "http://www.topicmaps.org/xtm/1.0/core.xtm#")
+		       (list :pref "pref_2"
+			     :value "http://psi.topicmaps.org/iso13250/model/")
+		       (list :pref "pref_5"
+			     :value "http://some.where/tmsparql/author/")
+		       (list :pref "xsd" :value *xsd-ns*)
+		       (list :pref "pref_3"
+			     :value "http://psi.topicmaps.org/tmcl/")
+		       (list :pref "pref_6"
+			     :value "http://some.where/psis/poem/")
+		       (list :pref "pref_4"
+			     :value "http://some.where/tmsparql/")
+		       (list :pref "pref_7"
+			     :value "http://some.where/ii/zb/")
+		       (list :pref "pref_8"
+			     :value "http://some.where/ii/")))
+	    (prefixes-2 (list
+			 (list :pref "pref_1"
+			       :value "http://psi.topicmaps.org/iso13250/model/")
+			 (list :pref "pref_4"
+			       :value "http://some.where/tmsparql/author/")
+			 (list :pref "xsd" :value *xsd-ns*)
+			 (list :pref "pref_8"
+			       :value "http://www.isidor.us/unittests/")
+			 (list :pref "pref_2"
+			       :value "http://psi.topicmaps.org/tmcl/")
+			 (list :pref "pref_5"
+			       :value "http://some.where/psis/poem/")
+			 (list :pref "pref_3"
+			       :value "http://some.where/tmsparql/")
+			 (list :pref "pref_6"
+			       :value "http://some.where/ii/zb/")
+			 (list :pref "pref_7"
+			       :value "http://some.where/ii/"))))
+	(is (string= jtm-str-1
+		     (concat "{\"version\":\"1.1\",\"prefixes\":"
+			     (jtm::export-prefix-list-to-jtm prefixes)
+			     ",\"item_identifiers\":null,\"topics\":"
+			     (jtm::export-topics-to-jtm
+			      (elephant:get-instances-by-class 'd:TopicC)
+			      :item-type-p nil :parent-p nil :prefixes prefixes
+			      :instance-of-p t :revision 0)
+			     ",\"associations\":"
+			     (jtm::export-associations-to-jtm
+			      (remove-null
+			       (map 'list
+				    #'(lambda(assoc)
+					(unless (eql
+						 (d:instance-of assoc :revision 0)
+						 (d:get-item-by-psi *type-instance-psi*
+								    :revision 0))
+					  assoc))
+				    (elephant:get-instances-by-class 'd:AssociationC)))
+			      :item-type-p nil :parent-p nil :prefixes prefixes
+			      :revision 0)
+			     ",\"item_type\":\"topicmap\",\"reifier\":null}")))
+	(is (string=
+	     jtm-str-2
+	     (concat "{\"version\":\"1.0\","
+		     "\"item_identifiers\":null,\"topics\":"
+		     (jtm::export-topics-to-jtm
+		      (elephant:get-instances-by-class 'd:TopicC)
+		      :item-type-p nil :parent-p nil
+		      :instance-of-p nil :revision 0)
+		     ",\"associations\":"
+		     (jtm::export-associations-to-jtm
+		      (elephant:get-instances-by-class 'd:AssociationC)
+		      :item-type-p nil :parent-p nil :revision 0)
+		     ",\"item_type\":\"topicmap\",\"reifier\":null}")))
+	(is (string= jtm-str-3
+		     (concat "{\"version\":\"1.1\",\"prefixes\":"
+			     (jtm::export-prefix-list-to-jtm prefixes-2)
+			     ",\"item_identifiers\":[\"[pref_8:testtm]\"],\"topics\":"
+			     (jtm::export-topics-to-jtm
+			      (d:topics
+			       (d:identified-construct
+				(elephant:get-instance-by-value
+				 'd:ItemIdentifierC 'd:uri
+				 "http://www.isidor.us/unittests/testtm")
+				:revision 0))
+			      :item-type-p nil :parent-p nil :prefixes prefixes-2
+			      :instance-of-p t :revision 0)
+			     ",\"associations\":"
+			     (jtm::export-associations-to-jtm
+			       (remove-null
+				(map 'list
+				     #'(lambda(assoc)
+					 (unless
+					     (eql
+					      (d:instance-of assoc :revision 0)
+					      (d:get-item-by-psi *type-instance-psi*
+								 :revision 0))
+					   assoc))
+				     (d:associations
+				      (d:identified-construct
+				       (elephant:get-instance-by-value
+					'd:ItemIdentifierC 'd:uri
+					"http://www.isidor.us/unittests/testtm")
+				       :revision 0))))
+			      :item-type-p nil :parent-p nil :prefixes prefixes-2
+			      :revision 0)
+			     ",\"item_type\":\"topicmap\",\"reifier\":null}")))
+	(is (string=
+	     jtm-str-4
+	     (concat "{\"version\":\"1.0\",\"item_identifiers\":"
+		     "[\"http:\\/\\/www.isidor.us\\/unittests\\/testtm\"]"
+		     ",\"topics\":"
+		     (jtm::export-topics-to-jtm
+		      (d:topics
+		       (d:identified-construct
+			(elephant:get-instance-by-value
+			 'd:ItemIdentifierC 'd:uri
+			 "http://www.isidor.us/unittests/testtm")
+			:revision 0))
+		      :item-type-p nil :parent-p nil :instance-of-p nil :revision 0)
+		     ",\"associations\":"
+		     (jtm::export-associations-to-jtm
+		      (d:associations
+		       (d:identified-construct
+			(elephant:get-instance-by-value
+			 'd:ItemIdentifierC 'd:uri
+			 "http://www.isidor.us/unittests/testtm")
+			:revision 0))
+		      :item-type-p nil :parent-p nil :revision 0)
+		     ",\"item_type\":\"topicmap\",\"reifier\":null}")))))))
 
 
 (defun run-jtm-tests()

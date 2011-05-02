@@ -187,6 +187,9 @@ core TM"
        (make-condition 'missing-reference-error
                        :message "could not find type topic (first player)"
                        :reference topicid-of-supertype)))
+    (add-to-tm tm associationtype)
+    (add-to-tm tm roletype1)
+    (add-to-tm tm roletype2)
     (add-to-tm 
      tm
      (make-construct 

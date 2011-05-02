@@ -400,6 +400,9 @@
 			   (list :instance-of roletype-2
 				 :player instance-top
 				 :start-revision start-revision))))
+	(add-to-tm tm assoc-type)
+	(add-to-tm tm roletype-1)
+	(add-to-tm tm roletype-2)
 	(let ((assoc
 	       (add-to-tm
 		tm

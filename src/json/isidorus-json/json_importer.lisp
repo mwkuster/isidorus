@@ -133,13 +133,11 @@
 
 	  (loop for name-values in (getf json-decoded-list :names)
 	     do (json-to-name name-values top start-revision))
-
 	  (loop for occurrence-values in (getf json-decoded-list :occurrences)
 	     do (json-to-occurrence occurrence-values top start-revision))
 	  (dolist (instanceOf-top instanceof-topics)
 	    (json-create-instanceOf-association instanceOf-top top start-revision
 						:tm tm))
-          ;(add-to-tm tm top) ; will be done in "json-to-stub"
 	  top)))))
 
 
@@ -340,6 +338,9 @@
        (player1 supertype))
     (unless (and associationtype roletype1 roletype2)
       (error "Error in the creation of an instanceof association: core topics are missing"))
+    (add-to-tm tm associationtype)
+    (add-to-tm tm roletype1)
+    (add-to-tm tm roletype2)
     (add-to-tm 
      tm
      (make-construct 

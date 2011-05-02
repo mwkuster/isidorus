@@ -91,11 +91,11 @@
 				    (associations tm))
 			 (get-all-associations revision))))
 		(if version-1.1-p
-		    assocs
 		    (set-difference
 		     assocs
 		     (loop for top in tm-tops
-			append (instance-of-associations top :revision revision))))))
+			append (instance-of-associations top :revision revision)))
+		    assocs)))
 	     (prefixes
 	      (when version-1.1-p
 		(create-prefix-list-for-tm tm-tops tm-assocs tm :revision revision)))
@@ -106,25 +106,28 @@
 			      (concat "\"prefixes\":"
 				      (export-prefix-list-to-jtm prefixes) ",")))
 	     (iis (concat "\"item_identifiers\":"
-			  (export-identifiers-to-jtm
-			   tm :identifier-type 'ItemIdentifierC :prefixes prefixes
-			   :revision revision) ","))
+			  (if tm
+			      (export-identifiers-to-jtm
+			       tm :identifier-type 'ItemIdentifierC :prefixes prefixes
+			       :revision revision)
+			      "null") ","))
 	     (topics (concat "\"topics\":"
 			     (export-topics-to-jtm
 			      tm-tops :prefixes prefixes :instance-of-p version-1.1-p
-			      :item-type-p nil :revision revision)))
+			      :item-type-p nil :revision revision) ","))
 	     (assocs (concat "\"associations\":"
 			     (export-associations-to-jtm
 			      tm-assocs :prefixes prefixes
-			      :item-type-p nil :revision revision)))
-	     (item-type (concat "\"item_type\":" item_type-topicmap ","))
+			      :item-type-p nil :revision revision) ","))
+	     (item-type (concat "\"item_type\":\"" item_type-topicmap "\","))
 	     (tm-reifier
 	      (concat "\"reifier\":"
 		      (if tm
 			  (export-reifier-to-jtm tm :prefixes prefixes
 						 :revision revision)
 			  "null"))))
-	(concat "{" version prefix-value iis topics assocs item-type tm-reifier"}")))))
+	(concat "{" version prefix-value iis topics assocs item-type tm-reifier 
+		"}")))))
 	     
 	     
 
@@ -132,7 +135,8 @@
 		      (jtm-format :1.1))
   "Exports a topic map or all stored constructs as JTM file by calling
    export-as-jtm-string."
-  (declare (type (or Null String) jtm-path tm-id)
+  (declare (type (or Null String) tm-id)
+	   (type (or String Pathname) jtm-path)
 	   (Symbol jtm-format)
 	   (Integer revision))
   (with-open-file (stream jtm-path :direction :output)
