@@ -79,9 +79,14 @@
 	  (version-1.1-p (eq jtm-format :1.1)))
       (let* ((tm-tops
 	      (if tm
-		  (delete-if #'(lambda(top)
-				 (not (find-item-by-revision top revision)))
-			     (topics tm))
+		  (let ((inner-tops
+			 (delete-if #'(lambda(top)
+					(not (find-item-by-revision top revision)))
+				    (topics tm))))
+		    (if (eql jtm-format :1.1)
+			(filter-type-instance-topics inner-tops tm
+						     :revision revision)
+			inner-tops))
 		  (get-all-topics revision)))
 	     (tm-assocs
 	      (let ((assocs

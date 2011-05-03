@@ -15,6 +15,7 @@
 		*XTM1.0-XLINK*
 		*type-psi*
 		*instance-psi*
+		*type-instance-psi*
 		*xml-uri*
 		*xml-string*)
   (:export :to-elem 

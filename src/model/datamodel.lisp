@@ -43,6 +43,7 @@
 	   :FragmentC
 
 	   ;;methods, functions and macros
+	   :instanceOf-association-p
 	   :has-identifier
 	   :get-all-identifiers-of-construct
 	   :xtm-id
@@ -183,6 +184,7 @@
 	   :occurrences-by-value
 	   :names-by-value
 	   :characteristics-by-value
+	   :filter-type-instance-topics
 	   :isa
 	   :aka))
 
@@ -2253,6 +2255,28 @@
   (get-item-by-identifier uri :revision revision
 			  :identifier-type-symbol 'SubjectLocatorC
 			  :error-if-nil error-if-nil))
+
+
+(defgeneric instanceOf-association-p (construct &key revision)
+  (:documentation "Returns t if the passed construct is an
+                   instance-of association.")
+  (:method ((construct AssociationC) &key (revision *TM-REVISION*))
+    (declare (Integer revision))
+    (let ((type-top
+	   (get-item-by-psi *type-psi* :revision revision))
+	  (instance-top
+	   (get-item-by-psi *instance-psi* :revision revision))
+	  (type-instance-top
+	   (get-item-by-psi *type-instance-psi* :revision revision)))
+      (when (and
+	     (eql (instance-of construct :revision revision) type-instance-top)
+	     (find-if #'(lambda(role)
+			  (eql (instance-of role :revision revision) type-top))
+		      (roles construct :revision revision))
+	     (find-if #'(lambda(role)
+			  (eql (instance-of role :revision revision) instance-top))
+		      (roles construct :revision revision)))
+	t))))
 
 
 (defgeneric list-instanceOf (topic &key tm revision)
@@ -4519,6 +4543,70 @@
 	(when equivalent-construct
 	  (merge-constructs (first equivalent-construct) new-characteristic
 			    :revision revision))))))
+
+
+(defun filter-type-instance-topics(all-topics tm &key (revision *TM-REVISION*))
+  "Removes the topics tmdm:type, tmdm:instance, and tmdm:type-instance
+   which are used for a type-instance association that is covered
+   by the instanceOf-element in the xtm formats. So the mentioned
+   topics only have to be exported if they are used also for other
+   constructs as the type-instance-associations."
+  (declare (List all-topics)
+	   (type (or Null TopicMapC) tm)
+	   (Integer revision))
+  (let* ((type-topic
+	  (get-item-by-psi *type-psi* :revision revision))
+	 (instance-topic
+	  (get-item-by-psi *instance-psi* :revision revision))
+	 (type-instance-topic
+	  (get-item-by-psi *type-instance-psi* :revision revision))
+	 (topics-to-hold
+	  (remove-null
+	   (map 'list #'(lambda(top)
+			  (let ((refs
+				 (append (used-as-type top :revision revision)
+					 (used-as-theme top :revision revision)
+					 (player-in-roles top :revision revision)
+					 (list (reified-construct
+						top :revision revision)))))
+			    (when refs
+			      (loop for ref in refs
+				 when (and (typep ref 'd::CharacteristicC)
+					   (parent ref :revision revision)
+					   (or (not tm)
+					       (find tm (in-topicmaps
+							 (parent ref :revision revision)
+							 :revision revision))))
+				 return top
+				 when (and (typep ref 'RoleC)
+					   (or
+					    (not (player ref :revision revision))
+					    (not (eql (player ref :revision revision)
+						      ref)))
+					   (parent ref :revision revision)
+					   (not (instanceOf-association-p
+						 (parent ref :revision revision)
+						 :revision revision))
+					   (or (not tm)
+					       (find tm (in-topicmaps
+							 (parent ref :revision revision)
+							 :revision revision))))
+				 return top
+				 when (and (typep ref 'd:AssociationC)
+					   (not (instanceOf-association-p
+						 ref :revision 0))
+					   (or (not tm)
+					       (find tm (in-topicmaps
+							 ref :revision revision))))
+				 return top
+				 when (and tm (typep ref 'd:TopicMapC)
+					   (eql tm ref))
+				 return top))))
+		(remove-null (list type-topic instance-topic type-instance-topic)))))
+	 (topics-to-remove
+	  (set-difference (list type-topic instance-topic type-instance-topic)
+			  topics-to-hold)))
+    (set-difference all-topics topics-to-remove)))
 
 
 ;; fixes a bug in elephant, where sb-mop:finalize-inheritance is called too late

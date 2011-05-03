@@ -1046,22 +1046,20 @@
 		       (list :pref "pref_8"
 			     :value "http://some.where/ii/")))
 	    (prefixes-2 (list
-			 (list :pref "pref_1"
-			       :value "http://psi.topicmaps.org/iso13250/model/")
-			 (list :pref "pref_4"
+			 (list :pref "pref_3"
 			       :value "http://some.where/tmsparql/author/")
 			 (list :pref "xsd" :value *xsd-ns*)
-			 (list :pref "pref_8"
-			       :value "http://www.isidor.us/unittests/")
-			 (list :pref "pref_2"
-			       :value "http://psi.topicmaps.org/tmcl/")
-			 (list :pref "pref_5"
-			       :value "http://some.where/psis/poem/")
-			 (list :pref "pref_3"
-			       :value "http://some.where/tmsparql/")
-			 (list :pref "pref_6"
-			       :value "http://some.where/ii/zb/")
 			 (list :pref "pref_7"
+			       :value "http://www.isidor.us/unittests/")
+			 (list :pref "pref_5"
+			       :value "http://psi.topicmaps.org/tmcl/")
+			 (list :pref "pref_1"
+			       :value "http://some.where/psis/poem/")
+			 (list :pref "pref_4"
+			       :value "http://some.where/tmsparql/")
+			 (list :pref "pref_2"
+			       :value "http://some.where/ii/zb/")
+			 (list :pref "pref_6"
 			       :value "http://some.where/ii/"))))
 	(is (string= jtm-str-1
 		     (concat "{\"version\":\"1.1\",\"prefixes\":"
@@ -1101,14 +1099,21 @@
 	(is (string= jtm-str-3
 		     (concat "{\"version\":\"1.1\",\"prefixes\":"
 			     (jtm::export-prefix-list-to-jtm prefixes-2)
-			     ",\"item_identifiers\":[\"[pref_8:testtm]\"],\"topics\":"
+			     ",\"item_identifiers\":[\"[pref_7:testtm]\"],\"topics\":"
 			     (jtm::export-topics-to-jtm
-			      (d:topics
-			       (d:identified-construct
-				(elephant:get-instance-by-value
-				 'd:ItemIdentifierC 'd:uri
-				 "http://www.isidor.us/unittests/testtm")
-				:revision 0))
+			      (reverse
+			       (remove
+				(d:get-item-by-psi *type-instance-psi* :revision 0)
+				(remove
+				 (d:get-item-by-psi *instance-psi* :revision 0)
+				 (remove
+				  (d:get-item-by-psi *type-psi* :revision 0)
+				  (d:topics
+				   (d:identified-construct
+				    (elephant:get-instance-by-value
+				     'd:ItemIdentifierC 'd:uri
+				     "http://www.isidor.us/unittests/testtm")
+				    :revision 0))))))
 			      :item-type-p nil :parent-p nil :prefixes prefixes-2
 			      :instance-of-p t :revision 0)
 			     ",\"associations\":"

@@ -106,9 +106,10 @@
                   (d:find-item-by-revision top revision))
               (if ,tm
                   (union
-                    (d:topics ,tm) (intersection (list-tm-associations) (d:associations ,tm)))
+                    (filter-type-instance-topics (d:topics ,tm) tm :revision revision)
+		    (intersection (list-tm-associations) (d:associations ,tm)))
                   (union
-                   (elephant:get-instances-by-class 'd:TopicC)
+		   (elephant:get-instances-by-class 'd:TopicC)
                    (list-tm-associations)))))))
 
 

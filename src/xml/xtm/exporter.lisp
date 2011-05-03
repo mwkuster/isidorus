@@ -11,7 +11,8 @@
 
 
 (defun list-extern-associations (&key (revision *TM-REVISION*))
-  "gets all instances of AssociationC - which does not realize an instanceOf relationship in the db"
+  "gets all instances of AssociationC - which does not realize an
+   instanceOf relationship in the db"
   (let ((instance-topic 
 	 (identified-construct
 	  (elephant:get-instance-by-value 'PersistentIdC 'uri *instance-psi*)))
@@ -76,7 +77,8 @@
                   (d:find-item-by-revision top revision))
 	      (if ,tm
 		  (union
-		   (d:topics ,tm) (d:associations ,tm))
+		   (filter-type-instance-topics (d:topics ,tm) tm :revision revision)
+		   (d:associations ,tm))
 		  (union
 		   (elephant:get-instances-by-class 'd:TopicC)
 		   (list-extern-associations :revision revision)))))))
