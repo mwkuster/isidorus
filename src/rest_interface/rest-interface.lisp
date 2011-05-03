@@ -16,9 +16,9 @@
 	:TM-SPARQL
         :atom 
         :datamodel
-        :exporter
+        :xtm-exporter
         :xml-tools
-        :xml-importer
+        :xtm-importer
 	:json-exporter
 	:json-importer
 	:base-tools
@@ -84,7 +84,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (unless elephant:*store-controller*
     (elephant:open-store  
-     (xml-importer:get-store-spec repository-path)))
+     (xtm-importer:get-store-spec repository-path)))
   (set-up-json-interface)
   (setf *json-server-acceptor*
 	(make-instance 'hunchentoot:acceptor :address host-name :port port))
@@ -114,7 +114,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (setf atom:*base-url* (format nil "http://~a:~a" host-name port))
   (unless elephant:*store-controller*
     (elephant:open-store  
-     (xml-importer:get-store-spec repository-path)))
+     (xtm-importer:get-store-spec repository-path)))
   (load conf-file)
   (publish-feed atom:*tm-feed*)
   (setf *atom-server-acceptor*

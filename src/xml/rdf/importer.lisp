@@ -18,19 +18,19 @@
   (unless elephant:*store-controller*
     (elephant:open-store  
      (get-store-spec repository-path)))
-  (xml-importer:init-isidorus)
+  (xtm-importer:init-isidorus)
   (init-rdf-module)
-  (rdf-importer rdf-xml-path repository-path :tm-id tm-id
-		:document-id document-id)
+  (import-from-rdf rdf-xml-path repository-path :tm-id tm-id
+		   :document-id document-id)
   (when elephant:*store-controller*
     (elephant:close-store)))
 
 
-(defun rdf-importer (rdf-xml-path repository-path 
-		     &key 
-		     (tm-id nil)
-		     (document-id (get-uuid))
-		     (start-revision (d:get-revision)))
+(defun import-from-rdf (rdf-xml-path repository-path 
+			&key 
+			(tm-id nil)
+			(document-id (get-uuid))
+			(start-revision (d:get-revision)))
   "Imports the file correponding to the given path."
   (setf *document-id* document-id)
   (tm-id-p tm-id "rdf-importer")
@@ -68,7 +68,7 @@
 		   ((top
 		     (from-topic-elem-to-stub top-elem revision
 					      :xtm-id *rdf-core-xtm*)))
-		 (add-to-tm xml-importer::tm top))))))))
+		 (add-to-tm xtm-importer::tm top))))))))
 
 
 (defun import-dom (rdf-dom start-revision
@@ -118,15 +118,15 @@
       (with-tm (start-revision document-id tm-id)
 	(let ((this
 	       (make-topic-stub
-		about ID nodeID UUID start-revision xml-importer::tm
+		about ID nodeID UUID start-revision xtm-importer::tm
 		:document-id document-id)))
 	  (make-literals this literals tm-id start-revision
 			 :document-id document-id)
-	  (make-associations this associations xml-importer::tm
+	  (make-associations this associations xtm-importer::tm
 			     start-revision :document-id document-id)
-	  (make-types this types xml-importer::tm start-revision
+	  (make-types this types xtm-importer::tm start-revision
 		      :document-id document-id)
-	  (make-super-classes this super-classes xml-importer::tm
+	  (make-super-classes this super-classes xtm-importer::tm
 			      start-revision :document-id document-id)
 	  (make-recursion-from-node elem tm-id start-revision
 				    :document-id document-id
@@ -149,7 +149,7 @@
       (if (and (string= parseType "Collection")
 	       (= (length content) 0))
 	    (make-topic-stub *rdf-nil* nil nil nil start-revision
-			     xml-importer::tm :document-id document-id)
+			     xtm-importer::tm :document-id document-id)
 	  (let ((this-topic
 		 (when (or (not parseType)
 			   (and parseType
@@ -183,12 +183,12 @@
 			       elem tm-id parent-xml-base)))
 			 (make-literals this literals tm-id start-revision
 					:document-id document-id)
-			 (make-associations this associations xml-importer::tm
+			 (make-associations this associations xtm-importer::tm
 					    start-revision :document-id document-id)
-			 (make-types this types xml-importer::tm start-revision
+			 (make-types this types xtm-importer::tm start-revision
 				     :document-id document-id)
 			 (make-super-classes
-			  this super-classes xml-importer::tm
+			  this super-classes xtm-importer::tm
 			  start-revision :document-id document-id))
 		       this)))))
 	    (make-recursion-from-arc elem tm-id start-revision
@@ -209,7 +209,7 @@
 	  (xml-lang (get-xml-lang elem :old-lang parent-xml-lang))
 	  (UUID (get-ns-attribute elem "UUID" :ns-uri *rdf2tm-ns*)))
       (let ((this (make-topic-stub nil nil nil UUID start-revision
-				   xml-importer::tm
+				   xtm-importer::tm
 				   :document-id document-id))
 	    (items (loop for item across (child-nodes-or-text elem :trim t)
 		      collect (import-node item tm-id start-revision
@@ -241,26 +241,26 @@
   (with-tm (start-revision document-id tm-id)
     (let ((first-arc
 	   (make-topic-stub *rdf-first* nil nil nil start-revision 
-			    xml-importer::tm :document-id document-id))
+			    xtm-importer::tm :document-id document-id))
 	  (rest-arc
 	   (make-topic-stub *rdf-rest* nil nil nil start-revision
-			    xml-importer::tm :document-id document-id)))
+			    xtm-importer::tm :document-id document-id)))
       (make-association-with-nodes current-blank-node first-object first-arc
-				   xml-importer::tm start-revision
+				   xtm-importer::tm start-revision
 				   :document-id document-id)
       (if is-end
 	  (let ((rdf-nil (make-topic-stub *rdf-nil* nil nil nil
-					  start-revision xml-importer::tm
+					  start-revision xtm-importer::tm
 					  :document-id document-id)))
 	    (make-association-with-nodes
-	     current-blank-node rdf-nil rest-arc xml-importer::tm
+	     current-blank-node rdf-nil rest-arc xtm-importer::tm
 	     start-revision :document-id document-id)
 	    nil)
 	  (let ((new-blank-node (make-topic-stub
 				 nil nil nil (get-uuid) start-revision
-				 xml-importer::tm :document-id document-id)))
+				 xtm-importer::tm :document-id document-id)))
 	    (make-association-with-nodes
-	     current-blank-node new-blank-node rest-arc xml-importer::tm
+	     current-blank-node new-blank-node rest-arc xtm-importer::tm
 	     start-revision :document-id document-id)
 	    new-blank-node)))))
 
@@ -571,10 +571,10 @@
 	  (ID (getf literal :ID)))
       (elephant:ensure-transaction (:txn-nosync t)
 	(let ((type-top (make-topic-stub type nil nil nil start-revision
-					 xml-importer::tm
+					 xtm-importer::tm
 					 :document-id document-id))
 	      (lang-top (make-lang-topic lang start-revision
-					 xml-importer::tm
+					 xtm-importer::tm
 					 :document-id document-id)))
 	  (let ((occurrence
 		 (make-construct 'OccurrenceC 
@@ -586,7 +586,7 @@
 				 :charvalue value
 				 :datatype datatype)))
 	    (when ID
-	      (make-reification ID occurrence start-revision xml-importer::tm
+	      (make-reification ID occurrence start-revision xtm-importer::tm
 				:document-id document-id))
 	    occurrence))))))
 	    

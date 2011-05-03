@@ -7,7 +7,7 @@
 ;;+  trunk/docs/LGPL-LICENSE.txt.
 ;;+-----------------------------------------------------------------------------
 
-(in-package :exporter)
+(in-package :xtm-exporter)
 
 
 (defun list-extern-associations (&key (revision *TM-REVISION*))
@@ -84,21 +84,23 @@
 		   (list-extern-associations :revision revision)))))))
 
 
-(defun export-xtm (xtm-path &key 
-                   tm-id
-                   (revision (get-revision)) 
-                   (xtm-format '2.0))
+(defun export-as-xtm (xtm-path &key 
+		      tm-id
+		      (revision (get-revision)) 
+		      (xtm-format :2.0))
+  (declare (type (or Null String) tm-id)
+	   (Integer revision)
+	   (Keyword xtm-format))
   (with-reader-lock
-    (let
-	((tm 
-	  (when tm-id
-	    (get-item-by-item-identifier tm-id :revision revision))))
+    (let ((tm 
+	   (when tm-id
+	     (get-item-by-item-identifier tm-id :revision revision))))
       (setf *export-tm* tm)
       (with-revision revision
 	(setf SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :utf-8)
 	(with-open-file (stream xtm-path :direction :output)
 	  (cxml:with-xml-output (cxml:make-character-stream-sink stream :canonical nil)
-	    (if (eq xtm-format '2.0)
+	    (if (eq xtm-format :2.0)
 		(with-xtm2.0 (tm revision)
 		  (export-to-elem tm #'(lambda(elem)
 					 (to-elem elem revision))))
@@ -107,17 +109,20 @@
 					 (to-elem-xtm1.0 elem revision)))))))))))
 
 
-(defun export-xtm-to-string (&key 
+(defun export-as-xtm-string (&key 
                              tm-id
-                             (revision (get-revision)) (xtm-format '2.0))
+                             (revision (get-revision))
+			     (xtm-format :2.0))
+  (declare (type (or Null String) tm-id)
+	   (Integer revision)
+	   (Keyword xtm-format))
   (with-reader-lock
-    (let
-	((tm 
-	  (when tm-id
-	    (get-item-by-item-identifier tm-id :revision revision))))
+    (let ((tm 
+	   (when tm-id
+	     (get-item-by-item-identifier tm-id :revision revision))))
       (with-revision revision
 	(cxml:with-xml-output (cxml:make-string-sink :canonical nil)
-	  (if (eq xtm-format '2.0)
+	  (if (eq xtm-format :2.0)
 	      (with-xtm2.0 (tm revision)
 		(export-to-elem tm #'(lambda(elem)
 				       (to-elem elem revision))))
@@ -126,13 +131,15 @@
 				       (to-elem-xtm1.0 elem revision))))))))))
 
 
-(defun export-xtm-fragment (fragment &key (xtm-format '2.0))
-  (declare (FragmentC fragment))
-  (with-reader-lock
-    (with-revision (revision fragment)
-      (cxml:with-xml-output  (cxml:make-string-sink :canonical nil)
-	(if (eq xtm-format '2.0)
-	    (with-xtm2.0 (nil nil)
-              (to-elem fragment (revision fragment)))
-	    (with-xtm1.0 (nil nil)
-              (to-elem-xtm1.0 fragment (revision fragment))))))))
+(defgeneric export-construct-as-xtm-string (construct &key xtm-format)
+  (:documentation "Exports a FragmentC object as xtm string.")
+  (:method ((construct FragmentC) &key (xtm-format :2.0))
+    (declare (Keyword xtm-format))
+    (with-reader-lock
+      (with-revision (revision construct)
+	(cxml:with-xml-output  (cxml:make-string-sink :canonical nil)
+	  (if (eq xtm-format :2.0)
+	      (with-xtm2.0 (nil nil)
+		(to-elem construct (revision construct)))
+	      (with-xtm1.0 (nil nil)
+		(to-elem-xtm1.0 construct (revision construct)))))))))

@@ -7,7 +7,7 @@
 ;;+  trunk/docs/LGPL-LICENSE.txt.
 ;;+-----------------------------------------------------------------------------
 
-(defpackage :exporter
+(defpackage :xtm-exporter
   (:use :cl :cxml :elephant :datamodel :isidorus-threading :base-tools)
   (:import-from :constants
                 *XTM2.0-NS*
@@ -21,11 +21,11 @@
   (:export :to-elem 
            :to-string
            :list-extern-associations
-	   :export-xtm
-	   :export-xtm-to-string
-	   :export-xtm-fragment))
+	   :export-as-xtm
+	   :export-as-xtm-string
+	   :export-construct-as-xtm-string))
 
-(in-package :exporter)
+(in-package :xtm-exporter)
 
 (defparameter *export-tm* nil "TopicMap which is exported (nil if all is to be exported")
 

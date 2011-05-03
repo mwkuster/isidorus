@@ -10,8 +10,8 @@
 (defpackage :exporter-test
   (:use 
    :common-lisp
-   :xml-importer
-   :exporter
+   :xtm-importer
+   :xtm-exporter
    :it.bese.FiveAM
    :xml-tools)
   (:import-from :constants
@@ -552,7 +552,7 @@
 ;; === checks all topics from core_psis.xtm ====================================
 (test test-std-topics
   (with-fixture refill-test-db ()
-    (export-xtm *out-xtm2.0-file*)
+    (export-as-xtm *out-xtm2.0-file*)
     (let ((document (dom:document-element
 		     (cxml:parse-file *out-xtm2.0-file*
 				      (cxml-dom:make-dom-builder))))
@@ -635,7 +635,7 @@
 ;; === checks the topics t1-t10 from sample_objects_2_0.xtm ====================
 (test test-sample-topics-t1-t10
   (with-fixture refill-test-db()
-    (export-xtm *out-xtm2.0-file*)
+    (export-as-xtm *out-xtm2.0-file*)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 38 2)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -681,7 +681,7 @@
 ;; === checks the topics t50-t59 from sample_objects_2_0.xtm ===================
 (test test-sample-topics-t50-t59
   (with-fixture refill-test-db()
-    (export-xtm *out-xtm2.0-file*)
+    (export-as-xtm *out-xtm2.0-file*)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 38 2)      
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -748,7 +748,7 @@
 ;; === checks the topics t60-t100 from sample_objects_2_0.xtm ==================
 (test test-sample-topics-t60-t100
   (with-fixture refill-test-db()
-    (export-xtm *out-xtm2.0-file*)
+    (export-as-xtm *out-xtm2.0-file*)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 38 2)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -785,7 +785,7 @@
 ;; === checks the topics t101-t301 from sample_objects_2_0.xtm =================
 (test test-sample-topics-t101-t301
   (with-fixture refill-test-db ()
-    (export-xtm *out-xtm2.0-file*)
+    (export-as-xtm *out-xtm2.0-file*)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 38 2)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -854,7 +854,7 @@
 ;; === checks the associations from sample_objects_2_0.xtm =====================
 (test test-sample-associations
   (with-fixture refill-test-db()
-    (export-xtm *out-xtm2.0-file*)
+    (export-as-xtm *out-xtm2.0-file*)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 38 2)
       (let ((assoc-1 (elt (xpath-child-elems-by-qname document *xtm2.0-ns* "association") 0))
@@ -985,7 +985,7 @@
 			      return item)))
 
 	(with-open-file (stream *out-xtm2.0-file* :direction :output)
-	  (write-string (export-xtm-fragment t100-fragment) stream))))
+	  (write-string (export-construct-as-xtm-string t100-fragment) stream))))
 
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 10 1)
@@ -1090,7 +1090,7 @@
 (test test-exporter-xtm2.0-versions-1
   (with-fixture merge-test-db ()
     (handler-case (delete-file *out-xtm2.0-file*)(error () )) ;deletes file - if exist
-    (export-xtm *out-xtm2.0-file* :revision fixtures::revision1)
+    (export-as-xtm *out-xtm2.0-file* :revision fixtures::revision1)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 47 7)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -1325,7 +1325,7 @@
 (test test-exporter-xtm2.0-versions-2
   (with-fixture merge-test-db ()
     (handler-case (delete-file *out-xtm2.0-file*)(error () )) ;deletes file - if exist
-    (export-xtm *out-xtm2.0-file* :revision fixtures::revision2)
+    (export-as-xtm *out-xtm2.0-file* :revision fixtures::revision2)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 48 7)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -1608,7 +1608,7 @@
 (test test-exporter-xtm2.0-versions-3
   (with-fixture merge-test-db ()
     (handler-case (delete-file *out-xtm2.0-file*)(error () )) ;deletes file - if exist
-    (export-xtm *out-xtm2.0-file* :revision fixtures::revision3)
+    (export-as-xtm *out-xtm2.0-file* :revision fixtures::revision3)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 48 8)
       (loop for topic across (xpath-child-elems-by-qname document *xtm2.0-ns* "topic")
@@ -1980,7 +1980,7 @@
 			 return item)))
 
 	(with-open-file (stream *out-xtm2.0-file* :direction :output)
-	  (write-string (export-xtm-fragment fragment) stream))))
+	  (write-string (export-construct-as-xtm-string fragment) stream))))
 
     (let ((document (dom:document-element (cxml:parse-file *out-xtm2.0-file* (cxml-dom:make-dom-builder)))))
       (check-document-structure document 6 0)

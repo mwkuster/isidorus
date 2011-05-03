@@ -15,7 +15,7 @@
    :unittests-constants
    :fixtures
    :base-tools
-   :exporter)
+   :xtm-exporter)
   (:import-from :constants
                 *xtm2.0-ns*
 		*xtm1.0-ns*
@@ -64,7 +64,7 @@
 	(revision-1 100)
 	(revision-2 200))
     (clean-out-db db-dir)
-    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (elephant:open-store (xtm-importer:get-store-spec db-dir))
     (let ((ii-1-1 (make-instance 'ItemIdentifierC
 				 :uri "ii-1-1"
 				 :start-revision revision-1))
@@ -243,10 +243,11 @@
   (let
       ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:import-xtm *reification_xtm1.0.xtm* dir
+      (xtm-importer:import-from-xtm
+       *reification_xtm1.0.xtm* dir
        :tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"
        :xtm-id "reification-xtm"
-       :xtm-format '1.0)
+       :xtm-format :1.0)
       (setf *TM-REVISION* 0)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
@@ -309,7 +310,8 @@
   (let
       ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:import-xtm *reification_xtm2.0.xtm* dir
+      (xtm-importer:import-from-xtm
+       *reification_xtm2.0.xtm* dir
        :tm-id "http://www.isidor.us/unittests/reification-xtm2.0-tests"
        :xtm-id "reification-xtm")
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
@@ -379,11 +381,12 @@
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
       (setf *TM-REVISION* 0)
-      (xml-importer:import-xtm *reification_xtm1.0.xtm* dir
+      (xtm-importer:import-from-xtm
+       *reification_xtm1.0.xtm* dir
        :tm-id tm-id
        :xtm-id "reification-xtm"
-       :xtm-format '1.0)
-      (export-xtm output-file :xtm-format '1.0 :tm-id tm-id)
+       :xtm-format :1.0)
+      (export-as-xtm output-file :xtm-format :1.0 :tm-id tm-id)
       (let ((document
 	     (dom:document-element
 	      (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
@@ -471,10 +474,11 @@
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
       (setf *TM-REVISION* 0)
-      (xml-importer:import-xtm *reification_xtm2.0.xtm* dir
+      (xtm-importer:import-from-xtm
+       *reification_xtm2.0.xtm* dir
        :tm-id tm-id
        :xtm-id "reification-xtm")
-      (export-xtm output-file :tm-id tm-id)
+      (export-as-xtm output-file :tm-id tm-id)
       (let ((document
 	     (dom:document-element
 	      (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
@@ -644,10 +648,10 @@
 	(document-id "doc-id"))
     (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
-    (rdf-importer:rdf-importer
+    (rdf-importer:import-from-rdf
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
-    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (elephant:open-store (xtm-importer:get-store-spec db-dir))
     (let ((homer (get-item-by-id "http://simpsons.tv/homer" :xtm-id document-id))
 	  (bart (get-item-by-id "http://simpsons.tv/bart" :xtm-id document-id))
 	  (married (get-item-by-id "http://simpsons.tv/arcs/married" :xtm-id document-id)))
@@ -677,10 +681,10 @@
 	(document-id "doc-id"))
     (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
-    (rdf-importer:rdf-importer
+    (rdf-importer:import-from-rdf
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
-    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (elephant:open-store (xtm-importer:get-store-spec db-dir))
     (let ((lisa (get-item-by-id "http://simpsons.tv/lisa" :xtm-id document-id)))
       (is-true lisa)
       (is (= (length (names lisa)) 1))
@@ -716,10 +720,10 @@
 	(document-id "doc-id"))
     (setf *TM-REVISION* 0)
     (clean-out-db db-dir)
-    (rdf-importer:rdf-importer
+    (rdf-importer:import-from-rdf
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
-    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (elephant:open-store (xtm-importer:get-store-spec db-dir))
     (let ((friendship (get-item-by-id "http://simpsons.tv/friendship" :xtm-id document-id))
 	  (carl (get-item-by-id "http://simpsons.tv/carl" :xtm-id document-id)))
       (is-true friendship)
@@ -756,11 +760,11 @@
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
-    (rdf-importer:rdf-importer *reification.rdf* dir
-       :tm-id tm-id
-       :document-id "reification-xtm")
-    (elephant:open-store (xml-importer:get-store-spec dir))
-    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (rdf-importer:import-from-rdf *reification.rdf* dir
+				  :tm-id tm-id
+				  :document-id "reification-xtm")
+    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
 	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
@@ -829,11 +833,11 @@
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
-    (rdf-importer:rdf-importer *reification.rdf* dir
-       :tm-id tm-id
-       :document-id "reification-xtm")
-    (elephant:open-store (xml-importer:get-store-spec dir))
-    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (rdf-importer:import-from-rdf *reification.rdf* dir
+				  :tm-id tm-id
+				  :document-id "reification-xtm")
+    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
 	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
@@ -892,11 +896,11 @@
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
-    (rdf-importer:rdf-importer *reification.rdf* dir
-       :tm-id tm-id
-       :document-id "reification-xtm")
-    (elephant:open-store (xml-importer:get-store-spec dir))
-    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (rdf-importer:import-from-rdf *reification.rdf* dir
+				  :tm-id tm-id
+				  :document-id "reification-xtm")
+    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
 	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
@@ -927,11 +931,11 @@
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
-    (rdf-importer:rdf-importer *reification.rdf* dir
-       :tm-id tm-id
-       :document-id "reification-xtm")
-    (elephant:open-store (xml-importer:get-store-spec dir))
-    (rdf-exporter:export-rdf output-file :tm-id tm-id)
+    (rdf-importer:import-from-rdf *reification.rdf* dir
+				  :tm-id tm-id
+				  :document-id "reification-xtm")
+    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
 	    (cxml:parse-file output-file (cxml-dom:make-dom-builder)))))
@@ -985,10 +989,10 @@
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
     (clean-out-db dir)
-    (rdf-importer:rdf-importer *reification.rdf* dir
+    (rdf-importer:import-from-rdf *reification.rdf* dir
        :tm-id tm-id
        :document-id "reification-xtm")
-    (elephant:open-store (xml-importer:get-store-spec dir))
+    (elephant:open-store (xtm-importer:get-store-spec dir))
     (let ((fragment (d:create-latest-fragment-of-topic "http://simpsons.tv/lisa")))
       (is-true fragment)
       (is (= (length (union (referenced-topics fragment)

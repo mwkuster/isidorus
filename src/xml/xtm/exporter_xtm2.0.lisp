@@ -7,7 +7,7 @@
 ;;+  trunk/docs/LGPL-LICENSE.txt.
 ;;+-----------------------------------------------------------------------------
 
-(in-package :exporter)
+(in-package :xtm-exporter)
 
 (defun to-reifier-elem (reifiable-construct revision)
   "Exports the reifier-attribute.

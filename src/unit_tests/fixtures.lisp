@@ -10,7 +10,7 @@
 (defpackage :fixtures
   (:use 
    :common-lisp
-   :xml-importer
+   :xtm-importer
    :datamodel
    :it.bese.FiveAM
    :base-tools
@@ -179,8 +179,8 @@
   (when elephant:*store-controller*
     (elephant:close-store))
   (clean-out-db db-dir)
-  (elephant:open-store (xml-importer:get-store-spec db-dir))
-  (xml-importer:init-isidorus start-revision)
+  (elephant:open-store (xtm-importer:get-store-spec db-dir))
+  (xtm-importer:init-isidorus start-revision)
   (rdf-importer:init-rdf-module start-revision))
 
 
@@ -192,7 +192,7 @@
     (setf d:*current-xtm* document-id)
     (rdf-importer:setup-rdf-module *poems_light.rdf* db-dir :tm-id tm-id
 				   :document-id document-id)
-    (elephant:open-store (xml-importer:get-store-spec db-dir))
+    (elephant:open-store (xtm-importer:get-store-spec db-dir))
     (&body)
     (tear-down-test-db)))
 
@@ -208,8 +208,8 @@
     (setf d:*current-xtm* document-id)
     (setup-repository *poems_light.xtm* db-dir :tm-id tm-id
 		      :xtm-id document-id)
-    (elephant:open-store (xml-importer:get-store-spec db-dir))
-    (rdf-exporter:export-rdf exported-file-path :tm-id tm-id)
+    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (rdf-exporter:export-as-rdf exported-file-path :tm-id tm-id)
     (&body)
     (handler-case (delete-file exported-file-path)
       (error () )) ;do nothing
@@ -218,7 +218,7 @@
 
 (def-fixture with-empty-db (dir)
   (clean-out-db dir)
-  (elephant:open-store (xml-importer:get-store-spec dir))
+  (elephant:open-store (xtm-importer:get-store-spec dir))
   (&body)
   (tear-down-test-db))
 
@@ -227,7 +227,7 @@
   (clean-out-db dir)
   (let ((tm-id "http://www.isidor.us/unittests/testtm")
 	(xtm-id (full-path xtm-path)))
-    (xml-importer:setup-repository xtm-path dir :tm-id tm-id :xtm-id xtm-id)
-    (elephant:open-store (xml-importer:get-store-spec dir))
+    (xtm-importer:setup-repository xtm-path dir :tm-id tm-id :xtm-id xtm-id)
+    (elephant:open-store (xtm-importer:get-store-spec dir))
     (&body)
     (tear-down-test-db)))

@@ -71,6 +71,7 @@ src/base-tools/base-tools.lisp -text
 src/external/PRACTICALS_LICENSE -text
 src/external/pathnames.asd -text
 src/isidorus.asd -text
+src/json/JTM/jtm_aliases.lisp -text
 src/json/JTM/jtm_exporter.lisp -text
 src/json/JTM/jtm_importer.lisp -text
 src/json/JTM/jtm_tools.lisp -text

@@ -10,7 +10,7 @@
 (defpackage :json-test
   (:use
    :common-lisp
-   :xml-importer
+   :xtm-importer
    :json-exporter
    :json-importer
    :json-tmcl
@@ -80,33 +80,37 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
        :xtm-id *TEST-TM*) 
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((t50a (get-item-by-id "t50a" :xtm-id *TEST-TM* :revision rev-0)))
-	(let ((t50a-string (to-json-string t50a :revision 0))
+	(let ((t50a-string (export-construct-as-isidorus-json-string t50a :revision 0))
 	      (json-string 
 	       (concat "{\"id\":\"" (topic-id t50a) "\",\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t50a\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http:\\/\\/psi.egovpt.org\\/types\\/long-name\"],\"instanceOfs\":[[\"http:\\/\\/www.networkedplanet.com\\/psi\\/npcl\\/meta-types\\/occurrence-type\"]],\"names\":[{\"itemIdentities\":null,\"type\":null,\"scopes\":null,\"value\":\"long version of a name\",\"variants\":[{\"itemIdentities\":null,\"scopes\":[[\"http:\\/\\/www.topicmaps.org\\/xtm\\/1.0\\/core.xtm#sort\"]],\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"Long-Version\"}}]}],\"occurrences\":null}" )))
 	  (is (string= t50a-string json-string)))
 	(let ((t8 (get-item-by-id "t8" :revision rev-0 :xtm-id *TEST-TM*)))
-	  (let ((t8-string (to-json-string t8 :revision rev-0 :xtm-id *TEST-TM*))
+	  (let ((t8-string (export-construct-as-isidorus-json-string
+			    t8 :revision rev-0 :xtm-id *TEST-TM*))
 		(json-string 
 		 (concat "{\"id\":\"" (topic-id t8) "\",\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t8\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http:\\/\\/www.networkedplanet.com\\/psi\\/npcl\\/meta-types\\/association-role-type\"],\"instanceOfs\":[[\"http:\\/\\/www.networkedplanet.com\\/psi\\/npcl\\/meta-types\\/topic-type\"]],\"names\":[{\"itemIdentities\":null,\"type\":null,\"scopes\":null,\"value\":\"Association Role Type\",\"variants\":null}],\"occurrences\":null}")))
 	    (is (string= t8-string json-string))))
 	(let ((t-topic (get-item-by-id "topic" :xtm-id "core.xtm" :revision rev-0)))
-	  (let ((t-topic-string (to-json-string t-topic :xtm-id "core.xtm"
+	  (let ((t-topic-string (export-construct-as-isidorus-json-string
+				 t-topic :xtm-id "core.xtm"
 						:revision rev-0))
 		(json-string
 		 (concat "{\"id\":\"" (topic-id t-topic) "\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"http:\\/\\/www.topicmaps.org\\/xtm\\/1.0\\/core.xtm#topic\"],\"instanceOfs\":null,\"names\":null,\"occurrences\":null}")))
 	    (is (string= t-topic-string json-string))))
 	(let ((t301 (get-item-by-id "t301" :xtm-id *TEST-TM* :revision rev-0)))
-	  (let ((t301-string (to-json-string t301 :xtm-id *TEST-TM* :revision rev-0))
+	  (let ((t301-string (export-construct-as-isidorus-json-string
+			      t301 :xtm-id *TEST-TM* :revision rev-0))
 		(json-string
 		 (concat "{\"id\":\"" (topic-id t301) "\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"http:\\/\\/psi.egovpt.org\\/service\\/Google+Maps\",\"http:\\/\\/maps.google.com\"],\"instanceOfs\":[[\"http:\\/\\/psi.egovpt.org\\/types\\/service\"]],\"names\":[{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/topic\\/t301a_n1\"],\"type\":null,\"scopes\":[[\"http:\\/\\/psi.egovpt.org\\/types\\/long-name\"]],\"value\":\"Google Maps\",\"variants\":null},{\"itemIdentities\":null,\"type\":null,\"scopes\":[[\"http:\\/\\/psi.egovpt.org\\/types\\/long-name\"]],\"value\":\"Google Maps Application\",\"variants\":null}],\"occurrences\":[{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/description\"],\"scopes\":null,\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"a popular geodata service that is widely used for mashups with geodataProbably not really conformant to ISO 19115, but who cares in this context.\"}},{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/links\"],\"scopes\":null,\"resourceRef\":\"http:\\/\\/maps.google.com\",\"resourceData\":null},{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/links\"],\"scopes\":null,\"resourceRef\":\"http:\\/\\/maps.google.de\",\"resourceData\":null}]}")))
 	    (is (string= t301-string json-string))))
 	(let ((t100 (get-item-by-id "t100" :revision rev-0 :xtm-id *TEST-TM*)))
-	  (let ((t100-string (to-json-string t100 :revision rev-0 :xtm-id *TEST-TM*))
+	  (let ((t100-string (export-construct-as-isidorus-json-string
+			      t100 :revision rev-0 :xtm-id *TEST-TM*))
 		(json-string
 		 (concat "{\"id\":\"" (topic-id t100) "\",\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100\"],\"subjectLocators\":null,\"subjectIdentifiers\":[\"http:\\/\\/psi.egovpt.org\\/standard\\/ISO+19115%3A+Geographic+Information+-+Metadata\"],\"instanceOfs\":[[\"http:\\/\\/psi.egovpt.org\\/types\\/semanticstandard\"]],\"names\":[{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_n1\"],\"type\":null,\"scopes\":null,\"value\":\"ISO 19115\",\"variants\":[{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_n1_v1\"],\"scopes\":[[\"http:\\/\\/www.topicmaps.org\\/xtm\\/1.0\\/core.xtm#display\"]],\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"Geographic Information - Metadata\"}},{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_n1_v2\"],\"scopes\":[[\"http:\\/\\/www.topicmaps.org\\/xtm\\/1.0\\/core.xtm#sort\"]],\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"ISO-19115\"}}]}],\"occurrences\":[{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_o1\"],\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/standardHasStatus\"],\"scopes\":null,\"resourceRef\":\"http:\\/\\/www.budabe.de\\/\",\"resourceData\":null},{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_o2\"],\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/description\"],\"scopes\":null,\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"The ISO 19115 standard ...\"}},{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_o3\"],\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/standardValidFromDate\"],\"scopes\":null,\"resourceRef\":null,\"resourceData\":{\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#date\",\"value\":\"2003-01-01\"}},{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#t100_o4\"],\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/links\"],\"scopes\":null,\"resourceRef\":\"http:\\/\\/www.editeur.org\\/standards\\/ISO19115.pdf\",\"resourceData\":null}]}")))
 	    (is (string= t100-string json-string))))))))
@@ -116,10 +120,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((t57 (get-item-by-id "t57" :revision rev-0 :xtm-id *TEST-TM*))
 	    (t59 (get-item-by-id "t59" :revision rev-0 :xtm-id *TEST-TM*))
 	    (t202 (get-item-by-id "t202" :revision rev-0 :xtm-id *TEST-TM*))
@@ -151,12 +155,14 @@
 		 "http://psi.egovpt.org/itemIdentifiers#assoc_7")
 		:revision rev-0)))
       (let ((association-1-string
-		 (to-json-string association-1 :revision rev-0 :xtm-id *TEST-TM*))
+		 (export-construct-as-isidorus-json-string
+		  association-1 :revision rev-0 :xtm-id *TEST-TM*))
 		(json-string
 		 (concat "{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/isNarrowerSubject\"],\"scopes\":null,\"roles\":[{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/broaderSubject\"],\"topicRef\":[\"http:\\/\\/psi.egovpt.org\\/subject\\/Data\"]},{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/narrowerSubject\"],\"topicRef\":[\"http:\\/\\/psi.egovpt.org\\/subject\\/GeoData\"]}]}")))
 	    (is (string= association-1-string json-string)))
 	  (let ((association-7-string
-		 (to-json-string association-7 :revision rev-0 :xtm-id *TEST-TM*))
+		 (export-construct-as-isidorus-json-string
+		  association-7 :revision rev-0 :xtm-id *TEST-TM*))
 		(json-string
 		 (concat "{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#assoc_7\"],\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/serviceUsesStandard\"],\"scopes\":null,\"roles\":[{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/ServiceRoleType\"],\"topicRef\":[\"http:\\/\\/psi.egovpt.org\\/service\\/Google+Maps\",\"http:\\/\\/maps.google.com\"]},{\"itemIdentities\":null,\"type\":[\"http:\\/\\/psi.egovpt.org\\/types\\/StandardRoleType\"],\"topicRef\":[\"http:\\/\\/psi.egovpt.org\\/standard\\/ISO+19115%3A+Geographic+Information+-+Metadata\"]}]}")))
 	    (is (string= association-7-string json-string)))
@@ -170,7 +176,8 @@
 	    (add-theme association-7 t62 :revision rev-1)
 	    (add-theme association-7 t64 :revision rev-1))
 	  (let ((association-7-string
-		 (to-json-string association-7 :revision rev-0 :xtm-id *TEST-TM*))
+		 (export-construct-as-isidorus-json-string
+		  association-7 :revision rev-0 :xtm-id *TEST-TM*))
 		(json-string
 		 (concat "{\"itemIdentities\":[\"http:\\/\\/psi.egovpt.org\\/itemIdentifiers#assoc_7\"],\"type\":null,\"scopes\":[[\"http:\\/\\/psi.egovpt.org\\/types\\/StandardRoleType\"],[\"http:\\/\\/psi.egovpt.org\\/types\\/serviceUsesStandard\"]],\"roles\":null}")))
 	    (is (string= association-7-string json-string))))))))
@@ -180,10 +187,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir  :tm-id "http://www.isidor.us/unittests/testtm"
                                    :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((frag-t100
 	     (create-latest-fragment-of-topic
 	      "http://psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata"))
@@ -195,24 +202,27 @@
 	       (concat "{\"topic\":{\"id\":\"" (topic-id (topic frag-topic)) "\",\"itemIdentities\":null,\"subjectLocators\":null,\"subjectIdentifiers\":[\"http:\\/\\/www.topicmaps.org\\/xtm\\/1.0\\/core.xtm#topic\"],\"instanceOfs\":null,\"names\":null,\"occurrences\":null},\"topicStubs\":null,\"associations\":null,\"tmIds\":[\"http:\\/\\/www.topicmaps.org\\/xtm\\/1.0\\/core.xtm\"]}")))
 	  (is (string=
 	       frag-t100-string
-	       (to-json-string frag-t100 :xtm-id *TEST-TM* :revision rev-0)))
+	       (export-construct-as-isidorus-json-string
+		frag-t100 :xtm-id *TEST-TM* :revision rev-0)))
 	  (is (string=
 	       frag-topic-string
-	       (to-json-string frag-topic :xtm-id *TEST-TM* :revision rev-0))))))))
+	       (export-construct-as-isidorus-json-string
+		frag-topic :xtm-id *TEST-TM* :revision rev-0))))))))
 
 
 (test test-get-fragment-values-from-json-list-general
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
        :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
-	       (to-json-string fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
+	       (export-construct-as-isidorus-json-string
+		fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
 	(let ((fragment-list
 	       (json-importer::get-fragment-values-from-json-list
 		(json:decode-json-from-string json-fragment))))
@@ -239,14 +249,15 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
-	       (to-json-string fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
+	       (export-construct-as-isidorus-json-string
+		fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
 	(let ((fragment-list
 	       (json-importer::get-fragment-values-from-json-list
 		(json:decode-json-from-string json-fragment))))
@@ -305,14 +316,15 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
-	       (to-json-string fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
+	       (export-construct-as-isidorus-json-string
+		fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
 	(let ((fragment-list
 	       (json-importer::get-fragment-values-from-json-list
 		(json:decode-json-from-string json-fragment))))
@@ -367,14 +379,15 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
-	       (to-json-string fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
+	       (export-construct-as-isidorus-json-string
+		fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
 	(let ((fragment-list
 	       (json-importer::get-fragment-values-from-json-list
 		(json:decode-json-from-string json-fragment))))
@@ -473,14 +486,15 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
-	       (to-json-string fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
+	       (export-construct-as-isidorus-json-string
+		fragment-obj :revision rev-0 :xtm-id *TEST-TM*))))
 	(let ((fragment-list
 	       (json-importer::get-fragment-values-from-json-list
 		(json:decode-json-from-string json-fragment))))
@@ -543,12 +557,12 @@
 (test test-json-importer-general-1
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 13))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 0))
       (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 1))
-      (json-importer:json-to-elem *t64*)
+      (json-importer:import-from-isidorus-json *t64*)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 15))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
       (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 2))
@@ -572,9 +586,9 @@
 (test test-json-importer-general-2
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
       (let ((test-tm
 	       (loop for tm in (elephant:get-instances-by-class 'TopicMapC)
 		  when (string= (uri (first (item-identifiers tm)))
@@ -628,10 +642,10 @@
 (test test-json-importer-general-3
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
-      (json-importer:json-to-elem *t100-3*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
+      (json-importer:import-from-isidorus-json *t100-3*)
       (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 28)) ;13 new topics
       (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 5)) ;4 new associations
       (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 2))
@@ -656,10 +670,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
-      (json-importer:json-to-elem *t100-3*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
+      (json-importer:import-from-isidorus-json *t100-3*)
       (let ((topics (elephant:get-instances-by-class 'TopicC)))
 	(loop for topic in topics
 	   do (let ((psi (uri (first (psis topic :revision rev-0)))))
@@ -712,10 +726,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
-      (json-importer:json-to-elem *t100-3*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
+      (json-importer:import-from-isidorus-json *t100-3*)
       (let ((topics (elephant:get-instances-by-class 'TopicC)))
 	(loop for topic in topics
 	   do (let ((psi (uri (first (psis topic :revision rev-0)))))
@@ -783,10 +797,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
-      (json-importer:json-to-elem *t100-3*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
+      (json-importer:import-from-isidorus-json *t100-3*)
       (let ((topics (elephant:get-instances-by-class 'TopicC)))
 	(loop for topic in topics
 	   do (let ((psi (uri (first (psis topic :revision rev-0)))))
@@ -905,10 +919,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
-      (json-importer:json-to-elem *t100-3*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
+      (json-importer:import-from-isidorus-json *t100-3*)
       (let ((topics (elephant:get-instances-by-class 'TopicC)))
 	(loop for topic in topics
 	   do (let ((psi (uri (first (psis topic :revision rev-0)))))
@@ -948,10 +962,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t64*)
-      (json-importer:json-to-elem *t100-3*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t64*)
+      (json-importer:import-from-isidorus-json *t100-3*)
       (let ((assoc-7
 	     (identified-construct
 	      (elephant:get-instance-by-value
@@ -988,12 +1002,12 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 13))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 0))
       (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 1))
-      (json-importer:json-to-elem *t100-1*)
+      (json-importer:import-from-isidorus-json *t100-1*)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 17))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
       (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 2))
@@ -1008,7 +1022,7 @@
 			      "http://www.isidor.us/unittests/testtm")
 		return tm)))
 	(is-true (and core-tm test-tm)))
-      (json-importer:json-to-elem *t100-2*)
+      (json-importer:import-from-isidorus-json *t100-2*)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 17))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
       (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 2))
@@ -1095,9 +1109,9 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t100-1*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t100-1*)
       (let ((core-tm
 	     (loop for tm in (elephant:get-instances-by-class 'TopicMapC)
 		when (string= (uri (first (item-identifiers tm :revision rev-0)))
@@ -1109,7 +1123,7 @@
 			      "http://www.isidor.us/unittests/testtm")
 		return tm)))
 	(is-true (and core-tm test-tm)))
-      (json-importer:json-to-elem *t100-2*)
+      (json-importer:import-from-isidorus-json *t100-2*)
       (let ((topics (elephant:get-instances-by-class 'TopicC)))
 	(loop for topic in topics
 	   do (let ((psi (uri (first (psis topic :revision rev-0)))))
@@ -1292,9 +1306,9 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xml-importer:get-store-spec dir))
-      (xml-importer:init-isidorus)
-      (json-importer:json-to-elem *t100-1*)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (xtm-importer:init-isidorus)
+      (json-importer:import-from-isidorus-json *t100-1*)
       (let ((core-tm
 	     (loop for tm in (elephant:get-instances-by-class 'TopicMapC)
 		when (string= (uri (first (item-identifiers tm :revision rev-0)))
@@ -1306,7 +1320,7 @@
 			      "http://www.isidor.us/unittests/testtm")
 		return tm)))
 	(is-true (and core-tm test-tm)))
-      (json-importer:json-to-elem *t100-2*)
+      (json-importer:import-from-isidorus-json *t100-2*)
       (let ((instanceOf-assoc
 	     (first (elephant:get-instances-by-class 'AssociationC))))
 	(is (string=
@@ -1348,10 +1362,10 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
        :xtm-id *TEST-TM*)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((json-psis
 	     (json:decode-json-from-string (get-all-topic-psis :revision rev-0))))
 	(is (= (length json-psis)
@@ -2156,7 +2170,7 @@
   "Tests the handling of long xml-contents in occurrences when serialized
    and deserialised to and from json."
   (with-fixture with-empty-db ("data_base")
-    (elephant:open-store (xml-importer:get-store-spec "data_base"))
+    (elephant:open-store (xtm-importer:get-store-spec "data_base"))
     (let ((xml-data
 	   (with-open-file
 	       (stream unittests-constants::*poems_light.xtm.txt*
@@ -2181,7 +2195,8 @@
 	(is-true (occurrences top))
 	(is (string= (d:charvalue (first (occurrences top))) xml-data))
 	(let ((json-string
-	       (to-json-string (first (occurrences top)))))
+	       (export-construct-as-isidorus-json-string
+		(first (occurrences top)))))
 	  (is (string= (cdr (third (fifth (json:decode-json-from-string
 					   json-string))))
 		       xml-data)))))))

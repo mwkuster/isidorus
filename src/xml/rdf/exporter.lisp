@@ -33,7 +33,7 @@
   (:import-from :isidorus-threading
 		with-reader-lock
 		with-writer-lock)
-  (:export :export-rdf
+  (:export :export-as-rdf
 	   :to-rdf-string))
 
 (in-package :rdf-exporter)
@@ -113,7 +113,7 @@
                    (list-tm-associations)))))))
 
 
-(defun export-rdf (rdf-path &key tm-id (revision (get-revision)))
+(defun export-as-rdf (rdf-path &key tm-id (revision (get-revision)))
   "Exports the topoic map bound to tm-id as RDF."
   (with-reader-lock
     (let ((tm (when tm-id

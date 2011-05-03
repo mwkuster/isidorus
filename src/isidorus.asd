@@ -218,8 +218,10 @@
 							   (:file "jtm_importer"
 								  :depends-on ("jtm_tools"))
 							   (:file "jtm_exporter"
-								  :depends-on ("jtm_tools")))))
-	                :depends-on ("base-tools"
+								  :depends-on ("jtm_tools"))
+							   (:file "jtm_aliases"
+								  :depends-on ("jtm_tools" "jtm_importer" "jtm_exporter")))))
+			:depends-on ("base-tools"
 				     "model"
 				     "xml"
 				     "TM-SPARQL"))

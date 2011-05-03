@@ -10,7 +10,7 @@
 (defpackage :importer-test
   (:use 
    :common-lisp
-   :xml-importer
+   :xtm-importer
    :datamodel
    :it.bese.FiveAM
    :unittests-constants
@@ -363,9 +363,9 @@
   (let
       ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository *t100.xtm* dir :xtm-id *TEST-TM*
+      (xtm-importer:setup-repository *t100.xtm* dir :xtm-id *TEST-TM*
                                      :tm-id "http://www.isidor.us/unittests/topic-t100")
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (is (= 25 (length (elephant:get-instances-by-class 'TopicC)))) ;; are all topics in the db +std topics
       (is-true (get-item-by-id "t100" :revision 0)) ;; main topic
       (is-true (get-item-by-id "t3a" :revision 0))  ;; instanceOf
@@ -437,12 +437,12 @@
   (let
       ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository 
+      (xtm-importer:setup-repository 
        *sample_objects.xtm* dir 
        :tm-id "http://www.isidor.us/unittests/xtm1.0-tests"
-       :xtm-id *TEST-TM* :xtm-format '1.0)
+       :xtm-id *TEST-TM* :xtm-format :1.0)
       (setf *TM-REVISION* 0)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       ;13 + (23 core topics)
       (is (=  36 (length (elephant:get-instances-by-class 'TopicC))))
       ;2 + (11 instanceOf)
@@ -522,11 +522,11 @@
   (let
       ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository
+      (xtm-importer:setup-repository
        *notificationbase.xtm* dir :xtm-id *TEST-TM*
        :tm-id "http://isidorus.org/test-tm")
       (setf *TM-REVISION* 0)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (let ((variants (elephant:get-instances-by-class 'VariantC)))
 	(is (= (length variants) 4))
 	(loop for variant in variants
@@ -602,10 +602,10 @@
   "tests the importer-xtm1.0 -> variants"
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (xml-importer:setup-repository 
-       *sample_objects.xtm* dir :xtm-id *TEST-TM* :xtm-format '1.0
+      (xtm-importer:setup-repository 
+       *sample_objects.xtm* dir :xtm-id *TEST-TM* :xtm-format :1.0
        :tm-id "http://isidorus.org/test-tm")
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (is (= (length (elephant:get-instances-by-class 'VariantC)) 5))
       (let ((t-2526 (get-item-by-id "t-2526")))
 	(loop for baseName in (names t-2526)
@@ -690,10 +690,10 @@
 	(tm-id-1 "tm-id-1")
 	(tm-id-2 "tm-id-2"))
     (with-fixture with-empty-db (dir)
-      (xml-importer:setup-repository *poems_light_tm_ii.xtm*
+      (xtm-importer:setup-repository *poems_light_tm_ii.xtm*
 				     dir :tm-id tm-id-1)
-      (xml-importer:import-xtm *poems_light_tm_ii_merge.xtm*
-			       dir :tm-id tm-id-2)
+      (xtm-importer:import-from-xtm *poems_light_tm_ii_merge.xtm*
+				    dir :tm-id tm-id-2)
       (with-revision 0
 	(let ((tm-1
 	       (d:identified-construct
@@ -735,9 +735,9 @@
   (let ((dir "data_base")
 	(tm-id-1 "tm-id-1"))
     (with-fixture with-empty-db (dir)
-      (xml-importer:setup-repository *poems_light_tm_reification_xtm1.0.xtm*
-				     dir :tm-id tm-id-1 :xtm-format '1.0)
-      (elephant:open-store (xml-importer:get-store-spec dir))
+      (xtm-importer:setup-repository *poems_light_tm_reification_xtm1.0.xtm*
+				     dir :tm-id tm-id-1 :xtm-format :1.0)
+      (elephant:open-store (xtm-importer:get-store-spec dir))
       (with-revision 0
 	(let ((tm-1
 	       (d:identified-construct

@@ -13,7 +13,15 @@
   (:export :import-from-jtm
 	   :export-as-jtm
 	   :export-as-jtm-string
-	   :export-construct-as-jtm-string))
+	   :export-construct-as-jtm-string
+	   :*jtm-xtm*
+	   :item_type-topicmap
+	   :item_type-topic
+	   :item_type-name
+	   :item_type-variant
+	   :item_type-occurrence
+	   :item_type-association
+	   :item_type-role))
 
 (in-package :jtm)
 

@@ -301,7 +301,8 @@
 		   (get-latest-fragment-of-topic identifier))))
 	    (if fragment
 		(handler-case (with-reader-lock
-				(to-json-string fragment :revision 0))
+				(export-construct-as-isidorus-json-string
+				 fragment :revision 0))
 		  (condition (err)
 		    (progn
 		      (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
@@ -340,7 +341,8 @@
 
 
 (defun json-commit(&optional param)
-  "calls the json-to-elem method for a json-fragment and imports it to elephant"
+  "calls the import-from-isidorus-json method for a json-fragment and
+   imports it to elephant"
   (declare (ignorable param)) ;param is currently not used
   (let ((http-method (hunchentoot:request-method*)))
     (if (or (eq http-method :PUT)
@@ -349,7 +351,7 @@
 	  (let ((json-data (hunchentoot:raw-post-data :external-format external-format :force-text t)))
 	    (handler-case
 		(with-writer-lock 
-		  (let ((frag (json-importer:json-to-elem json-data)))
+		  (let ((frag (json-importer:import-from-isidorus-json json-data)))
 		    (when frag
 		      (push-to-cache (d:topic frag)))))
 	      (condition (err)
@@ -481,8 +483,8 @@
 	      (let ((xml-dom
 		     (dom:document-element
 		      (cxml:parse xml-data (cxml-dom:make-dom-builder)))))
-		(xml-importer:importer xml-dom :tm-id tm-id
-				       :xtm-id (xml-importer::get-uuid))
+		(xtm-importer:importer xml-dom :tm-id tm-id
+				       :xtm-id (xtm-importer::get-uuid))
 		(format nil ""))))
 	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))
     (condition (err)
@@ -502,8 +504,9 @@
 	    (let ((sparql-request (hunchentoot:raw-post-data
 				   :external-format external-format
 				   :force-text t)))
-	      (to-json-string (make-instance 'SPARQL-Query :query sparql-request
-					     :revision 0))))
+	      (export-construct-as-isidorus-json-string
+	       (make-instance 'SPARQL-Query :query sparql-request
+			      :revision 0))))
 	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))
     (condition (err)
       (progn

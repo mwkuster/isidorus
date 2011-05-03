@@ -201,7 +201,7 @@
 	(d::delete-construct assoc-top)
 	(with-tm (start-revision document-id tm-id)
 	  (add-to-tm
-	   xml-importer::tm
+	   xtm-importer::tm
 	   (let ((association
 		  (make-construct 'AssociationC
 				  :start-revision start-revision
@@ -460,7 +460,7 @@
 			   assocs start-revision *instance-psi*)))
 	  (let ((topics-in-tm
 		 (with-tm (start-revision document-id tm-id)
-		   (intersection isi-topics (topics xml-importer::tm)))))
+		   (intersection isi-topics (topics xtm-importer::tm)))))
 	    (map 'list
 		 #'(lambda(top)
 		     (map 'list 

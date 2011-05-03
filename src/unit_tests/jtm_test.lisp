@@ -13,7 +13,7 @@
    :jtm
    :constants
    :base-tools
-   :xml-importer
+   :xtm-importer
    :datamodel
    :it.bese.FiveAM
    :unittests-constants

@@ -10,7 +10,7 @@
 (defpackage :rdf-exporter-test
   (:use 
    :common-lisp
-   :xml-importer
+   :xtm-importer
    :datamodel
    :it.bese.FiveAM
    :fixtures

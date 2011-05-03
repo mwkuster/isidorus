@@ -10,7 +10,7 @@
 (defpackage :rdf-importer-test
   (:use 
    :common-lisp
-   :xml-importer
+   :xtm-importer
    :datamodel
    :base-tools
    :it.bese.FiveAM
@@ -2851,10 +2851,10 @@
     (when elephant:*store-controller*
       (elephant:close-store))
     (fixtures::clean-out-db dir)
-    (rdf-importer:rdf-importer rdf-file dir
-			       :tm-id tm-id
-			       :document-id document-id)
-    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-importer:import-from-rdf rdf-file dir
+				  :tm-id tm-id
+				  :document-id document-id)
+    (elephant:open-store (xtm-importer:get-store-spec dir))
     (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 15))
     (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
     (is (= (length (elephant:get-instances-by-class 'd:NameC)) 4))
@@ -2961,10 +2961,10 @@
     (when elephant:*store-controller*
       (elephant:close-store))
     (fixtures::clean-out-db dir)
-    (rdf-importer:rdf-importer rdf-file dir
-			       :tm-id tm-id
-			       :document-id document-id)
-    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-importer:import-from-rdf rdf-file dir
+				  :tm-id tm-id
+				  :document-id document-id)
+    (elephant:open-store (xtm-importer:get-store-spec dir))
     (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 15))
     (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
     (is (= (length (elephant:get-instances-by-class 'd:NameC)) 4))
@@ -3076,10 +3076,10 @@
     (when elephant:*store-controller*
       (elephant:close-store))
     (fixtures::clean-out-db dir)
-    (rdf-importer:rdf-importer rdf-file dir
-			       :tm-id tm-id
-			       :document-id document-id)
-    (elephant:open-store (xml-importer:get-store-spec dir))
+    (rdf-importer:import-from-rdf rdf-file dir
+				  :tm-id tm-id
+				  :document-id document-id)
+    (elephant:open-store (xtm-importer:get-store-spec dir))
     (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 15))
     (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
     (is (= (length (elephant:get-instances-by-class 'd:NameC)) 4))

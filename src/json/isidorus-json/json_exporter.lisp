@@ -9,7 +9,7 @@
 
 (defpackage :json-exporter
   (:use :cl :json :datamodel :TM-SPARQL :base-tools)
-  (:export :to-json-string
+  (:export :export-construct-as-isidorus-json-string
 	   :get-all-topic-psis
 	   :to-json-string-summary
 	   :make-topic-summary))
@@ -22,7 +22,7 @@
 ;; =============================================================================
 ;; --- main json data model ----------------------------------------------------
 ;; =============================================================================
-(defgeneric to-json-string (instance &key xtm-id revision)
+(defgeneric export-construct-as-isidorus-json-string (instance &key xtm-id revision)
   (:documentation "converts the Topic Map construct instance to a json string"))
 
 
@@ -90,8 +90,9 @@
 	      "null")))
 
 
-(defmethod to-json-string ((instance VariantC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance VariantC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms a VariantC object to a json string"
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
@@ -114,8 +115,9 @@
     (concat "{" itemIdentity "," scope "," resourceX "}")))
 
 
-(defmethod to-json-string ((instance NameC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance NameC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms a NameC object to a json string"
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
@@ -141,7 +143,7 @@
 	      (let ((j-variants "["))
 		(loop for variant in (variants instance :revision revision)
 		   do (push-string
-		       (concat (json-exporter::to-json-string
+		       (concat (export-construct-as-isidorus-json-string
 				variant :xtm-id xtm-id :revision revision)
 			       ",")
 		       j-variants))
@@ -150,8 +152,9 @@
     (concat "{" itemIdentity "," type "," scope "," value "," variant "}")))
 
 
-(defmethod to-json-string ((instance OccurrenceC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance OccurrenceC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms an OccurrenceC object to a json string"
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
@@ -176,8 +179,9 @@
     (concat "{" itemIdentity "," type "," scope "," resourceX "}")))
 
 
-(defmethod to-json-string ((instance TopicC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance TopicC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms an TopicC object to a json string"
   (declare (type (or string null) xtm-id)
 	   (type (or integer null) revision))
@@ -207,8 +211,10 @@
 		     (let ((j-names "["))
 		       (loop for item in (names instance :revision revision)
 			  do (push-string
-			      (concat  (to-json-string item :xtm-id xtm-id
-						       :revision revision) ",")
+			      (concat
+			       (export-construct-as-isidorus-json-string
+				item :xtm-id xtm-id
+				:revision revision) ",")
 			      j-names))
 		       (concat (subseq j-names 0 (- (length j-names) 1)) "]"))
 		     "null")))
@@ -220,7 +226,8 @@
 		(loop for item in (occurrences instance :revision revision)
 		   do (push-string
 		       (concat
-			(to-json-string item :xtm-id xtm-id :revision revision)
+			(export-construct-as-isidorus-json-string
+			 item :xtm-id xtm-id :revision revision)
 			",")
 		       j-occurrences))
 		(concat (subseq j-occurrences 0 (- (length j-occurrences) 1)) "]"))
@@ -253,8 +260,9 @@
       (concat "{" id "," itemIdentity "," subjectLocator "," subjectIdentifier "}"))))
 
 
-(defmethod to-json-string ((instance RoleC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance RoleC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms an RoleC object to a json string"
   (declare (ignorable xtm-id)
 	   (type (or integer null) revision))
@@ -274,8 +282,9 @@
     (concat "{" itemIdentity "," type "," topicRef "}")))
 
 
-(defmethod to-json-string ((instance AssociationC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance AssociationC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms an AssociationC object to a json string"
   (let ((itemIdentity
 	 (concat "\"itemIdentities\":"
@@ -293,16 +302,19 @@
 		     (let ((j-roles "["))
 		       (loop for item in (roles instance :revision revision)
 			  do (push-string
-			      (concat (to-json-string item :xtm-id xtm-id
-						      :revision revision) ",")
+			      (concat
+			       (export-construct-as-isidorus-json-string
+				item :xtm-id xtm-id
+				:revision revision) ",")
 			      j-roles))
 		       (concat (subseq j-roles 0 (- (length j-roles) 1)) "]"))
 		     "null"))))
     (concat "{" itemIdentity "," type "," scope "," role "}")))
 
 
-(defmethod to-json-string ((instance TopicMapC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance TopicMapC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "returns the ItemIdentifier's uri"
   (declare (ignorable xtm-id)
 	   (type (or integer null) revision))
@@ -311,8 +323,9 @@
       (uri (first ii)))))
 
 
-(defmethod to-json-string ((instance FragmentC) &key (xtm-id d:*current-xtm*)
-			   (revision *TM-REVISION*))
+(defmethod export-construct-as-isidorus-json-string
+    ((instance FragmentC) &key (xtm-id d:*current-xtm*)
+     (revision *TM-REVISION*))
   "transforms an FragmentC object to a json string,
    which contains the main topic, all depending topicStubs
    and all associations depending on the main topic"
@@ -320,7 +333,8 @@
 	   (type (or integer null) revision))
   (let ((main-topic
 	 (concat "\"topic\":"
-		 (to-json-string (topic instance) :xtm-id xtm-id :revision revision)))
+		 (export-construct-as-isidorus-json-string
+		  (topic instance) :xtm-id xtm-id :revision revision)))
 	(topicStubs
 	 (concat "\"topicStubs\":"
 		 (if (referenced-topics instance)
@@ -338,8 +352,9 @@
 		     (let ((j-associations "["))
 		       (loop for item in (associations instance)
 			  do (push-string
-			      (concat (to-json-string item :xtm-id xtm-id
-						      :revision revision) ",")
+			      (concat (export-construct-as-isidorus-json-string
+				       item :xtm-id xtm-id
+				       :revision revision) ",")
 			      j-associations))
 		       (concat (subseq j-associations 0
 				       (- (length j-associations) 1)) "]"))
@@ -436,7 +451,8 @@
 ;; --- json data sparql-results ------------------------------------------------
 ;; =============================================================================
 
-(defmethod to-json-string ((construct SPARQL-Query) &key xtm-id revision)
+(defmethod export-construct-as-isidorus-json-string
+    ((construct SPARQL-Query) &key xtm-id revision)
   "Returns a JSON string that represents the object query result."
   (declare (Ignorable revision xtm-id))
   (let ((query-result (result construct)))

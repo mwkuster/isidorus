@@ -7,7 +7,7 @@
 ;;+  trunk/docs/LGPL-LICENSE.txt.
 ;;+-----------------------------------------------------------------------------
 
-(in-package :xml-importer)
+(in-package :xtm-importer)
 
 (defun get-reifier-topic-xtm1.0 (reifiable-elem start-revision)
   "Returns a reifier topic of the reifiable-element or nil."

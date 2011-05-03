@@ -13,7 +13,7 @@
 ;; * either check the input document for XTM2.0 conformance in advance or
 ;;   raise some kind of error (--> condition) if something goes wrong. 
 
-(defpackage :xml-importer
+(defpackage :xtm-importer
   (:use :cl :cxml :elephant :datamodel :isidorus-threading :base-tools)
   (:import-from :constants
 		*type-instance-psi*
@@ -47,7 +47,7 @@
 	   :get-store-spec
 	   :get-topicref-uri
            :import-only-topics
-           :import-xtm
+           :import-from-xtm
 	   :importer 
 	   :init-isidorus
 	   :merge-topic-elem 
@@ -75,7 +75,7 @@
 	   :get-uuid
            :with-tm))
 
-(in-package :xml-importer)
+(in-package :xtm-importer)
 
 ;(declaim (optimize (debug 3)))
 

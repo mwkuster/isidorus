@@ -59,9 +59,10 @@
             (with-reader-lock
 	      (d:get-fragment (parse-integer unique-id)))))
         (if fragment
-            (exporter:export-xtm-fragment fragment :xtm-format '1.0)
+            (xtm-exporter:export-construct-as-xtm-string fragment :xtm-format :1.0)
             (format nil "<t:topicMap xmlns:t=\"http://www.topicmaps.org/xtm/1.0/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"/>")))))
    hunchentoot:*dispatch-table*))
+
 
 (defmethod publish-feed ((feed snapshots-feed))
   (push 
@@ -77,10 +78,10 @@
     (format nil "~a~a" (path feed) "/([0-9]+)$") 
     (lambda (&optional revision) 
       (setf (hunchentoot:content-type*) "application/x-tm+xml;version=1.0; charset=utf-8")
-      (exporter:export-xtm-to-string 
+      (xtm-exporter:export-as-xtm-string
        :revision (parse-integer revision) 
        :tm-id (atom:tm-id feed)
-       :xtm-format '1.0)))
+       :xtm-format :1.0)))
    hunchentoot:*dispatch-table*))
 
 

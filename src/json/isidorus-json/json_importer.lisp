@@ -8,8 +8,8 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :json-importer
-  (:use :cl :json :datamodel :xml-importer)
-  (:export :json-to-elem
+  (:use :cl :json :datamodel :xtm-importer)
+  (:export :import-from-isidorus-json
 	   :*json-xtm*))
 
 (in-package :json-importer)
@@ -20,7 +20,7 @@
 (defvar *json-xtm* "json-xtm"); Represents the currently active TM of the JSON-Importer
 
 
-(defun json-to-elem(json-string &key (xtm-id *json-xtm*))
+(defun import-from-isidorus-json(json-string &key (xtm-id *json-xtm*))
   "creates all objects (topics, topic stubs, associations)
    of the passed json-decoded-list (=fragment)"
   (declare (type (or string null) json-string xtm-id))
@@ -34,21 +34,21 @@
 	    (rev (get-revision)) ; creates a new revision, equal for all elements of the passed fragment
 	    (tm-ids (getf fragment-values :tm-ids)))
 	(unless tm-ids
-	  (error "From json-to-elem(): tm-ids must be set"))
+	  (error "From import-from-isidorus-json(): tm-ids must be set"))
 	(let ((psi-of-topic
 	       (let ((psi-uris (getf topic-values :subjectIdentifiers)))
 		 (when psi-uris
 		   (first psi-uris)))))
 	  (elephant:ensure-transaction (:txn-nosync nil) 
-	    (xml-importer:with-tm (rev xtm-id (first tm-ids))
+	    (xtm-importer:with-tm (rev xtm-id (first tm-ids))
 	      (loop for topicStub-values in
 		   (append topicStubs-values (list topic-values))
-		 do (json-to-stub topicStub-values rev :tm xml-importer::tm
+		 do (json-to-stub topicStub-values rev :tm xtm-importer::tm
 				  :xtm-id xtm-id))
-	      (json-merge-topic topic-values rev :tm xml-importer::tm :xtm-id xtm-id)
+	      (json-merge-topic topic-values rev :tm xtm-importer::tm :xtm-id xtm-id)
 	      (loop for association-values in associations-values
 		 do (json-to-association association-values rev
-					 :tm xml-importer::tm))))
+					 :tm xtm-importer::tm))))
 	  (when psi-of-topic
 	    (create-latest-fragment-of-topic psi-of-topic)))))))
 
@@ -73,7 +73,7 @@
       (declare (list json-decoded-list))
       (declare (integer start-revision))
       (declare (TopicMapC tm))
-      (setf roles (xml-importer::set-standard-role-types roles start-revision))
+      (setf roles (xtm-importer::set-standard-role-types roles start-revision))
       (add-to-tm tm 
 		 (make-construct 'AssociationC
 				 :start-revision start-revision

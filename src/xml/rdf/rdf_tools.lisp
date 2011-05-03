@@ -10,9 +10,9 @@
 (defpackage :rdf-importer
   (:use :cl :cxml :elephant :datamodel :isidorus-threading :datamodel
 	:base-tools :constants :xml-constants :xml-tools
-	:xml-importer :isidorus-threading :exceptions)
+	:xtm-importer :isidorus-threading :exceptions)
   (:export :setup-rdf-module 
-	   :rdf-importer
+	   :import-from-rdf
 	   :init-rdf-module
 	   :*rdf-core-xtm*
 	   :*document-id*))

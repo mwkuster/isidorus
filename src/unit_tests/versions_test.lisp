@@ -1,4 +1,3 @@
-;-*- standard-indent: 2; indent-tabs-mode: nil -*-
 ;;+-----------------------------------------------------------------------------
 ;;+  Isidorus
 ;;+  (c) 2008-2010 Marc Kuester, Christoph Ludwig, Lukas Georgieff
@@ -11,7 +10,7 @@
 (defpackage :versions-test
   (:use 
    :common-lisp
-   :xml-importer
+   :xtm-importer
    :datamodel
    :it.bese.FiveAM
    :fixtures

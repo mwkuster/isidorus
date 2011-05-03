@@ -9,7 +9,7 @@
 
 (defpackage :TM-SPARQL
   (:use :cl :datamodel :base-tools :exceptions :constants
-	:TM-SPARQL-Constants :xml-importer :xml-constants
+	:TM-SPARQL-Constants :xtm-importer :xml-constants
 	:isidorus-threading :xml-tools)
   (:export :SPARQL-Query
 	   :result
@@ -57,7 +57,7 @@
 	     do (let ((top
 		       (from-topic-elem-to-stub top-elem revision
 						:xtm-id xtm-id)))
-		  (add-to-tm xml-importer::tm top))))))))
+		  (add-to-tm xtm-importer::tm top))))))))
 
 
 
