@@ -33,6 +33,7 @@ playground/system_crash.lisp -text
 playground/threading_debugging.lisp -text
 playground/url_test.html -text
 playground/url_test.js -text
+playground/using_one_store_with_multiple_sbcl_instances.lisp -text
 playground/versioned-pointer.lisp -text
 src/TM-SPARQL/filter_wrappers.lisp -text
 src/TM-SPARQL/sparql.lisp -text
