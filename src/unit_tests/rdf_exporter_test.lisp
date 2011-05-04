@@ -887,7 +887,7 @@
 (defun run-rdf-exporter-tests()
   "Runs all test cases of this suite."
   (when elephant:*store-controller*
-    (elephant:close-store))
+    (close-tm-store))
   (it.bese.fiveam:run! 'test-resources)
   (it.bese.fiveam:run! 'test-goethe)
   (it.bese.fiveam:run! 'test-erlkoenig)

@@ -15,6 +15,7 @@
 (load "../src/external/pathnames.lisp")
 
 (use-package :it.bese.FiveAM)
+(use-package :base-tools)
 
 (def-suite testing-db
     :description "compares saved objects in the db with the original objects")
@@ -36,11 +37,11 @@
   ;; 3) add also tests for associations --> OK
 
   (importer "./sample_objects_2_0.xtm" "data_base")
-  (elephant:open-store (get-store-spec "data_base")))
+  (open-tm-store "data_base"))
 
 (defun tear-down-test-db ()
   "make sure the elephant store is properly closed"
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (def-fixture initialized-test-db ()

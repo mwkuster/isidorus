@@ -13,6 +13,7 @@
   "Little helper funtion that gets a UUID as a string"
   (format nil "~a" (uuid:make-v4-uuid)))
 
+
 (defun import-from-xtm (xtm-path repository-path &key 
 			(tm-id (error "you must provide a stable identifier (PSI-style) for this TM"))
 			(xtm-format :2.0)
@@ -26,8 +27,7 @@
 		  (cxml:parse-file
 		   (truename xtm-path) (cxml-dom:make-dom-builder)))))
     (unless elephant:*store-controller*
-      (elephant:open-store  
-       (get-store-spec repository-path)))
+      (open-tm-store repository-path))
 	 ;create the topic stubs so that we can refer to them later on
     (setf d:*current-xtm* xtm-id)
     (if (eq xtm-format :2.0)
@@ -49,10 +49,9 @@
 	   (String tm-id xtm-id)
 	   (Keyword xtm-format))
   (unless elephant:*store-controller*
-    (elephant:open-store  
-     (get-store-spec repository-path)))
+    (open-tm-store repository-path))
   (init-isidorus)
   (import-from-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id
 		   :xtm-format xtm-format)
   (when elephant:*store-controller*
-    (elephant:close-store)))
+    (close-tm-store)))

@@ -1219,7 +1219,7 @@
 		    (is-true subject-role)
 		    (is (eql (d:player subject-role) fifth-node))
 		    (is-false (d:psis (d:player object-role))))))))))))
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-import-dom
@@ -1560,7 +1560,7 @@
 			     (d:uri (first (d:psis col-2)))))
 		(is-true col-2)
 		(is (= (length (d:player-in-roles col-2)) 2)))))))))
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-poems-rdf-occurrences
@@ -2849,12 +2849,12 @@
 	(tm-id "http://full-mapping/")
 	(document-id "http://full_mapping.rdf"))
     (when elephant:*store-controller*
-      (elephant:close-store))
+      (close-tm-store))
     (fixtures::clean-out-db dir)
     (rdf-importer:import-from-rdf rdf-file dir
 				  :tm-id tm-id
 				  :document-id document-id)
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 15))
     (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
     (is (= (length (elephant:get-instances-by-class 'd:NameC)) 4))
@@ -2959,12 +2959,12 @@
 	(tm-id "http://full-mapping/")
 	(document-id "http://full_mapping.rdf"))
     (when elephant:*store-controller*
-      (elephant:close-store))
+      (close-tm-store))
     (fixtures::clean-out-db dir)
     (rdf-importer:import-from-rdf rdf-file dir
 				  :tm-id tm-id
 				  :document-id document-id)
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 15))
     (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
     (is (= (length (elephant:get-instances-by-class 'd:NameC)) 4))
@@ -3074,12 +3074,12 @@
 	(tm-id "http://full-mapping/")
 	(document-id "http://full_mapping.rdf"))
     (when elephant:*store-controller*
-      (elephant:close-store))
+      (close-tm-store))
     (fixtures::clean-out-db dir)
     (rdf-importer:import-from-rdf rdf-file dir
 				  :tm-id tm-id
 				  :document-id document-id)
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 15))
     (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
     (is (= (length (elephant:get-instances-by-class 'd:NameC)) 4))
@@ -3146,7 +3146,7 @@
 (defun run-rdf-importer-tests()
   "Runs all defined tests."
   (when elephant:*store-controller*
-    (elephant:close-store))
+    (close-tm-store))
   (it.bese.fiveam:run! 'test-get-literals-of-node)
   (it.bese.fiveam:run! 'test-parse-node)
   (it.bese.fiveam:run! 'test-get-literals-of-property)

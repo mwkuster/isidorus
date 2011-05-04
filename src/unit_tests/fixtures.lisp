@@ -66,7 +66,7 @@
   "clears out the database and parses the test file"
   (clean-out-db "data_base")
 
-  (elephant:open-store (get-store-spec "data_base"))
+  (open-tm-store "data_base")
   (init-isidorus revision)
   (setf *current-xtm* *TEST-TM*)
   ;deliberately only use stubs at this stage 
@@ -77,13 +77,13 @@
  
 (defun set-up-raw-test-db ()
   (clean-out-db "data_base")
-  (elephant:open-store (get-store-spec "data_base"))
+  (open-tm-store "data_base")
   (init-isidorus)
   (setf *current-xtm* *TEST-TM*))
 
 (defun tear-down-test-db ()
   "make sure the elephant store is properly closed"
-  (elephant:close-store))
+  (close-tm-store))
 
 (def-fixture bare-test-db ()
   (set-up-raw-test-db)
@@ -177,9 +177,9 @@
 (defun rdf-init-db (&key (db-dir "data_base") (start-revision (get-revision)))
   "Deletes the data base files and initializes isidorus for rdf."
   (when elephant:*store-controller*
-    (elephant:close-store))
+    (close-tm-store))
   (clean-out-db db-dir)
-  (elephant:open-store (xtm-importer:get-store-spec db-dir))
+  (open-tm-store db-dir)
   (xtm-importer:init-isidorus start-revision)
   (rdf-importer:init-rdf-module start-revision))
 
@@ -192,7 +192,7 @@
     (setf d:*current-xtm* document-id)
     (rdf-importer:setup-rdf-module *poems_light.rdf* db-dir :tm-id tm-id
 				   :document-id document-id)
-    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (open-tm-store db-dir)
     (&body)
     (tear-down-test-db)))
 
@@ -208,7 +208,7 @@
     (setf d:*current-xtm* document-id)
     (setup-repository *poems_light.xtm* db-dir :tm-id tm-id
 		      :xtm-id document-id)
-    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (open-tm-store  db-dir)
     (rdf-exporter:export-as-rdf exported-file-path :tm-id tm-id)
     (&body)
     (handler-case (delete-file exported-file-path)
@@ -218,7 +218,7 @@
 
 (def-fixture with-empty-db (dir)
   (clean-out-db dir)
-  (elephant:open-store (xtm-importer:get-store-spec dir))
+  (open-tm-store dir)
   (&body)
   (tear-down-test-db))
 
@@ -228,6 +228,6 @@
   (let ((tm-id "http://www.isidor.us/unittests/testtm")
 	(xtm-id (full-path xtm-path)))
     (xtm-importer:setup-repository xtm-path dir :tm-id tm-id :xtm-id xtm-id)
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (&body)
     (tear-down-test-db)))

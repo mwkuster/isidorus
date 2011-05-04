@@ -83,7 +83,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
        :xtm-id *TEST-TM*) 
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((t50a (get-item-by-id "t50a" :xtm-id *TEST-TM* :revision rev-0)))
 	(let ((t50a-string (export-construct-as-isidorus-json-string t50a :revision 0))
 	      (json-string 
@@ -123,7 +123,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((t57 (get-item-by-id "t57" :revision rev-0 :xtm-id *TEST-TM*))
 	    (t59 (get-item-by-id "t59" :revision rev-0 :xtm-id *TEST-TM*))
 	    (t202 (get-item-by-id "t202" :revision rev-0 :xtm-id *TEST-TM*))
@@ -190,7 +190,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir  :tm-id "http://www.isidor.us/unittests/testtm"
                                    :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((frag-t100
 	     (create-latest-fragment-of-topic
 	      "http://psi.egovpt.org/standard/ISO+19115%3A+Geographic+Information+-+Metadata"))
@@ -217,7 +217,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
        :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
@@ -252,7 +252,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
@@ -319,7 +319,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
@@ -382,7 +382,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
@@ -489,7 +489,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
                                   :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((json-fragment
 	     (let ((fragment-obj
 		    (create-latest-fragment-of-topic "http://psi.egovpt.org/standard/Topic+Maps+2002")))
@@ -557,7 +557,7 @@
 (test test-json-importer-general-1
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 13))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 0))
@@ -586,7 +586,7 @@
 (test test-json-importer-general-2
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (let ((test-tm
@@ -642,7 +642,7 @@
 (test test-json-importer-general-3
   (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (json-importer:import-from-isidorus-json *t100-3*)
@@ -670,7 +670,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (json-importer:import-from-isidorus-json *t100-3*)
@@ -726,7 +726,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (json-importer:import-from-isidorus-json *t100-3*)
@@ -797,7 +797,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (json-importer:import-from-isidorus-json *t100-3*)
@@ -919,7 +919,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (json-importer:import-from-isidorus-json *t100-3*)
@@ -962,7 +962,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t64*)
       (json-importer:import-from-isidorus-json *t100-3*)
@@ -1002,7 +1002,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (is (= (length (elephant:get-instances-by-class 'TopicC)) 13))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 0))
@@ -1109,7 +1109,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t100-1*)
       (let ((core-tm
@@ -1306,7 +1306,7 @@
   (let ((dir "data_base")
 	(rev-0 0))
     (with-fixture initialize-destination-db (dir)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (xtm-importer:init-isidorus)
       (json-importer:import-from-isidorus-json *t100-1*)
       (let ((core-tm
@@ -1365,7 +1365,7 @@
       (xtm-importer:setup-repository
        *notificationbase.xtm* dir :tm-id "http://www.isidor.us/unittests/testtm"
        :xtm-id *TEST-TM*)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((json-psis
 	     (json:decode-json-from-string (get-all-topic-psis :revision rev-0))))
 	(is (= (length json-psis)
@@ -2170,7 +2170,7 @@
   "Tests the handling of long xml-contents in occurrences when serialized
    and deserialised to and from json."
   (with-fixture with-empty-db ("data_base")
-    (elephant:open-store (xtm-importer:get-store-spec "data_base"))
+    ;(open-tm-store "data_base") ;is already opened in the fixture
     (let ((xml-data
 	   (with-open-file
 	       (stream unittests-constants::*poems_light.xtm.txt*

@@ -64,7 +64,7 @@
 	(revision-1 100)
 	(revision-2 200))
     (clean-out-db db-dir)
-    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (open-tm-store db-dir)
     (let ((ii-1-1 (make-instance 'ItemIdentifierC
 				 :uri "ii-1-1"
 				 :start-revision revision-1))
@@ -235,7 +235,7 @@
 	  (is (= (length (roles assoc :revision 0)) 1))
 	  (is (= (length (d::slot-p assoc 'd::roles)) 2))
 	  (is (eql (player (first (roles assoc :revision 0)) :revision 0) topic-1))
-	  (elephant:close-store))))))
+	  (close-tm-store))))))
 
 
 (test test-xtm1.0-reification
@@ -302,7 +302,7 @@
 		 (condition () nil)))
       (is-false (occurrences homer))
       (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
-      (elephant:close-store))))))
+      (close-tm-store))))))
 
 
 (test test-xtm2.0-reification
@@ -368,7 +368,7 @@
 		 (condition () nil)))
       (is-false (occurrences homer))
       (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
-      (elephant:close-store))))))
+      (close-tm-store))))))
 
 
 (test test-xtm1.0-reification-exporter
@@ -461,7 +461,7 @@
 		    return t)))
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
-      (elephant:close-store))))
+      (close-tm-store))))
 
 
 (test test-xtm2.0-reification-exporter
@@ -529,7 +529,7 @@
 		      return t)))))
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
-    (elephant:close-store)))
+    (close-tm-store)))
 
 
 (test test-rdf-importer-reification
@@ -636,7 +636,7 @@
 	  (is (eql (reified-construct reification-1) (first (d:used-as-type arc1))))
 	  (is (eql (reifier (first (d:used-as-type arc3))) reification-2))
 	  (is (eql (reified-construct reification-2) (first (d:used-as-type arc3))))))))
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-importer-reification-2
@@ -651,7 +651,7 @@
     (rdf-importer:import-from-rdf
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
-    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (open-tm-store db-dir)
     (let ((homer (get-item-by-id "http://simpsons.tv/homer" :xtm-id document-id))
 	  (bart (get-item-by-id "http://simpsons.tv/bart" :xtm-id document-id))
 	  (married (get-item-by-id "http://simpsons.tv/arcs/married" :xtm-id document-id)))
@@ -669,7 +669,7 @@
       (is-true (reified-construct (reifier (first (occurrences bart)))))
       (is (string= (uri (first (psis (reifier (first (occurrences bart))))))
 		   "http://test-tm#lastName-arc"))))
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-importer-reification-3
@@ -684,7 +684,7 @@
     (rdf-importer:import-from-rdf
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
-    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (open-tm-store db-dir)
     (let ((lisa (get-item-by-id "http://simpsons.tv/lisa" :xtm-id document-id)))
       (is-true lisa)
       (is (= (length (names lisa)) 1))
@@ -708,7 +708,7 @@
 	  (is (= (length (psis (reifier occurrence))) 1))
 	  (is (string= (uri (first (psis (reifier occurrence))))
 		       (concat tm-id "lisa-occurrence")))))))
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-importer-reification-4
@@ -723,7 +723,7 @@
     (rdf-importer:import-from-rdf
      *reification.rdf* db-dir :tm-id tm-id
      :document-id document-id :start-revision revision-1)
-    (elephant:open-store (xtm-importer:get-store-spec db-dir))
+    (open-tm-store db-dir)
     (let ((friendship (get-item-by-id "http://simpsons.tv/friendship" :xtm-id document-id))
 	  (carl (get-item-by-id "http://simpsons.tv/carl" :xtm-id document-id)))
       (is-true friendship)
@@ -747,7 +747,7 @@
 	  (is (= (length (psis (reifier carl-role))) 1))
 	  (is (string= (uri (first (psis (reifier carl-role))))
 		       (concat tm-id "friend-role")))))))
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-exporter-reification
@@ -763,7 +763,7 @@
     (rdf-importer:import-from-rdf *reification.rdf* dir
 				  :tm-id tm-id
 				  :document-id "reification-xtm")
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
@@ -820,7 +820,7 @@
 	      (is (and (stringp resource) (string= resource "http://some.where/me"))))))))
     (handler-case (delete-file output-file)
       (error () ))) ;do nothing
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-exporter-reification-2
@@ -836,7 +836,7 @@
     (rdf-importer:import-from-rdf *reification.rdf* dir
 				  :tm-id tm-id
 				  :document-id "reification-xtm")
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
@@ -883,7 +883,7 @@
 		       (string= occurrence-reifier "lisa-occurrence"))))))))
     (handler-case (delete-file output-file)
       (error () ))) ;do nothing
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-exporter-reification-3
@@ -899,7 +899,7 @@
     (rdf-importer:import-from-rdf *reification.rdf* dir
 				  :tm-id tm-id
 				  :document-id "reification-xtm")
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
@@ -918,7 +918,7 @@
 		     (string= reifier-id "married-arc")))))))
     (handler-case (delete-file output-file)
       (error () ))) ;do nothing
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-rdf-exporter-reification-4
@@ -934,7 +934,7 @@
     (rdf-importer:import-from-rdf *reification.rdf* dir
 				  :tm-id tm-id
 				  :document-id "reification-xtm")
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (rdf-exporter:export-as-rdf output-file :tm-id tm-id)
     (let ((document
 	   (dom:document-element
@@ -976,7 +976,7 @@
 		     (string= role-reifier "friend-role")))))))
     (handler-case (delete-file output-file)
       (error () ))) ;do nothing
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (test test-fragment-reification
@@ -992,7 +992,7 @@
     (rdf-importer:import-from-rdf *reification.rdf* dir
        :tm-id tm-id
        :document-id "reification-xtm")
-    (elephant:open-store (xtm-importer:get-store-spec dir))
+    (open-tm-store dir)
     (let ((fragment (d:create-latest-fragment-of-topic "http://simpsons.tv/lisa")))
       (is-true fragment)
       (is (= (length (union (referenced-topics fragment)
@@ -1012,7 +1012,7 @@
 				  (d:get-item-by-psi "http://simpsons.tv/lenny")
 				  (d:get-item-by-psi "http://simpsons.tv/friend-role"))))
 	     5))))
-      (elephant:close-store))
+      (close-tm-store))
 
 
 (defun run-reification-tests ()

@@ -43,7 +43,10 @@
 	   :get-literal-quotation
 	   :get-literal
 	   :return-if-starts-with
-	   :prefix-of-uri))
+	   :prefix-of-uri
+	   :get-store-spec
+	   :open-tm-store
+	   :close-tm-store))
 
 (in-package :base-tools)
 
@@ -562,3 +565,20 @@
   (if (string-ends-with-one-of uri (list "#" "/"))
       (cut-uri-end (subseq uri 0 (1- (length uri))))
       uri))
+
+
+(defun get-store-spec (pathname)
+  "return the store spec for elephant and ensure that the path name is absolute"
+  (list :BDB (truename pathname)))
+
+
+(defun open-tm-store (pathname)
+  "Wraps the function elephant:open-store with the key-parameter
+   :register, so one store canbe used by several instances of
+   isidorus in parallel."
+  (elephant:open-store (get-store-spec pathname) :register t))
+
+
+(defun close-tm-store ()
+  "Wraps the function elephant:close-store."
+  (elephant:close-store))

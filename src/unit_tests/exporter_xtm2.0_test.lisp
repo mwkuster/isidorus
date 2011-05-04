@@ -13,6 +13,7 @@
    :xtm-importer
    :xtm-exporter
    :it.bese.FiveAM
+   :base-tools
    :xml-tools)
   (:import-from :constants
                 *xtm2.0-ns*
@@ -72,7 +73,7 @@
     (error () )) ;do nothing
   (setup-repository *sample_objects_2_0.xtm* "data_base" :xtm-id "test-tm"
 		    :tm-id "http://isidorus.org/test-tm")
-  (elephant:open-store (get-store-spec "data_base")))
+  (open-tm-store "data_base"))
 
 
 (def-fixture refill-test-db ()

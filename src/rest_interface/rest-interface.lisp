@@ -83,8 +83,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (unless elephant:*store-controller*
-    (elephant:open-store  
-     (xtm-importer:get-store-spec repository-path)))
+    (open-tm-store repository-path))
   (set-up-json-interface)
   (setf *json-server-acceptor*
 	(make-instance 'hunchentoot:acceptor :address host-name :port port))
@@ -97,7 +96,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   "Shut down the Topic Map Engine, only the json part."
   (hunchentoot:stop *json-server-acceptor*)
   (setf *json-server-acceptor* nil)
-  (elephant:close-store))
+  (close-tm-store))
 
 
 (defun start-atom-engine (repository-path &key (conf-file "atom/conf.lisp")
@@ -113,8 +112,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (setf atom:*base-url* (format nil "http://~a:~a" host-name port))
   (unless elephant:*store-controller*
-    (elephant:open-store  
-     (xtm-importer:get-store-spec repository-path)))
+    (open-tm-store repository-path))
   (load conf-file)
   (publish-feed atom:*tm-feed*)
   (setf *atom-server-acceptor*
@@ -128,4 +126,4 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   "Shut down the Topic Map Engine, only the atom part."
   (hunchentoot:stop *atom-server-acceptor*)
   (setf *atom-server-acceptor* nil)
-  (elephant:close-store))
+  (close-tm-store))

@@ -104,9 +104,7 @@
 					    :depends-on ("fragments" "snapshots"))
                                      (:file "confreader"
 					    :depends-on ("collection" "fragments" "snapshots")))
-		       	:depends-on ("model"
-				     "xml"
-				     "threading"))
+		       	:depends-on ("model" "xml" "base-tools" "threading"))
 	       (:module "rest_interface"
 			:components ((:file "rest-interface")
                                      (:file "publish_feeds"
@@ -115,13 +113,8 @@
 					    :depends-on ("rest-interface"))
                                      (:file "read" 
                                             :depends-on ("rest-interface")))
-		       	:depends-on ("model"
-				     "atom"
-				     "xml"
-				     "TM-SPARQL"
-				     "json"
-				     "threading"
-				     "base-tools"))
+		       	:depends-on ("model" "atom" "xml" "TM-SPARQL"
+				     "json" "threading" "base-tools"))
 	       (:module "unit_tests"
 			:components ((:static-file "textgrid.xtm")
 				     (:static-file "textgrid_old.xtm")
@@ -193,14 +186,8 @@
 					    :depends-on ("fixtures"))
 				     (:file "reification_test"
 					    :depends-on ("fixtures" "unittests-constants")))
-			:depends-on ("atom"
-                                     "constants"
-				     "model"
-				     "xml"
-				     "json"
-				     "threading"
-				     "base-tools"
-				     "TM-SPARQL"))
+			:depends-on ("atom" "constants" "model" "xml" "json"
+				     "threading" "base-tools" "TM-SPARQL"))
 	       (:module "json"
 			:components ((:module "isidorus-json"
 					      :components ((:file "json_exporter"
@@ -221,10 +208,7 @@
 								  :depends-on ("jtm_tools"))
 							   (:file "jtm_aliases"
 								  :depends-on ("jtm_tools" "jtm_importer" "jtm_exporter")))))
-			:depends-on ("base-tools"
-				     "model"
-				     "xml"
-				     "TM-SPARQL"))
+			:depends-on ("base-tools" "model" "xml" "TM-SPARQL"))
 	       (:module "ajax"
 			:components ((:static-file "isidorus.html")
 				     (:module "javascripts"

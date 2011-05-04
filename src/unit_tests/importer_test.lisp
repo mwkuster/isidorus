@@ -11,6 +11,7 @@
   (:use 
    :common-lisp
    :xtm-importer
+   :base-tools
    :datamodel
    :it.bese.FiveAM
    :unittests-constants
@@ -365,7 +366,7 @@
     (with-fixture initialize-destination-db (dir)
       (xtm-importer:setup-repository *t100.xtm* dir :xtm-id *TEST-TM*
                                      :tm-id "http://www.isidor.us/unittests/topic-t100")
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (is (= 25 (length (elephant:get-instances-by-class 'TopicC)))) ;; are all topics in the db +std topics
       (is-true (get-item-by-id "t100" :revision 0)) ;; main topic
       (is-true (get-item-by-id "t3a" :revision 0))  ;; instanceOf
@@ -442,7 +443,7 @@
        :tm-id "http://www.isidor.us/unittests/xtm1.0-tests"
        :xtm-id *TEST-TM* :xtm-format :1.0)
       (setf *TM-REVISION* 0)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       ;13 + (23 core topics)
       (is (=  36 (length (elephant:get-instances-by-class 'TopicC))))
       ;2 + (11 instanceOf)
@@ -526,7 +527,7 @@
        *notificationbase.xtm* dir :xtm-id *TEST-TM*
        :tm-id "http://isidorus.org/test-tm")
       (setf *TM-REVISION* 0)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (let ((variants (elephant:get-instances-by-class 'VariantC)))
 	(is (= (length variants) 4))
 	(loop for variant in variants
@@ -605,7 +606,7 @@
       (xtm-importer:setup-repository 
        *sample_objects.xtm* dir :xtm-id *TEST-TM* :xtm-format :1.0
        :tm-id "http://isidorus.org/test-tm")
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store dir)
       (is (= (length (elephant:get-instances-by-class 'VariantC)) 5))
       (let ((t-2526 (get-item-by-id "t-2526")))
 	(loop for baseName in (names t-2526)
@@ -737,7 +738,7 @@
     (with-fixture with-empty-db (dir)
       (xtm-importer:setup-repository *poems_light_tm_reification_xtm1.0.xtm*
 				     dir :tm-id tm-id-1 :xtm-format :1.0)
-      (elephant:open-store (xtm-importer:get-store-spec dir))
+      (open-tm-store  dir)
       (with-revision 0
 	(let ((tm-1
 	       (d:identified-construct

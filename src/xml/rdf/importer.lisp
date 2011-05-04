@@ -16,14 +16,13 @@
   (declare ((or pathname string) rdf-xml-path))
   (declare ((or pathname string) repository-path))
   (unless elephant:*store-controller*
-    (elephant:open-store  
-     (get-store-spec repository-path)))
+    (open-tm-store repository-path))
   (xtm-importer:init-isidorus)
   (init-rdf-module)
   (import-from-rdf rdf-xml-path repository-path :tm-id tm-id
 		   :document-id document-id)
   (when elephant:*store-controller*
-    (elephant:close-store)))
+    (close-tm-store)))
 
 
 (defun import-from-rdf (rdf-xml-path repository-path 
@@ -36,8 +35,7 @@
   (tm-id-p tm-id "rdf-importer")
   (with-writer-lock
     (unless elephant:*store-controller*
-      (elephant:open-store
-       (get-store-spec repository-path)))
+      (open-tm-store repository-path))
     (let ((rdf-dom
 	   (dom:document-element (cxml:parse-file
 				  (truename rdf-xml-path)
@@ -47,7 +45,7 @@
     (format t "#Objects in the store: Topics: ~a, Associations: ~a~%"
 	    (length (elephant:get-instances-by-class 'TopicC))
 	    (length (elephant:get-instances-by-class 'AssociationC)))
-    (elephant:close-store)
+    (close-tm-store)
     (setf *_n-map* nil)))
 
 

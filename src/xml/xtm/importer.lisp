@@ -44,7 +44,6 @@
 	   :from-scope-elem
 	   :from-topic-elem-to-stub
 	   :from-type-elem
-	   :get-store-spec
 	   :get-topicref-uri
            :import-only-topics
            :import-from-xtm
@@ -76,12 +75,6 @@
            :with-tm))
 
 (in-package :xtm-importer)
-
-;(declaim (optimize (debug 3)))
-
-(defun get-store-spec (pathname)
-  "return the store spec for elephant and ensure that the path name is absolute"
-  (list :BDB (truename pathname)))
 
 
 (defun get-topicref-uri (topicref-elem)
