@@ -560,7 +560,6 @@
 	   (jtm-str-1 (export-construct-as-jtm-string var-1 :revision 0))
 	   (jtm-str-2 (export-construct-as-jtm-string
 		       var-2 :jtm-format :1.0 :parent-p nil :revision 0)))
-
       (is (string= jtm-1
 		   (concat "{\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-string*) ",\"value\":\"var-1\",\"scope\":[\"si:http:\\/\\/some.where\\/psi-1\"],\"reifier\":null}")))
       (is (string= jtm-2
@@ -1298,6 +1297,18 @@
 	(dotimes (idx 2)
 	  (is (eql (elt refs (+ idx 4)) assoc-1)))))))
       
+
+
+
+;TODO: *get-item
+;      *import-identifier-from-jtm-string
+;      *import-identifiers-from-jtm-strings
+;      *import-variant-from-jtm-list
+;      *import-variants-from-jtm-lists
+;      *import-occurrence-from-jtm-list
+;      *import-occurrences-from-jtm-lists
+;      *import-name-from-jtm-list
+;      *import-names-from-jtm-lists
 
 
 (defun run-jtm-tests()
