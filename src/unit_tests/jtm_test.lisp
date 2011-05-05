@@ -32,7 +32,9 @@
 	   :test-export-to-jtm-role
 	   :test-export-to-jtm-association
 	   :test-export-to-jtm-fragment
-	   :test-export-as-jtm))
+	   :test-export-as-jtm
+	   :test-import-jtm-references-1
+	   :test-import-jtm-references-2))
 
 
 (in-package :jtm-test)
@@ -353,8 +355,6 @@
       (is (string= (jtm::export-reifier-to-jtm name-4 :revision 0)
 		   "null"))
       (signals exceptions::JTM-error (jtm::export-reifier-to-jtm occ-4 :revision 0)))))
-
-
 
 
 (test test-parent-references-to-jtm
@@ -1159,6 +1159,145 @@
 			:revision 0))
 		      :item-type-p nil :parent-p nil :revision 0)
 		     ",\"item_type\":\"topicmap\",\"reifier\":null}")))))))
+
+
+(test test-import-jtm-references-1
+  "Tests all functions that are responsible for processing and searching
+   constructs by jtm-references."
+  (with-fixture with-empty-db ("data_base")
+    (let ((prefixes (list (list :pref "pref_1" :value "http://pref.org/")
+			  (list :pref "pref_3" :value "http://pref.org/app/")
+			  (list :pref "pref_2" :value "http://pref.org/app#"))))
+      (is (string= (jtm::compute-full-uri prefixes "pref_1" "suffix-1")
+		   "http://pref.org/suffix-1"))
+      (is (string= (jtm::compute-full-uri prefixes "pref_3" "suffix-2")
+		   "http://pref.org/app/suffix-2"))
+      (is (string= (jtm::compute-full-uri prefixes "pref_2" "suffix-3")
+		   "http://pref.org/app#suffix-3"))
+      (signals exceptions:jtm-error
+	(jtm::compute-full-uri prefixes "pref_4" "suffix-3"))
+      (signals exceptions:jtm-error
+	(jtm::compute-full-uri prefixes "pref_1" ""))
+      (is (eql (jtm::get-identifier-type-from-jtm-reference "ii:[pref:suff]")
+	       'ItemIdentifierC))
+      (is (eql (jtm::get-identifier-type-from-jtm-reference "si:http://pref.suf")
+	       'PersistentIdC))
+      (is (eql (jtm::get-identifier-type-from-jtm-reference "sl:")
+	       'SubjectLocatorC))
+      (signals exceptions::JTM-error
+	(jtm::get-identifier-type-from-jtm-reference "xy:[pref:suff]"))
+      (signals exceptions::JTM-error
+	(jtm::get-identifier-type-from-jtm-reference "ii[pref:suff]"))
+      (signals exceptions::JTM-error
+	(jtm::get-identifier-type-from-jtm-reference ""))
+      (is (string= (jtm::compute-uri-from-jtm-identifier "http://any.uri" nil)
+		   "http://any.uri"))
+      (is (string=
+	   (jtm::compute-uri-from-jtm-identifier "http://any.uri" prefixes)
+	   "http://any.uri"))
+      (is (string=
+	   (jtm::compute-uri-from-jtm-identifier "pref_1:any.uri" prefixes)
+	   "pref_1:any.uri"))
+      (is (string=
+	   (jtm::compute-uri-from-jtm-identifier "[pref_1:any.uri]" prefixes)
+	   "http://pref.org/any.uri"))
+      (signals exceptions::JTM-error 
+	       (jtm::compute-uri-from-jtm-identifier "[pref_5:any.uri]" prefixes))
+      (signals exceptions::JTM-error 
+	(jtm::compute-uri-from-jtm-identifier "" prefixes))
+      (signals exceptions::JTM-error 
+	(jtm::compute-uri-from-jtm-identifier "[]" prefixes))
+      (signals exceptions::JTM-error 
+	(jtm::compute-uri-from-jtm-identifier "[any.uri]" prefixes))
+      (signals exceptions::JTM-error 
+	(jtm::compute-uri-from-jtm-identifier "[pref:]" prefixes))
+      (signals exceptions::JTM-error 
+	(jtm::compute-uri-from-jtm-identifier "[:suffix]" prefixes))
+      (is (string=
+	   (jtm::compute-uri-from-jtm-identifier "[http://any.uri" prefixes)
+	   "[http://any.uri"))
+      (is (string=
+	   (jtm::compute-uri-from-jtm-identifier "http://any.uri]" prefixes)
+	   "http://any.uri]")))))
+
+
+(test test-import-jtm-references-2
+  "Tests all functions that are responsible for processing and searching
+   constructs by jtm-references."
+  (with-fixture with-empty-db ("data_base")
+    (let ((prefixes (list (list :pref "pref_1" :value "http://pref.org/")
+			  (list :pref "pref_3" :value "http://pref.org/app/")
+			  (list :pref "pref_2" :value "http://pref.org/app#")))
+	  (top-1 (make-construct 'TopicC :start-revision 100
+				 :psis
+				 (list (make-construct
+					'PersistentIdC
+					:uri "http://pref.org/app#psi-1")
+				       (make-construct
+					'PersistentIdC
+					:uri "http://pref.org/app/psi-1"))
+				 :item-identifiers
+				 (list (make-construct
+					'ItemIdentifierC
+					:uri "http://pref.org/iis/ii-1"))
+				 :locators
+				 (list (make-construct
+					'SubjectLocatorC
+					:uri "http://some.where/app/sl-1"))))
+	  (assoc-1 (make-construct 'AssociationC :start-revision 100
+				   :item-identifiers
+				   (list (make-construct
+					  'ItemIdentifierC
+					  :uri "http://pref.org/app#ii-2")))))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"si:http://pref.org/app#psi-1" :revision 0 :prefixes prefixes)
+	       top-1))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"si:[pref_2:psi-1]" :revision 0 :prefixes prefixes)
+	       top-1))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"si:[pref_3:psi-1]" :revision 0 :prefixes prefixes)
+	       top-1))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"si:[pref_1:app#psi-1]" :revision 0 :prefixes prefixes)
+	       top-1))
+      (signals exceptions::missing-reference-error
+	(jtm::get-item-from-jtm-reference
+	 "sl:http://pref.org/app/sl-1" :revision 0))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"sl:http://some.where/app/sl-1" :revision 0)
+	       top-1))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"ii:http://pref.org/iis/ii-1" :revision 0 :prefixes prefixes)
+	       top-1))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"ii:[pref_1:iis/ii-1]" :revision 0 :prefixes prefixes)
+	       top-1))
+      (signals exceptions::jtm-error
+	(jtm::get-item-from-jtm-reference
+	 "ii:[pref_1:iis/ii-1]" :revision 0))
+      (signals exceptions::missing-reference-error
+	(jtm::get-item-from-jtm-reference
+	 "si:[pref_1:iis/ii-1]" :revision 0 :prefixes prefixes))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"ii:http://pref.org/app#ii-2" :revision 0 :prefixes prefixes)
+	       assoc-1))
+      (is (eql (jtm::get-item-from-jtm-reference
+		"ii:[pref_2:ii-2]" :revision 0 :prefixes prefixes)
+	       assoc-1))
+      (let ((refs (jtm::get-items-from-jtm-references
+		   (list "si:http://pref.org/app#psi-1"
+			 "si:[pref_2:psi-1]"
+			 "sl:http://some.where/app/sl-1"
+			 "ii:http://pref.org/iis/ii-1"
+			 "ii:http://pref.org/app#ii-2"
+			 "ii:[pref_2:ii-2]")
+		   :revision 0 :prefixes prefixes)))
+	(dotimes (idx 3)
+	  (is (eql (elt refs idx) top-1)))
+	(dotimes (idx 2)
+	  (is (eql (elt refs (+ idx 4)) assoc-1)))))))
+      
 
 
 (defun run-jtm-tests()

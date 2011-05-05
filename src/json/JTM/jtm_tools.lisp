@@ -47,6 +47,22 @@
                    ((:pref 'pref_1' :value 'uri-pref') (...))."))
 
 
+(defun compute-full-uri (prefix-list prefix-name suffix)
+  "Returns a full uri if the prefix-name can found in an item of the form
+   (:pref 'prefix-name' :value 'uri-value/'), the returnvalue would be of
+   the form uri-value/suffix. Otherwise the return value is nil."
+  (declare (List prefix-list)
+	   (String prefix-name suffix))
+  (if (= (length suffix) 0)
+      (error (make-condition 'JTM-error :message (format nil "From compute-full-uri(): suffix must no be of length 0, but is \"~a\"" suffix)))
+      (let ((result (loop for item in prefix-list
+		       when (string= (getf item :pref) prefix-name)
+		       return (concat (getf item :value) suffix))))
+	(if result
+	    result
+	    (error (make-condition 'JTM-error :message (format nil "From compute-full-uri(): prefix \"~a\" not found in the available prefixes \"~a\"" prefix-name prefix-list)))))))
+
+
 (defun export-construct-as-jtm-string (construct &key (revision (get-revision))
 				       (jtm-format :1.1) (parent-p t))
   "Exports a name variant as JTM string.
