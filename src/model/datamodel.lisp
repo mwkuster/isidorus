@@ -2224,15 +2224,19 @@
 				   :revision revision)))))
 	     ;no revision need to be checked, since the revision
              ;is implicitely checked by the function identified-construct
-    (if (and result
-	     (let ((parent-elem
-		    (when (or (typep result 'CharacteristicC)
-			      (typep result 'RoleC))
-		      (parent result :revision revision))))
-	       (find-item-by-revision result revision parent-elem)))
+    (if result
 	result
 	(when error-if-nil
 	  (error (make-object-not-found-condition "No such item is bound to the given identifier uri."))))))
+;(if (and result
+;(let ((parent-elem
+;(when (or (typep result 'CharacteristicC)
+;(typep result 'RoleC))
+;(parent result :revision revision))))
+;(find-item-by-revision result revision parent-elem)))
+;result
+;(when error-if-nil
+;(error (make-object-not-found-condition "No such item is bound to the given identifier uri."))))))
 
 
 (defun get-item-by-item-identifier (uri &key (revision *TM-REVISION*)

@@ -34,7 +34,12 @@
 	   :test-export-to-jtm-fragment
 	   :test-export-as-jtm
 	   :test-import-jtm-references-1
-	   :test-import-jtm-references-2))
+	   :test-import-jtm-references-2
+	   :test-get-item
+	   :test-import-identifiers
+	   :test-import-variants
+	   :test-import-occurrences
+	   :test-import-names))
 
 
 (in-package :jtm-test)
@@ -1298,17 +1303,335 @@
 	  (is (eql (elt refs (+ idx 4)) assoc-1)))))))
       
 
+(test test-get-item
+  "Tests the function get-item."
+  (let* ((jtm-variant "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"http://some.where/ii-1\",\"[pref_1:ii-2]\"],\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-1\",\"item_type\":\"variant\",\"parent\":[\"ii:[pref_1:ii-1]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":null}")
+	 (jtm-lst (json:decode-json-from-string jtm-variant)))
+    (is (string= (jtm::get-item :VERSION jtm-lst) "1.1"))
+    (is-false (set-exclusive-or (jtm::get-item :ITEM--IDENTIFIERS jtm-lst)
+				(list "http://some.where/ii-1"
+				      "[pref_1:ii-2]") :test #'string=))
+    (is (eql (first (first (jtm::get-item :PREFIXES jtm-lst))) :XSD))
+    (is (string= (rest (first (jtm::get-item :PREFIXES jtm-lst)))
+		 "http://www.w3.org/2001/XMLSchema#"))
+    (is (eql (first (second (jtm::get-item :PREFIXES jtm-lst))) :PREF--1))
+    (is (string= (rest (second (jtm::get-item :PREFIXES jtm-lst)))
+		 "http://some.where/"))))
 
 
-;TODO: *get-item
-;      *import-identifier-from-jtm-string
-;      *import-identifiers-from-jtm-strings
-;      *import-variant-from-jtm-list
-;      *import-variants-from-jtm-lists
-;      *import-occurrence-from-jtm-list
-;      *import-occurrences-from-jtm-lists
-;      *import-name-from-jtm-list
-;      *import-names-from-jtm-lists
+(test test-import-identifiers
+  "Tests the functions import-identifier-from-jtm-string and
+   import-identifiers-from-jtm-strings."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes (list (list :pref "pref_1" :value "http://pref.org/")
+			   (list :pref "pref_2" :value "http://pref.org#")
+			   (list :pref "pref_3" :value "http://pref.org/app/")))
+	   (j-ii-1 "http://pref.org/ii-1")
+	   (j-ii-2 "[pref_1:ii-2]")
+	   (j-sl-1 "[pref_2:sl-1]")
+	   (j-sl-2 "[pref_3:app_2/sl-2]")
+	   (j-psi-1 "[pref_3:psi-1]")
+	   (j-psi-2 "http://pref.org/psi-2")
+	   (ii-1 (jtm::import-identifier-from-jtm-string j-ii-1 :prefixes prefixes))
+	   (sl-1 (jtm::import-identifier-from-jtm-string
+		  j-sl-1 :prefixes prefixes :identifier-type-symbol 'SubjectLocatorC))
+	   (psi-1 (jtm::import-identifier-from-jtm-string
+		   j-psi-1 :prefixes prefixes :identifier-type-symbol 'PersistentIdC))
+	   (psi-2 (jtm::import-identifier-from-jtm-string
+		   j-psi-2 :prefixes prefixes :identifier-type-symbol 'PersistentIdC))
+	   (psis (jtm::import-identifiers-from-jtm-strings
+		  (list j-psi-1 j-psi-2) :prefixes prefixes
+		  :identifier-type-symbol 'PersistentIdC))
+	   (iis (jtm::import-identifiers-from-jtm-strings (list j-ii-1 j-ii-2)
+							  :prefixes prefixes))
+	   (ii-2 (elephant:get-instance-by-value
+		 'd:ItemIdentifierC 'd:uri "http://pref.org/ii-2"))
+	   (sls (jtm::import-identifiers-from-jtm-strings
+		 (list j-sl-1 j-sl-2) :prefixes prefixes
+		 :identifier-type-symbol 'SubjectLocatorC))
+	   (sl-2 (elephant:get-instance-by-value
+		  'd:SubjectLocatorC 'd:uri "http://pref.org/app/app_2/sl-2")))
+      (signals exceptions:JTM-error
+	(jtm::import-identifier-from-jtm-string j-ii-2))
+      (signals exceptions:duplicate-identifier-error
+	(jtm::import-identifier-from-jtm-string
+	 j-ii-1 :identifier-type-symbol 'PersistentIdC))
+      (signals exceptions:JTM-error
+	(jtm::import-identifiers-from-jtm-strings (list j-ii-2)))
+      (signals exceptions:duplicate-identifier-error
+	(jtm::import-identifiers-from-jtm-strings
+	 (list j-ii-1) :identifier-type-symbol 'PersistentIdC))
+      (is (eql (elephant:get-instance-by-value 'd:ItemIdentifierC 'd:uri j-ii-1)
+	       ii-1))
+      (is (find ii-2 iis))
+      (is (eql (elephant:get-instance-by-value
+		'd:SubjectLocatorC 'd:uri "http://pref.org#sl-1")
+	       sl-1))
+      (is (find sl-2 sls))
+      (is (eql (elephant:get-instance-by-value
+		'd:PersistentIdC 'd:uri "http://pref.org/app/psi-1")
+	       psi-1))
+      (is (eql (elephant:get-instance-by-value 'd:PersistentIdC 'd:uri j-psi-2)
+	       psi-2))
+      (is-false (set-exclusive-or psis (list psi-1 psi-2)))
+      (is-false (set-exclusive-or iis (list ii-1 ii-2)))
+      (is-false (set-exclusive-or sls (list sl-1 sl-2))))))
+
+
+(test test-import-variants
+  "Tests the functions import-variant-from-jtm-string and
+   import-constructs-from-jtm-strings."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_1" :value "http://some.where/")))
+	   (jtm-var-1 (concat "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-string*) ",\"value\":\"var-1\",\"item_type\":\"variant\",\"parent\":[\"ii:[pref_1:ii-1]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":null}"))
+	   (jtm-var-2 (concat "{\"version\":\"1.0\",\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-3\"],\"datatype\":" (json:encode-json-to-string *xml-uri*) ",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"variant\",\"scope\":[\"sl:http:\\/\\/some.where\\/sl-1\"],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-2\"}"))
+	   (jtm-var-3 (concat "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-string*) ",\"value\":\"var-1\",\"item_type\":\"variant\",\"parent\":[\"ii:[pref_1:ii-10]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":null}"))
+	   (name-1 (make-construct
+		    'NameC :start-revision 100
+		    :item-identifiers
+		    (list (make-construct 'ItemIdentifierC
+					  :uri "http://some.where/ii-1"))))
+	   (scope-1 (make-construct
+		     'TopicC :start-revision 100
+		     :psis
+		     (list (make-construct 'PersistentIdC
+					   :uri "http://some.where/psi-1"))))
+	   (var-1 (jtm::import-variant-from-jtm-list
+		   (json:decode-json-from-string jtm-var-1) nil :revision 100
+		   :prefixes prefixes))
+	   (scope-2 (make-construct
+		     'TopicC :start-revision 100
+		     :locators
+		     (list (make-construct 'SubjectLocatorC
+					   :uri "http://some.where/sl-1"))))
+	   (reifier-2 (make-construct
+		       'TopicC :start-revision 100
+		       :item-identifiers
+		       (list (make-construct 'ItemIdentifierC
+					     :uri "http://some.where/ii-2"))))
+	   (var-2 (jtm::import-variant-from-jtm-list
+		   (json:decode-json-from-string jtm-var-2) name-1 :revision 100
+		   :prefixes prefixes))
+	   (vars (jtm::import-constructs-from-jtm-lists
+		  (list (json:decode-json-from-string jtm-var-1)
+			(json:decode-json-from-string jtm-var-2)) name-1
+			#'jtm::import-variant-from-jtm-list :revision 100
+			:prefixes prefixes)))
+      (is-true (d:find-item-by-revision var-1 100 name-1))
+      (is-false (d:find-item-by-revision var-1 50 name-1))
+      (is (eql (parent var-1 :revision 0) name-1))
+      (is (eql (parent var-2 :revision 0) name-1))
+      (is (string= (datatype var-1) *xml-string*))
+      (is (string= (datatype var-2) *xml-uri*))
+      (is (string= (charvalue var-1) "var-1"))
+      (is (string= (charvalue var-2) "http://any.uri"))
+      (is-false (d:item-identifiers var-1 :revision 0))
+      (is-false (set-exclusive-or
+		 (map 'list #'d:uri (d:item-identifiers var-2 :revision 0))
+		 (list "http://some.where/ii-3") :test #'string=))
+      (is-false (reifier var-1 :revision 0))
+      (is (eql (reifier var-2 :revision 0) reifier-2))
+      (is-false (set-exclusive-or (themes var-1 :revision 0) (list scope-1)))
+      (is-false (set-exclusive-or (themes var-2 :revision 0) (list scope-2)))
+      (is-false (set-exclusive-or vars (list var-1 var-2)))
+      (signals exceptions:missing-reference-error
+	(jtm::import-variant-from-jtm-list
+	 (json:decode-json-from-string jtm-var-3) nil :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-variant-from-jtm-list
+	 (json:decode-json-from-string jtm-var-1) name-1 :revision 100))
+      (signals exceptions:JTM-error
+	(jtm::import-variant-from-jtm-list
+	 (json:decode-json-from-string jtm-var-2) nil :revision 100))
+      (signals exceptions:missing-reference-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-var-3)) nil
+	 #'jtm::import-variant-from-jtm-list :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-var-1)) name-1
+	 #'jtm::import-variant-from-jtm-list :revision 100))
+      (signals exceptions:JTM-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-var-2)) nil
+	 #'jtm::import-variant-from-jtm-list :revision 100)))))
+
+
+(test test-import-occurrences
+  "Tests the functions import-occurrence-from-jtm-string and
+   import-constructs-from-jtm-strings."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_1" :value "http://some.where/")))
+	   (jtm-occ-1 (concat "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_1:ii-2]\"],\"datatype\":" (json:encode-json-to-string *xml-string* ) ",\"type\":\"sl:[pref_1:sl-1]\",\"value\":\"occ-1\",\"item_type\":\"occurrence\",\"parent\":[\"si:[pref_1:psi-1]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":\"ii:[pref_1:ii-1]\"}"))
+	   (jtm-occ-2 (concat "{\"version\":\"1.0\",\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-uri* ) ",\"type\":\"si:http:\\/\\/some.where\\/psi-1\",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"occurrence\",\"scope\":null,\"reifier\":null}"))
+	   (jtm-occ-3 (concat "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_1:ii-2]\"],\"datatype\":" (json:encode-json-to-string *xml-string* ) ",\"type\":\"sl:[pref_1:sl-1]\",\"value\":\"occ-1\",\"item_type\":\"occurrence\",\"parent\":[\"si:[pref_1:psi-6]\"],\"scope\":[\"si:[pref_1:psi-1]\"],\"reifier\":\"ii:[pref_1:ii-1]\"}"))
+	   (jtm-occ-4 (concat "{\"version\":\"1.0\",\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-uri* ) ",\"type\":null,\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"occurrence\",\"scope\":null,\"reifier\":null}"))
+	   (jtm-occ-5 (concat "{\"version\":\"1.0\",\"item_identifiers\":null,\"datatype\":" (json:encode-json-to-string *xml-uri* ) ",\"type\":\"si:http://any-uri/psi-10\",\"value\":\"http:\\/\\/any.uri\",\"item_type\":\"occurrence\",\"scope\":null,\"reifier\":null}"))
+	   (type-1 (make-construct
+		    'TopicC :start-revision 0
+		    :locators
+		    (list (make-construct 'SubjectLocatorC
+					  :uri "http://some.where/sl-1"))))
+	   (scope-1 (make-construct
+		    'TopicC :start-revision 0
+		    :psis
+		    (list (make-construct 'PersistentIdC
+					  :uri "http://some.where/psi-1"))))
+	   (reifier-1 (make-construct
+		       'TopicC :start-revision 0
+		       :item-identifiers
+		       (list (make-construct 'ItemIdentifierC
+					     :uri "http://some.where/ii-1"))))
+	   (parent-1 scope-1)
+	   (type-2 scope-1)
+	   (occ-1 (jtm::import-occurrence-from-jtm-list
+		   (json:decode-json-from-string jtm-occ-1) nil :revision 100
+		   :prefixes prefixes))
+	   (occ-2 (jtm::import-occurrence-from-jtm-list
+		   (json:decode-json-from-string jtm-occ-2) parent-1 :revision 100
+		   :prefixes prefixes))
+	   (occs (jtm::import-constructs-from-jtm-lists
+		  (list (json:decode-json-from-string jtm-occ-1)
+			(json:decode-json-from-string jtm-occ-2)) parent-1
+			#'jtm::import-occurrence-from-jtm-list :revision 100
+			:prefixes prefixes)))
+      (is-true (d:find-item-by-revision occ-1 100 parent-1))
+      (is-false (d:find-item-by-revision occ-1 50 parent-1))
+      (is (eql (parent occ-1 :revision 0) parent-1))
+      (is (eql (parent occ-2 :revision 0) parent-1))
+      (is (string= (datatype occ-1) *xml-string*))
+      (is (string= (datatype occ-2) *xml-uri*))
+      (is (string= (charvalue occ-1) "occ-1"))
+      (is (string= (charvalue occ-2) "http://any.uri"))
+      (is-false (set-exclusive-or
+		 (map 'list #'d:uri (d:item-identifiers occ-1 :revision 0))
+		 (list "http://some.where/ii-2") :test #'string=))
+      (is-false (d:item-identifiers occ-2 :revision 0))
+      (is (eql (reifier occ-1 :revision 0) reifier-1))
+      (is-false (reifier occ-2 :revision 0))
+      (is-false (set-exclusive-or (themes occ-1 :revision 0) (list scope-1)))
+      (is-false (themes occ-2 :revision 0))
+      (is (eql (instance-of occ-1 :revision 0) type-1))
+      (is (eql (instance-of occ-2 :revision 0) type-2))
+      (is-false (set-exclusive-or (list occ-1 occ-2) occs))
+      (signals exceptions:missing-reference-error
+	(jtm::import-occurrence-from-jtm-list
+	 (json:decode-json-from-string jtm-occ-5) parent-1 :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-occurrence-from-jtm-list
+	 (json:decode-json-from-string jtm-occ-4) parent-1 :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:missing-reference-error
+	(jtm::import-occurrence-from-jtm-list
+	 (json:decode-json-from-string jtm-occ-3) nil :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-occurrence-from-jtm-list
+	 (json:decode-json-from-string jtm-occ-1) parent-1 :revision 100))
+      (signals exceptions:JTM-error
+	(jtm::import-occurrence-from-jtm-list
+	 (json:decode-json-from-string jtm-occ-2) nil :revision 100))
+      (signals exceptions:missing-reference-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-occ-3)) nil
+	 #'jtm::import-occurrence-from-jtm-list :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-occ-1)) parent-1
+	 #'jtm::import-occurrence-from-jtm-list :revision 100))
+      (signals exceptions:JTM-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-occ-2)) nil
+	 #'jtm::import-occurrence-from-jtm-list :revision 100)))))
+
+
+(test test-import-names
+  "Tests the functions import-name-from-jtm-string and
+   import-constructs-from-jtm-strings."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_1" :value *xsd-ns*)
+			   (list :pref "pref_2" :value "http://some.where/")))
+	   (jtm-name-1 (concat "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_2:ii-2]\"],\"value\":\"name-1\",\"type\":\"sl:[pref_2:sl-1]\",\"item_type\":\"name\",\"parent\":[\"si:[pref_2:psi-1]\"],\"scope\":[\"si:[pref_2:psi-1]\"],\"variants\":[{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-1\",\"scope\":[\"sl:[pref_2:sl-1]\"],\"reifier\":null},{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-2\",\"scope\":[\"sl:[pref_2:sl-1]\"],\"reifier\":null}],\"reifier\":\"ii:[pref_2:ii-1]\"}"))
+	   (jtm-name-2 "{\"version\":\"1.0\",\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"item_type\":\"name\",\"scope\":null,\"variants\":null,\"reifier\":null}")
+	   (jtm-name-3 "{\"version\":\"1.0\",\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"item_type\":\"name\",\"parent\":[\"si:[pref_2:psi-10]\"],\"scope\":null,\"variants\":null,\"reifier\":null}")
+	   (type-1 (make-construct
+		    'TopicC :start-revision 100
+		    :locators
+		    (list (make-construct 'SubjectLocatorC
+					  :uri "http://some.where/sl-1"))))
+	   (parent-1 (make-construct
+		      'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri "http://some.where/psi-1"))))
+	   (scope-1 parent-1)
+	   (reifier-1 (make-construct
+		      'TopicC :start-revision 100
+		      :item-identifiers
+		      (list (make-construct 'ItemIdentifierC
+					    :uri "http://some.where/ii-1"))))
+	   (name-1 (jtm::import-name-from-jtm-list
+		    (json:decode-json-from-string jtm-name-1) nil :revision 100
+		    :prefixes prefixes))
+	   (name-2 (jtm::import-name-from-jtm-list
+		    (json:decode-json-from-string jtm-name-2) parent-1 :revision 100
+		    :prefixes prefixes))
+	   (names (jtm::import-constructs-from-jtm-lists
+		   (list (json:decode-json-from-string jtm-name-1)
+			 (json:decode-json-from-string jtm-name-2)) parent-1
+			 #'jtm::import-name-from-jtm-list :revision 100
+			 :prefixes prefixes)))
+      (is-true (d:find-item-by-revision name-1 100 parent-1))
+      (is-false (d:find-item-by-revision name-1 50 parent-1))
+      (is (eql (parent name-1 :revision 0) parent-1))
+      (is (eql (parent name-2 :revision 0) parent-1))
+      (is (string= (charvalue name-1) "name-1"))
+      (is (string= (charvalue name-2) "name-2"))
+      (is-false (set-exclusive-or
+		 (map 'list #'d:uri (d:item-identifiers name-1 :revision 0))
+		 (list "http://some.where/ii-2") :test #'string=))
+      (is-false (d:item-identifiers name-2 :revision 0))
+      (is (eql (reifier name-1 :revision 0) reifier-1))
+      (is-false (reifier name-2 :revision 0))
+      (is-false (set-exclusive-or (themes name-1 :revision 0) (list scope-1)))
+      (is-false (themes name-2 :revision 0))
+      (is (eql (instance-of name-1 :revision 0) type-1))
+      (is-false (instance-of name-2 :revision 0))
+      (is-false (set-exclusive-or
+		 (map 'list #'d:charvalue (variants name-1 :revision 0))
+		 (list "var-1" "var-2") :test #'string=))
+      (is-false (variants name-2 :revision 0))
+      (is-false (set-exclusive-or names (list name-1 name-2)))
+      (signals exceptions:missing-reference-error
+	(jtm::import-name-from-jtm-list
+	 (json:decode-json-from-string jtm-name-3) nil :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-name-from-jtm-list
+	 (json:decode-json-from-string jtm-name-1) parent-1 :revision 100))
+      (signals exceptions:JTM-error
+	(jtm::import-name-from-jtm-list
+	 (json:decode-json-from-string jtm-name-2) nil :revision 100))
+      (signals exceptions:missing-reference-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-name-3)) nil
+	 #'jtm::import-name-from-jtm-list :revision 100
+	 :prefixes prefixes))
+      (signals exceptions:JTM-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-name-1)) parent-1
+	 #'jtm::import-name-from-jtm-list :revision 100))
+      (signals exceptions:JTM-error
+	(jtm::import-constructs-from-jtm-lists
+	 (list (json:decode-json-from-string jtm-name-2)) nil
+	 #'jtm::import-name-from-jtm-list :revision 100)))))
 
 
 (defun run-jtm-tests()
