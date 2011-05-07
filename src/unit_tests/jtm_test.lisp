@@ -1634,6 +1634,14 @@
 	 #'jtm::import-name-from-jtm-list :revision 100)))))
 
 
+;TODO:
+; *import-topic-stubs-from-jtm-lists
+; *import-topic-stub-from-jtm-list
+; *make-instance-of-association
+; *merge-topics-from-jtm-lists
+; *merge-topic-from-jtm-list
+
+
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."
   (it.bese.fiveam:run! 'jtm-tests))
