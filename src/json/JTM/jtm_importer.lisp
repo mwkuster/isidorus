@@ -77,9 +77,16 @@
   (declare (TopicC instance-top type-top)
 	   (List parents)
 	   (Integer revision))
+  (unless parents
+    (error (make-condition 'JTM-error :message (format nil "From make-instance-of-association(): parents must contain at least one TopicMapC object, but is nil"))))
   (let ((t-top (get-item-by-psi *type-psi* :revision revision))
 	(i-top (get-item-by-psi *instance-psi* :revision revision))
 	(ti-top (get-item-by-psi *type-instance-psi* :revision revision)))
+    (unless (and i-top t-top ti-top)
+      (let ((missing-topic (cond ((not t-top) *type-psi*)
+				 ((not i-top) *instance-psi*)
+				 (t *type-instance-psi*))))
+	(error (make-condition 'missing-reference-error :message (format nil "From make-instance-of-association(): the core topics ~a, ~a, and ~a are necessary, but ~a cannot be found" *type-psi* *instance-psi* *type-instance-psi* missing-topic) :reference missing-topic))))
     (let ((assoc (make-construct 'AssociationC :start-revision revision
 				 :instance-of ti-top
 				 :roles (list (list :start-revision revision
@@ -89,6 +96,9 @@
 						    :player type-top
 						    :instance-of t-top)))))
       (dolist (tm parents)
+	(add-to-tm tm i-top)
+	(add-to-tm tm t-top)
+	(add-to-tm tm ti-top)
 	(add-to-tm tm assoc))
       assoc)))
 

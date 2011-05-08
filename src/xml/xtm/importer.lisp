@@ -130,6 +130,7 @@ core TM"
 		   (from-topic-elem-to-stub top-elem revision :xtm-id "core.xtm")))
 	       (add-to-tm tm top)))))))
 
+
 ;TODO: replace the two importers with this macro
 (defmacro importer-mac
     (get-topic-elems get-association-elems 

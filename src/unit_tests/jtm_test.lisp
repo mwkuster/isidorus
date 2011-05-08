@@ -39,7 +39,8 @@
 	   :test-import-identifiers
 	   :test-import-variants
 	   :test-import-occurrences
-	   :test-import-names))
+	   :test-import-names
+	   :test-make-instance-of-association))
 
 
 (in-package :jtm-test)
@@ -1634,10 +1635,86 @@
 	 #'jtm::import-name-from-jtm-list :revision 100)))))
 
 
+
+(test test-make-instance-of-association
+  "Tests the function make-instance-of-association."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((tt (make-construct 'TopicC :start-revision 100
+			       :psis
+			       (list (make-construct 'PersistentIdC
+						     :uri *type-psi*))))
+	   (it (make-construct 'TopicC :start-revision 100
+			       :psis
+			       (list (make-construct 'PersistentIdC
+						     :uri *instance-psi*))))
+	   (tit (make-construct 'TopicC :start-revision 100
+				:psis
+				(list (make-construct 'PersistentIdC
+						     :uri *type-instance-psi*))))
+	   (top-1 (make-construct
+		   'TopicC :start-revision 100
+		   :psis
+		   (list (make-construct 'PersistentIdC
+					 :uri "http://some.where/psi-1"))))
+	   (top-2 (make-construct
+		   'TopicC :start-revision 100
+		   :locators
+		   (list (make-construct 'SubjectLocatorC
+					 :uri "http://some.where/sl-1"))))
+	   (top-3 (make-construct
+		   'TopicC :start-revision 100
+		   :item-identifiers
+		   (list (make-construct 'ItemIdentifierC
+					 :uri "http://some.where/ii-1"))))
+	   (tm (make-construct
+		'TopicMapC :start-revision 100
+		:item-identifiers
+		(list (make-construct 'ItemIdentifierC
+				      :uri "http://some.where/tm-ii")))))
+      (jtm::make-instance-of-association top-1 top-2 (list tm) :revision 100)
+      (is (= (length (player-in-roles top-1 :revision 0)) 1))
+      (is (eql (instance-of (first (player-in-roles top-1 :revision 0)) :revision 0)
+	       it))
+      (let ((assoc (parent (first (player-in-roles top-1 :revision 0)) :revision 0)))
+	(is-true assoc)
+	(is (= (length (roles assoc :revision 0)) 2))
+	(is (eql (instance-of assoc :revision 0) tit))
+	(is-true (find tm (in-topicmaps assoc :revision 0)))
+	(is-true (find-if #'(lambda(role)
+			      (and (eql (instance-of role :revision 0) tt)
+				   (eql (player role :revision 0) top-2)))
+			  (roles assoc :revision 0))))
+      (is (= (length (player-in-roles top-2 :revision 0)) 1))
+      (is-true (find tm (in-topicmaps tt :revision 0)))
+      (is-false (find tm (in-topicmaps tt :revision 50)))
+      (is-true (find tm (in-topicmaps it :revision 0)))
+      (is-true (find tm (in-topicmaps tit :revision 0)))
+      (jtm::make-instance-of-association top-2 top-3 (list tm) :revision 100)
+      (is (= (length (player-in-roles top-2 :revision 0)) 2))
+      (is (= (length (player-in-roles top-3 :revision 0)) 1))
+      (is (eql (instance-of (first (player-in-roles top-3 :revision 0)) :revision 0)
+	       tt))
+      (let ((assoc (parent (first (player-in-roles top-3 :revision 0)) :revision 0)))
+	(is-true assoc)
+	(is (= (length (roles assoc :revision 0)) 2))
+	(is (eql (instance-of assoc :revision 0) tit))
+	(is-true (find tm (in-topicmaps assoc :revision 0)))
+	(is-true (find-if #'(lambda(role)
+			      (and (eql (instance-of role :revision 0) it)
+				   (eql (player role :revision 0) top-2)))
+			  (roles assoc :revision 0))))
+      (signals exceptions:JTM-error
+	(jtm::make-instance-of-association top-1 top-3 nil :revision 100))
+      (delete-psi
+       tt (elephant:get-instance-by-value 'PersistentIdc 'd:uri *type-psi*)
+       :revision 200)
+      (signals exceptions:missing-reference-error
+	(jtm::make-instance-of-association top-1 top-3 (list tm) :revision 200))
+      )))
+
 ;TODO:
 ; *import-topic-stubs-from-jtm-lists
 ; *import-topic-stub-from-jtm-list
-; *make-instance-of-association
 ; *merge-topics-from-jtm-lists
 ; *merge-topic-from-jtm-list
 
