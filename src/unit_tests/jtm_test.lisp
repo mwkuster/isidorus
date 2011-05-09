@@ -41,7 +41,8 @@
 	   :test-import-occurrences
 	   :test-import-names
 	   :test-make-instance-of-association
-	   :test-import-topics))
+	   :test-import-topics
+	   :test-merge-topics))
 
 
 (in-package :jtm-test)
@@ -1636,7 +1637,6 @@
 	 #'jtm::import-name-from-jtm-list :revision 100)))))
 
 
-
 (test test-make-instance-of-association
   "Tests the function make-instance-of-association."
   (with-fixture with-empty-db ("data_base")
@@ -1704,7 +1704,7 @@
 			      (and (eql (instance-of role :revision 0) it)
 				   (eql (player role :revision 0) top-2)))
 			  (roles assoc :revision 0))))
-      (signals exceptions:JTM-error
+      (signals exceptions:missing-reference-error
 	(jtm::make-instance-of-association top-1 top-3 nil :revision 100))
       (delete-psi
        tt (elephant:get-instance-by-value 'PersistentIdc 'd:uri *type-psi*)
@@ -1846,9 +1846,188 @@
 	   nil :revision 200))))))
 
 
-;TODO:
-; *merge-topics-from-jtm-lists
-; *merge-topic-from-jtm-list
+
+(test test-merge-topics
+  "Tests the functions import-topic-stub-from-jtm-list,
+   and import-topic-stubs-from-jtm-lists."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_1" :value *xsd-ns*)
+			   (list :pref "pref_2" :value "http://some.where/")))
+	   (j-top-1 "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"subject_identifiers\":[\"[pref_2:psi-1]\",\"[pref_2:psi-2]\"],\"subject_locators\":[\"[pref_2:sl-2]\"],\"item_identifiers\":[\"[pref_2:ii-4]\"],\"instance_of\":[\"ii:[pref_2:ii-1]\"],\"item_type\":\"topic\",\"names\":[{\"item_identifiers\":null,\"value\":\"name-1\",\"type\":null,\"scope\":null,\"variants\":null,\"reifier\":null},{\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"scope\":[\"sl:[pref_2:sl-1]\"],\"variants\":[{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-1\",\"scope\":[\"ii:[pref_2:ii-1]\"],\"reifier\":null}],\"reifier\":null}],\"occurrences\":[{\"item_identifiers\":[\"[pref_2:ii-2]\"],\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"type\":\"sl:[pref_2:sl-1]\",\"value\":\"occ-1\",\"scope\":[\"si:[pref_2:psi-1]\"],\"reifier\":\"ii:[pref_2:ii-1]\"},{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#anyURI\",\"type\":\"si:[pref_2:psi-1]\",\"value\":\"http:\\/\\/any.uri\",\"scope\":null,\"reifier\":null}]}")
+	   (j-top-2 "{\"version\":\"1.0\",\"subject_identifiers\":[\"http:\\/\\/some.where\\/psi-1\",\"http:\\/\\/some.where\\/psi-2\"],\"subject_locators\":[\"http:\\/\\/some.where\\/sl-2\"],\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-4\"],\"item_type\":\"topic\",\"parent\":[\"ii:http:\\/\\/some.where\\/ii-3\"],\"names\":[{\"item_identifiers\":null,\"value\":\"name-1\",\"type\":null,\"scope\":null,\"variants\":null,\"reifier\":null},{\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"scope\":[\"sl:http:\\/\\/some.where\\/sl-1\"],\"variants\":[{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-1\",\"scope\":[\"ii:http:\\/\\/some.where\\/ii-1\"],\"reifier\":null}],\"reifier\":null}],\"occurrences\":[{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-2\"],\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"type\":\"sl:http:\\/\\/some.where\\/sl-1\",\"value\":\"occ-1\",\"scope\":[\"si:http:\\/\\/some.where\\/psi-1\"],\"reifier\":\"ii:http:\\/\\/some.where\\/ii-1\"},{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#anyURI\",\"type\":\"si:http:\\/\\/some.where\\/psi-1\",\"value\":\"http:\\/\\/any.uri\",\"scope\":null,\"reifier\":null}]}")
+	   (j-top-3 "{\"subject_identifiers\":[\"http:\\/\\/some.where\\/tmsparql\\/author\"],\"subject_locators\":null,\"item_identifiers\":null,\"names\":null,\"occurrences\":null}")
+	   (j-top-4 "{\"subject_identifiers\":null,\"subject_locators\":[\"http:\\/\\/some.where\\/sl-1\"],\"item_identifiers\":null,\"names\":null,\"occurrences\":null}")
+	   (j-top-5 "{\"subject_identifiers\":null,\"subject_locators\":null,\"item_identifiers\":[\"http:\\/\\/some.where\\/ii-1\"],\"names\":null,\"occurrences\":null}")
+	   (tm-1 (make-construct
+		  'TopicMapC :start-revision 100
+		  :item-identifiers
+		  (list (make-construct 'ItemIdentifierC
+					:uri "http://some.where/tm-1"))))
+	   (tm-2 (make-construct
+		  'TopicMapC :start-revision 100
+		  :item-identifiers
+		  (list (make-construct 'ItemIdentifierC
+					:uri "http://some.where/tm-2"))))
+	   (tops (jtm::import-topic-stubs-from-jtm-lists
+		  (list (json:decode-json-from-string j-top-1)
+			(json:decode-json-from-string j-top-2)
+			(json:decode-json-from-string j-top-3)
+			(json:decode-json-from-string j-top-4)
+			(json:decode-json-from-string j-top-5))
+		  (list tm-1 tm-2) :revision 100 :prefixes prefixes)))
+      (is (= (length tops) 5))
+      (is (= (length (remove-duplicates tops)) 4))
+      (is (= (length (elephant:get-instances-by-class 'TopicC)) 4))
+      (is (= (length (elephant:get-instances-by-class 'PersistentIdC)) 3))
+      (is (= (length (elephant:get-instances-by-class 'ItemIdentifierC)) 4))
+      (is (= (length (elephant:get-instances-by-class 'SubjectLocatorC)) 2))
+      (is-false (elephant:get-instances-by-class 'NameC))
+      (is-false (elephant:get-instances-by-class 'VariantC))
+      (is-false (elephant:get-instances-by-class 'RoleC))
+      (is-false (elephant:get-instances-by-class 'AssociationC))
+      (is-false (elephant:get-instances-by-class 'OccurrenceC))
+      (signals exceptions:missing-reference-error  ;missing topics for
+	(jtm::merge-topic-from-jtm-list            ;type-instance-associations
+	 (json:decode-json-from-string j-top-1)
+	 (list tm-1 tm-2) :revision 100 :prefixes prefixes))
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri *type-psi*)))
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri *instance-psi*)))
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri *type-instance-psi*)))
+      (let ((top-1 (jtm::merge-topic-from-jtm-list
+		    (json:decode-json-from-string j-top-1)
+		    (list tm-1 tm-2) :revision 100 :prefixes prefixes))
+	    (top-2 (jtm::merge-topic-from-jtm-list
+		    (json:decode-json-from-string j-top-2)
+		    (list tm-1 tm-2) :revision 100 :prefixes prefixes)))
+	(is (= (length (elephant:get-instances-by-class 'TopicC)) 7))
+	(is (= (length (elephant:get-instances-by-class 'PersistentIdC)) 6))
+	(is (= (length (elephant:get-instances-by-class 'ItemIdentifierC)) 5))
+	(is (= (length (elephant:get-instances-by-class 'SubjectLocatorC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'NameC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'VariantC)) 1))
+	(is (= (length (elephant:get-instances-by-class 'RoleC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+	(is (= (length (elephant:get-instances-by-class 'OccurrenceC)) 2))
+	(is (eql top-1 top-2))
+	(is (= (length (names top-1 :revision 0)) 2))
+	(is-true (find-if #'(lambda(name)
+			      (and (string= (charvalue name) "name-1")
+				   (not (instance-of name :revision 0))
+				   (not (themes name :revision 0))
+				   (not (variants name :revision 0))
+				   (not (reifier name :revision 0))
+				   (not (item-identifiers name :revision 0))))
+			  (names top-1 :revision 0)))
+	(is-true
+	 (find-if #'(lambda(name)
+		      (and (string= (charvalue name) "name-2")
+			   (not (instance-of name :revision 0))
+			   (= (length (themes name :revision 0)) 1)
+			   (= (length (locators (first (themes name :revision 0))
+						:revision 0)) 1)
+			   (string=
+			    (uri (first (locators (first (themes name :revision 0))
+						  :revision 0)))
+			    "http://some.where/sl-1")
+			   (= (length (variants name :revision 0)) 1)
+			   (not (reifier name :revision 0))
+			   (not (item-identifiers name :revision 0))))
+		  (names top-1 :revision 0)))
+	(is-true
+	 (find-if #'(lambda(occ)
+		      (and (string= (charvalue occ) "occ-1")
+			   (string= (datatype occ) *xml-string*)
+			   (instance-of occ :revision 0)
+			   (= (length (locators (instance-of occ :revision 0)
+						:revision 0)) 1)
+			   (string=
+			    (uri (first (locators (instance-of occ :revision 0)
+						  :revision 0)))
+			    "http://some.where/sl-1")
+			   (= (length (themes occ :revision 0)) 1)
+			   (= (length (psis (first (themes occ :revision 0))
+					    :revision 0)) 2)
+			   (or (string=
+				(uri (first (psis (first (themes occ :revision 0))
+						  :revision 0)))
+				"http://some.where/psi-1")
+			       (string=
+				(uri (second (psis (first (themes occ :revision 0))
+						   :revision 0)))
+				"http://some.where/psi-1"))
+			   (reifier occ :revision 0)
+			   (= (length (item-identifiers occ :revision 0)) 1)
+			   (string= (uri (first (item-identifiers occ :revision 0)))
+				    "http://some.where/ii-2")))
+		  (occurrences top-1 :revision 0)))
+	(is-true
+	 (find-if #'(lambda(occ)
+		      (and (string= (charvalue occ) "http://any.uri")
+			   (string= (datatype occ) *xml-uri*)
+			   (instance-of occ :revision 0)
+			   (or (string=
+				(uri (first (psis (instance-of occ :revision 0)
+						  :revision 0)))
+				"http://some.where/psi-1")
+			       (string=
+				(uri (second (psis (instance-of occ :revision 0)
+						   :revision 0)))
+				"http://some.where/psi-1"))
+			   (not (themes occ :revision 0))
+			   (not (reifier occ :revision 0))
+			   (not (item-identifiers occ :revision 0))))
+		  (occurrences top-1 :revision 0))))
+      (let ((tops (jtm::merge-topics-from-jtm-lists
+		   (list (json:decode-json-from-string j-top-1)
+			 (json:decode-json-from-string j-top-2)
+			 (json:decode-json-from-string j-top-3)
+			 (json:decode-json-from-string j-top-4)
+			 (json:decode-json-from-string j-top-5))
+		   (list tm-1 tm-2) :revision 200 :prefixes prefixes)))
+	(is (= (length (remove-duplicates tops)) 4))
+	(is (= (length (elephant:get-instances-by-class 'TopicC)) 7))
+	(is (= (length (elephant:get-instances-by-class 'PersistentIdC)) 6))
+	(is (= (length (elephant:get-instances-by-class 'ItemIdentifierC)) 5))
+	(is (= (length (elephant:get-instances-by-class 'SubjectLocatorC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'NameC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'VariantC)) 1))
+	(is (= (length (elephant:get-instances-by-class 'RoleC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+	(is (= (length (elephant:get-instances-by-class 'OccurrenceC)) 2)))
+      (signals exceptions:jtm-error
+	(jtm::merge-topic-from-jtm-list
+	 (json:decode-json-from-string j-top-1)
+	 (list tm-1 tm-2) :revision 200))
+      (signals exceptions:jtm-error
+	(jtm::merge-topic-from-jtm-list
+	 (json:decode-json-from-string j-top-1)
+	 (list tm-1 tm-2) :revision 200 :prefixes prefixes :instance-of-p nil))
+      (signals exceptions:missing-reference-error
+	(jtm::merge-topic-from-jtm-list
+	 (json:decode-json-from-string j-top-1)
+	 nil :revision 200 :prefixes prefixes))
+     (signals exceptions:jtm-error
+	(jtm::merge-topics-from-jtm-lists
+	 (list (json:decode-json-from-string j-top-1))
+	 (list tm-1 tm-2) :revision 200))
+      (signals exceptions:jtm-error
+	(jtm::merge-topics-from-jtm-lists
+	 (list (json:decode-json-from-string j-top-1))
+	 (list tm-1 tm-2) :revision 200 :prefixes prefixes :instance-of-p nil))
+      (signals exceptions:missing-reference-error
+	(jtm::merge-topics-from-jtm-lists
+	 (list (json:decode-json-from-string j-top-1))
+	 nil :revision 200 :prefixes prefixes)))))
 
 
 (defun run-jtm-tests()
