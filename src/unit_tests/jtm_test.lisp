@@ -42,7 +42,8 @@
 	   :test-import-names
 	   :test-make-instance-of-association
 	   :test-import-topics
-	   :test-merge-topics))
+	   :test-merge-topics
+	   :test-import-associations))
 
 
 (in-package :jtm-test)
@@ -1383,7 +1384,7 @@
 
 (test test-import-variants
   "Tests the functions import-variant-from-jtm-string and
-   import-constructs-from-jtm-strings."
+   import-characteristics-from-jtm-strings."
   (with-fixture with-empty-db ("data_base")
     (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
 			   (list :pref "pref_1" :value "http://some.where/")))
@@ -1416,7 +1417,7 @@
 	   (var-2 (jtm::import-variant-from-jtm-list
 		   (json:decode-json-from-string jtm-var-2) name-1 :revision 100
 		   :prefixes prefixes))
-	   (vars (jtm::import-constructs-from-jtm-lists
+	   (vars (jtm::import-characteristics-from-jtm-lists
 		  (list (json:decode-json-from-string jtm-var-1)
 			(json:decode-json-from-string jtm-var-2)) name-1
 			#'jtm::import-variant-from-jtm-list :revision 100
@@ -1449,23 +1450,23 @@
 	(jtm::import-variant-from-jtm-list
 	 (json:decode-json-from-string jtm-var-2) nil :revision 100))
       (signals exceptions:missing-reference-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-var-3)) nil
 	 #'jtm::import-variant-from-jtm-list :revision 100
 	 :prefixes prefixes))
       (signals exceptions:JTM-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-var-1)) name-1
 	 #'jtm::import-variant-from-jtm-list :revision 100))
       (signals exceptions:JTM-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-var-2)) nil
 	 #'jtm::import-variant-from-jtm-list :revision 100)))))
 
 
 (test test-import-occurrences
   "Tests the functions import-occurrence-from-jtm-string and
-   import-constructs-from-jtm-strings."
+   import-characteristics-from-jtm-strings."
   (with-fixture with-empty-db ("data_base")
     (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
 			   (list :pref "pref_1" :value "http://some.where/")))
@@ -1497,7 +1498,7 @@
 	   (occ-2 (jtm::import-occurrence-from-jtm-list
 		   (json:decode-json-from-string jtm-occ-2) parent-1 :revision 100
 		   :prefixes prefixes))
-	   (occs (jtm::import-constructs-from-jtm-lists
+	   (occs (jtm::import-characteristics-from-jtm-lists
 		  (list (json:decode-json-from-string jtm-occ-1)
 			(json:decode-json-from-string jtm-occ-2)) parent-1
 			#'jtm::import-occurrence-from-jtm-list :revision 100
@@ -1540,23 +1541,23 @@
 	(jtm::import-occurrence-from-jtm-list
 	 (json:decode-json-from-string jtm-occ-2) nil :revision 100))
       (signals exceptions:missing-reference-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-occ-3)) nil
 	 #'jtm::import-occurrence-from-jtm-list :revision 100
 	 :prefixes prefixes))
       (signals exceptions:JTM-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-occ-1)) parent-1
 	 #'jtm::import-occurrence-from-jtm-list :revision 100))
       (signals exceptions:JTM-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-occ-2)) nil
 	 #'jtm::import-occurrence-from-jtm-list :revision 100)))))
 
 
 (test test-import-names
   "Tests the functions import-name-from-jtm-list and
-   import-constructs-from-jtm-lists."
+   import-characteristics-from-jtm-lists."
   (with-fixture with-empty-db ("data_base")
     (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
 			   (list :pref "pref_1" :value *xsd-ns*)
@@ -1586,7 +1587,7 @@
 	   (name-2 (jtm::import-name-from-jtm-list
 		    (json:decode-json-from-string jtm-name-2) parent-1 :revision 100
 		    :prefixes prefixes))
-	   (names (jtm::import-constructs-from-jtm-lists
+	   (names (jtm::import-characteristics-from-jtm-lists
 		   (list (json:decode-json-from-string jtm-name-1)
 			 (json:decode-json-from-string jtm-name-2)) parent-1
 			 #'jtm::import-name-from-jtm-list :revision 100
@@ -1623,16 +1624,16 @@
 	(jtm::import-name-from-jtm-list
 	 (json:decode-json-from-string jtm-name-2) nil :revision 100))
       (signals exceptions:missing-reference-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-name-3)) nil
 	 #'jtm::import-name-from-jtm-list :revision 100
 	 :prefixes prefixes))
       (signals exceptions:JTM-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-name-1)) parent-1
 	 #'jtm::import-name-from-jtm-list :revision 100))
       (signals exceptions:JTM-error
-	(jtm::import-constructs-from-jtm-lists
+	(jtm::import-characteristics-from-jtm-lists
 	 (list (json:decode-json-from-string jtm-name-2)) nil
 	 #'jtm::import-name-from-jtm-list :revision 100)))))
 
@@ -1704,7 +1705,7 @@
 			      (and (eql (instance-of role :revision 0) it)
 				   (eql (player role :revision 0) top-2)))
 			  (roles assoc :revision 0))))
-      (signals exceptions:missing-reference-error
+      (signals exceptions:JTM-error
 	(jtm::make-instance-of-association top-1 top-3 nil :revision 100))
       (delete-psi
        tt (elephant:get-instance-by-value 'PersistentIdc 'd:uri *type-psi*)
@@ -1844,7 +1845,6 @@
 	  (jtm::import-topic-stubs-from-jtm-lists
 	   (list (json:decode-json-from-string j-top-2))
 	   nil :revision 200))))))
-
 
 
 (test test-merge-topics
@@ -2012,7 +2012,7 @@
 	(jtm::merge-topic-from-jtm-list
 	 (json:decode-json-from-string j-top-1)
 	 (list tm-1 tm-2) :revision 200 :prefixes prefixes :instance-of-p nil))
-      (signals exceptions:missing-reference-error
+      (signals exceptions:JTM-error
 	(jtm::merge-topic-from-jtm-list
 	 (json:decode-json-from-string j-top-1)
 	 nil :revision 200 :prefixes prefixes))
@@ -2024,10 +2024,191 @@
 	(jtm::merge-topics-from-jtm-lists
 	 (list (json:decode-json-from-string j-top-1))
 	 (list tm-1 tm-2) :revision 200 :prefixes prefixes :instance-of-p nil))
-      (signals exceptions:missing-reference-error
+      (signals exceptions:JTM-error
 	(jtm::merge-topics-from-jtm-lists
 	 (list (json:decode-json-from-string j-top-1))
 	 nil :revision 200 :prefixes prefixes)))))
+
+
+(test test-import-associations
+  "Tests the functions import-association-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes
+	    (list (list :pref "pref_3"
+			:value "http://psi.topicmaps.org/iso13250/model/")
+		  (list :pref "xsd" :value *xsd-ns*)
+		  (list :pref "pref_1" :value *xsd-ns*)
+		  (list :pref "pref_2" :value "http://some.where/")))
+	   (j-assoc-1 "{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii\\/association\"],\"type\":\"si:http:\\/\\/some.where\\/tmsparql\\/written-by\",\"reifier\":\"ii:http:\\/\\/some.where\\/ii\\/association-reifier\",\"scope\":null,\"roles\":[{\"item_identifiers\":null,\"type\":\"si:http:\\/\\/some.where\\/tmsparql\\/writer\",\"reifier\":\"ii:http:\\/\\/some.where\\/ii\\/role-reifier\",\"player\":\"si:http:\\/\\/some.where\\/tmsparql\\/author\\/goethe\"},{\"item_identifiers\":[\"http:\\/\\/some.where\\/ii\\/role-2\"],\"type\":\"si:http:\\/\\/some.where\\/tmsparql\\/written\",\"reifier\":null,\"player\":\"si:http:\\/\\/some.where\\/psis\\/poem\\/zauberlehrling\"}]}")
+	   (j-assoc-2 "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":null,\"type\":\"si:[pref_3:type-instance]\",\"reifier\":null,\"scope\":[\"si:[pref_2:my-scope]\"],\"roles\":[{\"item_identifiers\":null,\"type\":\"si:[pref_3:type]\",\"reifier\":null,\"player\":\"si:[pref_2:tmsparql\\/author]\"},{\"item_identifiers\":null,\"type\":\"si:[pref_3:instance]\",\"reifier\":null,\"player\":\"si:[pref_2:tmsparql\\/author\\/goethe]\"}]}")
+	   (goethe (make-construct
+		    'TopicC :start-revision 100
+		    :psis
+		    (list (make-construct
+			   'PersistentIdC
+			   :uri "http://some.where/tmsparql/author/goethe"))))
+	   (zauberlehrling (make-construct
+			    'TopicC :start-revision 100
+			    :psis
+			    (list (make-construct
+				   'PersistentIdC
+				   :uri "http://some.where/psis/poem/zauberlehrling"))))
+	   (author (make-construct
+		    'TopicC :start-revision 100
+		    :psis
+		    (list (make-construct
+			   'PersistentIdC
+			   :uri "http://some.where/tmsparql/author"))))
+	   (tt (make-construct
+		    'TopicC :start-revision 100
+		    :psis (list (make-construct 'PersistentIdC
+						:uri *type-psi*))))
+	   (it (make-construct
+		    'TopicC :start-revision 100
+		    :psis (list (make-construct 'PersistentIdC
+						:uri *instance-psi*))))
+	   (tit (make-construct
+		 'TopicC :start-revision 100
+		 :psis (list (make-construct 'PersistentIdC
+					     :uri *type-instance-psi*))))
+	   (written-by (make-construct
+			'TopicC :start-revision 100
+			:psis
+			(list (make-construct
+			       'PersistentIdC
+			       :uri "http://some.where/tmsparql/written-by"))))
+	   (writer (make-construct
+		    'TopicC :start-revision 100
+		    :psis
+		    (list (make-construct
+			   'PersistentIdC
+			   :uri "http://some.where/tmsparql/writer"))))
+	   (written (make-construct
+		     'TopicC :start-revision 100
+		     :psis
+		     (list (make-construct
+			    'PersistentIdC
+			    :uri "http://some.where/tmsparql/written"))))
+	   (reifier-assoc-1 (make-construct
+			     'TopicC :start-revision 100
+			     :item-identifiers
+			     (list (make-construct
+				    'ItemIdentifierC
+				    :uri "http://some.where/ii/association-reifier"))))
+	   (reifier-role-1-1 (make-construct
+			     'TopicC :start-revision 100
+			     :item-identifiers
+			     (list (make-construct
+				    'ItemIdentifierC
+				    :uri "http://some.where/ii/role-reifier"))))
+	   (scope-2 (make-construct
+		     'TopicC :start-revision 100
+		     :psis
+		     (list (make-construct
+			    'PersistentIdC
+			    :uri "http://some.where/my-scope"))))
+	   (tm (make-construct 'TopicMapC :start-revision 100
+			       :item-idenitfiers
+			       (list (make-construct 'ItemIdentifierC
+						     :uri "http://some.where/tm")))))
+      (is (= (length (elephant:get-instances-by-class 'AssociationC)) 0))
+      (let ((assoc-1 (jtm::import-association-from-jtm-list 
+		      (json:decode-json-from-string j-assoc-1)
+		      (list tm) :revision 100)))
+	(is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+	(is (= (length (elephant:get-instances-by-class 'RoleC)) 2))
+	(is (eql (instance-of assoc-1 :revision 0) written-by))
+	(is-false (set-exclusive-or
+		   (list "http://some.where/ii/association")
+		   (map 'list #'d:uri (item-identifiers assoc-1 :revision 0))
+		   :test #'string=))
+	(is (eql (reifier assoc-1 :revision 0) reifier-assoc-1))
+	(is-true (find tm (in-topicmaps assoc-1 :revision 0)))
+	(is-false (themes assoc-1 :revision 0))
+	(= (length (roles assoc-1 :revision 0)) 2)
+	(is-true (find-if #'(lambda(role)
+			      (and (eql (instance-of role :revision 0) writer)
+				   (eql (player role :revision 0) goethe)
+				   (not (item-identifiers role :revision 0))
+				   (eql (reifier role :revision 0)
+					reifier-role-1-1)))
+			  (roles assoc-1 :revision 0)))
+	(is-true
+	 (find-if #'(lambda(role)
+		      (and (eql (instance-of role :revision 0) written)
+			   (eql (player role :revision 0) zauberlehrling)
+			   (= (length (item-identifiers role :revision 0)) 1)
+			   (string=
+			    "http://some.where/ii/role-2"
+			    (uri (first (item-identifiers role :revision 0))))
+			   (not (reifier role :revision 0))))
+		  (roles assoc-1 :revision 0)))
+	(is (= (length (player-in-roles goethe :revision 0)) 1))
+	(is (= (length (player-in-roles zauberlehrling :revision 0)) 1))
+	(is (= (length (player-in-roles author :revision 0)) 0)))
+      (let ((assoc-2 (jtm::import-association-from-jtm-list 
+		      (json:decode-json-from-string j-assoc-2)
+		      (list tm) :revision 100 :prefixes prefixes)))
+	(is (= (length (elephant:get-instances-by-class 'AssociationC)) 2))
+	(is (= (length (elephant:get-instances-by-class 'RoleC)) 4))
+	(is (eql (instance-of assoc-2 :revision 0) tit))
+	(is-false (item-identifiers assoc-2 :revision 0))
+	(is-false (reifier assoc-2 :revision 0))
+	(is-true (find tm (in-topicmaps assoc-2 :revision 0)))
+	(is (= (length (themes assoc-2 :revision 0)) 1))
+	(is (eql (first (themes assoc-2 :revision 0)) scope-2))
+	(= (length (roles assoc-2 :revision 0)) 2)
+	(is-true (find-if #'(lambda(role)
+			      (and (eql (instance-of role :revision 0) tt)
+				   (eql (player role :revision 0) author)
+				   (not (item-identifiers role :revision 0))
+				   (not (reifier role :revision 0))))
+			  (roles assoc-2 :revision 0)))
+	(is-true
+	 (find-if #'(lambda(role)
+		      (and (eql (instance-of role :revision 0) it)
+			   (eql (player role :revision 0) goethe)
+			   (not (item-identifiers role :revision 0))
+			   (not (reifier role :revision 0))))
+		  (roles assoc-2 :revision 0)))
+	(is (= (length (player-in-roles goethe :revision 0)) 2))
+	(is (= (length (player-in-roles zauberlehrling :revision 0)) 1))
+	(is (= (length (player-in-roles author :revision 0)) 1)))
+      (let ((assocs (jtm::import-associations-from-jtm-lists
+		     (list (json:decode-json-from-string j-assoc-1)
+			   (json:decode-json-from-string j-assoc-2))
+		     (list tm) :revision 200 :prefixes prefixes)))
+	(is (= (length assocs) 2))
+	(is (= (length (player-in-roles goethe :revision 0)) 2))
+	(is (= (length (player-in-roles zauberlehrling :revision 0)) 1))
+	(is (= (length (player-in-roles author :revision 0)) 1)))
+      (signals exceptions::JTM-error
+	(jtm::import-association-from-jtm-list 
+	 (json:decode-json-from-string j-assoc-1)
+	 nil :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-association-from-jtm-list 
+	 (json:decode-json-from-string j-assoc-2)
+	 nil :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-association-from-jtm-list 
+	 (json:decode-json-from-string 
+	  "{\"item_identifiers\":null,\"type\":\"si:http:\\/\\/some.where\\/tmsparql\\/written-by\",\"reifier\":null,\"scope\":null,\"roles\":null}")
+	 (list tm) :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-association-from-jtm-list 
+	 (json:decode-json-from-string 
+	  "{\"item_identifiers\":null,\"type\":null,\"reifier\":null,\"scope\":null,\"roles\":[{\"item_identifiers\":null,\"type\":\"si:http:\\/\\/some.where\\/tmsparql\\/writer\",\"reifier\":\"ii:http:\\/\\/some.where\\/ii\\/role-reifier\",\"player\":\"si:http:\\/\\/some.where\\/tmsparql\\/author\\/goethe\"}]}")
+	 (list tm) :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-associations-from-jtm-lists 
+	 (list (json:decode-json-from-string j-assoc-1))
+	 nil :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-associations-from-jtm-lists 
+	 (list (json:decode-json-from-string j-assoc-2))
+	 nil :revision 100)))))
+
 
 
 (defun run-jtm-tests()

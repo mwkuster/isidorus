@@ -21,6 +21,86 @@
   (rest (find item-keyword jtm-list :key #'first)))
 
 
+(defun import-associations-from-jtm-lists (jtm-lists parents &key
+					   (revision *TM-REVISION*) prefixes)
+  "Create a listof AssociationC objects corresponding to the passed jtm-lists
+    and returns it."
+  (declare (List jtm-lists parents prefixes)
+	   (Integer revision))
+  (map 'list #'(lambda(jtm-list)
+		 (import-association-from-jtm-list
+		  jtm-list parents :revision revision :prefixes prefixes))
+       jtm-lists))
+
+
+(defun make-plist-of-jtm-role(jtm-list &key (revision *TM-REVISION*) prefixes)
+  "Returns a plist of the form (:start-revision <rev> :player <top>
+   :instance-of <top> :reifier <top> :item-identifiers <ii>)."
+  (unless (and (get-item :PLAYER jtm-list)
+	       (get-item :TYPE jtm-list))
+    (error (make-condition 'JTM-error :message (format nil "From make-plist-of-jtm-role(): the role ~a must have a type and player member set." jtm-list))))
+  (list :start-revision revision
+	:player (get-item-from-jtm-reference
+		 (get-item :PLAYER jtm-list)
+		 :revision revision :prefixes prefixes)
+	:instance-of (get-item-from-jtm-reference
+		      (get-item :TYPE jtm-list)
+		      :revision revision :prefixes prefixes)
+	:item-identifiers (import-identifiers-from-jtm-strings
+			   (get-item :ITEM--IDENTIFIERS jtm-list)
+			   :prefixes prefixes)
+	:reifier (when (get-item :REIFIER jtm-list)
+		   (get-item-from-jtm-reference
+		    (get-item :REIFIER jtm-list)
+		    :revision revision :prefixes prefixes))))
+
+
+(defun import-association-from-jtm-list (jtm-list parents &key
+					 (revision *TM-REVISION*) prefixes)
+  "Create an AssociationC object corresponding to the passed jtm-list and
+   returns it."
+  (declare (List jtm-list parents prefixes)
+	   (Integer revision))
+  (let* ((iis (import-identifiers-from-jtm-strings
+	       (get-item :ITEM--IDENTIFIERS jtm-list)
+	       :prefixes prefixes))
+	 (scope (get-item :SCOPE jtm-list))
+	 (type (get-item :TYPE jtm-list))
+	 (reifier (get-item :REIFIER jtm-list))
+	 (parent-references (get-item :PARENT jtm-list))
+	 (role-lists
+	  (map 'list #'(lambda(role)
+			 (make-plist-of-jtm-role role :revision revision
+						 :prefixes prefixes))
+	       (get-item :ROLES jtm-list)))
+	 (local-parent
+	  (if parents
+	      parents
+	      (when parent-references
+		(get-items-from-jtm-references
+		 parent-references :revision revision :prefixes prefixes)))))
+    (unless local-parent
+      (error (make-condition 'JTM-error :message (format nil "From import-association-from-jtm-list(): the JTM association ~a must have at least one parent set in its members." jtm-list))))
+    (unless role-lists
+      (error (make-condition 'JTM-error :message (format nil "From import-association-from-jtm-list(): the JTM association ~a must have at least one role set in its members." jtm-list))))
+    (unless type
+      (error (make-condition 'JTM-error :message (format nil "From import-association-from-jtm-list(): the association ~a must have exactly one type set as member." jtm-list))))
+    (let ((assoc
+	   (make-construct 'AssociationC :start-revision revision
+			   :item-identifiers iis
+			   :themes (get-items-from-jtm-references
+				    scope :revision revision :prefixes prefixes)
+			   :reifier (when reifier
+				      (get-item-from-jtm-reference
+				       reifier :revision revision :prefixes prefixes))
+			   :instance-of (get-item-from-jtm-reference
+					 type :revision revision :prefixes prefixes)
+			   :roles role-lists)))
+      (dolist (tm local-parent)
+	(add-to-tm tm assoc))
+      assoc)))
+
+
 (defun import-topic-stubs-from-jtm-lists (jtm-lists parents &key
 					  (revision *TM-REVISION*) prefixes)
   "Creates and returns a list of topics.
@@ -78,7 +158,7 @@
 	   (List parents)
 	   (Integer revision))
   (unless parents
-    (error (make-condition 'missing-reference-error :message (format nil "From make-instance-of-association(): parents must contain at least one TopicMapC object, but is nil"))))
+    (error (make-condition 'JTM-error :message (format nil "From make-instance-of-association(): parents must contain at least one TopicMapC object, but is nil"))))
   (let ((t-top (get-item-by-psi *type-psi* :revision revision))
 	(i-top (get-item-by-psi *instance-psi* :revision revision))
 	(ti-top (get-item-by-psi *type-instance-psi* :revision revision)))
@@ -87,14 +167,15 @@
 				 ((not i-top) *instance-psi*)
 				 (t *type-instance-psi*))))
 	(error (make-condition 'missing-reference-error :message (format nil "From make-instance-of-association(): the core topics ~a, ~a, and ~a are necessary, but ~a cannot be found" *type-psi* *instance-psi* *type-instance-psi* missing-topic) :reference missing-topic))))
-    (let ((assoc (make-construct 'AssociationC :start-revision revision
-				 :instance-of ti-top
-				 :roles (list (list :start-revision revision
-						    :player instance-top
-						    :instance-of i-top)
-					      (list :start-revision revision
-						    :player type-top
-						    :instance-of t-top)))))
+    (let ((assoc
+	   (make-construct 'AssociationC :start-revision revision
+			   :instance-of ti-top
+			   :roles (list (list :start-revision revision
+					      :player instance-top
+					      :instance-of i-top)
+					(list :start-revision revision
+					      :player type-top
+					      :instance-of t-top)))))
       (dolist (tm parents)
 	(add-to-tm tm i-top)
 	(add-to-tm tm t-top)
@@ -183,7 +264,7 @@
 		(get-items-from-jtm-references
 		 parent-references :revision revision :prefixes prefixes)))))
     (when (/= (length local-parent) 1)
-      (error (make-condition 'JTM-error :message (format nil "From import-name-from-jtm-string(): the JTM name ~a must have exactly one parent set in its members." jtm-list))))
+      (error (make-condition 'JTM-error :message (format nil "From import-name-from-jtm-list(): the JTM name ~a must have exactly one parent set in its members." jtm-list))))
     (let ((name
 	   (make-construct
 	    'NameC :start-revision revision
@@ -227,9 +308,9 @@
 		(get-items-from-jtm-references
 		 parent-references :revision revision :prefixes prefixes)))))
     (when (/= (length local-parent) 1)
-      (error (make-condition 'JTM-error :message (format nil "From import-occurrence-from-jtm-string(): the JTM occurrence ~a must have a parent set in its members." jtm-list))))
+      (error (make-condition 'JTM-error :message (format nil "From import-occurrence-from-jtm-list(): the JTM occurrence ~a must have a parent set in its members." jtm-list))))
     (unless type
-      (error (make-condition 'JTM-error :message (format nil "From import-occurrence-from-jtm-string(): the JTM occurrence ~a must have a type set in its members." jtm-list))))
+      (error (make-condition 'JTM-error :message (format nil "From import-occurrence-from-jtm-list(): the JTM occurrence ~a must have a type set in its members." jtm-list))))
     (make-construct 'OccurrenceC :start-revision revision
 		    :item-identifiers iis
 		    :datatype (if datatype datatype *xml-string*)
@@ -279,7 +360,7 @@
 		(get-items-from-jtm-references
 		 parent-references :revision revision :prefixes prefixes)))))
     (when (/= (length local-parent) 1)
-      (error (make-condition 'JTM-error :message (format nil "From import-variant-from-jtm-string(): the JTM variant ~a must have exactly one parent set in its members." jtm-list))))
+      (error (make-condition 'JTM-error :message (format nil "From import-variant-from-jtm-list(): the JTM variant ~a must have exactly one parent set in its members." jtm-list))))
     (make-construct 'VariantC :start-revision revision
 		    :item-identifiers iis
 		    :datatype (if datatype datatype *xml-string*)
