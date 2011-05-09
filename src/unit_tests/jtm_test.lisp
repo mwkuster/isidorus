@@ -43,7 +43,8 @@
 	   :test-make-instance-of-association
 	   :test-import-topics
 	   :test-merge-topics
-	   :test-import-associations))
+	   :test-import-associations
+	   :test-import-roles))
 
 
 (in-package :jtm-test)
@@ -2200,9 +2201,97 @@
 	 nil :revision 100)))))
 
 
+(test test-import-roles
+  "Tests the function import-role-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((prefixes (list (list :pref "xsd" :value *xsd-ns*)
+			   (list :pref "pref_1" :value "http://some.where/")))
+	   (jtm-role-1 "{\"version\":\"1.1\",\"prefixes\":{\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_1\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_1:ii-3]\",\"[pref_1:ii-4]\"],\"type\":\"sl:[pref_1:sl-1]\",\"item_type\":\"role\",\"parent\":[\"ii:[pref_1:ii-2]\"],\"reifier\":\"sl:[pref_1:sl-2]\",\"player\":\"si:[pref_1:psi-1]\"}")
+	   (jtm-role-2 "{\"version\":\"1.0\",\"item_identifiers\":null,\"type\":\"ii:http:\\/\\/some.where\\/ii-1\",\"item_type\":\"role\",\"reifier\":null,\"player\":\"sl:http:\\/\\/some.where\\/sl-1\"}")
+	   (type-1 (make-construct
+		    'TopicC :start-revision 100
+		    :locators
+		    (list (make-construct 'SubjectLocatorC
+					  :uri "http://some.where/sl-1"))))
+	   (reifier-1 (make-construct
+		       'TopicC :start-revision 100
+		       :locators
+		       (list (make-construct 'SubjectLocatorC
+					     :uri "http://some.where/sl-2"))))
+	   (parent-1 (make-construct
+		      'AssociationC :start-revision 100
+		      :item-identifiers
+		      (list (make-construct 'ItemIdentifierC
+					    :uri "http://some.where/ii-2"))))
+	   (player-1 (make-construct
+		      'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					     :uri "http://some.where/psi-1"))))
+	   (type-2 (make-construct
+		    'TopicC :start-revision 100
+		    :item-identifiers
+		    (list (make-construct 'ItemIdentifierC
+					  :uri "http://some.where/ii-1"))))
+	   (player-2 type-1)
+	   (role-1 (jtm::import-role-from-jtm-list
+		    (json:decode-json-from-string jtm-role-1)
+		    nil :revision 100 :prefixes prefixes))
+	   (role-2 (jtm::import-role-from-jtm-list
+		    (json:decode-json-from-string jtm-role-2)
+		    parent-1 :revision 100)))
+      (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
+      (is (= (length (elephant:get-instances-by-class 'RoleC)) 2))
+      (is (= (length (roles parent-1 :revision 0)) 2))
+      (map 'list #'(lambda(role)
+		     (is (eql (parent role :revision 0) parent-1)))
+	   (elephant:get-instances-by-class 'RoleC))
+      (is-true (find-if #'(lambda(role)
+			    (and
+			     (eql (instance-of role :revision 0) type-1)
+			     (eql (player role :revision 0) player-1)
+			     (eql (reifier role :revision 0) reifier-1)
+			     (= (length (item-identifiers role :revision 0)) 2)
+			     (or (string=
+				  (uri (first (item-identifiers role :revision 0)))
+				  "http://some.where/ii-3")
+				 (string=
+				  (uri (second (item-identifiers role :revision 0)))
+				  "http://some.where/ii-3"))
+			     (or (string=
+				  (uri (first (item-identifiers role :revision 0)))
+				  "http://some.where/ii-4")
+				 (string=
+				  (uri (second (item-identifiers role :revision 0)))
+				  "http://some.where/ii-4"))))
+			(roles parent-1 :revision 0)))
+      (is-true (find-if #'(lambda(role)
+			    (and
+			     (eql (instance-of role :revision 0) type-2)
+			     (eql (player role :revision 0) player-2)
+			     (not (reifier role :revision 0))
+			     (not (item-identifiers role :revision 0))))
+			(roles parent-1 :revision 0)))
+      (is-true (find role-1 (roles parent-1 :revision 0)))
+      (is-true (find role-2 (roles parent-1 :revision 0)))
+      (signals exceptions::JTM-error
+	(jtm::import-role-from-jtm-list
+	 (json:decode-json-from-string jtm-role-1)
+	 nil :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-role-from-jtm-list
+	 (json:decode-json-from-string jtm-role-2)
+	 nil :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-role-from-jtm-list
+	 (json:decode-json-from-string "{\"version\":\"1.0\",\"item_identifiers\":null,\"type\":\"ii:http:\\/\\/some.where\\/ii-1\",\"item_type\":\"role\",\"reifier\":null,\"player\":null}")
+	 parent-1 :revision 100))
+      (signals exceptions::JTM-error
+	(jtm::import-role-from-jtm-list
+	 (json:decode-json-from-string "{\"version\":\"1.0\",\"item_identifiers\":null,\"type\":null,\"item_type\":\"role\",\"reifier\":null,\"player\":\"ii:http:\\/\\/some.where\\/ii-1\"}")
+	 parent-1 :revision 100)))))
 
 ;TODO:
-; *import-role-from-jtm-list
 ; *import-construct-from-jtm-string
 ; *import-from-jtm
 ; *import-topic-map-from-jtm-list

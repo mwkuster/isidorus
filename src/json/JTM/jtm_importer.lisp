@@ -144,13 +144,13 @@
 	   (type (get-item :TYPE jtm-list))
 	   (reifier (get-item :REIFIER jtm-list))
 	   (player (get-item :PLAYER jtm-list))
-	   (parent-reference (get-item :PARENT jtm-list))
+	   (parent-references (get-item :PARENT jtm-list))
 	   (local-parent
 	    (if parent
-		parent
-		(when parent-reference
-		  (get-item-from-jtm-reference
-		   parent-reference :revision revision :prefixes prefixes)))))
+		(list parent)
+		(when parent-references
+		  (get-items-from-jtm-references
+		   parent-references :revision revision :prefixes prefixes)))))
       (unless local-parent
 	(error (make-condition 'JTM-error :message (format nil "From import-role-from-jtm-list(): the JTM role ~a must have exactly one parent set in its members." jtm-list))))
       (unless type
@@ -166,7 +166,7 @@
 				    type :revision revision :prefixes prefixes)
 		      :player (get-item-from-jtm-reference
 			       player :revision revision :prefixes prefixes)
-		      :parent local-parent)))
+		      :parent (first local-parent))))
 
 
 (defun make-plist-of-jtm-role(jtm-list &key (revision *TM-REVISION*) prefixes)
