@@ -2782,8 +2782,10 @@
 	     (roles construct-1 :revision revision)
 	     (roles construct-2 :revision revision)
 	     :test #'(lambda(role-1 role-2)
-		       (strictly-equivalent-constructs role-1 role-2
-						       :revision revision))))))
+		       ;(strictly-equivalent-constructs role-1 role-2
+		       ;:revision revision))))))
+		       (equivalent-constructs role-1 role-2
+					      :revision revision))))))
 
 
 (defgeneric AssociationC-p (class-symbol)
