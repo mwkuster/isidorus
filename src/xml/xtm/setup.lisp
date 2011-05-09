@@ -26,8 +26,7 @@
   (let ((xtm-dom (dom:document-element
 		  (cxml:parse-file
 		   (truename xtm-path) (cxml-dom:make-dom-builder)))))
-    (unless elephant:*store-controller*
-      (open-tm-store repository-path))
+    (open-tm-store repository-path)
 	 ;create the topic stubs so that we can refer to them later on
     (setf d:*current-xtm* xtm-id)
     (if (eq xtm-format :2.0)
@@ -48,8 +47,7 @@
   (declare (type (or pathname string) xtm-path repository-path)
 	   (String tm-id xtm-id)
 	   (Keyword xtm-format))
-  (unless elephant:*store-controller*
-    (open-tm-store repository-path))
+  (open-tm-store repository-path)
   (init-isidorus)
   (import-from-xtm xtm-path repository-path :tm-id tm-id :xtm-id xtm-id
 		   :xtm-format xtm-format)

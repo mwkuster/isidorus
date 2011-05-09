@@ -10,15 +10,117 @@
 
 (in-package :jtm)
 
-;TODO: write a generic outer method that evaluates the item_type,
-;      version, parent, and prefixes and finally calls a special
-;      function that creates a construct
-
-
 (defun get-item (item-keyword jtm-list)
   (declare (Keyword item-keyword)
 	   (List jtm-list))
   (rest (find item-keyword jtm-list :key #'first)))
+
+
+(defun make-prefix-list-from-jtm-list (jtm-list)
+  "Creates a plist of the form ((:pref 'pref_1' :value 'value-1')
+   (:pref 'pref_2' :value 'value-2')) if the passed jtm-list is
+   of the form ((:PREF--1 . 'value-1')(:PREF--2 . 'value-2'))."
+  (declare (List jtm-list))
+  (loop for item in jtm-list
+     collect (list :pref (json:lisp-to-camel-case
+			  (subseq (write-to-string (first item)) 1))
+		   :value (rest item))))
+
+
+(defun import-construct-from-jtm-string (jtm-string &key
+					 (revision *TM-REVISION*)
+					 (jtm-format :1.1) tm-id)
+  "Imports the passed jtm-string.
+   Note tm-id needs not to be declared, but if the imported construct
+   is a topicmap and it has no item-identifiers defined, a JTM-error
+   is thrown."
+  (declare (String jtm-string)
+	   (type (or Null String) tm-id))
+	   
+  (let* ((jtm-list (json:decode-json-from-string jtm-string))
+	 (version (get-item :VERSION jtm-list))
+	 (item_type (get-item :ITEM--TYPE jtm-list))
+	 (prefixes (make-prefix-list-from-jtm-list (get-item :PREFIXES jtm-list)))
+	 (format-1.1-p (eql jtm-format :1.1)))
+    (cond ((eql jtm-format :1.0)
+	   (unless (string= version "1.0")
+	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member version must be set to \"1.0\" in JTM version 1.0, but is ~a" version))))
+	   (when prefixes
+	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member prefixes must not be set when using JTM version 1.0, but found: ~a" prefixes)))))
+	  ((eql jtm-format :1.1)
+	   (unless (string= version "1.1")
+	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member version must be set to \"1.1\" in JTM version 1.1, but is ~a" version)))))
+	  (t
+	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): only JTM format 1.0 and 1.1 is supported, but found: ~a" jtm-format)))))
+    (cond ((or (not item_type)
+	       (string= item_type item_type-topicmap))
+	   (import-topic-map-from-jtm-list
+	    jtm-list tm-id :revision revision :prefixes prefixes
+	    :instance-of-p format-1.1-p))					   
+	  ((string= item_type item_type-topic)
+	   (import-topic-stub-from-jtm-list jtm-list nil :revision revision
+					    :prefixes prefixes)
+	   (merge-topic-from-jtm-list jtm-list nil :instance-of-p format-1.1-p
+				      :revision revision :prefixes prefixes))
+	  ((string= item_type item_type-name)
+	   (import-name-from-jtm-list jtm-list nil :revision revision
+				      :prefixes prefixes))
+	  ((string= item_type item_type-variant)
+	   (import-variant-from-jtm-list jtm-list nil :revision revision
+					 :prefixes prefixes))
+       	  ((string= item_type item_type-occurrence)
+	   (import-occurrence-from-jtm-list jtm-list nil :revision revision
+					    :prefixes prefixes))
+	  ((string= item_type item_type-role)
+	   (import-role-from-jtm-list jtm-list nil :revision revision
+				      :prefixes prefixes))
+	  ((string= item_type item_type-association)
+	  (import-association-from-jtm-list jtm-list nil :revision revision
+					    :prefixes prefixes))
+	  (t
+	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member \"item_type\" must be set to one of ~a or nil, but found \"~a\". If \"item_type\" is not specified or nil the JTM-data is treated as a topicmap." item_type (list item_type-topicmap item_type-topic item_type-name item_type-variant item_type-occurrence item_type-role item_type-association))))))))
+
+
+(defun import-from-jtm (jtm-path repository-path &key (tm-id (error "you must provide a stable identifier (PSI-style) for this TM")) (revision *TM-REVISION*) (jtm-format :1.1))
+  "Imports the given jtm-file by calling import-construct-from-jtm-string."
+  (declare (type (or Pathname String) jtm-path repository-path)
+	   (String tm-id)
+	   (Keyword jtm-format)
+	   (Integer revision))
+  (open-tm-store repository-path)
+  (import-construct-from-jtm-string (read-file jtm-path) :tm-id tm-id :revision revision
+				    :jtm-format jtm-format)
+  (close-tm-store))
+
+
+(defun import-topic-map-from-jtm-list (jtm-list tm-id &key (revision *TM-REVISION*)
+				       prefixes (instance-of-p t))
+  "Creates and returns a topic map corresponding to the tm-id or a given
+   item-identifier in the jtm-list and returns the tm construct after all
+   topics and associations contained in the jtm-list has been created."
+  (declare (List jtm-list prefixes)
+	   (Integer revision)
+	   (Boolean instance-of-p))
+  (let* ((iis (let ((value (append (import-identifiers-from-jtm-strings
+				    (get-item :ITEM--IDENTIFIERS jtm-list)
+				    :prefixes prefixes)
+				   (when tm-id
+				     (make-construct 'ItemIdentifierC
+						     :uri tm-id)))))
+		(unless value
+		  (error (make-condition 'JTM-error :message (format nil "From import-topic-map-from-jtm-list(): no topic-map item-identifier is set for ~a" jtm-list))))
+		value))
+	 (j-tops (get-item :TOPICS jtm-list))
+	 (j-assocs (get-item :ASSOCIATIONS jtm-list))
+	 (tm (make-construct 'TopicMapC :start-revision revision
+			     :item-identifiers iis)))
+    (import-topic-stubs-from-jtm-lists j-tops (list tm) :revision revision
+				       :prefixes prefixes)
+    (merge-topics-from-jtm-lists j-tops (list tm) :instance-of-p instance-of-p
+				 :revision revision :prefixes prefixes)
+    (import-associations-from-jtm-lists j-assocs (list tm) :revision revision
+					:prefixes prefixes)
+    tm))
 
 
 (defun import-associations-from-jtm-lists (jtm-lists parents &key
@@ -31,6 +133,40 @@
 		 (import-association-from-jtm-list
 		  jtm-list parents :revision revision :prefixes prefixes))
        jtm-lists))
+
+
+(defun import-role-from-jtm-list (jtm-list parent &key (revision *TM-REVISION*)
+				  prefixes)
+  "Creates and returns a role object form the given jtm-list."
+    (let* ((iis (import-identifiers-from-jtm-strings
+	       (get-item :ITEM--IDENTIFIERS jtm-list)
+	       :prefixes prefixes))
+	   (type (get-item :TYPE jtm-list))
+	   (reifier (get-item :REIFIER jtm-list))
+	   (player (get-item :PLAYER jtm-list))
+	   (parent-reference (get-item :PARENT jtm-list))
+	   (local-parent
+	    (if parent
+		parent
+		(when parent-reference
+		  (get-item-from-jtm-reference
+		   parent-reference :revision revision :prefixes prefixes)))))
+      (unless local-parent
+	(error (make-condition 'JTM-error :message (format nil "From import-role-from-jtm-list(): the JTM role ~a must have exactly one parent set in its members." jtm-list))))
+      (unless type
+	(error (make-condition 'JTM-error :message (format nil "From import-role-from-jtm-list(): the role ~a must have exactly one type set as member." jtm-list))))
+      (unless player
+	(error (make-condition 'JTM-error :message (format nil "From import-role-from-jtm-list(): the role ~a must have exactly one player set as member." jtm-list))))
+      (make-construct 'RoleC :start-revision revision
+		      :item-identifiers iis
+		      :reifier (when reifier
+				 (get-item-from-jtm-reference
+				  reifier :revision revision :prefixes prefixes))
+		      :instance-of (get-item-from-jtm-reference
+				    type :revision revision :prefixes prefixes)
+		      :player (get-item-from-jtm-reference
+			       player :revision revision :prefixes prefixes)
+		      :parent local-parent)))
 
 
 (defun make-plist-of-jtm-role(jtm-list &key (revision *TM-REVISION*) prefixes)

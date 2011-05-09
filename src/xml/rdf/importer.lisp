@@ -15,8 +15,7 @@
    to the give file path is imported."
   (declare ((or pathname string) rdf-xml-path))
   (declare ((or pathname string) repository-path))
-  (unless elephant:*store-controller*
-    (open-tm-store repository-path))
+  (open-tm-store repository-path)
   (xtm-importer:init-isidorus)
   (init-rdf-module)
   (import-from-rdf rdf-xml-path repository-path :tm-id tm-id
@@ -34,8 +33,7 @@
   (setf *document-id* document-id)
   (tm-id-p tm-id "rdf-importer")
   (with-writer-lock
-    (unless elephant:*store-controller*
-      (open-tm-store repository-path))
+    (open-tm-store repository-path)
     (let ((rdf-dom
 	   (dom:document-element (cxml:parse-file
 				  (truename rdf-xml-path)

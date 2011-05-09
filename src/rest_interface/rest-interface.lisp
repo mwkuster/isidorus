@@ -82,8 +82,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (setf hunchentoot:*show-lisp-errors-p* t) ;for now
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
-  (unless elephant:*store-controller*
-    (open-tm-store repository-path))
+  (open-tm-store repository-path)
   (set-up-json-interface)
   (setf *json-server-acceptor*
 	(make-instance 'hunchentoot:acceptor :address host-name :port port))
@@ -111,8 +110,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (setf hunchentoot:*hunchentoot-default-external-format* 
 	(flex:make-external-format :utf-8 :eol-style :lf))
   (setf atom:*base-url* (format nil "http://~a:~a" host-name port))
-  (unless elephant:*store-controller*
-    (open-tm-store repository-path))
+  (open-tm-store repository-path)
   (load conf-file)
   (publish-feed atom:*tm-feed*)
   (setf *atom-server-acceptor*

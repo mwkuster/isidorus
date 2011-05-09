@@ -49,16 +49,6 @@
 (in-package :jtm-test)
 
 
-(defun read-file (file-path)
-  "A helper function that reads a file and returns the content as a string."
-  (with-open-file (stream file-path)
-    (let ((file-string ""))
-      (do ((l (read-line stream) (read-line stream nil 'eof)))
-	  ((eq l 'eof))
-	(base-tools:push-string (base-tools::concat l (string #\newline)) file-string))
-      (subseq file-string 0 (max 0 (1- (length file-string)))))))
-  
-
 (def-suite jtm-tests
      :description "tests various functions of the jtm module")
 
@@ -1639,7 +1629,7 @@
 
 
 (test test-make-instance-of-association
-  "Tests the function make-instance-of-association."
+  "Tests the function make-instance-of-association."1
   (with-fixture with-empty-db ("data_base")
     (let* ((tt (make-construct 'TopicC :start-revision 100
 			       :psis
@@ -2210,6 +2200,12 @@
 	 nil :revision 100)))))
 
 
+
+;TODO:
+; *import-role-from-jtm-list
+; *import-construct-from-jtm-string
+; *import-from-jtm
+; *import-topic-map-from-jtm-list
 
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."

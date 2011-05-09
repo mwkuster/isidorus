@@ -11,10 +11,10 @@
   (:use :cl :json :datamodel :base-tools :isidorus-threading
 	:constants :exceptions)
   (:export :import-from-jtm
+	   :import-construct-from-jtm-string
 	   :export-as-jtm
 	   :export-as-jtm-string
 	   :export-construct-as-jtm-string
-	   :*jtm-xtm*
 	   :item_type-topicmap
 	   :item_type-topic
 	   :item_type-name
@@ -24,8 +24,6 @@
 	   :item_type-role))
 
 (in-package :jtm)
-
-(defvar *jtm-xtm* "jtm-xtm"); Represents the currently active TM of the JTM-Importer
 
 (defvar item_type-topicmap "topicmap")
 

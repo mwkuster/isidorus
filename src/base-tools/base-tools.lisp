@@ -46,7 +46,8 @@
 	   :prefix-of-uri
 	   :get-store-spec
 	   :open-tm-store
-	   :close-tm-store))
+	   :close-tm-store
+	   :read-file))
 
 (in-package :base-tools)
 
@@ -576,9 +577,21 @@
   "Wraps the function elephant:open-store with the key-parameter
    :register, so one store canbe used by several instances of
    isidorus in parallel."
-  (elephant:open-store (get-store-spec pathname) :register t))
+  (if elephant:*store-controller*
+      (elephant:open-store (get-store-spec pathname) :register t)
+      elephant:*store-controller*))
 
 
 (defun close-tm-store ()
   "Wraps the function elephant:close-store."
   (elephant:close-store))
+
+
+(defun read-file (file-path)
+  "A helper function that reads a file and returns the content as a string."
+  (with-open-file (stream file-path)
+    (let ((file-string ""))
+      (do ((l (read-line stream) (read-line stream nil 'eof)))
+	  ((eq l 'eof))
+	(base-tools:push-string (base-tools::concat l (string #\newline)) file-string))
+      (subseq file-string 0 (max 0 (1- (length file-string)))))))
