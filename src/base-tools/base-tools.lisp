@@ -578,8 +578,8 @@
    :register, so one store canbe used by several instances of
    isidorus in parallel."
   (if elephant:*store-controller*
-      (elephant:open-store (get-store-spec pathname) :register t)
-      elephant:*store-controller*))
+      elephant:*store-controller*
+      (elephant:open-store (get-store-spec pathname) :register t)))
 
 
 (defun close-tm-store ()
