@@ -49,7 +49,8 @@
 	   :test-import-topic-maps-2
 	   :test-import-topic-maps-3
 	   :test-import-topic-maps-4
-	   :test-import-topic-maps-5))
+	   :test-import-topic-maps-5
+	   :test-import-construct-from-jtm-string))
 
 
 (in-package :jtm-test)
@@ -2874,6 +2875,63 @@
 		   (map 'list #'uri (item-identifiers tm :revision 0))
 		   :test #'string=))
 	(is (= (length (elephant:get-instances-by-class 'TopicMapC)) 1))))))
+
+
+(test test-import-construct-from-jtm-string
+  "Tests the function import-construct-from-jtm-string when importing a name."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((jtm-name-1 (concat "{\"version\":\"1.1\",\"prefixes\":{\"pref_1\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"xsd\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#\",\"pref_2\":\"http:\\/\\/some.where\\/\"},\"item_identifiers\":[\"[pref_2:ii-2]\"],\"value\":\"name-1\",\"type\":\"sl:[pref_2:sl-1]\",\"item_type\":\"name\",\"parent\":[\"si:[pref_2:psi-1]\"],\"scope\":[\"si:[pref_2:psi-1]\"],\"variants\":[{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-1\",\"scope\":[\"sl:[pref_2:sl-1]\"],\"reifier\":null},{\"item_identifiers\":null,\"datatype\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema#string\",\"value\":\"var-2\",\"scope\":[\"sl:[pref_2:sl-1]\"],\"reifier\":null}],\"reifier\":\"ii:[pref_2:ii-1]\"}"))
+	   (jtm-name-2 "{\"version\":\"1.0\",\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"item_type\":\"name\",\"parent\":[\"sl:http://some.where/sl-1\"],\"scope\":null,\"variants\":null,\"reifier\":null}")
+	   (jtm-name-3 "{\"version\":\"1.0\",\"item_identifiers\":null,\"value\":\"name-2\",\"type\":null,\"item_type\":\"name\",\"scope\":null,\"variants\":null,\"reifier\":null}")
+	   (type-1 (make-construct
+		    'TopicC :start-revision 100
+		    :locators
+		    (list (make-construct 'SubjectLocatorC
+					  :uri "http://some.where/sl-1"))))
+	   (parent-1 (make-construct
+		      'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri "http://some.where/psi-1"))))
+	   (scope-1 parent-1)
+	   (reifier-1 (make-construct
+		      'TopicC :start-revision 100
+		      :item-identifiers
+		      (list (make-construct 'ItemIdentifierC
+					    :uri "http://some.where/ii-1"))))
+	   (name-1 (jtm::import-construct-from-jtm-string
+		    jtm-name-1 :revision 100 :jtm-format :1.1))
+	   (name-2 (jtm::import-construct-from-jtm-string
+		    jtm-name-2 :revision 100 :jtm-format :1.0)))
+      (is-true (d:find-item-by-revision name-1 100 parent-1))
+      (is-false (d:find-item-by-revision name-1 50 parent-1))
+      (is (eql (parent name-1 :revision 0) parent-1))
+      (is (eql (parent name-2 :revision 0) type-1))
+      (is (string= (charvalue name-1) "name-1"))
+      (is (string= (charvalue name-2) "name-2"))
+      (is-false (set-exclusive-or
+		 (map 'list #'d:uri (d:item-identifiers name-1 :revision 0))
+		 (list "http://some.where/ii-2") :test #'string=))
+      (is-false (d:item-identifiers name-2 :revision 0))
+      (is (eql (reifier name-1 :revision 0) reifier-1))
+      (is-false (reifier name-2 :revision 0))
+      (is-false (set-exclusive-or (themes name-1 :revision 0) (list scope-1)))
+      (is-false (themes name-2 :revision 0))
+      (is (eql (instance-of name-1 :revision 0) type-1))
+      (is-false (instance-of name-2 :revision 0))
+      (is-false (set-exclusive-or
+		 (map 'list #'d:charvalue (variants name-1 :revision 0))
+		 (list "var-1" "var-2") :test #'string=))
+      (is-false (variants name-2 :revision 0))
+      (signals exceptions:JTM-error
+	(jtm::import-construct-from-jtm-string
+	 jtm-name-3 :revision 100 :jtm-format :1.0))
+      (signals exceptions:JTM-error
+	(jtm::import-construct-from-jtm-string
+	 jtm-name-2 :revision 100 :jtm-format :1.1))
+      (signals exceptions:JTM-error
+	(jtm::import-construct-from-jtm-string
+	 jtm-name-1 :revision 100 :jtm-format :1.0)))))
 	   
 	   
 
