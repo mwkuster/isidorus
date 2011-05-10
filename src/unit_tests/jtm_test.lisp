@@ -50,7 +50,10 @@
 	   :test-import-topic-maps-3
 	   :test-import-topic-maps-4
 	   :test-import-topic-maps-5
-	   :test-import-construct-from-jtm-string))
+	   :test-import-construct-from-jtm-string
+	   :test-import-from-jtm-1
+	   :test-import-from-jtm-2
+	   :test-import-from-jtm-3))
 
 
 (in-package :jtm-test)
@@ -2932,14 +2935,74 @@
       (signals exceptions:JTM-error
 	(jtm::import-construct-from-jtm-string
 	 jtm-name-1 :revision 100 :jtm-format :1.0)))))
-	   
-	   
 
 
+(test test-import-from-jtm-1
+  "Tests the functionimport-from-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (jtm:import-from-jtm
+     (merge-pathnames
+      (asdf:component-pathname
+       (asdf:find-component constants:*isidorus-system* "unit_tests"))
+      "jtm_1.1_test.jtm")
+     (merge-pathnames
+      (asdf:component-pathname constants:*isidorus-system*)
+      "data_base")
+     :tm-id "http://some.where/jtm/tm")
+    (base-tools:open-tm-store
+     (merge-pathnames
+      (asdf:component-pathname constants:*isidorus-system*)
+      "data_base"))
+    (is (= (length (elephant:get-instances-by-class 'TopicC)) 42))
+    (is (= (length (elephant:get-instances-by-class 'AssociationC)) 30))))
 
 
-;TODO:
-; *import-from-jtm
+(test test-import-from-jtm-2
+  "Tests the functionimport-from-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (jtm:import-from-jtm
+     (merge-pathnames
+      (asdf:component-pathname
+       (asdf:find-component constants:*isidorus-system* "unit_tests"))
+      "jtm_1.0_test.jtm")
+     (merge-pathnames
+      (asdf:component-pathname constants:*isidorus-system*)
+      "data_base")
+     :jtm-format :1.0
+     :tm-id "http://some.where/jtm/tm")
+    (base-tools:open-tm-store
+     (merge-pathnames
+      (asdf:component-pathname constants:*isidorus-system*)
+      "data_base"))
+    (is (= (length (elephant:get-instances-by-class 'TopicC)) 42))
+    (is (= (length (elephant:get-instances-by-class 'AssociationC)) 30))))
+
+
+(test test-import-from-jtm-3
+  "Tests the functionimport-from-jtm."
+  (with-fixture with-empty-db ("data_base")
+    (let ((jtm-path-2
+	   (merge-pathnames
+	    (asdf:component-pathname
+	     (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	    "jtm_1.1_test.jtm"))
+	  (jtm-path-1
+	   (merge-pathnames
+	    (asdf:component-pathname
+	     (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	    "jtm_1.0_test.jtm"))
+	  (db-path
+	   (merge-pathnames
+	    (asdf:component-pathname constants:*isidorus-system*)
+	    "data_base")))
+      (signals exceptions::JTM-error
+	(jtm:import-from-jtm jtm-path-1 db-path :jtm-format :1.1
+			     :tm-id "http://some.where/tm-id"))
+      (signals T
+	(jtm:import-from-jtm jtm-path-1 db-path :jtm-format :1.0))
+      (signals exceptions::JTM-error
+	(jtm:import-from-jtm jtm-path-2 db-path :jtm-format :1.0
+			     :tm-id "http://some.where/tm-id")))))
 
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."
