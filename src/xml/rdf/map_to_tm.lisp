@@ -346,13 +346,19 @@
       (elephant:ensure-transaction  (:txn-nosync t)
 	(map 'list #'d::delete-construct type-assocs)
 	(map 'list #'d::delete-construct scope-assocs)
-	(let ((name (make-construct 'NameC
-				    :start-revision start-revision
-				    :parent top
-				    :charvalue value
-				    :instance-of type
-				    :item-identifiers ids
-				    :themes scopes)))
+	(let ((name
+	       (make-construct 'NameC
+			       :start-revision start-revision
+			       :parent top
+			       :charvalue value
+			       :instance-of (if type
+						type
+						(get-item-by-psi
+						 *topic-name-psi*
+						 :revision start-revision
+						 :error-if-nil t))
+			       :item-identifiers ids
+			       :themes scopes)))
 	  (map 'list #'(lambda(variant-topic)
 			 (map-isi-variant name variant-topic
 					  start-revision))

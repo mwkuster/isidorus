@@ -23,7 +23,8 @@
 		*XTM1.0-NS*
 		*XTM1.0-XLINK*
 		*XML-STRING*
-		*XML-URI*)
+		*XML-URI*
+		*topic-name-psi*)
   (:import-from :xml-constants
 		*core_psis.xtm*)
   (:import-from :xml-tools

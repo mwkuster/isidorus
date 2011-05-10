@@ -27,6 +27,7 @@
 		*tm2rdf-variant-type-uri*
 		*tm2rdf-occurrence-type-uri*
 		*tm2rdf-topic-type-uri*
+		*topic-name-psi*
 		*tm2rdf-association-type-uri*
 		*tm2rdf-role-type-uri*
 		*tm2rdf-reifier-property*)
@@ -307,7 +308,9 @@
       (make-isi-type *tm2rdf-name-type-uri*)
       (export-reifier-as-mapping construct)
       (map 'list #'to-rdf-elem (item-identifiers construct))
-      (when (instance-of construct)
+      (when (and (instance-of construct)
+		 (not (eql (instance-of construct)
+			   (get-item-by-psi *topic-name-psi*))))
 	(cxml:with-element "isi:nametype"
 	  (make-topic-reference (instance-of construct))))
       (scopes-to-rdf-elems construct)

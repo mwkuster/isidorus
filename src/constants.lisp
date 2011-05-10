@@ -69,7 +69,8 @@
 	   :*tm2rdf-player-property*
 	   :*rdf2tm-blank-node-prefix*
 	   :*tm2rdf-reifier-property*
-	   :*xsd-ns*))
+	   :*xsd-ns*
+	   :*topic-name-psi*))
 	   
 
 (in-package :constants)
@@ -194,3 +195,5 @@
 (defparameter *tm2rdf-reifier-property* (concat *tm2rdf-ns* "reifier"))
 
 (defparameter *xsd-ns* "http://www.w3.org/2001/XMLSchema#")
+
+(defparameter *topic-name-psi* "http://psi.topicmaps.org/iso13250/model/topic-name")

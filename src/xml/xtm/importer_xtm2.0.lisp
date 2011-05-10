@@ -129,14 +129,19 @@ return that set. If the input is nil, the list of themes is empty
        (reifier-topic (get-reifier-topic name-elem start-revision)))
     (unless namevalue
         (error "A name must have exactly one namevalue"))
-    (let ((name (make-construct 'NameC 
-				:start-revision start-revision
-				:parent top
-				:charvalue namevalue
-				:instance-of instance-of
-				:item-identifiers item-identifiers
-				:reifier reifier-topic
-				:themes themes)))
+    (let ((name (make-construct
+		 'NameC 
+		 :start-revision start-revision
+		 :parent top
+		 :charvalue namevalue
+		 :instance-of (if instance-of
+				  instance-of
+				  (get-item-by-psi *topic-name-psi*
+						   :revision start-revision
+						   :error-if-nil t))
+		 :item-identifiers item-identifiers
+		 :reifier reifier-topic
+		 :themes themes)))
       (loop for variant-elem across (xpath-child-elems-by-qname name-elem *xtm2.0-ns* "variant")
 	 do (from-variant-elem variant-elem name start-revision :xtm-id xtm-id))
       name)))

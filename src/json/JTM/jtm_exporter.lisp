@@ -149,10 +149,14 @@
 		      construct :prefixes prefixes :revision revision) ","))
 	(value (concat "\"value\":"
 		       (json:encode-json-to-string (charvalue construct)) ","))
-	(type (concat "\"type\":"
-		      (export-type-to-jtm construct :prefixes prefixes
-					  :error-if-nil nil :revision revision)
-		      ","))
+	(type
+	 (concat "\"type\":"
+		 (if (eql (instance-of construct :revision revision)
+			  (get-item-by-psi *topic-name-psi*))
+		     "null"
+		     (export-type-to-jtm construct :prefixes prefixes
+					 :error-if-nil nil :revision revision))
+		 ","))
 	(item-type (when item-type-p
 		     (concat "\"item_type\":\"" item_type-name "\",")))
 	(name-parent

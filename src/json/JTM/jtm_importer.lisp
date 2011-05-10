@@ -413,9 +413,11 @@
 	    :charvalue value
 	    :themes (get-items-from-jtm-references
 		     scope :revision revision :prefixes prefixes)
-	    :instance-of (when type
-			   (get-item-from-jtm-reference
-			    type :revision revision :prefixes prefixes))
+	    :instance-of (if type
+			     (get-item-from-jtm-reference
+			      type :revision revision :prefixes prefixes)
+			     (get-item-by-psi *topic-name-psi*
+					      :revision revision :error-if-nil t))
 	    :parent (first local-parent)
 	    :reifier (when reifier
 		       (get-item-from-jtm-reference

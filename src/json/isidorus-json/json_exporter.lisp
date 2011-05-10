@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :json-exporter
-  (:use :cl :json :datamodel :TM-SPARQL :base-tools)
+  (:use :cl :json :datamodel :TM-SPARQL :base-tools :constants)
   (:export :export-construct-as-isidorus-json-string
 	   :get-all-topic-psis
 	   :to-json-string-summary
@@ -126,7 +126,10 @@
 		 (identifiers-to-json-string instance :what 'item-identifiers
 					     :revision revision)))
 	(type
-	 (type-to-json-string instance :revision revision))
+	 (if (eql (instance-of instance :revision revision)
+		  (get-item-by-psi *topic-name-psi* :revision revision))
+	     "\"type\":null"
+	     (type-to-json-string instance :revision revision)))
 	(scope
 	 (concat "\"scopes\":"
 		 (ref-topics-to-json-string (themes instance :revision revision)

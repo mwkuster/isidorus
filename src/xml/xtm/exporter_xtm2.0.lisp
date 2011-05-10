@@ -52,7 +52,10 @@
     (map 'list #'(lambda(x)
 		   (to-elem x revision))
 	 (item-identifiers name :revision revision))
-    (when (instance-of name :revision revision)
+    (when (and (instance-of name :revision revision)
+	       (not (eql (instance-of name :revision revision)
+			 (get-item-by-psi *topic-name-psi*
+					  :revision revision))))			  
       (cxml:with-element "t:type"
 	(ref-to-elem (instance-of name :revision revision) revision)))
     (when (themes name :revision revision)

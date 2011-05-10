@@ -151,12 +151,15 @@
 		   start-revision :xtm-id xtm-id)))
 	(baseNameString (xpath-fn-string
 			 (xpath-single-child-elem-by-qname baseName-elem *xtm1.0-ns* "baseNameString")))
-	(reifier-topic (get-reifier-topic-xtm1.0 baseName-elem start-revision)))
+	(reifier-topic (get-reifier-topic-xtm1.0 baseName-elem start-revision))
+	(type (get-item-by-psi *topic-name-psi* :revision start-revision
+			       :error-if-nil t)))
     (unless baseNameString
       (error "A baseName must have exactly one baseNameString"))
     (let ((name (make-construct 'NameC 
 				:start-revision start-revision
 				:parent top
+				:instance-of type
 				:charvalue baseNameString
 				:reifier reifier-topic
 				:themes themes)))

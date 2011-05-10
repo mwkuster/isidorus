@@ -8,7 +8,7 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :json-importer
-  (:use :cl :json :datamodel :xtm-importer)
+  (:use :cl :json :datamodel :xtm-importer :constants)
   (:export :import-from-isidorus-json
 	   :*json-xtm*))
 
@@ -263,13 +263,18 @@
 	   (psis-to-topic (getf json-decoded-list :type) :revision start-revision)))
       (unless namevalue
         (error "A name must have exactly one namevalue"))
-      (let ((name (make-construct 'NameC 
-				  :start-revision start-revision
-				  :parent top
-				  :charvalue namevalue
-				  :instance-of instance-of
-				  :item-identifiers item-identifiers
-				  :themes themes)))
+      (let ((name (make-construct
+		   'NameC 
+		   :start-revision start-revision
+		   :parent top
+		   :charvalue namevalue
+		   :instance-of (if instance-of
+				    instance-of
+				    (get-item-by-psi *topic-name-psi*
+						     :revision start-revision
+						     :error-if-nil t))
+		   :item-identifiers item-identifiers
+		   :themes themes)))
 	(loop for variant in (getf json-decoded-list :variants)
 	   do (json-to-variant variant name start-revision))
 	name))))

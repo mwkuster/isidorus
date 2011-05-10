@@ -16,6 +16,7 @@
 		*type-psi*
 		*instance-psi*
 		*type-instance-psi*
+		*topic-name-psi*
 		*xml-uri*
 		*xml-string*)
   (:export :to-elem 
