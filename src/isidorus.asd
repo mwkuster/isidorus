@@ -117,6 +117,8 @@
 				     "json" "threading" "base-tools"))
 	       (:module "unit_tests"
 			:components ((:static-file "textgrid.xtm")
+				     (:static-file "jtm_1.0_test.jtm")
+				     (:static-file "jtm_1.1_test.jtm")
 				     (:static-file "textgrid_old.xtm")
 				     (:static-file "dangling_topicref.xtm")
 				     (:static-file "inconsistent.xtm")               

@@ -35,8 +35,9 @@
    is a topicmap and it has no item-identifiers defined, a JTM-error
    is thrown."
   (declare (String jtm-string)
-	   (type (or Null String) tm-id))
-	   
+	   (type (or Null String) tm-id)
+	   (Integer revision)
+	   (Keyword jtm-format))
   (let* ((jtm-list (json:decode-json-from-string jtm-string))
 	 (version (get-item :VERSION jtm-list))
 	 (item_type (get-item :ITEM--TYPE jtm-list))
@@ -51,7 +52,7 @@
 	   (unless (string= version "1.1")
 	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member version must be set to \"1.1\" in JTM version 1.1, but is ~a" version)))))
 	  (t
-	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): only JTM format 1.0 and 1.1 is supported, but found: ~a" jtm-format)))))
+	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): only JTM format \"1.0\" and \"1.1\" is supported, but found: \"~a\"" jtm-format)))))
     (cond ((or (not item_type)
 	       (string= item_type item_type-topicmap))
 	   (import-topic-map-from-jtm-list
@@ -88,7 +89,8 @@
 	   (Keyword jtm-format)
 	   (Integer revision))
   (open-tm-store repository-path)
-  (import-construct-from-jtm-string (read-file jtm-path) :tm-id tm-id :revision revision
+  (import-construct-from-jtm-string (read-file-to-string jtm-path)
+				    :tm-id tm-id :revision revision
 				    :jtm-format jtm-format)
   (close-tm-store))
 
@@ -105,8 +107,9 @@
 				    (get-item :ITEM--IDENTIFIERS jtm-list)
 				    :prefixes prefixes)
 				   (when tm-id
-				     (make-construct 'ItemIdentifierC
-						     :uri tm-id)))))
+				     (list
+				      (make-construct 'ItemIdentifierC
+						      :uri tm-id))))))
 		(unless value
 		  (error (make-condition 'JTM-error :message (format nil "From import-topic-map-from-jtm-list(): no topic-map item-identifier is set for ~a" jtm-list))))
 		value))
@@ -234,6 +237,7 @@
 			   :roles role-lists)))
       (dolist (tm local-parent)
 	(add-to-tm tm assoc))
+      (format t "a")
       assoc)))
 
 
@@ -374,6 +378,7 @@
       (add-name top name :revision revision))
     (dolist (occ top-occs)
       (add-occurrence top occ :revision revision))
+    (format t "t")
     top))
 
 

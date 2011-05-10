@@ -44,7 +44,12 @@
 	   :test-import-topics
 	   :test-merge-topics
 	   :test-import-associations
-	   :test-import-roles))
+	   :test-import-roles
+	   :test-import-topic-maps-1
+	   :test-import-topic-maps-2
+	   :test-import-topic-maps-3
+	   :test-import-topic-maps-4
+	   :test-import-topic-maps-5))
 
 
 (in-package :jtm-test)
@@ -1022,10 +1027,10 @@
       (export-as-jtm jtm-path-2 :tm-id nil :revision 0 :jtm-format :1.0)
       (export-as-jtm jtm-path-3 :tm-id fixtures::tm-id :revision 0 :jtm-format :1.1)
       (export-as-jtm jtm-path-4 :tm-id fixtures::tm-id :revision 0 :jtm-format :1.0)
-      (let ((jtm-str-1 (read-file jtm-path-1))
-	    (jtm-str-2 (read-file jtm-path-2))
-	    (jtm-str-3 (read-file jtm-path-3))
-	    (jtm-str-4 (read-file jtm-path-4))
+      (let ((jtm-str-1 (read-file-to-string jtm-path-1))
+	    (jtm-str-2 (read-file-to-string jtm-path-2))
+	    (jtm-str-3 (read-file-to-string jtm-path-3))
+	    (jtm-str-4 (read-file-to-string jtm-path-4))
 	    (prefixes (list
 		       (list :pref "pref_1"
 			     :value "http://www.topicmaps.org/xtm/1.0/core.xtm#")
@@ -2291,10 +2296,592 @@
 	 (json:decode-json-from-string "{\"version\":\"1.0\",\"item_identifiers\":null,\"type\":null,\"item_type\":\"role\",\"reifier\":null,\"player\":\"ii:http:\\/\\/some.where\\/ii-1\"}")
 	 parent-1 :revision 100)))))
 
+
+(test test-import-topic-maps-1
+  "Tests the function import-topic-map-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let ((jtm-str
+	   (read-file-to-string
+	    (merge-pathnames
+	     (asdf:component-pathname
+	      (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	     "jtm_1.1_test.jtm"))))
+      (let ((tm (import-construct-from-jtm-string
+		 jtm-str :revision 100 :jtm-format :1.1)))
+	(is-true tm)
+	(is (= (length (elephant:get-instances-by-class 'TopicC)) 42))
+	(loop for top in (elephant:get-instances-by-class 'TopicC) do
+	     (cond ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#topic"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#association"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#occurrence"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class-instance"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#sort"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#display")
+		      :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-false (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find (uri (first (psis top :revision 0)))
+			   (list "http://psi.topicmaps.org/iso13250/model/type-instance"
+				 "http://psi.topicmaps.org/iso13250/model/type"
+				 "http://psi.topicmaps.org/iso13250/model/instance")
+			   :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is (= (length (used-as-type top :revision 0)) 29))
+		    (is-false (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list 
+		       "http://some.where/tmsparql/written-by"
+		       "http://some.where/tmsparql/written"
+		       "http://some.where/tmsparql/writer"
+		       "http://some.where/tmsparql/first-name"
+		       "http://some.where/tmsparql/last-name"
+		       "http://some.where/tmsparql/title"
+		       "http://some.where/tmsparql/date-of-birth"
+		       "http://some.where/tmsparql/date-of-death"
+		       "http://some.where/tmsparql/years"
+		       "http://some.where/tmsparql/isDead"
+		       "http://some.where/tmsparql/isAlive"
+		       "http://some.where/tmsparql/poem-content")
+		      :test 'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-true (used-as-type top :revision 0))
+		    (is (= (length (player-in-roles top :revision 0)) 1))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list 
+		       "http://psi.topicmaps.org/tmcl/topic-type"
+		       "http://psi.topicmaps.org/tmcl/occurrence-type"
+		       "http://psi.topicmaps.org/tmcl/association-type"
+		       "http://psi.topicmaps.org/tmcl/name-type"
+		       "http://psi.topicmaps.org/tmcl/scope-type"
+		       "http://psi.topicmaps.org/tmcl/role-type")
+		      :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((or (and
+			 (= (length (psis top :revision 0)) 1)
+			 (find
+			  (uri (first (psis top :revision 0)))
+			  (list 
+			   "http://some.where/tmsparql/author/goethe"
+			   "http://some.where/tmsparql/author"
+			   "http://some.where/psis/poem/zauberlehrling"
+			   "http://some.where/tmsparql/poem"
+			   "http://some.where/tmsparql/display-name"
+			   "http://some.where/tmsparql/de"
+			   "http://some.where/tmsparql/reifier-type")
+			  :test #'string=))
+			(and
+			 (= (length (item-identifiers top :revision 0)) 1)
+			 (find
+			  (uri (first (item-identifiers top :revision 0)))
+			  (list 
+			   "http://some.where/ii/goethe-occ-reifier"
+			   "http://some.where/ii/goethe-name-reifier"
+			   "http://some.where/ii/association-reifier"
+			   "http://some.where/ii/role-reifier")
+			  :test #'string=)))
+		    nil) ;is checked in the next unit-test
+		   (t
+		    (is-false top))))))))
+
+
+
+
+(test test-import-topic-maps-2
+  "Tests the function import-topic-map-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let ((jtm-str
+	   (read-file-to-string
+	    (merge-pathnames
+	     (asdf:component-pathname
+	      (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	     "jtm_1.1_test.jtm"))))
+      (let ((tm (import-construct-from-jtm-string
+		 jtm-str :revision 100 :jtm-format :1.1)))
+	(is-true tm)
+	(is (= (length (elephant:get-instances-by-class 'TopicC)) 42))
+	(loop for top in (elephant:get-instances-by-class 'TopicC) do
+	     (cond ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list
+		       "http://psi.topicmaps.org/iso13250/model/type-instance"
+		       "http://psi.topicmaps.org/iso13250/model/type"
+		       "http://psi.topicmaps.org/iso13250/model/instance"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#topic"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#association"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#occurrence"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class-instance"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#sort"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#display"
+		       "http://some.where/tmsparql/written-by"
+		       "http://some.where/tmsparql/written"
+		       "http://some.where/tmsparql/writer"
+		       "http://some.where/tmsparql/first-name"
+		       "http://some.where/tmsparql/last-name"
+		       "http://some.where/tmsparql/title"
+		       "http://some.where/tmsparql/date-of-birth"
+		       "http://some.where/tmsparql/date-of-death"
+		       "http://some.where/tmsparql/years"
+		       "http://some.where/tmsparql/isDead"
+		       "http://some.where/tmsparql/isAlive"
+		       "http://some.where/tmsparql/poem-content"
+		       "http://psi.topicmaps.org/tmcl/topic-type"
+		       "http://psi.topicmaps.org/tmcl/occurrence-type"
+		       "http://psi.topicmaps.org/tmcl/association-type"
+		       "http://psi.topicmaps.org/tmcl/name-type"
+		       "http://psi.topicmaps.org/tmcl/scope-type"
+		       "http://psi.topicmaps.org/tmcl/role-type")
+		      :test #'string=))
+		    nil) ;is checked in the unit-test before
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list 
+		       "http://some.where/tmsparql/author"
+		       "http://some.where/tmsparql/poem"
+		       "http://some.where/tmsparql/display-name"
+		       "http://some.where/tmsparql/de"
+		       "http://some.where/tmsparql/reifier-type")
+		      :test #'string=))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (item-identifiers top :revision 0)) 1)
+		     (find
+		      (uri (first (item-identifiers top :revision 0)))
+		      (list 
+		       "http://some.where/ii/goethe-occ-reifier"
+		       "http://some.where/ii/goethe-name-reifier"
+		       "http://some.where/ii/association-reifier"
+		       "http://some.where/ii/role-reifier")
+		      :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-true (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (psis top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and (= (length (psis top :revision 0)) 1)
+			 (string= (uri (first (psis top :revision 0)))
+				  "http://some.where/tmsparql/author/goethe"))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is (= (length (occurrences top :revision 0)) 5))
+		    (is (= (length (names top :revision 0)) 3))
+		    (is (= (length (item-identifiers top :revision 0)) 1))
+		    (is (string=
+			 "http://some.where/ii/goethe"
+			 (uri (first (item-identifiers top :revision 0)))))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and (= (length (psis top :revision 0)) 1)
+			 (string= (uri (first (psis top :revision 0)))
+				  "http://some.where/psis/poem/zauberlehrling"))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is (= (length (occurrences top :revision 0)) 1))
+		    (is (= (length (names top :revision 0)) 1))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   (t
+		    (is-false top))))
+	(is (= (length (elephant:get-instances-by-class 'TopicMapC)) 1))
+	(is (= (length (elephant:get-instances-by-class 'AssociationC)) 30))
+	(let ((assoc
+	       (get-item-by-item-identifier "http://some.where/ii/association"
+					    :revision 0)))
+	  (is (typep assoc 'AssociationC))
+	  (is (= (length (roles assoc :revision 0)) 2))
+	  (is (= (length (item-identifiers assoc :revision 0)) 1))
+	  (is (eql (instance-of assoc :revision 0)
+		   (get-item-by-psi "http://some.where/tmsparql/written-by"
+				    :revision 0)))
+	  (is (eql (reifier assoc :revision 0)
+		   (get-item-by-item-identifier
+		    "http://some.where/ii/association-reifier"
+		    :revision 0))))))))
+
+
+(test test-import-topic-maps-3
+  "Tests the function import-topic-map-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((jtm-str
+	    (read-file-to-string
+	     (merge-pathnames
+	      (asdf:component-pathname
+	       (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	      "jtm_1.0_test.jtm")))
+	   (tm (import-construct-from-jtm-string
+		jtm-str :revision 100 :jtm-format :1.0
+		:tm-id "http://some.where/jtm-tm")))
+      (is-true tm)
+	(is (= (length (elephant:get-instances-by-class 'TopicC)) 42))
+	(loop for top in (elephant:get-instances-by-class 'TopicC) do
+	     (cond ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#topic"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#association"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#occurrence"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class-instance"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#sort"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#display")
+		      :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-false (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find (uri (first (psis top :revision 0)))
+			   (list "http://psi.topicmaps.org/iso13250/model/type-instance"
+				 "http://psi.topicmaps.org/iso13250/model/type"
+				 "http://psi.topicmaps.org/iso13250/model/instance")
+			   :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is (= (length (used-as-type top :revision 0)) 29))
+		    (is-false (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list 
+		       "http://some.where/tmsparql/written-by"
+		       "http://some.where/tmsparql/written"
+		       "http://some.where/tmsparql/writer"
+		       "http://some.where/tmsparql/first-name"
+		       "http://some.where/tmsparql/last-name"
+		       "http://some.where/tmsparql/title"
+		       "http://some.where/tmsparql/date-of-birth"
+		       "http://some.where/tmsparql/date-of-death"
+		       "http://some.where/tmsparql/years"
+		       "http://some.where/tmsparql/isDead"
+		       "http://some.where/tmsparql/isAlive"
+		       "http://some.where/tmsparql/poem-content")
+		      :test 'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-true (used-as-type top :revision 0))
+		    (is (= (length (player-in-roles top :revision 0)) 1))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list 
+		       "http://psi.topicmaps.org/tmcl/topic-type"
+		       "http://psi.topicmaps.org/tmcl/occurrence-type"
+		       "http://psi.topicmaps.org/tmcl/association-type"
+		       "http://psi.topicmaps.org/tmcl/name-type"
+		       "http://psi.topicmaps.org/tmcl/scope-type"
+		       "http://psi.topicmaps.org/tmcl/role-type")
+		      :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((or (and
+			 (= (length (psis top :revision 0)) 1)
+			 (find
+			  (uri (first (psis top :revision 0)))
+			  (list 
+			   "http://some.where/tmsparql/author/goethe"
+			   "http://some.where/tmsparql/author"
+			   "http://some.where/psis/poem/zauberlehrling"
+			   "http://some.where/tmsparql/poem"
+			   "http://some.where/tmsparql/display-name"
+			   "http://some.where/tmsparql/de"
+			   "http://some.where/tmsparql/reifier-type")
+			  :test #'string=))
+			(and
+			 (= (length (item-identifiers top :revision 0)) 1)
+			 (find
+			  (uri (first (item-identifiers top :revision 0)))
+			  (list 
+			   "http://some.where/ii/goethe-occ-reifier"
+			   "http://some.where/ii/goethe-name-reifier"
+			   "http://some.where/ii/association-reifier"
+			   "http://some.where/ii/role-reifier")
+			  :test #'string=)))
+		    nil) ;is checked in the next unit-test
+		   (t
+		    (is-false top)))))))
+
+
+(test test-import-topic-maps-4
+  "Tests the function import-topic-map-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((jtm-str
+	    (read-file-to-string
+	     (merge-pathnames
+	      (asdf:component-pathname
+	       (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	      "jtm_1.0_test.jtm")))
+	   (tm (import-construct-from-jtm-string
+		jtm-str :revision 100 :jtm-format :1.0
+		:tm-id "http://some.where/jtm-tm")))
+      (is-true tm)
+	(is (= (length (elephant:get-instances-by-class 'TopicC)) 42))
+	(loop for top in (elephant:get-instances-by-class 'TopicC) do
+	     (cond ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list
+		       "http://psi.topicmaps.org/iso13250/model/type-instance"
+		       "http://psi.topicmaps.org/iso13250/model/type"
+		       "http://psi.topicmaps.org/iso13250/model/instance"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#topic"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#association"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#occurrence"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class-instance"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#class"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#subtype"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#sort"
+		       "http://www.topicmaps.org/xtm/1.0/core.xtm#display"
+		       "http://some.where/tmsparql/written-by"
+		       "http://some.where/tmsparql/written"
+		       "http://some.where/tmsparql/writer"
+		       "http://some.where/tmsparql/first-name"
+		       "http://some.where/tmsparql/last-name"
+		       "http://some.where/tmsparql/title"
+		       "http://some.where/tmsparql/date-of-birth"
+		       "http://some.where/tmsparql/date-of-death"
+		       "http://some.where/tmsparql/years"
+		       "http://some.where/tmsparql/isDead"
+		       "http://some.where/tmsparql/isAlive"
+		       "http://some.where/tmsparql/poem-content"
+		       "http://psi.topicmaps.org/tmcl/topic-type"
+		       "http://psi.topicmaps.org/tmcl/occurrence-type"
+		       "http://psi.topicmaps.org/tmcl/association-type"
+		       "http://psi.topicmaps.org/tmcl/name-type"
+		       "http://psi.topicmaps.org/tmcl/scope-type"
+		       "http://psi.topicmaps.org/tmcl/role-type")
+		      :test #'string=))
+		    nil) ;is checked in the unit-test before
+		   ((and
+		     (= (length (psis top :revision 0)) 1)
+		     (find
+		      (uri (first (psis top :revision 0)))
+		      (list 
+		       "http://some.where/tmsparql/author"
+		       "http://some.where/tmsparql/poem"
+		       "http://some.where/tmsparql/display-name"
+		       "http://some.where/tmsparql/de"
+		       "http://some.where/tmsparql/reifier-type")
+		      :test #'string=))
+		    (is-false (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and
+		     (= (length (item-identifiers top :revision 0)) 1)
+		     (find
+		      (uri (first (item-identifiers top :revision 0)))
+		      (list 
+		       "http://some.where/ii/goethe-occ-reifier"
+		       "http://some.where/ii/goethe-name-reifier"
+		       "http://some.where/ii/association-reifier"
+		       "http://some.where/ii/role-reifier")
+		      :test #'string=))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-true (reified-construct top :revision 0))
+		    (is-false (occurrences top :revision 0))
+		    (is-false (names top :revision 0))
+		    (is-false (psis top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and (= (length (psis top :revision 0)) 1)
+			 (string= (uri (first (psis top :revision 0)))
+				  "http://some.where/tmsparql/author/goethe"))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is (= (length (occurrences top :revision 0)) 5))
+		    (is (= (length (names top :revision 0)) 3))
+		    (is (= (length (item-identifiers top :revision 0)) 1))
+		    (is (string=
+			 "http://some.where/ii/goethe"
+			 (uri (first (item-identifiers top :revision 0)))))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   ((and (= (length (psis top :revision 0)) 1)
+			 (string= (uri (first (psis top :revision 0)))
+				  "http://some.where/psis/poem/zauberlehrling"))
+		    (is-false (used-as-theme top :revision 0))
+		    (is-false (used-as-type top :revision 0))
+		    (is-true (player-in-roles top :revision 0))
+		    (is-false (reified-construct top :revision 0))
+		    (is (= (length (occurrences top :revision 0)) 1))
+		    (is (= (length (names top :revision 0)) 1))
+		    (is-false (item-identifiers top :revision 0))
+		    (is-false (locators top :revision 0))
+		    (is (= (length (in-topicmaps top :revision 0)) 1))
+		    (is (eql tm (first (in-topicmaps top :revision 0)))))
+		   (t
+		    (is-false top))))
+	(is (= (length (elephant:get-instances-by-class 'AssociationC)) 30))
+	(let ((assoc
+	       (get-item-by-item-identifier "http://some.where/ii/association"
+					    :revision 0)))
+	  (is (= (length (elephant:get-instances-by-class 'TopicMapC)) 1))
+	  (is (typep assoc 'AssociationC))
+	  (is (= (length (roles assoc :revision 0)) 2))
+	  (is (= (length (item-identifiers assoc :revision 0)) 1))
+	  (is (eql (instance-of assoc :revision 0)
+		   (get-item-by-psi "http://some.where/tmsparql/written-by"
+				    :revision 0)))
+	  (is (eql (reifier assoc :revision 0)
+		   (get-item-by-item-identifier
+		    "http://some.where/ii/association-reifier"
+		    :revision 0)))))))
+
+
+(test test-import-topic-maps-5
+  "Tests the function import-topic-map-from-jtm-list."
+  (with-fixture with-empty-db ("data_base")
+    (let* ((jtm-str-1
+	    (read-file-to-string
+	     (merge-pathnames
+	      (asdf:component-pathname
+	       (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	      "jtm_1.0_test.jtm")))
+	   (jtm-str-2
+	    (read-file-to-string
+	     (merge-pathnames
+	      (asdf:component-pathname
+	       (asdf:find-component constants:*isidorus-system* "unit_tests"))
+	      "jtm_1.1_test.jtm"))))
+      (signals exceptions::JTM-error
+	(import-construct-from-jtm-string
+	 jtm-str-1 :revision 100 :jtm-format :1.1))
+      (let ((tm (import-construct-from-jtm-string
+		 jtm-str-2 :revision 100 :jtm-format :1.1
+		 :tm-id "http://some.where/new-tm-id")))
+	(is-false (set-exclusive-or
+		   (list "http://some.where/new-tm-id"
+			 "http://some.where/tmsparql/jtm-tm")
+		   (map 'list #'uri (item-identifiers tm :revision 0))
+		   :test #'string=))
+	(is (= (length (elephant:get-instances-by-class 'TopicMapC)) 1))))))
+	   
+	   
+
+
+
+
 ;TODO:
-; *import-construct-from-jtm-string
 ; *import-from-jtm
-; *import-topic-map-from-jtm-list
 
 (defun run-jtm-tests()
   "Runs all tests of this test-suite."

@@ -91,6 +91,8 @@ src/unit_tests/duplicate_identifier.xtm -text
 src/unit_tests/full_mapping.rdf -text
 src/unit_tests/inconsistent.xtm -text
 src/unit_tests/inconsistent_2_0.xtm -text
+src/unit_tests/jtm_1.0_test.jtm -text
+src/unit_tests/jtm_1.1_test.jtm -text
 src/unit_tests/jtm_test.lisp -text
 src/unit_tests/multiple_tms_ont.xtm -text
 src/unit_tests/multiple_tms_worms.xtm -text

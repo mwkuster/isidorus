@@ -47,7 +47,7 @@
 	   :get-store-spec
 	   :open-tm-store
 	   :close-tm-store
-	   :read-file))
+	   :read-file-to-string))
 
 (in-package :base-tools)
 
@@ -587,7 +587,7 @@
   (elephant:close-store))
 
 
-(defun read-file (file-path)
+(defun read-file-to-string (file-path)
   "A helper function that reads a file and returns the content as a string."
   (with-open-file (stream file-path)
     (let ((file-string ""))
