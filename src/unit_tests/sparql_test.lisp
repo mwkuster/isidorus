@@ -2094,9 +2094,7 @@ literal with some \\\"quoted\\\" words!"))
       (is-true (= (length r-1) 12))
       (map 'list #'(lambda(item)
 		     (cond ((string= (getf item :variable) "pred1")
-			    ;one name without a type so it is not listed
-			    ;as regular triple but as tms:topicProperty
-			    (is (= (length (getf item :result)) 17)))
+			    (is (= (length (getf item :result)) 18)))
 			   ((string= (getf item :variable) "pred2")
 			    (is (= (length (getf item :result)) 3))
 			    (is-false (set-exclusive-or
@@ -2127,8 +2125,11 @@ literal with some \\\"quoted\\\" words!"))
 					     (concat "<" *tms-scope* ">"))
 				       :test #'string=)))
 			   ((string= (getf item :variable) "obj1")
-			    (is (= (length (getf item :result)) 17))
+			    (is (= (length (getf item :result)) 18))
 			    (is-true (find "Johann Wolfgang" (getf item :result)
+					   :test #'tm-sparql::literal=))
+			    (is-true (find "Johann Wolfgang von Goethe"
+					   (getf item :result)
 					   :test #'tm-sparql::literal=))
 			    (is-true (find "von Goethe" (getf item :result)
 					   :test #'tm-sparql::literal=))

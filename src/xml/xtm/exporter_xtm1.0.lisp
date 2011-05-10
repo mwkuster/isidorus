@@ -129,11 +129,15 @@
   (declare (type (or integer nil) revision))
   (cxml:with-element "t:variant"
     (to-reifier-elem-xtm1.0 variant revision)
-    (when (themes variant :revision revision)
-      (cxml:with-element "t:parameters"
-	(map 'list #'(lambda(x)
-		       (to-topicRef-elem-xtm1.0 x revision))
-	     (themes variant :revision revision))))
+    (let ((scopes
+	   (set-difference (themes variant :revision revision)
+			   (when-do name (instance-of variant :revision revision)
+				    (themes name :revision revision)))))
+      (when scopes
+	(cxml:with-element "t:parameters"
+	  (map 'list #'(lambda(x)
+			 (to-topicRef-elem-xtm1.0 x revision))
+	       scopes))))
     (cxml:with-element "t:variantName"
       (to-resourceX-elem-xtm1.0 variant revision))))
 

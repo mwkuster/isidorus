@@ -240,16 +240,20 @@
 
 (test test-xtm1.0-reification
   "Tests the reification in the xtm1.0-importer."
-  (let
-      ((dir "data_base"))
+  (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
+      (base-tools:open-tm-store "data_base")
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri constants:*topic-name-psi*)))
       (xtm-importer:import-from-xtm
        *reification_xtm1.0.xtm* dir
        :tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"
        :xtm-id "reification-xtm"
        :xtm-format :1.0)
       (setf *TM-REVISION* 0)
-      (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
+      (is (= (length (elephant:get-instances-by-class 'TopicC)) 13))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
       (let ((homer
 	     (identified-construct
@@ -301,20 +305,24 @@
 			  t)
 		 (condition () nil)))
       (is-false (occurrences homer))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 13))
       (close-tm-store))))))
 
 
 (test test-xtm2.0-reification
   "Tests the reification in the xtm2.0-importer."
-  (let
-      ((dir "data_base"))
+  (let ((dir "data_base"))
     (with-fixture initialize-destination-db (dir)
+      (base-tools:open-tm-store "data_base")
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri constants:*topic-name-psi*)))
       (xtm-importer:import-from-xtm
        *reification_xtm2.0.xtm* dir
        :tm-id "http://www.isidor.us/unittests/reification-xtm2.0-tests"
        :xtm-id "reification-xtm")
-      (is (= (length (elephant:get-instances-by-class 'TopicC)) 12))
+      (is (= (length (elephant:get-instances-by-class 'TopicC)) 13))
       (is (= (length (elephant:get-instances-by-class 'AssociationC)) 1))
       (setf *TM-REVISION* 0)
       (let ((homer
@@ -367,17 +375,21 @@
 			  t)
 		 (condition () nil)))
       (is-false (occurrences homer))
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 12))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 13))
       (close-tm-store))))))
 
 
 (test test-xtm1.0-reification-exporter
   "Tests the reification in the xtm1.0-exporter."
-  (let
-      ((dir "data_base")
-       (output-file "__out__.xtm")
-       (tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"))
+  (let ((dir "data_base")
+	(output-file "__out__.xtm")
+	(tm-id "http://www.isidor.us/unittests/reification-xtm1.0-tests"))
     (with-fixture initialize-destination-db (dir)
+      (base-tools:open-tm-store "data_base")
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri constants:*topic-name-psi*)))
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
       (setf *TM-REVISION* 0)
@@ -466,11 +478,15 @@
 
 (test test-xtm2.0-reification-exporter
   "Tests the reification in the xtm2.0-exporter."
-  (let
-      ((dir "data_base")
-       (output-file "__out__.xtm")
-       (tm-id "http://www.isidor.us/unittests/reification-xtm2.0-tests"))
+  (let ((dir "data_base")
+	(output-file "__out__.xtm")
+	(tm-id "http://www.isidor.us/unittests/reification-xtm2.0-tests"))
     (with-fixture initialize-destination-db (dir)
+      (base-tools:open-tm-store "data_base")
+      (make-construct 'TopicC :start-revision 100
+		      :psis
+		      (list (make-construct 'PersistentIdC
+					    :uri constants:*topic-name-psi*)))
       (handler-case (delete-file output-file)
 	(error () )) ;do nothing
       (setf *TM-REVISION* 0)
@@ -752,10 +768,9 @@
 
 (test test-rdf-exporter-reification
   "Tests the reification in the rdf-exporter."
-  (let
-      ((dir "data_base")
-       (output-file "__out__.rdf")
-       (tm-id "http://simpsons.tv"))
+  (let ((dir "data_base")
+	(output-file "__out__.rdf")
+	(tm-id "http://simpsons.tv"))
     (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
@@ -888,10 +903,9 @@
 
 (test test-rdf-exporter-reification-3
   "Tests the reification in the rdf-exporter."
-  (let
-      ((dir "data_base")
-       (output-file "__out__.rdf")
-       (tm-id "http://simpsons.tv"))
+  (let ((dir "data_base")
+	(output-file "__out__.rdf")
+	(tm-id "http://simpsons.tv"))
     (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
@@ -923,10 +937,9 @@
 
 (test test-rdf-exporter-reification-4
   "Tests the reification in the rdf-exporter."
-  (let
-      ((dir "data_base")
-       (output-file "__out__.rdf")
-       (tm-id "http://simpsons.tv"))
+  (let ((dir "data_base")
+	(output-file "__out__.rdf")
+	(tm-id "http://simpsons.tv"))
     (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
@@ -981,10 +994,9 @@
 
 (test test-fragment-reification
   "Tests the reification in the rdf-exporter."
-  (let
-      ((dir "data_base")
-       (output-file "__out__.rdf")
-       (tm-id "http://simpsons.tv"))
+  (let ((dir "data_base")
+	(output-file "__out__.rdf")
+	(tm-id "http://simpsons.tv"))
     (setf *TM-REVISION* 0)
     (handler-case (delete-file output-file)
       (error () )) ;do nothing
@@ -1016,17 +1028,4 @@
 
 
 (defun run-reification-tests ()
-  (it.bese.fiveam:run! 'test-merge-reifier-topics)
-  (it.bese.fiveam:run! 'test-xtm1.0-reification)
-  (it.bese.fiveam:run! 'test-xtm2.0-reification)
-  (it.bese.fiveam:run! 'test-xtm1.0-reification-exporter)
-  (it.bese.fiveam:run! 'test-xtm2.0-reification-exporter)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification-2)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification-3)
-  (it.bese.fiveam:run! 'test-rdf-importer-reification-4)
-  (it.bese.fiveam:run! 'test-rdf-exporter-reification)
-  (it.bese.fiveam:run! 'test-rdf-exporter-reification-2)
-  (it.bese.fiveam:run! 'test-rdf-exporter-reification-3)
-  (it.bese.fiveam:run! 'test-rdf-exporter-reification-4)
-  (it.bese.fiveam:run! 'test-fragment-reification))
+  (it.bese.fiveam:run! 'reification-test))

@@ -1043,7 +1043,7 @@
 	  (rdf-init-db :db-dir db-dir :start-revision revision-1)
 	  (rdf-importer::import-node node tm-id revision-2
 				     :document-id document-id)
-	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 20))
+	  (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 21))
 	  (let ((first-node (get-item-by-id "http://test-tm/first-node"
 					    :xtm-id document-id
 					    :revision 0))
@@ -1264,7 +1264,7 @@
 	       2))
 	(rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
 				  :document-id document-id)
-	(is (= (length (elephant:get-instances-by-class 'd:TopicC)) 40))
+	(is (= (length (elephant:get-instances-by-class 'd:TopicC)) 41))
 	(is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 12))
 	(setf rdf-importer::*current-xtm* document-id)
 	(is (= (length
@@ -1582,7 +1582,7 @@
 	  (date "http://www.w3.org/2001/XMLSchema#date")
 	  (de (d:get-item-by-id "http://isidorus/rdf2tm_mapping/scope/de"))
 	  (long "http://www.w3.org/2001/XMLSchema#unsignedLong"))
-      (is (= (length topics) 65))
+      (is (= (length topics) 66))
       (is (= (length occs) 23))
       (is (= (length assocs) 30))
       (is-true de)
@@ -2574,7 +2574,7 @@
       (rdf-init-db :db-dir db-dir :start-revision revision-1)
       (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
 				:document-id document-id)
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 21))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 22))
       (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 1))
       (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 0))
       (is (= (length (elephant:get-instances-by-class 'd:NameC)) 0))
@@ -2637,7 +2637,7 @@
       (rdf-init-db :db-dir db-dir :start-revision revision-1)
       (rdf-importer::import-dom rdf-node revision-1 :tm-id tm-id
 				:document-id document-id)
-      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 28))
+      (is (= (length (elephant:get-instances-by-class 'd:TopicC)) 29))
       (is (= (length (elephant:get-instances-by-class 'd:AssociationC)) 6))
       (is (= (length (elephant:get-instances-by-class 'd:OccurrenceC)) 0))
       (is (= (length (elephant:get-instances-by-class 'd:NameC)) 0))

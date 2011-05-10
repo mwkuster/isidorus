@@ -271,10 +271,16 @@
   "Creates a set of properties. Everyone contains a reference to
    a scope topic."
   (declare ((or AssociationC OccurrenceC NameC VariantC RoleC) owner-construct))
-  (map 'list #'(lambda(x)
-		 (cxml:with-element "isi:scope"
-		   (make-topic-reference x)))
-       (themes owner-construct)))
+  (let ((scopes
+	 (if (typep owner-construct 'VariantC)
+	     (set-difference (themes owner-construct)
+			     (when-do name (parent owner-construct)
+				      (themes name)))
+	     (themes owner-construct))))
+    (map 'list #'(lambda(x)
+		   (cxml:with-element "isi:scope"
+		     (make-topic-reference x)))
+	 scopes)))
 
 
 (defun resourceX-to-rdf-elem (owner-construct)

@@ -492,7 +492,6 @@
 	       (get-item :ITEM--IDENTIFIERS jtm-list)
 	       :prefixes prefixes))
 	 (datatype (get-item :DATATYPE jtm-list))
-	 (scope (get-item :SCOPE jtm-list))
 	 (value (get-item :VALUE jtm-list))
 	 (reifier (get-item :REIFIER jtm-list))
 	 (parent-references (get-item :PARENT jtm-list))
@@ -501,15 +500,21 @@
 	      (list parent)
 	      (when parent-references
 		(get-items-from-jtm-references
-		 parent-references :revision revision :prefixes prefixes)))))
+		 parent-references :revision revision :prefixes prefixes))))
+	 (scopes (when local-parent
+		   (remove-duplicates
+		    (append
+		     (get-items-from-jtm-references
+		      (get-item :SCOPE jtm-list)
+		      :revision revision :prefixes prefixes)
+		     (themes (first local-parent) :revision revision))))))
     (when (/= (length local-parent) 1)
       (error (make-condition 'JTM-error :message (format nil "From import-variant-from-jtm-list(): the JTM variant ~a must have exactly one parent set in its members." jtm-list))))
     (make-construct 'VariantC :start-revision revision
 		    :item-identifiers iis
 		    :datatype (if datatype datatype *xml-string*)
 		    :charvalue value
-		    :themes (get-items-from-jtm-references
-			     scope :revision revision :prefixes prefixes)
+		    :themes scopes
 		    :parent (first local-parent)
 		    :reifier (when reifier
 			       (get-item-from-jtm-reference

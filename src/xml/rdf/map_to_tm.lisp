@@ -281,8 +281,12 @@
 	  *rdf2tm-subject*))
 	(value-type-topic 
 	 (get-item-by-psi *tm2rdf-value-property* :revision start-revision)))
-    (let ((scopes (get-players-by-role-type
-		   scope-assocs start-revision *rdf2tm-object*))
+    (let ((scopes
+	   (remove-duplicates
+	    (append (get-players-by-role-type
+		     scope-assocs start-revision *rdf2tm-object*)
+		    (when name
+		      (themes name)))))
 	  (value-and-datatype
 	   (let ((value-occ
 		  (find-if #'(lambda(occ)

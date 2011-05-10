@@ -66,12 +66,17 @@ engine for this Topic Map"
 
 (defmethod find-referenced-topics ((characteristic CharacteristicC)
 				   &key (revision *TM-REVISION*))
-  "characteristics are scopable + typable + reifiable"
+  "Characteristics are scopable + typable + reifiable.
+   Note the tmdm:topic-name is ignored if it is only set
+   as a nametype."
   (append
    (when (reifier characteristic :revision revision)
      (list (reifier characteristic :revision revision)))
    (themes characteristic :revision revision)
-   (when (instance-of characteristic :revision revision)
+   (when (and (not (and (typep characteristic 'NameC)
+			(eql (instance-of characteristic :revision revision)
+			     (get-item-by-psi *topic-name-psi* :revision revision))))
+	      (instance-of characteristic :revision revision))
      (list (instance-of characteristic :revision revision)))
    (when (and (typep characteristic 'NameC)
 	      (variants characteristic :revision revision))

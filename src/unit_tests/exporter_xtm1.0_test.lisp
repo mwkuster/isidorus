@@ -17,7 +17,7 @@
     (let ((document (dom:document-element
 		     (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (topic-counter 0))
-      (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 39 2 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -99,7 +99,7 @@
   (with-fixture refill-test-db()
     (export-as-xtm *out-xtm1.0-file* :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder)))))
-      (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 39 2 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -141,7 +141,7 @@
   (with-fixture refill-test-db()
     (export-as-xtm *out-xtm1.0-file* :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder)))))
-      (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 39 2 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -200,7 +200,7 @@
     (export-as-xtm *out-xtm1.0-file* :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (t100-occurrences-resourceData (list "The ISO 19115 standard ..." "2003-01-01"))) ;local value->no type
-      (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 39 2 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -234,7 +234,7 @@
   (with-fixture refill-test-db()
     (export-as-xtm *out-xtm1.0-file* :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder)))))
-      (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)      
+      (check-document-structure document 39 2 :ns-uri *xtm1.0-ns*)      
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -294,7 +294,7 @@
   (with-fixture refill-test-db()
     (export-as-xtm *out-xtm1.0-file* :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder)))))
-      (check-document-structure document 38 2 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 39 2 :ns-uri *xtm1.0-ns*)
       (loop for association across (xpath-child-elems-by-qname document *xtm1.0-ns* "association")
 	 do (let ((instanceOfs (xpath-child-elems-by-qname association *xtm1.0-ns* "instanceOf")))
 	      (is (= (length instanceOfs) 1))
@@ -445,7 +445,7 @@
 	   (dom:document-element
 	    (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (t100-occurrences-resourceData (list "The ISO 19115 standard ..." "2003-01-01"))) ;local value->no type
-      (check-document-structure document 47 7 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 48 7 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -632,7 +632,7 @@
     (export-as-xtm *out-xtm1.0-file* :revision fixtures::revision2 :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (t100-occurrences-resourceData (list "The ISO 19115 standard ..." "2003-01-01"))) ;local value->no type
-      (check-document-structure document 48 7 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 49 7 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname
@@ -846,7 +846,7 @@
     (export-as-xtm *out-xtm1.0-file* :revision fixtures::revision3 :xtm-format :1.0)
     (let ((document (dom:document-element (cxml:parse-file *out-xtm1.0-file* (cxml-dom:make-dom-builder))))
 	  (t100-occurrences-resourceData (list "The ISO 19115 standard ..." "2003-01-01"))) ;local value->no type
-      (check-document-structure document 48 8 :ns-uri *xtm1.0-ns*)
+      (check-document-structure document 49 8 :ns-uri *xtm1.0-ns*)
       (loop for topic across (xpath-child-elems-by-qname document *xtm1.0-ns* "topic")
 	 do (loop for subjectIndicatorRef across (xpath-child-elems-by-qname
 						  (xpath-single-child-elem-by-qname

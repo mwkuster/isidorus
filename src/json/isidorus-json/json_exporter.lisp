@@ -101,9 +101,12 @@
 		 (identifiers-to-json-string instance :what 'item-identifiers
 					     :revision revision)))
 	(scope
-	 (concat "\"scopes\":" (ref-topics-to-json-string
-				(themes instance :revision revision)
-				:revision revision)))
+	 (concat "\"scopes\":"
+		 (ref-topics-to-json-string
+		  (set-difference (themes instance :revision revision)
+				  (when-do name (parent instance :revision revision)
+					   (themes name :revision revision)))
+		  :revision revision)))
 	(resourceX
 	 (let ((value
 		(when (slot-boundp instance 'charvalue)

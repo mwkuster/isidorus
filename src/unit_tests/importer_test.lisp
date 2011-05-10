@@ -213,9 +213,9 @@
         (is (= 3 (length (occurrences top-t301 :revision rev-1)))) ;after merge
         (is (string= "http://www.topicmaps.org/xtm/1.0/core.xtm#supertype-subtype"
                      (uri (first (psis top-sup-sub :revision rev-1)))))))
-    ;34 topics in 35 topic elements in notificationbase.xtm and 13
+    ;34 topics in 35 topic elements in notificationbase.xtm and 14
     ;core topics
-    (is (= (+ 34 13) (length (elephant:get-instances-by-class 'TopicC))))))
+    (is (= (+ 34 14) (length (elephant:get-instances-by-class 'TopicC))))))
 
 (test test-from-role-elem
   "Test the form-role-elem function of the importer"
@@ -367,7 +367,7 @@
       (xtm-importer:setup-repository *t100.xtm* dir :xtm-id *TEST-TM*
                                      :tm-id "http://www.isidor.us/unittests/topic-t100")
       (open-tm-store dir)
-      (is (= 25 (length (elephant:get-instances-by-class 'TopicC)))) ;; are all topics in the db +std topics
+      (is (= 26 (length (elephant:get-instances-by-class 'TopicC)))) ;; are all topics in the db + std topics
       (is-true (get-item-by-id "t100" :revision 0)) ;; main topic
       (is-true (get-item-by-id "t3a" :revision 0))  ;; instanceOf
       (is-true (get-item-by-id "t50a" :revision 0)) ;; scope
@@ -444,14 +444,14 @@
        :xtm-id *TEST-TM* :xtm-format :1.0)
       (setf *TM-REVISION* 0)
       (open-tm-store dir)
-      ;13 + (23 core topics)
-      (is (=  36 (length (elephant:get-instances-by-class 'TopicC))))
+      ;14 + (23 core topics)
+      (is (=  37 (length (elephant:get-instances-by-class 'TopicC))))
       ;2 + (11 instanceOf)
       (is (= 13 (length (elephant:get-instances-by-class 'AssociationC))))
       ;4 + (22 instanceOf-associations)
       (is (= 26 (length (elephant:get-instances-by-class 'RoleC))))
-      ;23 + (13 core topics)
-      (is (= 36 (length (elephant:get-instances-by-class 'PersistentIdC))))
+      ;23 + (14 core topics)
+      (is (= 37 (length (elephant:get-instances-by-class 'PersistentIdC))))
       (is (= 0 (length (elephant:get-instances-by-class 'SubjectLocatorC))))
       ;2 + (0 core topics)
       (is (= 2 (length (elephant:get-instances-by-class 'OccurrenceC))))

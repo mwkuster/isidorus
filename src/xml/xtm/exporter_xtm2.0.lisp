@@ -108,11 +108,15 @@
     (map 'list #'(lambda(x)
 		   (to-elem x revision))
 	 (item-identifiers variant :revision revision))
-    (when (themes variant :revision revision)
-      (cxml:with-element "t:scope"
-	(map 'list #'(lambda(x)
-		       (ref-to-elem x revision))
-	     (themes variant :revision revision))))
+    (let ((scopes
+	   (set-difference (themes variant :revision revision)
+			   (when-do name (instance-of variant :revision revision)
+				    (themes name :revision revision)))))
+      (when scopes
+	(cxml:with-element "t:scope"
+	  (map 'list #'(lambda(x)
+			 (ref-to-elem x revision))
+	       scopes))))
     (to-resourceX-elem variant revision)))
 
 

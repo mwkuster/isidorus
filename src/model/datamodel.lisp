@@ -1575,10 +1575,9 @@
 	    (and sl-provided-p
 		 (some (lambda (psi) (string-starts-with (uri psi) source-locator))
 		       (psis top :revision 0))))
-    (unless sl-provided-p
-      (mapc (lambda(psi)(mark-as-deleted psi :revision revision
-					 :source-locator source-locator))
-	    (psis top :revision 0)))
+    (mapc (lambda(psi)(mark-as-deleted psi :revision revision
+				       :source-locator source-locator))
+	  (psis top :revision 0))
     (mapc (lambda(sl)(mark-as-deleted sl :revision revision
 				      :source-locator source-locator))
 	  (locators top :revision 0))

@@ -289,7 +289,7 @@
 		(getf json-decoded-list :itemIdentities)))
 	  (themes
 	   (remove-duplicates
-	    (append (d:themes name)
+	    (append (d:themes name :revision start-revision)
 		    (json-to-scope (getf json-decoded-list :scopes)
 				   start-revision))))
 	  (variant-value

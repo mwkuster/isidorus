@@ -49,7 +49,7 @@
 	  (when ,tm
 	    (to-reifier-elem ,tm ,revision)
 	    (map 'list #'(lambda(x)
-			   (to-elem x ,revision))
+			  (to-elem x ,revision))
 		 (item-identifiers ,tm :revision ,revision)))
           ,@body)))
 
