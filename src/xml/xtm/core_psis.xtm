@@ -112,4 +112,13 @@
       <value>instance</value>
     </name>
   </topic>
+
+  <topic id="topic-name">
+    <!-- directly from the TMDM, 7.5 -->
+    <subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/topic-name"/>
+    <name>
+      <value>topic-name</value>
+    </name>
+  </topic>
+
 </topicMap>
