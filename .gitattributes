@@ -1,4 +1,6 @@
 * text=auto !eol
+docs/GDL.pdf -text svneol=unset#unset
+docs/GDL.vsd -text
 docs/LGPL-LICENSE.txt -text
 docs/LLGPL-LICENSE.txt -text
 docs/TODOs.txt svneol=native#text/plain
