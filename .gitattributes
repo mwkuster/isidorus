@@ -56,6 +56,7 @@ src/ajax/javascripts/create.js -text
 src/ajax/javascripts/datamodel.js -text
 src/ajax/javascripts/edit.js -text
 src/ajax/javascripts/external/MIT-LICENSE.txt -text
+src/ajax/javascripts/external/UUID.js -text
 src/ajax/javascripts/external/prototype/prototype.js -text
 src/ajax/javascripts/external/scriptaculous/builder.js -text
 src/ajax/javascripts/external/scriptaculous/controls.js -text
