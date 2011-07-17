@@ -2218,19 +2218,21 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
                                            this.__instanceOfs__ = (!instanceOfs || instanceOfs.length === 0 ? null : instanceOfs);
 
                                            try{
-					       var topicidContent = null;
+					       //var topicidContent = null;
 					       var itemIdentityContent = null;
 					       var subjectLocatorContent = null;
 					       var subjectIdentifierContent = null;
 					       var namesContent = null;
 					       var occurrencesContent = null;
 					       if(content){
-						   topicidContent = content.id
+						   this.__topicidContent__ = content.id
 						   itemIdentityContent = content.itemIdentities
 						   subjectLocatorContent = content.subjectLocators;
 						   subjectIdentifierContent = content.subjectIdentifiers;
 						   namesContent = content.names;
 						   occurrencesContent = content.occurrences;
+					       }else{
+						   this.__topicidContent__ = new UUID().toString();
 					       }
 					       this.__frame__ .writeAttribute({"class" : CLASSES.topicFrame()});
 					       this.__table__ = new Element("table", {"class" : CLASSES.topicFrame()});
@@ -2246,9 +2248,9 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 					       setMinimizeHandler(this);
 					       
 					       // --- topic id
-					       this.__topicid__ = new Object();
-					       new TextrowC(topicidContent, ".*", this.__topicid__, 1, 1, null);
-					       this.__table__.insert({"bottom" : newRow(CLASSES.topicIdFrame(), "Topic ID", this.__topicid__.__frames__[0].getFrame())});
+					       //this.__topicid__ = new Object();
+					       //new TextrowC(topicidContent, ".*", this.__topicid__, 1, 1, null);
+					       //this.__table__.insert({"bottom" : newRow(CLASSES.topicIdFrame(), "Topic ID", this.__topicid__.__frames__[0].getFrame())});
 					       
 					       // --- itemIdentity
 					       this.__itemIdentity__ = new ItemIdentityC(itemIdentityContent, this);
@@ -2286,7 +2288,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
                                        },
 				       "getContent" : function(){
 					   try{
-					   return {"id" : this.__topicid__.__frames__[0].getContent().strip(),
+					   return {"id" : this.__topicidContent__,
 						   "itemIdentities" : this.__itemIdentity__.getContent(true, true),
 						   "subjectLocators" : this.__subjectLocator__.getContent(true, true),
 						   "subjectIdentifiers" : this.__subjectIdentifier__.getContent(true, true),
@@ -2300,7 +2302,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 				       },
 				       "toJSON" : function(){
 					   try{
-					       return "{\"id\":" + this.__topicid__.__frames__[0].getContent().strip().toJSON() +
+					       return "{\"id\":" + this.__topicidContent__.toJSON() +
 						   ",\"itemIdentities\":" + this.__itemIdentity__.toJSON(true, true) + 
 						   ",\"subjectLocators\":" + this.__subjectLocator__.toJSON(true, true) +
 						   ",\"subjectIdentifiers\":" + this.__subjectIdentifier__.toJSON(true, true) +
@@ -2314,7 +2316,7 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 				       },
 				       "minimize" : function(){
 					   var rows = new Array();
-					   rows.push(this.getFrame().select("tr." + CLASSES.topicIdFrame())[0],
+					   rows.push(//this.getFrame().select("tr." + CLASSES.topicIdFrame())[0],
 						     this.getFrame().select("tr." + CLASSES.itemIdentityFrame())[0],
 						     this.getFrame().select("tr." + CLASSES.subjectLocatorFrame())[0],
 						     this.getFrame().select("tr." + CLASSES.subjectIdentifierFrame())[0],
@@ -2334,13 +2336,13 @@ var TopicC = Class.create(ContainerC, {"initialize" : function($super, content, 
 				       },
 				       "isValid" : function(){
 					   var ret = true;
-					   if(this.__topicid__.__frames__[0].getContent().strip().length === 0){
-					       ret = false;
-					       this.__topicid__.__frames__[0].showError("The topic must contain a topic ID!");
-					   }
-					   else {
-					       this.__topicid__.__frames__[0].hideError();
-					   }
+					   //if(this.__topicid__.__frames__[0].getContent().strip().length === 0){
+					   //    ret = false;
+					   //    this.__topicid__.__frames__[0].showError("The topic must contain a topic ID!");
+					   //}
+					   //else {
+					   //    this.__topicid__.__frames__[0].hideError();
+					   //}
 					   if(this.__subjectIdentifier__.getContent().length === 0){
 					       ret = false;
 					       this.showError("The topic must contain at least one SubjectIdentifier!<br/>If it is not possible to insert one - please create a subjectidentifier-constraint for this topic (-type)!");
