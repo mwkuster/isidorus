@@ -433,6 +433,18 @@ var ItemIdentityC = Class.create(ContainerC, {"initialize" : function($super, co
 						  for(var i = 0; i !== values.length; ++i)values[i] = encodeURI(values[i]);
 						  return values;
 					      },
+					      "reset" : function(){
+						 if(!this.__container__.__frames__) return;
+						 
+						 for(var i = 0; i != this.__container__.__frames__.length; ++i)
+						     this.__container__.__frames__[i].remove();
+
+						 while(this.__container__.__frames__.length != 0)this.__container__.__frames__.shift();
+
+						 new TextrowC("", ".*", this.__container__, 1, -1, null);
+						 this.__error__.insert({"before" : this.__container__.__frames__[0].getFrame()});
+						 
+					      },
 					      "toJSON" : function(unique, removeNull){
 						  var content = this.getContent(unique, removeNull);
 						  return content.length === 0 ? "null" : content.toJSON();
@@ -3678,6 +3690,13 @@ var AssociationC = Class.create(ContainerC, {"initialize" : function($super, con
 							 });
 						     }
 						     setDblClickHandler(this);
+
+						     // --- mark-as-deleted
+						     if(contents){
+							 var myself = this;
+							 this.__table__.insert({"bottom" : makeRemoveLink(function(event){
+									 makeRemoveObject("Association", myself);
+								     }, "delete Association")});}
 						 }
 					         catch(err){
 						     alert("From AssociationC(): " + err);
@@ -4359,6 +4378,7 @@ function makeRemoveLink (removeHandler, textContent){
       case "delete Occurrence" : trClass = CLASSES.removeOccurrenceRow(); break;
       case "delete Topic" : trClass = CLASSES.removeTopicRow(); break;
       case "delete Name" : trClass = CLASSES.removeNameRow(); break;
+      case "delete Association" : trClass = CLASSES.removeAssociationRow(); break;
     }
 
     var tr = new Element("tr", {"class" : trClass}).insert(new Element("td", {"colspan" : 3}).insert(link));
@@ -4372,7 +4392,7 @@ function makeRemoveObject(type, objectToDelete){
     if(type !== "Occurrence" && type !== "Name" && type !== "Variant"
        && type !== "Topic" && type !== "Association"){
 	throw "From makeRemoveObject(): type must be: \"Occurrence\" || \"Name\" " +
-	    "|| \"Topic\" but is " + type;
+	    "|| \"Topic\" || \"Association\" but is " + type;
     }
     if (!objectToDelete){
 	throw "From makeRemoveObject(): objectToDelete must be set";
@@ -4418,15 +4438,18 @@ function makeRemoveObject(type, objectToDelete){
     var delMessage = "null";
 
     switch(type){
-    case "Topic":
+      case "Topic":
 	delMessage = "{\"type\":\"Topic\",\"delete\":" + makeJsonTopicStub(objectToDelete.getFrame()) + "}";
 	break;
-    case "Name":
-    case "Occurrence":
+      case "Name":
+      case "Occurrence":
 	delMessage = "{\"type\":\"" + type + "\",\"parent\":" +
-                     makeJsonTopicStub(objectToDelete.getFrame().parentNode.parentNode.parentNode.parentNode) +
-                     ",\"delete\":" + objectToDelete.toJSON() + "}";
+	makeJsonTopicStub(objectToDelete.getFrame().parentNode.parentNode.parentNode.parentNode) +
+	",\"delete\":" + objectToDelete.toJSON() + "}";
         break;
+      case "Association":
+	  delMessage = "{\"type\":\"Association\",\"delete\":" + objectToDelete.toJSON() + "}";
+	break;
     }
  
     commitDeletedObject(delMessage, function(xhr){
@@ -4434,8 +4457,14 @@ function makeRemoveObject(type, objectToDelete){
 		$(CLASSES.subPage()).update();
 		setNaviClasses($(PAGES.home));
 		makePage(PAGES.home, "");
-	    }
-	    else if (type === "Occurrence" || type === "Name"){
+	    }else if(type === "Association"){
+		if(objectToDelete.__owner__.__frames__.length === 1){
+		    objectToDelete.__itemIdentity__.reset();
+		    objectToDelete.disable();
+		}else {
+		    objectToDelete.remove();
+		}
+	    }else if (type === "Occurrence" || type === "Name"){
 		if(objectToDelete.__owner__.__frames__.length >= 1 &&
 		   objectToDelete.__owner__.__frames__.length > objectToDelete.__min__){
 		    objectToDelete.remove();
@@ -4458,6 +4487,6 @@ function makeRemoveObject(type, objectToDelete){
 		    ii.remove();
 		}
 	    }
-	    alert("Objected deleted");
+	    alert("Object deleted");
 	});   
 }

@@ -24,7 +24,7 @@ var OWN_URL = HOST_PREF + "isidorus";
 var SUMMARY_URL = HOST_PREF + "json/summary";
 var MARK_AS_DELETED_URL = HOST_PREF + "mark-as-deleted";
 var TM_OVERVIEW = HOST_PREF + "json/tmcl/overview/";
-var TIMEOUT = 30000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
+var TIMEOUT = 60000; // const TIMEOUT = 10000 --> "const" doesn't work under IE
 
 
 
@@ -94,6 +94,7 @@ var CLASSES = {"page" : function(){ return "page"; },
 	       "topicPsis" : function(){ return "topicPsis"; },
                "removeLink" : function(){ return "removeLink"; },
 	       "removeNameRow" : function(){ return "removeOccurrenceRow"; },
+	       "removeAssociationRow" : function(){ return "removeAssociationRow"; },
 	       "removeOccurrenceRow" : function(){ return "removeNameRow"; },
 	       "removeTopicRow" : function(){ return "removeTopicRow"; }
 	      };
