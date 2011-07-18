@@ -22,7 +22,7 @@ host="127.0.0.1:11008";
 if [ $# -eq 0 ]; then
     :
 elif [ $# -eq 1 -a $1 = "?" ]; then
-    echo "you can pass the arguments -host <host-url> and -url </url-fragment>, if no arguments are passed the default values 127.0.0.1 and 11008 are used";
+    echo "you can pass the arguments -host <host-url> and -url </url-fragment>, if no arguments are passed the default values 127.0.0.1:11008 and /admin/shutdown are used";
     exit;
 elif [ $# -eq 2 ]; then
     if [ $1 = "-host" ]; then
