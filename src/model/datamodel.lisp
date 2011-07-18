@@ -2768,6 +2768,8 @@
   (let ((type-top (instance-of ass :revision revision)))
     (when type-top
       (private-delete-type ass type-top :revision revision)))
+  (dolist (theme (themes ass :revision revision))
+    (private-delete-theme ass theme :revision revision))
   (call-next-method))
 
 
