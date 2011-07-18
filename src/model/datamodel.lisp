@@ -2764,7 +2764,7 @@
   "Marks an association and its roles as deleted"
   (mapc (lambda (role)
 	  (mark-as-deleted role :revision revision :source-locator source-locator))
-        (roles ass :revision 0))
+        (roles ass :revision revision))
   (call-next-method))
 
 
@@ -2877,16 +2877,18 @@
 
 
 (defgeneric private-delete-role (construct role &key revision)
-  (:documentation "Deletes the passed role by marking it's association as
+  (:documentation "Deletes the passed role by marking it's association,
+                   item-identifiers, reifier, player and type  as
                    deleted in the passed revision.")
   (:method ((construct AssociationC) (role RoleC)
 	    &key (revision (error (make-missing-argument-condition "From private-delete-role(): revision must be set" 'revision 'private-delete-role))))
-    (let ((assoc-to-delete (loop for role-assoc in (slot-p construct 'roles)
-			      when (eql (role role-assoc) role)
-			      return role-assoc)))
-      (when assoc-to-delete
-	(mark-as-deleted assoc-to-delete :revision revision)
-	construct))))
+    (let ((assoc-assoc-to-delete
+	   (loop for role-assoc in (slot-p construct 'roles)
+	      when (eql (role role-assoc) role)
+	      return role-assoc)))
+      (when assoc-assoc-to-delete
+	(mark-as-deleted assoc-assoc-to-delete :revision revision))
+      construct)))
 
 
 (defgeneric delete-role (construct role &key revision)
@@ -2908,11 +2910,15 @@
   "Marks the last active relation between a role and its parent association
    as deleted."
   (declare (ignorable source-locator))
-  (let ((owner (parent construct :revision 0)))
-    (when owner
-      ;(private-delete-player construct (player construct :revision revision)
-      ;:revision revision)
-      (private-delete-role owner construct :revision revision))))
+  (let ((player-top (player construct :revision revision))
+	(type-top (instance-of construct :revision revision))
+	(assoc (parent construct :revision revision)))
+    (when player-top
+      (private-delete-player construct player-top :revision revision))
+    (when type-top
+      (private-delete-type construct type-top :revision revision))
+    (when assoc
+      (private-delete-role assoc construct :revision revision))))
 
 
 (defmethod marked-as-deleted-p ((construct RoleC))
@@ -3174,7 +3180,10 @@
   "Marks all item-identifiers of a given reifiable-construct as deleted."
   (declare (ignorable source-locator))
   (call-next-method)
-  (dolist (ii (item-identifiers construct :revision 0))
+  (let ((reifier-top (reifier construct :revision revision)))
+    (when reifier-top
+      (private-delete-reifier construct reifier-top :revision revision)))
+  (dolist (ii (item-identifiers construct :revision revision))
     (private-delete-item-identifier construct ii :revision revision)))
 
 
