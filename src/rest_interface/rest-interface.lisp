@@ -30,8 +30,13 @@
            :read-fragment-feed
            :start-json-engine
 	   :start-atom-engine
+	   :start-admin-server
 	   :shutdown-json-engine
 	   :shutdown-atom-engine
+	   :shutdown-admin-server
+	   :*admin-host-name*
+	   :*admin-port*
+	   :*admin-remote-name*
 	   :*json-get-prefix*
 	   :*get-rdf-prefix*
 	   :*json-commit-url*
@@ -69,6 +74,31 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 
 (defvar *json-server-acceptor* nil)
 (defvar *atom-server-acceptor* nil)
+(defvar *admin-server-acceptor* nil)
+(defvar *admin-host-name* "127.0.0.1")
+(defvar *admin-port* 11008)
+(defvar *admin-remote-name* "127.0.0.1")
+
+
+(defun start-admin-server ()
+  (when *admin-server-acceptor*
+    (error "The admin-server is already running"))
+  (set-up-admin-interface )
+  (setf hunchentoot:*show-lisp-errors-p* t)
+  (setf hunchentoot:*hunchentoot-default-external-format* 
+	(flex:make-external-format :utf-8 :eol-style :lf))
+  (setf *admin-server-acceptor*
+	(make-instance 'hunchentoot:acceptor
+		       :address *admin-host-name*
+		       :port *admin-port*))
+  (hunchentoot:start *admin-server-acceptor*))
+
+
+(defun shutdown-admin-server ()
+  "Shut down the admin server."
+  (when *admin-server-acceptor*
+    (hunchentoot:stop *admin-server-acceptor*))
+  (setf *admin-server-acceptor* nil))
 
 
 (defun start-json-engine (repository-path &key
@@ -93,7 +123,8 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 
 (defun shutdown-json-engine ()
   "Shut down the Topic Map Engine, only the json part."
-  (hunchentoot:stop *json-server-acceptor*)
+  (when *json-server-acceptor*
+    (hunchentoot:stop *json-server-acceptor*))
   (setf *json-server-acceptor* nil)
   (close-tm-store))
 
@@ -122,6 +153,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 
 (defun shutdown-atom-engine ()
   "Shut down the Topic Map Engine, only the atom part."
-  (hunchentoot:stop *atom-server-acceptor*)
+  (when *atom-server-acceptor*
+    (hunchentoot:stop *atom-server-acceptor*))
   (setf *atom-server-acceptor* nil)
   (close-tm-store))

@@ -111,6 +111,8 @@
                                             :depends-on ("rest-interface"))
 				     (:file "set-up-json-interface"
 					    :depends-on ("rest-interface"))
+				     (:file "admin-interface"
+					    :depends-on ("rest-interface"))
                                      (:file "read" 
                                             :depends-on ("rest-interface")))
 		       	:depends-on ("model" "atom" "xml" "TM-SPARQL"
