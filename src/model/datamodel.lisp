@@ -2765,6 +2765,9 @@
   (mapc (lambda (role)
 	  (mark-as-deleted role :revision revision :source-locator source-locator))
         (roles ass :revision revision))
+  (let ((type-top (instance-of ass :revision revision)))
+    (when type-top
+      (private-delete-type ass type-top :revision revision)))
   (call-next-method))
 
 

@@ -353,18 +353,24 @@
 		       (concat (subseq j-topicStubs 0 (- (length j-topicStubs) 1)) "]"))
 		     "null")))
 	(associations
-	 (concat "\"associations\":"
-		 (if (associations instance)
-		     (let ((j-associations "["))
-		       (loop for item in (associations instance)
-			  do (push-string
-			      (concat (export-construct-as-isidorus-json-string
-				       item :xtm-id xtm-id
-				       :revision revision) ",")
-			      j-associations))
-		       (concat (subseq j-associations 0
-				       (- (length j-associations) 1)) "]"))
-		     "null")))
+	 (let ((filtered-assocs
+		(remove-null
+		 (map 'list #'(lambda(assoc)
+				(when (find-item-by-revision assoc revision)
+				  assoc))
+		      (associations instance)))))
+	   (concat "\"associations\":"
+		   (if filtered-assocs
+		       (let ((j-associations "["))
+			 (loop for item in filtered-assocs
+			    do (push-string
+				(concat (export-construct-as-isidorus-json-string
+					 item :xtm-id xtm-id
+					 :revision revision) ",")
+				j-associations))
+			 (concat (subseq j-associations 0
+					 (- (length j-associations) 1)) "]"))
+		       "null"))))
 	(tm-ids
 	 (concat "\"tmIds\":"
 		 (let ((uris
