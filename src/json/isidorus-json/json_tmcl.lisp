@@ -1715,8 +1715,7 @@
 	    (error "From make-tree-view(): The topictype-constraint \"~a\" exists but the topictype \"~a\" is missing!"
 		   *topictype-constraint-psi* 
 		   *topictype-psi*))
-	  (let ((lst (remove-null (make-nodes topictype t t :revision revision))))
-	    (if lst (list lst) nil)))
+	  (list (make-nodes topictype t t :revision revision)))
 	(let ((tree-roots
 	       (get-all-tree-roots :revision revision)))
 	  (let ((tree-list
