@@ -87,7 +87,8 @@ src/json/isidorus-json/json_tmcl_validation.lisp -text
 src/model/trivial-queries.lisp -text
 src/rest_interface/admin-interface.lisp -text
 src/rest_interface/set-up-json-interface.lisp -text
-src/shell_scripts/backup-isidorus.sh -text
+src/shell_scripts/local-backup-isidorus.sh -text
+src/shell_scripts/remote-backup-isidorus.sh -text
 src/shell_scripts/shutdown-isidorus.sh -text
 src/unit_tests/atom_test.xtm -text
 src/unit_tests/dangling_instanceof.xtm -text

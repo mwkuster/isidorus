@@ -18,9 +18,9 @@
 ## value is a date string of the form dd.mm.yyyy:hh:mm:ss.xtm" and can be
 ## changed by using the switch -path <any-string>.
 ## A sample call would be
-## ./backup-isidorus.sh -host 12.34.56.78 -url /admin/shutdown -path=backup.xtm
+## ./local-backup-isidorus.sh -host 12.34.56.78 -url /admin/shutdown -path=backup.xtm
 
-url="/admin/backup";
+url="/admin/local-backup";
 host="127.0.0.1:11008";
 path=`date +"%d.%m.%y:%H:%M:%S"`".xtm"
 

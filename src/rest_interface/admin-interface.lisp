@@ -11,15 +11,17 @@
 
 ;;TODO: add functions to export statement
 
-;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
-(defparameter *admin-backup* "/admin/backup")
-;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
+(defparameter *admin-local-backup* "/admin/local-backup")
+(defparameter *admin-remote-backup* "/admin/remote-backup")
 (defparameter *admin-shutdown* "/admin/shutdown")
 
 
 (defun set-up-admin-interface ()
   (push
-   (create-regex-dispatcher *admin-backup* #'admin-backup)
+   (create-regex-dispatcher *admin-local-backup* #'admin-local-backup)
+   hunchentoot:*dispatch-table*)
+  (push
+   (create-regex-dispatcher *admin-remote-backup* #'admin-remote-backup)
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher *admin-shutdown* #'admin-shutdown)
@@ -51,14 +53,26 @@
 	
 
 
-(defun admin-backup()
+(defun admin-local-backup()
   (handler-case
       (if (string= "127.0.0.1" (hunchentoot:remote-addr*))
 	  (let ((destination-path
 		 (hunchentoot:url-decode (hunchentoot:get-parameter "path"))))
-	    (xtm-exporter:export-as-xtm destination-path
-					:tm-id "http://isidor.us/backup-tm"
-					:revision 0))
+	    (xtm-exporter:export-as-xtm destination-path :revision 0))
+	  (setf (hunchentoot:return-code*) hunchentoot:+http-forbidden+))
+    (condition (err)
+      (progn
+	(setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+	(setf (hunchentoot:content-type*) "text")
+	(format nil "Condition: \"~a\"" err)))))
+
+
+(defun admin-remote-backup()
+  (handler-case
+      (if (string= "127.0.0.1" (hunchentoot:remote-addr*))
+	  (progn (hunchentoot:url-decode (hunchentoot:get-parameter "path"))
+		 (setf (hunchentoot:content-type*) "application/xml")
+		 (xtm-exporter:export-as-xtm-string :revision 0))
 	  (setf (hunchentoot:return-code*) hunchentoot:+http-forbidden+))
     (condition (err)
       (progn

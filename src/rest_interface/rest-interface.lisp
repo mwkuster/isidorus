@@ -33,6 +33,9 @@
 	   :start-admin-server
 	   :shutdown-json-engine
 	   :shutdown-atom-engine
+	   :*admin-local-backup*
+	   :*admin-remote-backup*
+	   :*admin-shutdown*
 	   :shutdown-admin-server
 	   :*admin-host-name*
 	   :*admin-port*
