@@ -1715,7 +1715,8 @@
 	    (error "From make-tree-view(): The topictype-constraint \"~a\" exists but the topictype \"~a\" is missing!"
 		   *topictype-constraint-psi* 
 		   *topictype-psi*))
-	  (list (make-nodes topictype t t :revision revision)))
+	  (let ((lst (remove-null (make-nodes topictype t t :revision revision))))
+	    (if lst (list lst) nil)))
 	(let ((tree-roots
 	       (get-all-tree-roots :revision revision)))
 	  (let ((tree-list
@@ -1733,8 +1734,8 @@
 					     (valid-instance-p root nil nil revision)
 					     t)
 			       (Condition () nil))))
-			(make-nodes root l-is-type l-is-instance
-				    :revision revision)))))
+			(remove-null (make-nodes root l-is-type l-is-instance
+						 :revision revision))))))
 	    tree-list)))))
 
 
@@ -1794,74 +1795,76 @@
     :subtypes <nodes>)."
   (declare (TopicC topic-instance)
 	   (type (or integer null) revision))
-  (let ((topictype (get-item-by-psi *topictype-psi* :revision revision))
-	(topictype-constraint (is-type-constrained :revision revision)))
-    (let ((isas-of-this
-	   (map
-	    'list
-	    #'(lambda(z)
-		(let ((l-is-type
-		       (handler-case
-			   (progn
-			     (topictype-p z topictype topictype-constraint
-					  nil revision)
-			     t)
-			 (Condition () nil)))
-		      (l-is-instance
-		       (handler-case (progn
-				       (valid-instance-p z nil nil revision)
-				       t)
-			 (Condition () nil))))
-		  (list :topic z :is-type l-is-type :is-instance l-is-instance)))
-		(remove-duplicates
-		 (remove-if #'null
-			    (remove-if
-			     #'(lambda(x) (when (eql topic-instance x)
-					    t))
-			     (get-direct-instances-of-topic topic-instance
-							    :revision revision))))))
-	  (akos-of-this
-	   (map 'list
-		#'(lambda(z)
-		    (let ((l-is-type
-			   (handler-case
-			       (progn
-				 (topictype-p z topictype topictype-constraint
-					      nil revision)
-				 t)
-			     (Condition () nil)))
-			  (l-is-instance
-			   (handler-case (progn
-					   (valid-instance-p z nil nil revision)
-					   t)
-			     (Condition () nil))))
-		      (list :topic z :is-type l-is-type :is-instance l-is-instance)))
-		(remove-duplicates
-		 (remove-if
-		  #'null
-		  (remove-if #'(lambda(x) (when (eql topic-instance x)
-					    t))
-			     (get-direct-subtypes-of-topic topic-instance
-							   :revision revision)))))))
-      (let ((cleaned-isas ;;all constraint topics are removed
-	     (clean-topic-entries isas-of-this :revision revision))
-	    (cleaned-akos ;;all constraint topics are removed
-	     (clean-topic-entries akos-of-this :revision revision)))
-	(list :topic topic-instance
-	      :is-type is-type
-	      :is-instance is-instance
-	      :instances (map 'list #'(lambda(x)
-					(make-nodes (getf x :topic)
-						    (getf x :is-type)
-						    (getf x :is-instance)
-						    :revision revision))
-			      cleaned-isas)
-	      :subtypes (map 'list #'(lambda(x)
-				       (make-nodes (getf x :topic)
-						   (getf x :is-type)
-						   (getf x :is-instance)
-						   :revision revision))
-			     cleaned-akos))))))
+  (when (find-item-by-revision topic-instance revision)
+    (let ((topictype (get-item-by-psi *topictype-psi* :revision revision))
+	  (topictype-constraint (is-type-constrained :revision revision)))
+      (let ((isas-of-this
+	     (map
+	      'list
+	      #'(lambda(z)
+		  (let ((l-is-type
+			 (handler-case
+			     (progn
+			       (topictype-p z topictype topictype-constraint
+					    nil revision)
+			       t)
+			   (Condition () nil)))
+			(l-is-instance
+			 (handler-case (progn
+					 (valid-instance-p z nil nil revision)
+					 t)
+			   (Condition () nil))))
+		    (list :topic z :is-type l-is-type :is-instance l-is-instance)))
+	      (remove-duplicates
+	       (remove-null
+		(remove-if
+		 #'(lambda(x) (when (eql topic-instance x)
+				t))
+		 (get-direct-instances-of-topic topic-instance
+						:revision revision))))))
+	    (akos-of-this
+	     (map 'list
+		  #'(lambda(z)
+		      (let ((l-is-type
+			     (handler-case
+				 (progn
+				   (topictype-p z topictype topictype-constraint
+						nil revision)
+				   t)
+			       (Condition () nil)))
+			    (l-is-instance
+			     (handler-case (progn
+					     (valid-instance-p z nil nil revision)
+					     t)
+			       (Condition () nil))))
+			(list :topic z :is-type l-is-type :is-instance l-is-instance)))
+		  (remove-duplicates
+		   (remove-null
+		    (remove-if #'(lambda(x) (when (eql topic-instance x)
+					      t))
+			       (get-direct-subtypes-of-topic topic-instance
+							     :revision revision)))))))
+	(let ((cleaned-isas ;;all constraint topics are removed
+	       (clean-topic-entries isas-of-this :revision revision))
+	      (cleaned-akos ;;all constraint topics are removed
+	       (clean-topic-entries akos-of-this :revision revision)))
+	  (list :topic topic-instance
+		:is-type is-type
+		:is-instance is-instance
+		:instances (remove-null
+			    (map 'list #'(lambda(x)
+					   (make-nodes (getf x :topic)
+						       (getf x :is-type)
+						       (getf x :is-instance)
+						       :revision revision))
+				 cleaned-isas))
+		:subtypes (remove-null
+			   (map 'list #'(lambda(x)
+					  (make-nodes (getf x :topic)
+						      (getf x :is-type)
+						      (getf x :is-instance)
+						      :revision revision))
+				cleaned-akos))))))))
 
 
 (defun clean-topic-entries(isas-or-akos &key (revision *TM-REVISION*))

@@ -395,7 +395,12 @@
 		   #'(lambda(psi-list)
 		       (when psi-list
 			 (map 'list #'uri psi-list)))
-		   (map 'list #'psis (get-all-topics revision))))))
+		   (map 'list #'psis
+			(remove-null
+			 (map 'list #'(lambda(top)
+					(when (find-item-by-revision top revision)
+					  top))
+			      (get-all-topics revision))))))))
 
 
 (defun to-json-string-summary (topic &key (revision *TM-REVISION*))

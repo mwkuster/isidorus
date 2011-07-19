@@ -177,7 +177,7 @@
   "Returns all topic-psi that are valid types -> so they have to be valid to the
    topictype-constraint (if it exists) and the can't be abstract."
   (declare (ignorable param))
-  (handler-case (let ((topic-types 
+  (handler-case (let ((topic-types
 		         (with-reader-lock
 			   (map 'list #'(lambda (oid)
 					  (elephant::controller-recreate-instance
@@ -290,7 +290,9 @@
 
 
 (defun return-json-fragment(&optional psi)
-  "returns the json-fragmen belonging to the psi passed by the parameter psi"
+  "returns the json-fragmen belonging to the psi passed by the parameter psi.
+   If the topic is marked as deleted the corresponding fragment is treated
+   as non-existent and an HTTP 404 is set."
   (assert psi)
   (let ((http-method (hunchentoot:request-method*)))
     (if (eq http-method :GET)
@@ -299,7 +301,8 @@
 	  (let ((fragment
 		 (with-reader-lock
 		   (get-latest-fragment-of-topic identifier))))
-	    (if fragment
+	    (if (and fragment
+		     (find-item-by-revision (topic fragment) 0))
 		(handler-case (with-reader-lock
 				(export-construct-as-isidorus-json-string
 				 fragment :revision 0))
@@ -325,7 +328,8 @@
 	  (let ((fragment
 		 (with-reader-lock
 		   (get-latest-fragment-of-topic identifier))))
-	    (if fragment
+	    (if (and fragment
+		     (find-item-by-revision (topic fragment) 0))
 		(handler-case (with-reader-lock
 				(rdf-exporter:to-rdf-string fragment))
 		  (condition (err)
@@ -372,8 +376,13 @@
 	 (handler-case (parse-integer (hunchentoot:get-parameter "end"))
 	   (condition () nil))))
     (handler-case (with-reader-lock
-		    (let ((topics 
-			   (elephant:get-instances-by-class 'd:TopicC)))
+		    (let ((topics
+			   (remove-null
+			    (map 'list
+				 #'(lambda(top)
+				     (when (find-item-by-revision top 0)
+				       top))
+				 (elephant:get-instances-by-class 'd:TopicC)))))
 		      (let ((end
 			     (cond
 			       ((not end-idx)
