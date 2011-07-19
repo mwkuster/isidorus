@@ -16,6 +16,8 @@
 (defparameter *admin-shutdown* "/admin/shutdown")
 
 
+(defparameter *ready-to-die* nil)
+
 (defun set-up-admin-interface ()
   (push
    (create-regex-dispatcher *admin-local-backup* #'admin-local-backup)
@@ -41,7 +43,8 @@
 	    (shutdown-json-engine)
 	    (shutdown-atom-engine)
 	    (shutdown-admin-server)
-	    (close-tm-store)) ;in case the json and atom services are not running
+	    (close-tm-store) ;in case the json and atom services are not running
+	    (setf *ready-to-die* t))
 	  (setf (hunchentoot:return-code*) hunchentoot:+http-forbidden+))
     (condition (err)
       (progn
@@ -89,3 +92,11 @@
    (write-to-string (nth-value 2 (decode-universal-time universal-time))) ":"
    (write-to-string (nth-value 1 (decode-universal-time universal-time))) ":"
    (write-to-string (nth-value 0 (decode-universal-time universal-time)))))
+
+
+
+(defun die-when-finished()
+  (do () (rest-interface:*ready-to-die*)
+    (format t "*ready-to-die*: ~a~%" rest-interface:*ready-to-die*)
+    (sleep 1))
+  (sb-ext:quit))

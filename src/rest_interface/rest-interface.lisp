@@ -56,10 +56,13 @@
 	   :*ajax-javascript-directory-path*
 	   :*ajax-javascript-url-prefix*
 	   :*xtm-commit-prefix*
+	   :*ready-to-die*
+	   :die-when-finished
 	   :*sparql-url*))
 
 
 (in-package :rest-interface)
+
 
 (defun create-regex-dispatcher (regex page-function)
   "Just like hunchentoot:create-regex-dispatcher except it extracts the matched values

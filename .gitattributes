@@ -31,6 +31,7 @@ playground/call-next-method.lisp -text
 playground/call-next-method_multiple-inheritance.lisp -text
 playground/ii_versioned_association.lisp -text
 playground/isidorus_test.sh -text
+playground/startIsidorus.lisp -text
 playground/system_crash.lisp -text
 playground/threading_debugging.lisp -text
 playground/url_test.html -text
