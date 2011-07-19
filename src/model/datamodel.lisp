@@ -1577,20 +1577,70 @@
 		       (psis top :revision 0))))
     (mapc (lambda(psi)(mark-as-deleted psi :revision revision
 				       :source-locator source-locator))
-	  (psis top :revision 0))
+	  (psis top :revision revision))
     (mapc (lambda(sl)(mark-as-deleted sl :revision revision
 				      :source-locator source-locator))
-	  (locators top :revision 0))
+	  (locators top :revision revision))
+    (mapc (lambda(ii)(mark-as-deleted ii :revision revision
+				      :source-locator source-locator))
+	  (item-identifiers top :revision revision))
     (mapc (lambda (name) (mark-as-deleted name :revision revision
 					  :source-locator source-locator))
-          (names top :revision 0))
+          (names top :revision revision))
     (mapc (lambda (occ) (mark-as-deleted occ :revision revision
 					 :source-locator source-locator))
-          (occurrences top :revision 0))
+          (occurrences top :revision revision))
     (mapc (lambda (ass) (mark-as-deleted ass :revision revision
 					 :source-locator source-locator))
 	  (find-all-associations top :revision 0))
+    (let ((ref (reified-construct top :revision revision)))
+      (when ref
+	(private-delete-reified-construct top ref :revision revision)))
+    (dolist (typable (used-as-type top :revision revision))
+      (private-delete-typable typable :source-locator source-locator
+			      :revision revision))
+    (dolist (scopable (used-as-theme top :revision revision))
+      (private-delete-scopable scopable :source-locator source-locator
+			       :revision revision))
     (call-next-method)))
+
+
+(defgeneric private-delete-scopable (construct &key source-locator revision)
+  (:documentation "This method should be called when a topic that is used
+                   as a theme for the passed construct is getting
+                   marked-as-deleted, i.e. all scopable constructs, scoped
+                   by the deleted topic are marked-as-deleted as well.
+                   If the passed construct is a role the entire parent
+                   association is deleted, otherwise only the construct itself.")
+  (:method ((construct ScopableC) &key source-locator revision)
+    (if (typep construct 'RoleC)
+	(let ((assoc (parent construct :revision revision)))
+	  (if assoc
+	      (mark-as-deleted assoc :source-locator source-locator
+			       :revision revision)
+	      (mark-as-deleted construct :source-locator source-locator
+			       :revision revision)))
+	(mark-as-deleted construct :source-locator source-locator
+			 :revision revision))))
+
+
+(defgeneric private-delete-typable (construct &key source-locator revision)
+  (:documentation "This method should be called when a topic that is used
+                   as a type for the passed construct is getting
+                   marked-as-deleted, i.e. all typable constructs, typed
+                   by the deleted topic are marked-as-deleted as well.
+                   If the passed construct is a role the entire parent
+                   association is deleted, otherwise only the construct itself.")
+  (:method ((construct TypableC) &key source-locator revision)
+    (if (typep construct 'RoleC)
+	(let ((assoc (parent construct :revision revision)))
+	  (if assoc
+	      (mark-as-deleted assoc :source-locator source-locator
+			       :revision revision)
+	      (mark-as-deleted construct :source-locator source-locator
+			       :revision revision)))
+	(mark-as-deleted construct :source-locator source-locator
+			 :revision revision))))
 
 
 (defmethod equivalent-constructs ((construct-1 TopicC) (construct-2 TopicC)
@@ -2350,9 +2400,14 @@
   "Marks the last active relation between a characteristic and its parent topic
    as deleted."
   (declare (ignorable source-locator))
-  (let ((owner (parent construct :revision 0)))
+  (let ((owner (parent construct :revision revision))
+	(type-top (instance-of construct :revision revision)))
     (when owner
-      (private-delete-characteristic owner construct :revision revision))))
+      (private-delete-characteristic owner construct :revision revision))
+    (when type-top
+      (private-delete-type construct type-top :revision revision))
+    (dolist (theme (themes construct :revision revision))
+      (private-delete-theme construct theme :revision revision))))
 
 
 (defmethod marked-as-deleted-p ((construct CharacteristicC))
@@ -2638,6 +2693,15 @@
 				    (characteristic-symbol symbol))
   (when (VariantC-p characteristic-symbol)
     (map 'list #'characteristic (slot-p parent-construct 'variants))))
+
+
+(defmethod mark-as-deleted ((construct NameC) &key source-locator revision)
+  "Marks the last active relation between a characteristic and its parent topic
+   as deleted."
+  (declare (ignorable source-locator))
+  (dolist (variant (variants construct :revision revision))
+    (private-delete-variant construct variant :revision revision))
+  (call-next-method))
 
 
 (defgeneric NameC-p (class-symbol)
