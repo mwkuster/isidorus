@@ -33,7 +33,7 @@
 
 (defun admin-shutdown()
   (handler-case
-      (if (string= *admin-remote-name* (hunchentoot:remote-addr*))
+      (if (string= *shutdown-remote-address* (hunchentoot:remote-addr*))
 	  (progn
 	    (when elephant:*store-controller*
 	      (xtm-exporter:export-as-xtm
@@ -58,7 +58,7 @@
 
 (defun admin-local-backup()
   (handler-case
-      (if (string= *admin-remote-name* (hunchentoot:remote-addr*))
+      (if (string= *local-backup-remote-address* (hunchentoot:remote-addr*))
 	  (let ((destination-path
 		 (hunchentoot:url-decode (hunchentoot:get-parameter "path"))))
 	    (xtm-exporter:export-as-xtm destination-path :revision 0))
@@ -72,7 +72,7 @@
 
 (defun admin-remote-backup()
   (handler-case
-      (if (string= *admin-remote-name* (hunchentoot:remote-addr*))
+      (if (string= *remote-backup-remote-address* (hunchentoot:remote-addr*))
 	  (progn (hunchentoot:url-decode (hunchentoot:get-parameter "path"))
 		 (setf (hunchentoot:content-type*) "application/xml")
 		 (xtm-exporter:export-as-xtm-string :revision 0))

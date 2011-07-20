@@ -39,7 +39,9 @@
 	   :shutdown-admin-server
 	   :*admin-host-name*
 	   :*admin-port*
-	   :*admin-remote-name*
+	   :*remote-backup-remote-address*
+	   :*local-backup-remote-address*
+	   :*shutdown-remote-address*
 	   :*json-get-prefix*
 	   :*get-rdf-prefix*
 	   :*json-commit-url*
@@ -83,7 +85,9 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 (defvar *admin-server-acceptor* nil)
 (defvar *admin-host-name* "127.0.0.1")
 (defvar *admin-port* 11008)
-(defvar *admin-remote-name* "127.0.0.1")
+(defvar *remote-backup-remote-address* "127.0.0.1")
+(defvar *local-backup-remote-address* "127.0.0.1")
+(defvar *shutdown-remote-address* "127.0.0.1")
 
 
 (defun start-admin-server ()
