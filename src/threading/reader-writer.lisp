@@ -8,39 +8,38 @@
 ;;+-----------------------------------------------------------------------------
 
 (defpackage :isidorus-threading
-  (:use :cl :bordeaux-threads)
+  (:use :cl :sb-thread)
   (:export :current-readers
 	   :with-reader-lock
 	   :with-writer-lock))
 
 (in-package :isidorus-threading)
 
-(defvar *readerlist-lock* (make-lock "isidorus-threading: current readers lock"))
-(defvar *writer-lock* (make-lock "isidorus-threading: writer lock"))
+(defvar *readerlist-lock* (make-mutex :name "isidorus-threading: current readers lock"))
+(defvar *writer-lock* (make-mutex :name "isidorus-threading: writer lock"))
 (defvar *current-readers* nil)
 
 
 (defun current-readers ()
   "Returns a copy of the list which contains all current reader
    threads, *current-readers*"
-  (let ((result nil))
-    (with-lock-held (*readerlist-lock*)
-      (setf result (copy-list *current-readers*)))
-    result))
+  (with-mutex (*readerlist-lock*)
+    (copy-list *current-readers*)))
+ 
 
 
 (defun add-thread-to-reader-list ()
   "Adds the current thread to the reader list"
-  (with-lock-held (*writer-lock*)
-    (with-lock-held (*readerlist-lock*)
-      (push (current-thread) *current-readers*))))
+  (with-mutex (*writer-lock*)
+    (with-mutex (*readerlist-lock*)
+      (push *current-thread* *current-readers*))))
 
 
 (defun remove-thread-from-reader-list ()
   "Removes the current threads from the reader list"
-  (with-lock-held (*readerlist-lock*)
+  (with-mutex (*readerlist-lock*)
     (setf *current-readers*
-	  (delete (current-thread) *current-readers*))))
+	  (delete *current-thread* *current-readers*))))
 
 
 (defmacro with-reader-lock (&body body)
@@ -61,7 +60,7 @@
 (defmacro with-writer-lock (&body body)
   "Executes the passed body when the reader list is empty otherwise
    the do macor loops in 500 ms time interval for a next chance."
-  `(with-lock-held (*writer-lock*)
+  `(with-mutex (*writer-lock*)
      (do
       ((remaining-readers (current-readers) (current-readers)))
       ((null remaining-readers))
