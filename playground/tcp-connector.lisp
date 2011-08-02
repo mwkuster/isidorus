@@ -84,11 +84,11 @@
   (handler-case
       (let ((client-data (read-from-client client-socket)))
 	(let ((response
-	       (cond ((string-starts-with (first (getf client-data :headers))
-					  "GET /json/psis")
+	       (cond ((tools:string-starts-with (first (getf client-data :headers))
+						"GET /json/psis")
 		      (get-psis))
-		     ((string-starts-with (first (getf client-data :headers))
-					  "GET /json/get/")
+		     ((tools-string-starts-with (first (getf client-data :headers))
+						"GET /json/get/")
 		      (get-fragment (get-requested-psi-of-http-header
 				     (first (getf client-data :headers)))))
 		     (t
@@ -133,48 +133,14 @@
 
 (defun get-requested-psi-of-http-header (first-header-line)
   (declare (String first-header-line))
-  (when (and (string-starts-with first-header-line "GET /json/get/")
-	     (or (string-ends-with first-header-line "HTTP/1.0")
-		 (string-ends-with first-header-line "HTTP/1.1")))
+  (when (and (tools:string-starts-with first-header-line "GET /json/get/")
+	     (or (tools:string-ends-with first-header-line "HTTP/1.0")
+		 (tools:string-ends-with first-header-line "HTTP/1.1")))
     (let ((psi (subseq first-header-line
 		       (length "GET /json/get/")
 		       (- (length first-header-line) (length "HTTP/1.0")))))
       (hunchentoot:url-decode (string-trim '(#\space) psi)))))
     
-
-(defun string-starts-with (str prefix &key (ignore-case nil))
-  "Checks if string str starts with a given prefix."
-  (declare (String str prefix)
-	   (Boolean ignore-case))
-  (let ((str-i (if ignore-case
-		   (string-downcase str :start 0 :end (min (length str)
-							   (length prefix)))
-		   str))
-	(prefix-i (if ignore-case
-		      (string-downcase prefix)
-		      prefix)))
-    (string= str-i prefix-i :start1 0 :end1
-	     (min (length prefix-i)
-		  (length str-i)))))
-
-
-(defun string-ends-with (str suffix &key (ignore-case nil))
-  "Checks if string str ends with a given suffix."
-  (declare (String str suffix)
-	   (Boolean ignore-case))
-  (let ((str-i (if ignore-case
-		   (string-downcase str :start (max (- (length str)
-						       (length suffix))
-						    0)
-				    :end (length str))
-		   str))
-	(suffix-i (if ignore-case
-		      (string-downcase suffix)
-		      suffix)))
-    (string= str-i suffix-i :start1 (max (- (length str)
-					    (length suffix))
-					 0))))
-
 
 (defun main()
   (format t ">> entered (main)")
