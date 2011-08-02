@@ -389,18 +389,14 @@
   "returns all topic psis as a json list of the form
    [[topic-1-psi-1, topic-1-psi-2],[topic-2-psi-1, topic-2-psi-2],...]"
   (declare (type (or integer null) revision))
-  (encode-json-to-string
-   (remove-if #'null
-	      (map 'list
-		   #'(lambda(psi-list)
-		       (when psi-list
-			 (map 'list #'uri psi-list)))
-		   (map 'list #'psis
-			(remove-null
-			 (map 'list #'(lambda(top)
-					(when (find-item-by-revision top revision)
-					  top))
-			      (get-all-topics revision))))))))
+  (let ((psi-lists
+	 (map 'list (lambda(top)
+		      (when (d:find-item-by-revision top revision)
+			(let ((psis (d:psis top :revision revision)))
+			  (when psis
+			    (map 'list #'d:uri psis)))))
+	      (elephant:get-instances-by-class 'd:TopicC))))
+    (json:encode-json-to-string (tools:remove-null psi-lists))))
 
 
 (defun to-json-string-summary (topic &key (revision *TM-REVISION*))
