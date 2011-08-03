@@ -12,8 +12,12 @@
 ;caching tables
 (defparameter *type-table* nil "Cointains integer==OIDs that represent a topic
                                 instance of a vylid type-topic")
-(defparameter *instance-table* nil "Cointains integer==OIDs that represent a topic
+(defparameter *instance-table* nil "Contains integer==OIDs that represent a topic
                                     instance of a valid instance-topic")
+(defparameter *overview-table* nil "Is of the following structure
+                                    ((:topic <oid> :psis (<oid> <oid> <...>)) (...))
+                                    that represents a list of topics and their
+                                    valid psi object id's")
 
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-get-prefix* "/json/get/(.+)$")
@@ -603,3 +607,49 @@
 		     (format t ".")
 		     (create-latest-fragment-of-topic (uri (first psis-of-top))))))
        (elephant:get-instances-by-class 'd:TopicC)))
+
+
+(defun update-list (top psis)
+  "Sets the psi list that is bound to the topic top to the passed
+   psi list."
+  (declare (TopicC top)
+	   (List psis))
+  (let ((node
+	 (find-if (lambda(item)
+		    (= (getf item :topic) (elephant::oid top)))
+		  *overview-table*))
+	(psi-oids (map 'list #'elephant::oid psis)))
+    (if node
+	(setf (getf node :psis) psi-oids)
+	(push (list :topic (elephant::oid top) :psis psi-oids)
+	      *overview-table*))))
+
+
+(defun remove-psis-from-list (top psis)
+  "Removes the passed psis from the psi list that is bound
+   to the passed topic."
+  (declare (TopicC top)
+	   (List psis))
+  (let ((node
+	 (find-if (lambda(item)
+		    (= (getf item :topic) (elephant::oid top)))
+		  *overview-table*))
+	(psi-oids (map 'list #'elephant::oid psis)))
+    (when node
+      (dolist (psi psi-oids)
+	(setf (getf node :psis) (delete psi (getf node :psis) :test #'=))))))
+
+
+(defun add-to-list (top psis)
+  "Adds the psis contained in the list psis to the psi list that is
+   bound to the psi list of the topic top."
+  (declare (TopicC top)
+	   (List psis))
+  (let ((node
+	 (find-if (lambda(item) (= (getf item :topic) (elephant::oid top)))
+		  *overview-table*))
+	(psi-oids (map 'list #'elephant::oid psis)))
+    (if node
+	(dolist (psi psi-oids)
+	  (pushnew psi (getf node :psis) :test #'=))
+	(push (list :topic top :psis psi-oids) *overview-table*))))
