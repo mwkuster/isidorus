@@ -97,6 +97,5 @@
 
 (defun die-when-finished()
   (do () (rest-interface:*ready-to-die*)
-    (format t "*ready-to-die*: ~a~%" rest-interface:*ready-to-die*)
     (sleep 1))
   (sb-ext:quit))
