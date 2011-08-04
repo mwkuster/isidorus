@@ -324,6 +324,26 @@ engine for this Topic Map"
           :accessor topic
           :index t
           :documentation "changed topic (topicSI in Atom")
+   (serializer-cache :type String
+		     :initform nil
+		     :initarg :serializer-cache
+		     :documentation "contains te serialized string
+                                     value of this FragmentC instance,
+                                     that can contain any string format,
+                                     e.g. JTM, XTM, ... depending on the
+                                     setter method.")
+   (serializer-notes :type List
+		     :initform nil
+		     :initarg :serializer-notes
+		     :documentation "contains a list of the forms
+                                     (:psis <int> :iis <int> :sls <int>
+                                      :names <int> :occurrences <int>
+                                      :roles <int>) that indicates the
+                                     number of elements this fragment's
+                                     topic is bound to. It is only necessary
+                                     to recognize mark-as-deleted elements,
+                                     since newly added elements will result
+                                     in a completely new fragment.")
    (referenced-topics
     :type list
     :initarg :referenced-topics
@@ -450,3 +470,40 @@ list of FragmentC objects"
 	  (first (sort existing-fragments
 		       #'(lambda(frg-1 frg-2)
 			   (> (revision frg-1) (revision frg-2))))))))))
+
+
+(defgeneric serializer-cache (fragment)
+  (:documentation "returns the slot value of serializer-cache or nil,
+                   if it is unbound.")
+  (:method ((fragment FragmentC))
+    (when (slot-boundp fragment 'serializer-cache)
+      (slot-value fragment 'serializer-cache))))
+
+
+(defgeneric serializer-notes (fragment)
+  (:documentation "returns the slot value of serializer-notes or nil,
+                   if it is unbound.")
+  (:method ((fragment FragmentC))
+    (when (slot-boundp fragment 'serializer-notes)
+      (slot-value fragment 'serializer-notes))))
+
+
+(defgeneric serializer-notes-changed-p (fragment)
+  (:documentation "Returns t if the serializer-notes slot contains
+                   a value that does not correspond to the actual
+                   values of the fragment.")
+  (:method ((fragment FragmentC))
+    (let ((top (topic fragment))
+	  (sn (serializer-notes fragment)))
+      (or (/= (length (psis top :revision 0))
+	      (getf sn :psis))
+	  (/= (length (item-identifiers top :revision 0))
+	      (getf sn :iis))
+	  (/= (length (locators top :revision 0))
+	      (getf sn :sls))
+	  (/= (length (names top :revision 0))
+	      (getf sn :names))
+	  (/= (length (occurrences top :revision 0))
+	      (getf sn :occurrences))
+	  (/= (length (player-in-roles top :revision 0))
+	      (getf sn :roles))))))

@@ -43,6 +43,9 @@
 	   :FragmentC
 
 	   ;;methods, functions and macros
+	   :serializer-notes
+	   :serializer-cache
+	   :serializer-notes-changed-p
 	   :instanceOf-association-p
 	   :has-identifier
 	   :get-all-identifiers-of-construct

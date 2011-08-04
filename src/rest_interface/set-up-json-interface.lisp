@@ -657,7 +657,11 @@
 		 (let ((psis-of-top (psis top)))
 		   (when psis-of-top
 		     (format t ".")
-		     (create-latest-fragment-of-topic (uri (first psis-of-top))))))
+		     (let ((fragment
+			    (create-latest-fragment-of-topic
+			     (uri (first psis-of-top)))))
+		       (json-exporter:serialize-fragment fragment)
+		       fragment))))
        (elephant:get-instances-by-class 'd:TopicC)))
 
 
