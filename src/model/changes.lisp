@@ -37,11 +37,11 @@ engine for this Topic Map"
   (:documentation "Finds all associations for a topic.")
   (:method ((instance TopicC) &key (revision *TM-REVISION*))
     (declare (type (or integer null) revision))
-    (remove-null
-     (remove-duplicates 
-      (map 'list #'(lambda(role)
-		     (parent role :revision revision))
-	   (player-in-roles instance :revision revision))))))
+    (delete-if #'null
+	       (remove-duplicates 
+		(map 'list #'(lambda(role)
+			       (parent role :revision revision))
+		     (player-in-roles instance :revision revision))))))
 
 
 (defgeneric find-associations (instance &key revision)
@@ -53,7 +53,7 @@ engine for this Topic Map"
 	   (d:identified-construct
 	    (elephant:get-instance-by-value
 	     'PersistentIdC 'uri *type-instance-psi*))))
-      (remove-if
+      (delete-if
        #'(lambda(assoc)
 	   (eql (instance-of assoc :revision revision)
 		type-instance-topic))
@@ -80,7 +80,7 @@ engine for this Topic Map"
      (list (instance-of characteristic :revision revision)))
    (when (and (typep characteristic 'NameC)
 	      (variants characteristic :revision revision))
-     (remove-if #'null
+     (delete-if #'null
 		(loop for var in (variants characteristic :revision revision)
 		   append (find-referenced-topics var :revision revision))))
    (when  (and (typep characteristic 'OccurrenceC)
@@ -274,7 +274,7 @@ engine for this Topic Map"
 		     (locators construct :revision revision))
 	      (union (names construct :revision revision)
 		     (occurrences construct :revision revision)))
-	     (remove-if-not
+	     (delete-if-not
 	      (lambda (assoc)
 		(eq (player (first (roles assoc :revision revision))
 			    :revision revision)

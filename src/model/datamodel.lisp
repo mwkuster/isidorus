@@ -750,11 +750,11 @@
    stored in the db."
   (declare (symbol class-symbol) (type (or null integer) revision))
   (let ((db-instances (elephant:get-instances-by-class class-symbol)))
-    (let ((filtered-instances (remove-if-not #'(lambda(inst)
+    (let ((filtered-instances (delete-if-not #'(lambda(inst)
 						 (typep inst class-symbol))
 					     db-instances)))
       (if revision
-	  (remove-null
+	  (delete-if #'null
 	   (map 'list #'(lambda(inst)
 			  (if (or (typep inst 'CharacteristicC)
 				  (typep inst 'RoleC))
@@ -823,7 +823,7 @@
 		(elephant:get-instances-by-value 'OccurrenceC 'Charvalue content)
 		(elephant:get-instances-by-value 'VariantC 'Charvalue content))))
     (first
-     (remove-if
+     (delete-if
       #'(lambda(construct)
 	  (or (string/= (charvalue construct) content)
 	      (not (find-item-by-revision construct revision
@@ -884,10 +884,10 @@
     (cond ((not properties)
 	   nil) ;no properties were found -> nil
 	  ((= 0 revision)
-	   (remove-if #'null
+	   (delete-if #'null
 		      (map 'list #'find-most-recent-revision properties)))
 	  (t
-	   (remove-if #'null
+	   (delete-if #'null
 		      (map 'list #'(lambda(prop)
 				     (find-item-by-revision prop revision))
 			   properties))))))
@@ -1379,7 +1379,7 @@
   (if parent-construct
       (let ((parent-assoc
 	     (let ((assocs
-		    (remove-if
+		    (delete-if
 		     #'null
 		     (map 'list #'(lambda(assoc)
 				    (when (eql (parent-construct assoc)
@@ -1738,7 +1738,7 @@
 	     (type (or integer null) revision))
     (if xtm-id
 	(let ((possible-identifiers
-	       (remove-if-not
+	       (delete-if-not
 		#'(lambda(top-id)
 		    (string= (xtm-id top-id) xtm-id))
 		(topic-identifiers construct :revision revision))))
@@ -2341,7 +2341,7 @@
  (:method ((topic TopicC) &key (tm nil) (revision *TM-REVISION*))
    (declare (type (or null TopicMapC) tm)
 	    (integer revision))
-   (remove-if 
+   (delete-if 
     #'null
     (map 'list
 	 #'(lambda(x)
@@ -2356,7 +2356,7 @@
 		  when (not (eq role x))
 		  return (player role :revision revision))))
 	 (if tm
-	     (remove-if-not 
+	     (delete-if-not 
 	      (lambda (role)
 		(in-topicmap tm (parent role :revision revision)
 			     :revision revision))
@@ -2370,7 +2370,7 @@
  (:method ((topic TopicC)  &key (tm nil) (revision *TM-REVISION*))
    (declare (type (or null TopicMapC) tm)
 	    (integer revision))
-   (remove-if 
+   (delete-if 
     #'null
     (map 'list
 	 #'(lambda(x)
@@ -2383,7 +2383,7 @@
 		  when (not (eq role x))
 		  return (player role :revision revision))))
 	 (if tm
-	     (remove-if-not 
+	     (delete-if-not 
 	      (lambda (role)
 		(in-topicmap tm (parent role :revision revision)
 			     :revision revision))
@@ -2429,7 +2429,7 @@
       (if self
 	  self
 	  (let ((equal-char
-		 (remove-if #'null
+		 (delete-if #'null
 			    (map 'list
 				 #'(lambda(char)
 				     (strictly-equivalent-constructs
@@ -2506,7 +2506,7 @@
   (if parent-construct
       (let ((parent-assoc
 	     (let ((assocs
-		    (remove-if
+		    (delete-if
 		     #'null
 		     (map 'list #'(lambda(assoc)
 				    (when (eql (parent-construct assoc)
@@ -2655,7 +2655,7 @@
       (if self
 	  self
 	  (let ((equal-var
-		 (remove-if #'null
+		 (delete-if #'null
 			    (map 'list
 				 #'(lambda(var)
 				     (strictly-equivalent-constructs
@@ -3006,7 +3006,7 @@
       (if self
 	  self
 	  (let ((equal-role
-		 (remove-if #'null
+		 (delete-if #'null
 			    (map 'list
 				 #'(lambda(role)
 				     (strictly-equivalent-constructs
@@ -3071,7 +3071,7 @@
   (if parent-construct
       (let ((parent-assoc
 	     (let ((assocs
-		    (remove-if
+		    (delete-if
 		     #'null
 		     (map 'list #'(lambda(assoc)
 				    (when (eql (parent-construct assoc)
@@ -3843,7 +3843,7 @@
       (error (make-missing-argument-condition "From make-association(): start-revision must be set" 'start-revision 'make-association)))
     (let ((association
 	   (let ((existing-associations
-		  (remove-if
+		  (delete-if
 		   #'null
 		   (map 'list #'(lambda(existing-association)
 				  (when (equivalent-construct
@@ -3882,7 +3882,7 @@
     (let ((role
 	   (let ((existing-roles
 		  (when parent
-		    (remove-if
+		    (delete-if
 		     #'null
 		     (map 'list #'(lambda(existing-role)
 				    (when (equivalent-construct
@@ -3923,7 +3923,7 @@
       (error (make-missing-argument-condition "From make-tm(): start-revision must be set" 'start-revision 'make-tm)))
     (let ((tm
 	   (let ((existing-tms
-		  (remove-if
+		  (delete-if
 		   #'null
 		   (map 'list #'(lambda(existing-tm)
 				  (when (equivalent-construct
@@ -3961,7 +3961,7 @@
       (error (make-missing-argument-condition "From make-topic(): start-revision must be set" 'start-revision 'make-topic)))
     (let ((topic
 	   (let ((existing-topics
-		  (remove-if
+		  (delete-if
 		   #'null
 		   (map 'list #'(lambda(existing-topic)
 				  (when (equivalent-construct
@@ -4018,7 +4018,7 @@
     (let ((characteristic
 	   (let ((existing-characteristics
 		  (when parent
-		    (remove-if
+		    (delete-if
 		     #'null
 		     (map 'list #'(lambda(existing-characteristic)
 				    (when (equivalent-construct
@@ -4070,7 +4070,7 @@
 	  (error (make-duplicate-identifier-condition (format nil "From make-pointer(): cannot create ~a with the uri ~a, since the identifier ~a with this uri already exists (merging is only supported for identifiers of the same type)" class-symbol uri existing-identifier) uri)))))
     (let ((identifier
 	   (let ((existing-pointer
-		  (remove-if
+		  (delete-if
 		   #'null
 		   (map 'list 
 			#'(lambda(existing-pointer)
@@ -4144,7 +4144,7 @@
 				       (destination ReifiableConstructC)
 				       &key (revision *TM-REVISION*))
   (declare (integer revision))
-  (remove-if
+  (delete-if
    #'null
    (append
     (move-identifiers source destination :revision revision)
@@ -4198,7 +4198,7 @@
     (dolist (typable typables)
       (private-delete-type typable source :revision revision)
       (add-type typable destination :revision revision))
-    (remove-if #'null (append roles scopables typables ids))))
+    (delete-if #'null (append roles scopables typables ids))))
 
 
 (defgeneric move-reified-construct (source destination &key revision)
@@ -4325,7 +4325,7 @@
 			       ((typep construct 'RoleC)
 				(roles parent :revision revision)))))
 	  (let ((all-equivalent
-		 (remove-if
+		 (delete-if
 		  #'null
 		  (map 'list #'(lambda(other)
 				 (when (strictly-equivalent-constructs
@@ -4345,12 +4345,12 @@
   (let ((all-assocs
 	 (remove-duplicates
 	  (append 
-	   (remove-if
+	   (delete-if
 	    #'null
 	    (map 'list #'(lambda(role)
 			   (parent role :revision revision))
 		 (player-in-roles older-topic :revision revision)))
-	    (remove-if
+	    (delete-if
 	     #'null
 	     (map 
 	      'list #'(lambda(constr)
@@ -4360,7 +4360,7 @@
 		      (used-as-theme older-topic :revision revision))))))))
     (dolist (assoc all-assocs)
       (let ((all-equivalent
-	     (remove-if
+	     (delete-if
 	      #'null
 	      (map 'list #'(lambda(db-assoc)
 			     (when (strictly-equivalent-constructs
@@ -4580,12 +4580,12 @@
 				&key (revision *TM-REVISION*))
   (declare (integer revision))
   (let ((possible-roles
-	 (remove-if #'(lambda(role)
+	 (delete-if #'(lambda(role)
 			(when (parent role :revision revision)
 			  role))
 		    (map 'list #'role (slot-p parent-construct 'roles)))))
     (let ((equivalent-role
-	   (remove-if
+	   (delete-if
 	    #'null
 	    (map 'list
 		 #'(lambda(role)
@@ -4613,11 +4613,11 @@
 		     (slot-p parent-construct 'variants))))))
     (let ((possible-characteristics ;all characteristics that are not referenced
 				    ;other constructs at the given revision
-	   (remove-if #'(lambda(char)
+	   (delete-if #'(lambda(char)
 			  (parent char :revision revision))
 		      all-existing-characteristics)))
       (let ((equivalent-construct
-	     (remove-if
+	     (delete-if
 	      #'null
 	      (map 'list
 		   #'(lambda(char)
@@ -4647,7 +4647,7 @@
 	 (type-instance-topic
 	  (get-item-by-psi *type-instance-psi* :revision revision))
 	 (topics-to-hold
-	  (remove-null
+	  (delete-if #'null
 	   (map 'list #'(lambda(top)
 			  (let ((refs
 				 (append (used-as-type top :revision revision)
@@ -4688,7 +4688,7 @@
 				 when (and tm (typep ref 'd:TopicMapC)
 					   (eql tm ref))
 				 return top))))
-		(remove-null (list type-topic instance-topic type-instance-topic)))))
+		(delete-if #'null (list type-topic instance-topic type-instance-topic)))))
 	 (topics-to-remove
 	  (set-difference (list type-topic instance-topic type-instance-topic)
 			  topics-to-hold)))
