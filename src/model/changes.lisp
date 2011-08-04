@@ -332,18 +332,6 @@ engine for this Topic Map"
                                      that can contain any string format,
                                      e.g. JTM, XTM, ... depending on the
                                      setter method.")
-   (serializer-notes :type List
-		     :initform nil
-		     :initarg :serializer-notes
-		     :documentation "contains a list of the forms
-                                     (:psis <int> :iis <int> :sls <int>
-                                      :names <int> :occurrences <int>
-                                      :roles <int>) that indicates the
-                                     number of elements this fragment's
-                                     topic is bound to. It is only necessary
-                                     to recognize mark-as-deleted elements,
-                                     since newly added elements will result
-                                     in a completely new fragment.")
    (referenced-topics
     :type list
     :initarg :referenced-topics
@@ -432,10 +420,12 @@ list of FragmentC objects"
         (find-associations top :revision revision)))
 
 
-(defun create-latest-fragment-of-topic (topic-psi)
+(defun create-latest-fragment-of-topic (topic-or-psi)
   "Returns the latest fragment of the passed topic-psi"
-  (declare (string topic-psi))
-  (let ((topic (get-latest-topic-by-psi topic-psi)))
+  (declare (type (or TopicC String) topic-or-psi))
+  (let ((topic (if (stringp topic-or-psi)
+		   (get-latest-topic-by-psi topic-or-psi)
+		   topic-or-psi)))
     (when topic
       (let ((start-revision
 	     (start-revision
@@ -459,10 +449,12 @@ list of FragmentC objects"
 			     :topic topic)))))))
 
 
-(defun get-latest-fragment-of-topic (topic-psi)
+(defun get-latest-fragment-of-topic (topic-or-psi)
   "Returns the latest existing fragment of the passed topic-psi."
-  (declare (string topic-psi))
-  (let ((topic (get-latest-topic-by-psi topic-psi)))
+  (declare (type (or String TopicC) topic-or-psi))
+  (let ((topic (if (stringp topic-or-psi)
+		   (get-latest-topic-by-psi topic-or-psi)
+		   topic-or-psi)))
     (when topic
       (let ((existing-fragments
 	     (elephant:get-instances-by-value 'FragmentC 'topic topic)))
@@ -480,30 +472,19 @@ list of FragmentC objects"
       (slot-value fragment 'serializer-cache))))
 
 
-(defgeneric serializer-notes (fragment)
-  (:documentation "returns the slot value of serializer-notes or nil,
-                   if it is unbound.")
-  (:method ((fragment FragmentC))
-    (when (slot-boundp fragment 'serializer-notes)
-      (slot-value fragment 'serializer-notes))))
-
-
-(defgeneric serializer-notes-changed-p (fragment)
-  (:documentation "Returns t if the serializer-notes slot contains
-                   a value that does not correspond to the actual
-                   values of the fragment.")
-  (:method ((fragment FragmentC))
-    (let ((top (topic fragment))
-	  (sn (serializer-notes fragment)))
-      (or (/= (length (psis top :revision 0))
-	      (getf sn :psis))
-	  (/= (length (item-identifiers top :revision 0))
-	      (getf sn :iis))
-	  (/= (length (locators top :revision 0))
-	      (getf sn :sls))
-	  (/= (length (names top :revision 0))
-	      (getf sn :names))
-	  (/= (length (occurrences top :revision 0))
-	      (getf sn :occurrences))
-	  (/= (length (player-in-roles top :revision 0))
-	      (getf sn :roles))))))
+(defgeneric serialize-fragment (fragment serializer)
+  (:documentation "returns a string that represents the serialization
+                   of the passed fragment instance.
+                   This method uses the fragments serializer-cache
+                   slot to perform faster, i.e. if the fragment was
+                   once serialized, the next time the cached serialized
+                   data is used again.")
+  (:method ((fragment FragmentC) (serializer Function))
+    (cond ((null (serializer-cache fragment))
+	   (setf (slot-value fragment 'serializer-cache)
+		 (funcall serializer fragment)))
+	  (t
+	   (serializer-cache fragment)))))
+	   
+	  
+		 

@@ -487,18 +487,53 @@
 					    :force-text t)))
 	    (with-writer-lock
 	      (handler-case
-		  (let ((result (json-delete-interface:mark-as-deleted-from-json
-				 json-data :revision (d:get-revision))))
+		  (let* ((rev (d:get-revision))
+			 (result (json-delete-interface:mark-as-deleted-from-json
+				  json-data :revision rev)))
 		    (if result
 			(progn
-			  (when (typep result 'd:TopicC)
-			    (append ;;the append function is used only for suppress
-			            ;;style warnings of unused delete return values
-			     (setf *type-table*
-				   (delete (elephant::oid result) *type-table*))
-			     (setf *instance-table*
-				   (delete (elephant::oid result) *instance-table*))
-			     (remove-topic-from-list result)))
+			  (cond ((typep result 'd:TopicC)
+				 (setf *type-table*
+				       (delete (elephant::oid result) *type-table*))
+				 (setf *instance-table*
+				       (delete (elephant::oid result) *instance-table*))
+				 (remove-topic-from-list result)
+				 (map nil (lambda(fragment)
+					    (when (eql (d:topic fragment) result)
+					      (elephant:drop-instance fragment)))
+				      (elephant:get-instances-by-value
+				       'd:FragmentC 'd:topic result)))
+				((typep result 'd:AssociationC)
+				 (let ((players
+					(delete-if
+					 #'null
+					 (map 'list
+					      (lambda(role)
+						(let ((top (player role
+								   :revision (1- rev))))
+						  (when (psis top :revision 0)
+						    top)))
+					      (roles result :revision (1- rev))))))
+				   (map nil
+					(lambda(plr)
+					  (map nil #'elephant:drop-instance 
+					       (elephant:get-instances-by-value
+						'd:FragmentC 'd:topic plr))
+					  (d:serialize-fragment
+					   (create-latest-fragment-of-topic plr)
+					   (fragment-serializer)))
+					players)))
+				((or (typep result 'd:NameC)
+				     (typep result 'd:OccurrenceC))
+				 (let ((top (parent result :revision (1- rev))))
+				   (when (and top (psis top :revision 0))
+				     (map nil (lambda(frg)
+						(setf (slot-value frg 'd::serializer-cache) nil)
+						(d:serialize-fragment
+						 (get-latest-fragment-of-topic top)
+						 (fragment-serializer)))
+					  (elephant:get-instances-by-value
+					   'd:FragmentC 'd:topic top))))))
 			  (format nil "")) ;operation succeeded
 			(progn
 			  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
@@ -653,16 +688,24 @@
 (defun init-fragments ()
   "Creates fragments of all topics that have a PSI."
   (format t "creating fragments: ")
-  (map 'list #'(lambda(top)
-		 (let ((psis-of-top (psis top)))
-		   (when psis-of-top
-		     (format t ".")
-		     (let ((fragment
-			    (create-latest-fragment-of-topic
-			     (uri (first psis-of-top)))))
-		       (json-exporter:serialize-fragment fragment)
-		       fragment))))
-       (elephant:get-instances-by-class 'd:TopicC)))
+  (map
+   nil
+   (lambda(top)
+     (let ((psis-of-top (psis top)))
+       (when psis-of-top
+	 (format t ".")
+	 (let ((fragment
+		(create-latest-fragment-of-topic
+		 (uri (first psis-of-top)))))
+	   (d:serialize-fragment fragment (fragment-serializer))
+	   fragment))))
+	 (elephant:get-instances-by-class 'd:TopicC)))
+
+
+(defun fragment-serializer ()
+  (lambda(frg)
+    (json-exporter:export-construct-as-isidorus-json-string
+     frg :revision 0)))
 
 
 (defun update-list (top psis)
