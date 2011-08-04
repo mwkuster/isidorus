@@ -1140,8 +1140,8 @@
 	 (when (find-if
 		#'(lambda(vi)
 		    (and (>= revision (start-revision vi))
-			 (or (< revision (end-revision vi))
-			     (= 0 (end-revision vi)))))
+			 (or (= 0 (end-revision vi))
+			     (< revision (end-revision vi)))))
 		(versions construct))
 	   construct))))
 
