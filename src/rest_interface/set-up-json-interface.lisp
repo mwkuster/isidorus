@@ -19,6 +19,11 @@
                                     that represents a list of topics and their
                                     valid psi object id's")
 
+
+(defparameter *use-overview-cache* t "if this boolean vaue is set to t, the rest
+                                      interface uses the *verview-table*-list to
+                                      cache topics and their psis.")
+
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-get-prefix* "/json/get/(.+)$")
 ;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
@@ -125,7 +130,9 @@
 
   ;; === rest interface ========================================================
   (push
-   (create-regex-dispatcher json-get-all-psis #'return-all-topic-psis)
+   (if *use-overview-cache*
+       (create-regex-dispatcher json-get-all-psis #'cached-return-all-topic-psis)
+       (create-regex-dispatcher json-get-all-psis #'return-all-topic-psis))
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-prefix #'return-json-fragment)
@@ -293,6 +300,33 @@
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
+(defun cached-return-all-topic-psis (&optional param)
+  "return all psis currently existing in isidorus as a list of list. every topic is a list
+   of psis and the entire list contains a list of topics"
+  (declare (ignorable param))
+  (let ((http-method (hunchentoot:request-method*)))
+    (if (eq http-method :GET)
+	(progn
+	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	  (handler-case
+	      (with-reader-lock
+		(json:encode-json-to-string
+		 (map 'list
+		      (lambda(item)
+			(map 'list
+			     (lambda(psi-oid)
+			       (d:uri (elephant::controller-recreate-instance
+				       elephant:*store-controller* psi-oid)))
+			     (getf item :psis)))
+		      *overview-table*)))
+	    (condition (err) (progn
+			       (setf (hunchentoot:return-code*)
+				     hunchentoot:+http-internal-server-error+)
+			       (setf (hunchentoot:content-type*) "text")
+			       (format nil "Condition: \"~a\"" err)))))
+	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
 (defun return-json-fragment(&optional psi)
   "returns the json-fragmen belonging to the psi passed by the parameter psi.
    If the topic is marked as deleted the corresponding fragment is treated
@@ -362,7 +396,9 @@
 	      (handler-case
 		  (let ((frag (json-importer:import-from-isidorus-json json-data)))
 		    (when frag
-		      (push-to-cache (d:topic frag))))
+		      (push-to-cache (d:topic frag))
+		      (update-list (d:topic frag)
+				   (d:psis (d:topic frag) :revision 0))))
 		(condition (err)
 		  (progn
 		    (setf (hunchentoot:return-code*)
@@ -458,8 +494,11 @@
 			  (when (typep result 'd:TopicC)
 			    (append ;;the append function is used only for suppress
 			            ;;style warnings of unused delete return values
-			     (delete (elephant::oid result) *type-table*)
-			     (delete (elephant::oid result) *instance-table*)))
+			     (setf *type-table*
+				   (delete (elephant::oid result) *type-table*))
+			     (setf *instance-table*
+				   (delete (elephant::oid result) *instance-table*))
+			     (remove-topic-from-list result)))
 			  (format nil "")) ;operation succeeded
 			(progn
 			  (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
@@ -506,6 +545,9 @@
 		      (cxml:parse xml-data (cxml-dom:make-dom-builder)))))
 		(xtm-importer:importer xml-dom :tm-id tm-id
 				       :xtm-id (xtm-importer::get-uuid))
+		(with-writer-lock
+		  (init-cache)
+		  (init-fragments))
 		(format nil ""))))
 	  (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))
     (condition (err)
@@ -569,6 +611,7 @@
   (with-writer-lock
     (setf *type-table* nil)
     (setf *instance-table* nil)
+    (setf *overview-table* nil)
     (let ((topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*
 				      :revision 0))
 	  (topictype-constraint (json-tmcl::is-type-constrained :revision 0)))
@@ -576,7 +619,16 @@
       (map 'list #'(lambda(top)
 		     (format t ".")
 		     (push-to-cache top topictype topictype-constraint))
-	   (elephant:get-instances-by-class 'TopicC)))))
+	   (elephant:get-instances-by-class 'TopicC)))
+    (when *use-overview-cache*
+      (setf *overview-table*
+	    (remove-null
+	     (map 'list (lambda(top)
+			  (when (find-item-by-revision top 0)
+			    (list :topic (elephant::oid top)
+				  :psis (map 'list #'elephant::oid
+					     (psis top :revision 0)))))
+		  (elephant:get-instances-by-class 'TopicC)))))))
 
 
 (defun push-to-cache (topic-instance &optional
@@ -614,15 +666,16 @@
    psi list."
   (declare (TopicC top)
 	   (List psis))
-  (let ((node
-	 (find-if (lambda(item)
-		    (= (getf item :topic) (elephant::oid top)))
-		  *overview-table*))
-	(psi-oids (map 'list #'elephant::oid psis)))
-    (if node
-	(setf (getf node :psis) psi-oids)
-	(push (list :topic (elephant::oid top) :psis psi-oids)
-	      *overview-table*))))
+  (let ((top-oid (elephant::oid top)))
+    (let ((node
+	   (find-if (lambda(item)
+		      (= (getf item :topic) top-oid))
+		    *overview-table*))
+	  (psi-oids (map 'list #'elephant::oid psis)))
+      (if node
+	  (setf (getf node :psis) psi-oids)
+	  (push (list :topic top-oid :psis psi-oids)
+		*overview-table*)))))
 
 
 (defun remove-psis-from-list (top psis)
@@ -630,14 +683,24 @@
    to the passed topic."
   (declare (TopicC top)
 	   (List psis))
-  (let ((node
-	 (find-if (lambda(item)
-		    (= (getf item :topic) (elephant::oid top)))
-		  *overview-table*))
-	(psi-oids (map 'list #'elephant::oid psis)))
-    (when node
-      (dolist (psi psi-oids)
-	(setf (getf node :psis) (delete psi (getf node :psis) :test #'=))))))
+  (let ((top-oid (elephant::oid top)))
+    (let ((node
+	   (find-if (lambda(item)
+		      (= (getf item :topic) top-oid))
+		    *overview-table*))
+	  (psi-oids (map 'list #'elephant::oid psis)))
+      (when node
+	(dolist (psi psi-oids)
+	  (setf (getf node :psis) (delete psi (getf node :psis) :test #'=)))))))
+
+
+(defun remove-topic-from-list (top)
+  "Removes the node that represents the passed topic item."
+  (declare (TopicC top))
+  (let ((top-oid (elephant::oid top)))
+    (setf *overview-table*
+	  (delete-if (lambda(item) (= (getf item :topic) top-oid))
+		     *overview-table*))))
 
 
 (defun add-to-list (top psis)
@@ -645,11 +708,12 @@
    bound to the psi list of the topic top."
   (declare (TopicC top)
 	   (List psis))
-  (let ((node
-	 (find-if (lambda(item) (= (getf item :topic) (elephant::oid top)))
-		  *overview-table*))
+  (let ((top-oid (elephant::oid top)))
+    (let ((node
+	   (find-if (lambda(item) (= (getf item :topic) top-oid))
+		    *overview-table*))
 	(psi-oids (map 'list #'elephant::oid psis)))
-    (if node
-	(dolist (psi psi-oids)
-	  (pushnew psi (getf node :psis) :test #'=))
-	(push (list :topic top :psis psi-oids) *overview-table*))))
+      (if node
+	  (dolist (psi psi-oids)
+	    (pushnew psi (getf node :psis) :test #'=))
+	  (push (list :topic top-oid :psis psi-oids) *overview-table*)))))

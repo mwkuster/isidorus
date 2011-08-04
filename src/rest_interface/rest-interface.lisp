@@ -23,8 +23,9 @@
 	:json-importer
 	:base-tools
         :isidorus-threading)
-  (:export :import-fragments-feed
-           :import-snapshots-feed
+  (:export :*use-overview-cache*
+	   :import-fragments-feed
+	   :import-snapshots-feed
            :import-tm-feed
            :read-url
            :read-fragment-feed

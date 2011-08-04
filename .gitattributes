@@ -27,6 +27,7 @@ playground/abcl-test/lisp-code/TM-SPARQL/tmsparql_core_psis.xtm -text
 playground/abcl-test/lisp-code/base-tools/base-tools.lisp -text
 playground/abcl-test/lisp-code/test-code/functions.lisp -text
 playground/abcl-test/src/program/Main.java -text
+playground/binary-tree.lisp -text
 playground/call-next-method.lisp -text
 playground/call-next-method_multiple-inheritance.lisp -text
 playground/ii_versioned_association.lisp -text
