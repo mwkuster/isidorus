@@ -4,7 +4,7 @@
 (setf rest-interface:*local-backup-remote-address* "143.93.190.247")
 (setf rest-interface:*remote-backup-remote-address* "143.93.190.247")
 (setf rest-interface:*shutdown-remote-address* "127.0.0.1")
-(rest-interface:start-json-engine "/home/servreg/data_base" :host-name "143.93.190.176" :port 9999)
+(rest-interface:start-json-engine "/home/servreg/data_base" :host-name "143.93.190.176" :port 7000)
 (rest-interface:start-admin-server)
 (rest-interface:die-when-finished)
 
