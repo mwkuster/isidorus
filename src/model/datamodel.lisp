@@ -736,12 +736,13 @@
 	 (elephant:get-instance-by-value
 	  'PersistentIdC 'uri topic-psi)))
     (when psi-inst
-      (let ((latest-va
-	     (get-most-recent-versioned-assoc
-	      psi-inst 'identified-construct)))
-	(when (and latest-va (versions latest-va))
-	  (identified-construct
-	   psi-inst :revision (start-revision (first (versions latest-va)))))))))
+      (identified-construct psi-inst :revision 0))))
+      ;(let ((latest-va
+      ;(get-most-recent-versioned-assoc
+      ;psi-inst 'identified-construct)))
+      ;(when (and latest-va (versions latest-va))
+      ;(identified-construct
+      ;psi-inst :revision (start-revision (first (versions latest-va)))))))))
 
 
 (defun get-db-instances-by-class (class-symbol &key (revision *TM-REVISION*))
