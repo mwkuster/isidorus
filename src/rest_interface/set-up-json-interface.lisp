@@ -340,8 +340,9 @@
 	    (let ((fragment (get-latest-fragment-of-topic identifier)))
 	      (if (and fragment (find-item-by-revision (topic fragment) 0))
 		  (handler-case
-		      (export-construct-as-isidorus-json-string
-		       fragment :revision 0)
+		      (d:serialize-fragment fragment (fragment-serializer))
+		    ;(export-construct-as-isidorus-json-string
+		    ;fragment :revision 0)
 		    (condition (err)
 		      (progn
 			(setf (hunchentoot:return-code*)
