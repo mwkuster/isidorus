@@ -61,7 +61,9 @@
 	   :*xtm-commit-prefix*
 	   :*ready-to-die*
 	   :die-when-finished
-	   :*sparql-url*))
+	   :*sparql-url*
+	   :*use-http-authentication*
+	   :*users*))
 
 
 (in-package :rest-interface)
@@ -89,6 +91,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 (defvar *remote-backup-remote-address* "127.0.0.1")
 (defvar *local-backup-remote-address* "127.0.0.1")
 (defvar *shutdown-remote-address* "127.0.0.1")
+(defvar *users* (list (list :uname "admin" :passwd "admin")))
 
 
 (defun start-admin-server ()
@@ -168,3 +171,15 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
     (hunchentoot:stop *atom-server-acceptor*))
   (setf *atom-server-acceptor* nil)
   (close-tm-store))
+
+
+(defmacro with-http-authentication (&rest body)
+  `(multiple-value-bind (username password) (hunchentoot:authorization)
+     (if (find-if (lambda(item)
+		    (and (stringp (getf item :uname))
+			 (stringp (getf item :passwd))
+			 (string= (getf item :uname) username)
+			 (string= (getf item :passwd) password)))
+		  *users*)
+	 ,@body
+	 (hunchentoot:require-authorization "isidorus"))))

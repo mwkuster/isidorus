@@ -12,17 +12,26 @@
 ;caching tables
 (defparameter *type-table* nil "Cointains integer==OIDs that represent a topic
                                 instance of a vylid type-topic")
+
 (defparameter *instance-table* nil "Contains integer==OIDs that represent a topic
                                     instance of a valid instance-topic")
+
 (defparameter *overview-table* nil "Is of the following structure
                                     ((:topic <oid> :psis (<oid> <oid> <...>)) (...))
                                     that represents a list of topics and their
                                     valid psi object id's")
 
-
 (defparameter *use-overview-cache* t "if this boolean vaue is set to t, the rest
                                       interface uses the *verview-table*-list to
                                       cache topics and their psis.")
+
+(defparameter *use-http-authentication* 0 "if this variable is set to > 0, the
+                                           host page will require basic
+                                           authentication. If it's value is set
+                                           to > 1, all json handlers will require
+                                           basic-authentication. If this value is
+                                           set to 0, no authentication is required.")
+
 
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-get-prefix* "/json/get/(.+)$")
@@ -107,78 +116,173 @@
   ;; e.g. a json error-message.
   (push hunchentoot:+http-internal-server-error+ hunchentoot:*approved-return-codes*)
   ;; === html and css files ====================================================
-  (push
-   (create-static-file-dispatcher-and-handler ajax-user-interface-url ajax-user-interface-file-path "text/html")
-   hunchentoot:*dispatch-table*)
+  (if (> *use-http-authentication* 0)
+      (define-easy-handler (isidorus-ui :uri ajax-user-interface-url
+					:default-request-type :get)
+	  ()
+	(with-http-authentication
+	    (serve-file ajax-user-interface-file-path "text/html")))
+      (push
+       (create-static-file-dispatcher-and-handler
+	ajax-user-interface-url ajax-user-interface-file-path "text/html")
+       hunchentoot:*dispatch-table*))
 
-  (dolist (script-path-and-url (make-file-path-and-url ajax-user-interface-css-directory-path ajax-user-interface-css-prefix))
-    (let ((script-path (getf script-path-and-url :path))
-	  (script-url (getf script-path-and-url :url)))
-      (push 
-       (create-static-file-dispatcher-and-handler script-url script-path)
-       hunchentoot:*dispatch-table*)))
+  (let ((files-and-urls
+	 (make-file-path-and-url ajax-user-interface-css-directory-path
+				 ajax-user-interface-css-prefix)))
+    (dotimes (idx (length files-and-urls))
+      (let ((script-path (getf (elt files-and-urls idx) :path))
+	    (script-url (getf (elt files-and-urls idx) :url)))
+	(push
+	 (create-static-file-dispatcher-and-handler script-url script-path)
+	 hunchentoot:*dispatch-table*))))
 
 
   ;; === ajax frameworks and javascript files ==================================
-  (dolist (script-path-and-url (make-file-path-and-url ajax-javascripts-directory-path ajax-javascripts-url-prefix))
-    (let ((script-path (getf script-path-and-url :path))
-	  (script-url (getf script-path-and-url :url)))
-      (push 
-       (create-static-file-dispatcher-and-handler script-url script-path)
-       hunchentoot:*dispatch-table*)))
+  (let ((files-and-urls (make-file-path-and-url ajax-javascripts-directory-path
+						ajax-javascripts-url-prefix)))
+    (dotimes (idx (length files-and-urls))
+      (let ((script-path (getf (elt files-and-urls idx) :path))
+	    (script-url (getf (elt files-and-urls idx) :url)))
+	(push
+	 (create-static-file-dispatcher-and-handler script-url script-path)
+	 hunchentoot:*dispatch-table*))))
   
 
   ;; === rest interface ========================================================
   (push
    (if *use-overview-cache*
-       (create-regex-dispatcher json-get-all-psis #'cached-return-all-topic-psis)
-       (create-regex-dispatcher json-get-all-psis #'return-all-topic-psis))
+       (create-regex-dispatcher json-get-all-psis
+				(if (> *use-http-authentication* 1)
+				    (lambda(&optional param)
+				      (with-http-authentication
+					  (cached-return-all-topic-psis param)))
+				    #'cached-return-all-topic-psis))
+       (create-regex-dispatcher json-get-all-psis
+				(if (> *use-http-authentication* 1)
+				    (lambda(&optional param)
+				      (with-http-authentication
+					  (return-all-topic-psis param)))
+				    #'return-all-topic-psis)))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-prefix #'return-json-fragment)
+   (create-regex-dispatcher json-get-prefix
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional psi)
+				  (with-http-authentication
+				      (return-json-fragment psi)))
+				#'return-json-fragment))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher get-rdf-prefix #'return-json-rdf-fragment)
+   (create-regex-dispatcher get-rdf-prefix
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional psi)
+				  (with-http-authentication
+				      (return-json-rdf-fragment psi)))
+				#'return-json-rdf-fragment))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-topic-stub-prefix #'return-topic-stub-of-psi)
+   (create-regex-dispatcher json-get-topic-stub-prefix
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional psi)
+				  (with-http-authentication
+				      (return-topic-stub-of-psi psi)))
+				#'return-topic-stub-of-psi))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-all-type-psis #'return-all-tmcl-types)
+   (create-regex-dispatcher json-get-all-type-psis
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (return-all-tmcl-types param)))
+				#'return-all-tmcl-types))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-all-instance-psis #'return-all-tmcl-instances)
+   (create-regex-dispatcher json-get-all-instance-psis
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (return-all-tmcl-instances param)))
+				#'return-all-tmcl-instances))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-type-tmcl-url #'(lambda(&optional param)
-						       (declare (ignorable param))
-						       (return-tmcl-info-of-psis 'json-tmcl::type)))
+   (create-regex-dispatcher json-get-type-tmcl-url
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (declare (ignorable param))
+				  (with-http-authentication
+				      (return-tmcl-info-of-psis 'json-tmcl::type)))
+				(lambda(&optional param)
+				  (declare (ignorable param))
+				  (return-tmcl-info-of-psis 'json-tmcl::type))))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-instance-tmcl-url #'(lambda(&optional param)
-							   (declare (ignorable param))
-							   (return-tmcl-info-of-psis 'json-tmcl::instance)))
+   (create-regex-dispatcher json-get-instance-tmcl-url
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (declare (ignorable param))
+				  (with-http-authentication
+				      (return-tmcl-info-of-psis 'json-tmcl::instance)))
+				(lambda(&optional param)
+				  (declare (ignorable param))
+				  (return-tmcl-info-of-psis 'json-tmcl::instance))))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-overview #'return-overview)
+   (create-regex-dispatcher json-get-overview
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (return-overview param)))
+				#'return-overview))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-commit-url #'json-commit)
+   (create-regex-dispatcher json-commit-url
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (json-commit param)))
+				#'json-commit))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher json-get-summary-url #'return-topic-summaries)
+   (create-regex-dispatcher json-get-summary-url
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (return-topic-summaries param)))
+				#'return-topic-summaries))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher mark-as-deleted-url #'mark-as-deleted-handler)
+   (create-regex-dispatcher mark-as-deleted-url
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (mark-as-deleted-handler param)))
+				#'mark-as-deleted-handler))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher xtm-commit-prefix #'xtm-import-handler)
+   (create-regex-dispatcher xtm-commit-prefix
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional tm-id)
+				  (with-http-authentication
+				      (xtm-import-handler tm-id)))
+				#'xtm-import-handler))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher latest-revision-url #'return-latest-revision)
+   (create-regex-dispatcher latest-revision-url
+			    (if (> *use-http-authentication* 1)
+				(lambda(&optional param)
+				  (declare (ignorable param))
+				  (with-http-authentication
+				      (return-latest-revision)))
+				#'return-latest-revision))
    hunchentoot:*dispatch-table*)
   (push
-   (create-regex-dispatcher sparql-url #'return-tm-sparql)
+   (create-regex-dispatcher sparql-url
+			    (if *use-http-authentication*
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (return-tm-sparql param)))
+				#'return-tm-sparql))
    hunchentoot:*dispatch-table*))
 
 ;; =============================================================================
@@ -462,17 +566,17 @@
   "Returns a json-object representing a topic map overview as a tree(s)"
   (declare (ignorable param))
   (with-reader-lock
-      (handler-case
-	  (let ((json-string
-		 (json-tmcl::tree-view-to-json-string
-		  (json-tmcl::make-tree-view :revision 0))))
-	    (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	    json-string)
-	(Condition (err)
-	  (progn
-	    (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
-	    (setf (hunchentoot:content-type*) "text")
-	    (format nil "Condition: \"~a\"" err))))))
+    (handler-case
+	(let ((json-string
+	       (json-tmcl::tree-view-to-json-string
+		(json-tmcl::make-tree-view :revision 0))))
+	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+	  json-string)
+      (Condition (err)
+	(progn
+	  (setf (hunchentoot:return-code*) hunchentoot:+http-internal-server-error+)
+	  (setf (hunchentoot:content-type*) "text")
+	  (format nil "Condition: \"~a\"" err))))))
 
 
 (defun mark-as-deleted-handler (&optional param)
@@ -762,6 +866,18 @@
 		    *overview-table*))
 	(psi-oids (map 'list #'elephant::oid psis)))
       (if node
-	  (dolist (psi psi-oids)
+	  (dolist (psi psi-oids)1
 	    (pushnew psi (getf node :psis) :test #'=))
 	  (push (list :topic top-oid :psis psi-oids) *overview-table*)))))
+
+
+(defun serve-file (file-path &optional mime-type)
+  "Returns a stream of the corresponding file."
+  (with-open-file (in file-path :direction :input
+		      :element-type 'flex:octet)
+    (when mime-type
+      (setf (hunchentoot:content-type*) mime-type))
+    (let ((data (make-array (file-length in)
+			    :element-type 'flex:octet)))
+      (read-sequence data in)
+      data)))
