@@ -28,9 +28,11 @@
 (defparameter *use-http-authentication* 0 "if this variable is set to > 0, the
                                            host page will require basic
                                            authentication. If it's value is set
-                                           to > 1, all json handlers will require
-                                           basic-authentication. If this value is
-                                           set to 0, no authentication is required.")
+                                           to > 1, all json-commit handlers will require
+                                           basic-authentication. If this value is set to
+                                           > 2 all json-handlers require authentication.
+                                           If this value is set to 0, no authentication
+                                           is required.")
 
 
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
@@ -167,7 +169,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-prefix
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional psi)
 				  (with-http-authentication
 				      (return-json-fragment psi)))
@@ -175,7 +177,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher get-rdf-prefix
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional psi)
 				  (with-http-authentication
 				      (return-json-rdf-fragment psi)))
@@ -183,7 +185,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-topic-stub-prefix
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional psi)
 				  (with-http-authentication
 				      (return-topic-stub-of-psi psi)))
@@ -191,7 +193,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-all-type-psis
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (with-http-authentication
 				      (return-all-tmcl-types param)))
@@ -199,7 +201,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-all-instance-psis
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (with-http-authentication
 				      (return-all-tmcl-instances param)))
@@ -207,7 +209,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-type-tmcl-url
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (declare (ignorable param))
 				  (with-http-authentication
@@ -218,7 +220,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-instance-tmcl-url
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (declare (ignorable param))
 				  (with-http-authentication
@@ -229,7 +231,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-overview
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (with-http-authentication
 				      (return-overview param)))
@@ -245,7 +247,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher json-get-summary-url
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (with-http-authentication
 				      (return-topic-summaries param)))
@@ -269,7 +271,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher latest-revision-url
-			    (if (> *use-http-authentication* 1)
+			    (if (> *use-http-authentication* 2)
 				(lambda(&optional param)
 				  (declare (ignorable param))
 				  (with-http-authentication
@@ -278,7 +280,7 @@
    hunchentoot:*dispatch-table*)
   (push
    (create-regex-dispatcher sparql-url
-			    (if *use-http-authentication*
+			    (if (> *use-http-authentication* 1)
 				(lambda(&optional param)
 				  (with-http-authentication
 				      (return-tm-sparql param)))
