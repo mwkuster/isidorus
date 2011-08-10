@@ -1595,7 +1595,9 @@
           (occurrences top :revision revision))
     (mapc (lambda (ass) (mark-as-deleted ass :revision revision
 					 :source-locator source-locator))
-	  (find-all-associations top :revision 0))
+	  (map 'list (lambda(role)
+		       (parent role :revision revision))
+	       (player-in-roles top :revision revision)))
     (let ((ref (reified-construct top :revision revision)))
       (when ref
 	(private-delete-reified-construct top ref :revision revision)))
