@@ -1577,7 +1577,7 @@
   (when (or (and (not source-locator) sl-provided-p)
 	    (and sl-provided-p
 		 (some (lambda (psi) (string-starts-with (uri psi) source-locator))
-		       (psis top :revision 0))))
+		       (psis top :revision revision))))
     (mapc (lambda(psi)(mark-as-deleted psi :revision revision
 				       :source-locator source-locator))
 	  (psis top :revision revision))

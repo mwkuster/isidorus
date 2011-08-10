@@ -609,7 +609,8 @@
 					    (when (eql (d:topic fragment) result)
 					      (elephant:drop-instance fragment)))
 				      (elephant:get-instances-by-value
-				       'd:FragmentC 'd:topic result)))
+				       'd:FragmentC 'd:topic result))
+				 (update-fragments result rev))
 				((typep result 'd:AssociationC)
 				 (let ((players
 					(delete-if
@@ -652,6 +653,49 @@
 		    (setf (hunchentoot:content-type*) "text")
 		    (format nil "Condition: \"~a\"" err)))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
+
+(defun update-fragments(deleted-topic delete-revision)
+  "Updates all fragments of topics that directly and indireclty
+   related to the delete-topic."
+  (declare (TopicC deleted-topic)
+	   (Integer delete-revision))
+  (let* ((rev (1- delete-revision))
+	 (all-tops
+	  (append
+	   (let ((assocs
+		  (map 'list (lambda(role)
+			       (d:parent role :revision rev))
+		       (d:player-in-roles deleted-topic :revision rev))))
+	     (loop for assoc in assocs
+		append (loop for role in (roles assoc :revision rev)
+			  collect (d:player role :revision rev))))
+	   (let ((items
+		  (append (used-as-theme deleted-topic :revision rev)
+			  (used-as-type deleted-topic :revision rev))))
+	     (loop for item in items
+		when (or (typep item 'NameC) (typep item 'OccurrenceC))
+		collect (parent item :revision rev)
+		when (or (typep item 'RoleC) (typep item 'AssociationC))
+		append (let ((inst (if (typep item 'AssociationC)
+				       item
+				       (d:parent item :revision rev))))
+			 (loop for role in (roles inst :revision rev)
+			    collect (d:player role :revision rev)))))))
+	 (fragments
+	  (delete-if #'null
+		     (map 'list (lambda(top)
+				  (elephant:get-instance-by-value
+				   'd:FragmentC 'd::topic top))
+			  (delete-duplicates
+			   (delete deleted-topic
+				   (delete-if #'null all-tops)))))))
+    (map nil (lambda(frg)
+	       (setf (slot-value frg 'd::serializer-cache) nil)
+	       (d:serialize-fragment frg (fragment-serializer)))
+	 fragments)))
+			       
 
 
 (defun return-latest-revision ()
