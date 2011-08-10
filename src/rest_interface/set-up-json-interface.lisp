@@ -684,13 +684,20 @@
 			 (loop for role in (roles inst :revision rev)
 			    collect (d:player role :revision rev)))))))
 	 (fragments
-	  (delete-if #'null
-		     (map 'list (lambda(top)
-				  (elephant:get-instance-by-value
-				   'd:FragmentC 'd::topic top))
-			  (delete-duplicates
-			   (delete deleted-topic
-				   (delete-if #'null all-tops)))))))
+	  (delete-if
+	   #'null
+	   (map 'list (lambda(top)
+			(let ((all-frgs
+			       (sort 
+				(elephant:get-instances-by-value
+				 'd:FragmentC 'd::topic top)
+				#'> :key 'revision)))
+			  (let ((frg (first all-frgs)))
+			    (map nil 'elephant:drop-instance (rest all-frgs))
+			    frg)))
+		(delete-duplicates
+		 (delete deleted-topic
+			 (delete-if #'null all-tops)))))))
     (map nil (lambda(frg)
 	       (setf (slot-value frg 'd::serializer-cache) nil)
 	       (d:serialize-fragment frg (fragment-serializer)))
