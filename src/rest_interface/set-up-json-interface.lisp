@@ -530,10 +530,20 @@
 	       (elephant:get-instances-by-value
 		'd:FragmentC 'd::topic (d:topic new-fragment))))
   (let* ((rev (d:revision new-fragment))
+	 (frg-top (d:topic new-fragment))
+	 (frg-assocs
+	  (delete-if #'null (map 'list (lambda(role)
+					 (d:parent role :revision rev))
+				 (d:player-in-roles frg-top :revision rev))))
 	 (tops
-	  (loop for assoc in foreign-associations
-	     append (loop for role in (d:roles assoc :revision rev)
-		       collect (d:player role :revision rev)))))
+	  (append 
+	   (loop for assoc in foreign-associations
+	      append (loop for role in (d:roles assoc :revision rev)
+			collect (d:player role :revision rev)))
+	   (delete frg-top
+		   (loop for assoc in frg-assocs
+		      append (loop for role in (d:roles assoc :revision rev)
+				collect (d:player role :revision rev)))))))
     (map 'list (lambda(top)
 		 (map 'list #'elephant:drop-instance
 		      (elephant:get-instances-by-value
