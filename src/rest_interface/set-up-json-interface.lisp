@@ -501,11 +501,15 @@
 					    :force-text t)))
 	    (with-writer-lock
 	      (handler-case
-		  (let ((frag (json-importer:import-from-isidorus-json json-data)))
-		    (when frag
-		      (push-to-cache (d:topic frag))
-		      (update-list (d:topic frag)
-				   (d:psis (d:topic frag) :revision 0))))
+		  (let ((result (json-importer:import-from-isidorus-json json-data)))
+		    (when (getf result :fragment)
+		      (update-fragments-after-commit
+		       (getf result :fragment)
+		       (getf result :foreign-associations))
+		      (push-to-cache (d:topic (getf result :fragment)))
+		      (update-list (d:topic (getf result :fragment))
+				   (d:psis (d:topic (getf result :fragment))
+					   :revision 0))))
 		(condition (err)
 		  (progn
 		    (setf (hunchentoot:return-code*)
@@ -513,6 +517,60 @@
 		    (setf (hunchentoot:content-type*) "text")
 		    (format nil "Condition: \"~a\"" err)))))))
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
+
+(defun update-fragments-after-commit (new-fragment foreign-associations)
+  "Deleted all old fragment that belongs to the topic that is bound to
+   the passed new-fragment. Deletes and creates a new fragment of all
+   players of any association of the passed list foreign-associations."
+  (declare (FragmentC new-fragment)
+	   (List foreign-associations))
+  (map 'list #'elephant:drop-instance
+       (delete new-fragment
+	       (elephant:get-instances-by-value
+		'd:FragmentC 'd::topic (d:topic new-fragment))))
+  (let* ((rev (d:revision new-fragment))
+	 (tops
+	  (loop for assoc in foreign-associations
+	     append (loop for role in (d:roles assoc :revision rev)
+		       collect (d:player role :revision rev)))))
+    (map 'list (lambda(top)
+		 (map 'list #'elephant:drop-instance
+		      (elephant:get-instances-by-value
+		       'd:FragmentC 'd::topic top))
+		 (serialize-fragment (d:create-latest-fragment-of-topic top)
+				     (fragment-serializer)))
+	 (delete-duplicates (delete-if #'null tops)))))
+    
+
+(defun update-fragments-after-commit (new-fragment)
+  "Removes all fragments that belongs to the same topic that the
+   new fragment is bound to, but are older than the new fragment.
+   Updates all fragments that are bound to topics that are players
+   of associations contained in the new fragment."
+  (declare (FragmentC new-fragment))
+  (map nil (lambda(frg)
+	     (when (not (eql frg new-fragment))
+	       (elephant:drop-instance frg)))
+       (elephant:get-instances-by-value
+	'd:FragmentC 'd::topic (d:topic new-fragment)))
+  (let* ((rev (d:revision new-fragment))
+	 (top (d:topic new-fragment))
+	 (tops-to-update
+	  (delete
+	   top
+	   (let ((assocs (map 'list (lambda(role)
+				      (d:parent role :revision rev))
+			      (d:player-in-roles top :revision rev))))
+	     (loop for assoc in assocs
+		append (loop for role in (d:roles assoc :revision rev)
+			  collect (d:player role :revision rev)))))))
+    (map nil (lambda(top)
+	       (map nil #'elephant:drop-instance
+		    (elephant:get-instances-by-value 'd:FragmentC 'd::topic top))
+	       (d:serialize-fragment (create-latest-fragment-of-topic top)
+				     (fragment-serializer)))
+	 tops-to-update)))
 
 
 (defun return-topic-summaries(&optional param)
@@ -610,7 +668,7 @@
 					      (elephant:drop-instance fragment)))
 				      (elephant:get-instances-by-value
 				       'd:FragmentC 'd:topic result))
-				 (update-fragments result rev))
+				 (update-fragments-after-delete result rev))
 				((typep result 'd:AssociationC)
 				 (let ((players
 					(delete-if
@@ -656,7 +714,7 @@
 
 
 
-(defun update-fragments(deleted-topic delete-revision)
+(defun update-fragments-after-delete(deleted-topic delete-revision)
   "Updates all fragments of topics that directly and indireclty
    related to the delete-topic."
   (declare (TopicC deleted-topic)

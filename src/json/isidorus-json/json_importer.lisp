@@ -38,7 +38,8 @@
 	(let ((psi-of-topic
 	       (let ((psi-uris (getf topic-values :subjectIdentifiers)))
 		 (when psi-uris
-		   (first psi-uris)))))
+		   (first psi-uris))))
+	      (committed-associations nil))
 	  (elephant:ensure-transaction (:txn-nosync nil) 
 	    (xtm-importer:with-tm (rev xtm-id (first tm-ids))
 	      (loop for topicStub-values in
@@ -47,10 +48,20 @@
 				  :xtm-id xtm-id))
 	      (json-merge-topic topic-values rev :tm xtm-importer::tm :xtm-id xtm-id)
 	      (loop for association-values in associations-values
-		 do (json-to-association association-values rev
-					 :tm xtm-importer::tm))))
+		 do (push (json-to-association association-values rev
+					       :tm xtm-importer::tm)
+			  committed-associations))))
 	  (when psi-of-topic
-	    (create-latest-fragment-of-topic psi-of-topic)))))))
+	    (let* ((frag (create-latest-fragment-of-topic psi-of-topic))
+		   (foreign-assocs
+		    (nset-difference
+		     committed-associations
+		     (map 'list (lambda(role)
+				  (parent role :revision rev))
+			  (player-in-roles (topic frag) :revision rev)))))
+	      (list :fragment frag
+		    :foreign-associations foreign-assocs))))))))
+		  
 
 
 (defun json-to-association (json-decoded-list start-revision
