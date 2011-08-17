@@ -16,12 +16,12 @@
 . /lib/lsb/init-functions
 
 NAME=isidorus
-DPATH=/home/servreg/.sbcl/site/isidorus/src
+DPATH=/home/isidorus/.sbcl/site/isidorus/src
 DAEMON="/usr/bin/sbcl"
 ARGUMENTS="--load shell_scripts/startIsidorus.lisp"
 PID=/var/run/isidorus.pid
-USER=servreg
-GROUP=servreg
+USER=isidorus
+GROUP=isidorus
 
 start_isidorus () {
   log_daemon_msg "Starting ${NAME}"
