@@ -412,29 +412,34 @@
   (declare (ignorable param))
   (let ((http-method (hunchentoot:request-method*)))
     (if (eq http-method :GET)
-	(progn
-	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	  (handler-case
-	      (with-reader-lock
-		(json:encode-json-to-string
-		 (map 'list
-		      (lambda(item)
-			(map 'list
-			     (lambda(psi-oid)
-			       (d:uri (elephant::controller-recreate-instance
-				       elephant:*store-controller* psi-oid)))
-			     (getf item :psis)))
-		      *overview-table*)))
-	    (condition (err) (progn
-			       (setf (hunchentoot:return-code*)
-				     hunchentoot:+http-internal-server-error+)
-			       (setf (hunchentoot:content-type*) "text")
-			       (format nil "Condition: \"~a\"" err)))))
-	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+        (progn
+          (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+          ;(handler-case
+          (with-reader-lock
+	    (let* ((psi-instances
+		    (map 'list
+			 (lambda(item)
+			   (let ((psi-strs (getf item :psis)))
+			     (map 'list
+				  (lambda(psi-oid)
+				    (d:uri (elephant::controller-recreate-instance
+					    elephant:*store-controller* psi-oid)))
+				  psi-strs)))
+			 *overview-table*))
+		   (result (json:encode-json-to-string psi-instances)))
+	      result))
+          ;(condition (err) (progn
+          ;(setf (hunchentoot:return-code*)
+          ;hunchentoot:+http-internal-server-error+)
+          ;(setf (hunchentoot:content-type*) "text")
+          ;(format nil "Condition: \"~a\"" err)))))
+          )
+        (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+
 
 
 (defun return-json-fragment(&optional psi)
-  "returns the json-fragmen belonging to the psi passed by the parameter psi.                                                 
+  "returns the json-fragmen belonging to the psi passed by the parameter psi.
    If the topic is marked as deleted the corresponding fragment is treated
    as non-existent and an HTTP 404 is set."
   (assert psi)
@@ -443,22 +448,24 @@
         (let ((identifier (string-replace psi "%23" "#")))
           (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
           (with-reader-lock
-	    (handler-case
-		(let* ((fragment (get-latest-fragment-of-topic identifier))
-		       (top (when fragment (topic fragment)))
-		       (result (when top (d:serialize-fragment fragment (fragment-serializer)))))
-		  (if result
-		      result
-		      (progn
-			(setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-			(setf (hunchentoot:content-type*) "text")
-			(format nil "Topic \"~a\" not found" psi))))
-	      (condition (err)
-		(progn
-		  (setf (hunchentoot:return-code*)
-			hunchentoot:+http-internal-server-error+)
-		  (setf (hunchentoot:content-type*) "text")
-		  (format nil "Condition: \"~a\"" err))))))
+	      ;(handler-case
+	      (let* ((fragment (get-latest-fragment-of-topic identifier))
+		     (top (when fragment (topic fragment)))
+		     (serializer (fragment-serializer))
+		     (result (when top (d:serialize-fragment fragment serializer))))
+		(if result
+		    result
+		    (progn
+		      (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+		      (setf (hunchentoot:content-type*) "text")
+		      (format nil "Topic \"~a\" not found" psi))))
+	    ;(condition (err)
+	    ;(progn
+	    ;(setf (hunchentoot:return-code*)
+	    ;hunchentoot:+http-internal-server-error+)
+	    ;(setf (hunchentoot:content-type*) "text")
+	    ;(format nil "Condition: \"~a\"" err))))))
+	    ))
         (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
