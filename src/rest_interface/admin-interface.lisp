@@ -38,7 +38,6 @@
 	    (when elephant:*store-controller*
 	      (xtm-exporter:export-as-xtm
 	       (concat "backup_" (make-date-string (get-universal-time)) ".xtm")
-	       :tm-id "http://isidor.us/backup-tm"
 	       :revision 0))
 	    (shutdown-json-engine)
 	    (shutdown-atom-engine)
