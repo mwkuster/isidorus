@@ -434,32 +434,32 @@
 
 
 (defun return-json-fragment(&optional psi)
-  "returns the json-fragmen belonging to the psi passed by the parameter psi.
+  "returns the json-fragmen belonging to the psi passed by the parameter psi.                                                 
    If the topic is marked as deleted the corresponding fragment is treated
    as non-existent and an HTTP 404 is set."
   (assert psi)
   (let ((http-method (hunchentoot:request-method*)))
     (if (eq http-method :GET)
-	(let ((identifier (string-replace psi "%23" "#")))
-	  (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
-	  (with-reader-lock
-	    (let ((fragment (get-latest-fragment-of-topic identifier)))
-	      (if (and fragment (find-item-by-revision (topic fragment) 0))
-		  (handler-case
-		      (d:serialize-fragment fragment (fragment-serializer))
-		    ;(export-construct-as-isidorus-json-string
-		    ;fragment :revision 0)
-		    (condition (err)
+        (let ((identifier (string-replace psi "%23" "#")))
+          (setf (hunchentoot:content-type*) "application/json") ;RFC 4627
+          (with-reader-lock
+	    (handler-case
+		(let* ((fragment (get-latest-fragment-of-topic identifier))
+		       (top (when fragment (topic fragment)))
+		       (result (when top (d:serialize-fragment fragment (fragment-serializer)))))
+		  (if result
+		      result
 		      (progn
-			(setf (hunchentoot:return-code*)
-			      hunchentoot:+http-internal-server-error+)
+			(setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
 			(setf (hunchentoot:content-type*) "text")
-			(format nil "Condition: \"~a\"" err))))
-		  (progn
-		    (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-		    (setf (hunchentoot:content-type*) "text")
-		    (format nil "Topic \"~a\" not found" psi))))))
-	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
+			(format nil "Topic \"~a\" not found" psi))))
+	      (condition (err)
+		(progn
+		  (setf (hunchentoot:return-code*)
+			hunchentoot:+http-internal-server-error+)
+		  (setf (hunchentoot:content-type*) "text")
+		  (format nil "Condition: \"~a\"" err))))))
+        (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
 (defun return-json-rdf-fragment(&optional psi)
