@@ -2343,27 +2343,28 @@
  (:method ((topic TopicC) &key (tm nil) (revision *TM-REVISION*))
    (declare (type (or null TopicMapC) tm)
 	    (integer revision))
-   (delete-if 
-    #'null
-    (map 'list
-	 #'(lambda(x)
-	     (when (and (parent x :revision revision)
-			(instance-of x :revision revision)
-			(loop for psi in (psis (instance-of x :revision revision)
-					       :revision revision)
-			   when (string= (uri psi) constants:*instance-psi*)
-			   return t))
-	       (loop for role in (roles (parent x :revision revision)
-					:revision revision)
-		  when (not (eq role x))
-		  return (player role :revision revision))))
-	 (if tm
-	     (delete-if-not 
-	      (lambda (role)
-		(in-topicmap tm (parent role :revision revision)
-			     :revision revision))
-	      (player-in-roles topic :revision revision))
-	     (player-in-roles topic :revision revision))))))
+   (delete-duplicates
+    (delete-if 
+     #'null
+     (map 'list
+	  #'(lambda(x)
+	      (when (and (parent x :revision revision)
+			 (instance-of x :revision revision)
+			 (loop for psi in (psis (instance-of x :revision revision)
+						:revision revision)
+			    when (string= (uri psi) constants:*instance-psi*)
+			    return t))
+		(loop for role in (roles (parent x :revision revision)
+					 :revision revision)
+		   when (not (eq role x))
+		   return (player role :revision revision))))
+	  (if tm
+	      (delete-if-not 
+	       (lambda (role)
+		 (in-topicmap tm (parent role :revision revision)
+			      :revision revision))
+	       (player-in-roles topic :revision revision))
+	      (player-in-roles topic :revision revision)))))))
  
 
 (defgeneric list-super-types (topic &key tm revision)
@@ -2372,26 +2373,27 @@
  (:method ((topic TopicC)  &key (tm nil) (revision *TM-REVISION*))
    (declare (type (or null TopicMapC) tm)
 	    (integer revision))
-   (delete-if 
-    #'null
-    (map 'list
-	 #'(lambda(x)
-	     (when (loop for psi in (psis (instance-of x :revision revision)
-					  :revision revision)
-		      when (string= (uri psi) *subtype-psi*)
-		      return t)
-	       (loop for role in (roles (parent x :revision revision)
-					:revision revision)
-		  when (not (eq role x))
-		  return (player role :revision revision))))
-	 (if tm
-	     (delete-if-not 
-	      (lambda (role)
-		(in-topicmap tm (parent role :revision revision)
-			     :revision revision))
-	      (player-in-roles topic :revision revision))
-	     (player-in-roles topic :revision revision))))))
-
+   (delete-duplicates
+    (delete-if 
+     #'null
+     (map 'list
+	  #'(lambda(x)
+	      (when (loop for psi in (psis (instance-of x :revision revision)
+					   :revision revision)
+		       when (string= (uri psi) *subtype-psi*)
+		       return t)
+		(loop for role in (roles (parent x :revision revision)
+					 :revision revision)
+		   when (not (eq role x))
+		   return (player role :revision revision))))
+	  (if tm
+	      (delete-if-not 
+	       (lambda (role)
+		 (in-topicmap tm (parent role :revision revision)
+			      :revision revision))
+	       (player-in-roles topic :revision revision))
+	      (player-in-roles topic :revision revision)))))))
+ 
 
 ;;; CharacteristicC
 (defmethod versions ((construct CharacteristicC))
