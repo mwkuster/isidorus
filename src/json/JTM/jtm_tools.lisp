@@ -111,19 +111,19 @@
 			inner-tops))
 		  (get-all-topics revision)))
 	     (tm-assocs
-	      (xtm-exporter::list-extern-associations :revision revision))
-	             ;(let ((assocs
-		     ;(if tm
-		     ;(delete-if #'(lambda(assoc)
-		     ;(not (find-item-by-revision assoc revision)))
-		     ;(associations tm))
-		     ;(get-all-associations revision))))
-		     ;(if version-1.1-p
-		     ;(set-difference
-		     ;assocs
-		     ;(loop for top in tm-tops
-		     ;append (instance-of-associations top :revision revision)))
-		     ;assocs)))
+	      ;(xtm-exporter::list-extern-associations :revision revision))
+	      (let ((assocs
+		     (if tm
+			 (delete-if #'(lambda(assoc)
+					(not (find-item-by-revision assoc revision)))
+				    (associations tm))
+			 (get-all-associations revision))))
+		(if version-1.1-p
+		    (set-difference
+		     assocs
+		     (loop for top in tm-tops
+			append (instance-of-associations top :revision revision)))
+		    assocs)))
 	     (prefixes
 	      (when version-1.1-p
 		(create-prefix-list-for-tm tm-tops tm-assocs tm :revision revision)))
