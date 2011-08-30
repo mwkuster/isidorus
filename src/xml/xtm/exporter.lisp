@@ -28,27 +28,28 @@
 	   nil)
 	  (t
 	   (loop for item in (d:get-all-associations revision) 
-	      when (and
-		    (= (length (roles item :revision revision)) 2)
-		    (not
-		     (and
-		      (or
-		       (eq instance-topic
-			   (instance-of (first (roles item
-						      :revision revision))
-					:revision revision))
-		       (eq instance-topic
-			   (instance-of (second (roles item
-						       :revision revision))
-					:revision revision)))
-		      (or (eq type-topic
-			      (instance-of (first (roles item
-							 :revision revision))
-					   :revision revision))
-			  (eq type-topic 
-			      (instance-of (second (roles item
+	      when (or (/= (length (roles item :revision revision)) 2)
+		       (and
+			(= (length (roles item :revision revision)) 2)
+			(not
+			 (and
+			  (or
+			   (eq instance-topic
+			       (instance-of (first (roles item
 							  :revision revision))
-					   :revision revision))))))
+					    :revision revision))
+			   (eq instance-topic
+			       (instance-of (second (roles item
+							   :revision revision))
+					    :revision revision)))
+			  (or (eq type-topic
+				  (instance-of (first (roles item
+							     :revision revision))
+					       :revision revision))
+			      (eq type-topic 
+				  (instance-of (second (roles item
+							      :revision revision))
+					       :revision revision)))))))
 	      collect item)))))
 
 
