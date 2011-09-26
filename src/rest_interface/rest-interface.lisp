@@ -32,6 +32,7 @@
            :start-json-engine
 	   :start-atom-engine
 	   :start-admin-server
+	   :start-gdl-engine
 	   :shutdown-json-engine
 	   :shutdown-atom-engine
 	   :*admin-local-backup*
@@ -43,6 +44,8 @@
 	   :*remote-backup-remote-address*
 	   :*local-backup-remote-address*
 	   :*shutdown-remote-address*
+	   :set-up-json-interface
+	   :set-up-gdl-interface
 	   :*json-get-prefix*
 	   :*get-rdf-prefix*
 	   :*json-commit-url*
@@ -61,9 +64,19 @@
 	   :*xtm-commit-prefix*
 	   :*ready-to-die*
 	   :die-when-finished
-	   :*sparql-url*
 	   :*use-http-authentication*
-	   :*users*))
+	   :*users*
+	   :*sparql-url*
+	   :*gdl-get-fragment*
+	   :*gdl-get-schema*
+	   :*gdl-commit-fragment*
+	   :*gdl-delete-fragment*
+	   :*gdl-host-address-hash-object*
+	   :*gdl-host-address-environment*
+	   :*gdl-base-path*
+	   :*gdl-host-file*
+	   :*gdl-tm-id*
+	   :*gdl-sparql*))
 
 
 (in-package :rest-interface)
@@ -84,6 +97,7 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
 
 
 (defvar *json-server-acceptor* nil)
+(defvar *gdl-server-acceptor* nil)
 (defvar *atom-server-acceptor* nil)
 (defvar *admin-server-acceptor* nil)
 (defvar *admin-host-name* "127.0.0.1")
@@ -113,6 +127,25 @@ Copied from http://uint32t.blogspot.com/2007/12/restful-handlers-with-hunchentoo
   (when *admin-server-acceptor*
     (hunchentoot:stop *admin-server-acceptor*))
   (setf *admin-server-acceptor* nil))
+
+
+(defun start-gdl-engine (repository-path &key
+			 (host-name "localhost") (port 8018))
+  "Starts the Topic Maps engine with a given port and address,
+   so the engine can serve and consume gdl-fragments for the
+   gdl-frontend anaToMia."
+  (when *gdl-server-acceptor*
+    (error "The gdl-server is already running"))
+  (setf hunchentoot:*show-lisp-errors-p* t) ;for now
+  (setf hunchentoot:*hunchentoot-default-external-format* 
+	(flex:make-external-format :utf-8 :eol-style :lf))
+  (open-tm-store repository-path)
+  (set-up-gdl-interface)
+  (setf *gdl-server-acceptor*
+	(make-instance 'hunchentoot:acceptor :address host-name :port port))
+  (setf hunchentoot:*lisp-errors-log-level* :info)
+  (setf hunchentoot:*message-log-pathname* "./gdl-hunchentoot-errors.log")
+  (hunchentoot:start *gdl-server-acceptor*))
 
 
 (defun start-json-engine (repository-path &key

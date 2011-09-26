@@ -1,0 +1,5 @@
+#Fri Jul 22 13:36:07 CEST 2011
+eclipse.preferences.version=1
+launchConfigExternalUrlPrefix=192.168.0.4
+warSrcDir=war
+warSrcDirIsOutput=true

@@ -16,41 +16,33 @@
   (let ((instance-topic 
 	 (get-item-by-psi *instance-psi* :revision 0))
 	(type-topic 
-	 (get-item-by-psi *type-psi* :revision 0)))
-    (cond ((and (not (and instance-topic type-topic))
-		(elephant:get-instances-by-class 'TopicMapC))
-	   (error (make-condition
-		   'missing-reference-error
-		   :message
-		   (format nil "Could not resolvethe topics: ~a and ~a~%"
-			   *instance-psi* *type-psi*))))
-	  ((not (and instance-topic type-topic))
-	   nil)
-	  (t
-	   (loop for item in (d:get-all-associations revision) 
-	      when (or (/= (length (roles item :revision revision)) 2)
-		       (and
-			(= (length (roles item :revision revision)) 2)
-			(not
-			 (and
-			  (or
-			   (eq instance-topic
-			       (instance-of (first (roles item
-							  :revision revision))
-					    :revision revision))
-			   (eq instance-topic
-			       (instance-of (second (roles item
-							   :revision revision))
-					    :revision revision)))
-			  (or (eq type-topic
-				  (instance-of (first (roles item
-							     :revision revision))
-					       :revision revision))
-			      (eq type-topic 
-				  (instance-of (second (roles item
-							      :revision revision))
-					       :revision revision)))))))
-	      collect item)))))
+	 (identified-construct 
+	  (elephant:get-instance-by-value 'PersistentIdC 'uri *type-psi*))))
+    (loop for item in (d:get-all-associations revision) 
+       when (let ((assoc-roles (length (roles item :revision revision))))
+	      (or (/= assoc-roles 2)
+		  (and (= assoc-roles 2)
+		       (not (and (or (eq instance-topic
+					 (instance-of
+					  (first (roles item
+							:revision revision))
+					  :revision revision))
+				     (eq instance-topic
+					 (instance-of
+					  (second (roles item
+							 :revision revision))
+					  :revision revision)))
+				 (or (eq type-topic
+					 (instance-of
+					  (first (roles item
+							:revision revision))
+					  :revision revision))
+				     (eq type-topic 
+					 (instance-of
+					  (second (roles item
+							 :revision revision))
+					  :revision revision))))))))
+       collect item)))
 
 
 (defmacro with-xtm2.0 ((tm revision) &body body)
@@ -91,10 +83,11 @@
 	      (if ,tm
 		  (union
 		   (filter-type-instance-topics (d:topics ,tm) tm :revision revision)
-		   (d:associations ,tm))
+		   (list-extern-associations :revision revision))
 		  (union
 		   (elephant:get-instances-by-class 'd:TopicC)
-		   (list-extern-associations :revision revision)))))))
+		   (d:associations ,tm)))))))
+		   
 
 
 (defun export-as-xtm (xtm-path &key 

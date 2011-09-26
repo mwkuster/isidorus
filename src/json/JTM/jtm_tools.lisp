@@ -11,6 +11,7 @@
   (:use :cl :json :datamodel :base-tools :isidorus-threading
 	:constants :exceptions)
   (:export :import-from-jtm
+	   :import-construct-from-jtm-decoded-list
 	   :import-construct-from-jtm-string
 	   :export-as-jtm
 	   :export-as-jtm-string

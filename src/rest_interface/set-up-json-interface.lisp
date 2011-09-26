@@ -35,6 +35,12 @@
                                            is required.")
 
 
+(defparameter *cache-initialised* nil "determines wheter the cache has been
+                                       already set or not")
+
+(defparameter *fragments-initialised* nil "determines wheter the fragments has
+                                           been already initialised or not.")
+
 ;the prefix to get a fragment by the psi -> localhost:8000/json/get/<fragment-psi>
 (defparameter *json-get-prefix* "/json/get/(.+)$")
 ;the prefix to get a fragment by the psi -> localhost:8000/json/rdf/get/<fragment-psi>
@@ -108,9 +114,9 @@
    and also registers a file-hanlder to the html-user-interface"
 
   ;initializes cache and fragments
-  (init-cache)
+  (init-cache nil)
   (format t "~%")
-  (init-fragments)
+  (init-fragments nil)
 
   ;; registers the http-code 500 for an internal server error to the standard
   ;; return codes. so there won't be attached a hunchentoot default message,
@@ -148,8 +154,7 @@
 	    (script-url (getf (elt files-and-urls idx) :url)))
 	(push
 	 (create-static-file-dispatcher-and-handler script-url script-path)
-	 hunchentoot:*dispatch-table*))))
-  
+	 hunchentoot:*dispatch-table*))))  
 
   ;; === rest interface ========================================================
   (push
@@ -700,7 +705,6 @@
 	(setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+))))
 
 
-
 (defun update-fragments-after-delete(deleted-topic delete-revision)
   "Updates all fragments of topics that directly and indireclty
    related to the delete-topic."
@@ -844,7 +848,7 @@
       files-and-urls)))
 
 
-(defun init-cache()
+(defun init-cache(force-init)
   "Initializes the type and instance cache-tables with all valid types/instances"
   (with-writer-lock
     (setf *type-table* nil)
@@ -880,15 +884,15 @@
     (handler-case (progn
 		    (json-tmcl::topictype-p
 		     topic-instance topictype topictype-constraint nil 0)
-		    (push (elephant::oid topic-instance) *type-table*))
+		    (pushnew (elephant::oid topic-instance) *type-table*))
       (condition () nil)))
   (handler-case (progn
 		  (json-tmcl::valid-instance-p topic-instance nil nil 0)
-		  (push (elephant::oid topic-instance) *instance-table*))
+		  (pushnew (elephant::oid topic-instance) *instance-table*))
     (condition () nil)))
 
 
-(defun init-fragments ()
+(defun init-fragments (force-init)
   "Creates fragments of all topics that have a PSI."
   (format t "creating fragments: ")
   (map

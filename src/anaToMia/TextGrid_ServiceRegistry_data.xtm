@@ -1,0 +1,3343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This topic map fragment contains all raw data of the TextGrid          -->
+<!-- ServiceRegistry of 2011-09-23 without any TMCL or GDL schema           -->
+<!-- information.                                                           -->
+<!-- The file TextGrid_ServiceRegistry_required_schema.xtm contains the     -->
+<!-- required TMCL and GDL schema.                                          -->
+<!-- The TMCL definition is described in the file                           -->
+<!-- TextGrid_ServiceRegistry_required_TMCL.xtm.                            -->
+
+<t:topicMap xmlns:t="http://www.topicmaps.org/xtm/" version="2.0">
+  <!-- definition of all required tmcl-types -->
+  <t:topic id="topic-type">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="name-type">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="occurrence-type">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="role-type">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="association-type">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+  
+  <!-- definition of all required topic-types -->
+  <t:topic id="Service">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/types/Service"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="Hash-Object">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/types/Hash-Object"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="Environment">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/types/Environment"/>
+    <t:instanceOf>
+      <t:topicRef href="#topic-type"/>
+    </t:instanceOf>
+  </t:topic>
+  
+  <!-- definition of all required name types -->
+  <t:topic id="environment-name">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment-name"/>
+    <t:instanceOf>
+      <t:topicRef href="#name-type"/>
+    </t:instanceOf>
+  </t:topic>
+  
+  <!-- definition of all required occurrence types -->
+  <t:topic id="hash-type">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-type"/>
+    <t:instanceOf>
+      <t:topicRef href="#occurrence-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="key">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/key"/>
+    <t:instanceOf>
+      <t:topicRef href="#occurrence-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="value">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/value"/>
+    <t:instanceOf>
+      <t:topicRef href="#occurrence-type"/>
+    </t:instanceOf>
+  </t:topic>
+  
+  <!-- definition of all required association types -->
+  <t:topic id="has-environment">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-environment"/>
+    <t:instanceOf>
+      <t:topicRef href="#association-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="has-hash">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-hash"/>
+    <t:instanceOf>
+      <t:topicRef href="#association-type"/>
+    </t:instanceOf>
+  </t:topic>
+  
+  <!-- definition of all required role types -->
+  <t:topic id="environment-role-type">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment"/>
+    <t:instanceOf>
+      <t:topicRef href="#role-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="service-role-type">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/service"/>
+    <t:instanceOf>
+      <t:topicRef href="#role-type"/>
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="hash-role-type">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash"/>
+    <t:instanceOf>
+      <t:topicRef href="#role-type"/>
+    </t:instanceOf>
+  </t:topic>
+  
+  <!-- the actual data (Hash-Object) -->
+  <t:topic id="DefaultMetadataTransformStylesheetTextGridURI">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/DefaultMetadataTransformStylesheetTextGridURI"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">DefaultMetadataTransformStylesheetTextGridURI</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">textgrid:2f7r</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch-public">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgsearch-public"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch-public</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/tgsearch-public</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="StreamingEditor">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/StreamingEditor"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">StreamingEditor</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://134.76.20.86:9090/sedit.xslt/StreamingEditor?wsdl</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="last-api-change">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/last-api-change"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">last-api-change</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">2011-02-15</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="CopyWorkflowTextGridURI">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/CopyWorkflowTextGridURI"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">CopyWorkflowTextGridURI</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">textgrid:h4kg</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="CopyWorkflowTextGridURI">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/CopyWorkflowTextGridURI"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">CopyWorkflowTextGridURI</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">textgrid:f8f5</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="PasswordReset">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/PasswordReset"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">PasswordReset</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgrid-ws3.sub.uni-goettingen.de/cgi-bin/pwReset.pl</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgpublish">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgpublish"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgpublish</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/tgpublish</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="ApprovedServicesTextGridURI">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/ApprovedServicesTextGridURI"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ApprovedServicesTextGridURI</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">textgrid:2f7s</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="logservice">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/logservice"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">logservice</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgridlab.org/1.0/tglog/service</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="StreamingEditor">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/StreamingEditor"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">StreamingEditor</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/sedit.xslt/StreamingEditor?wsdl</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch-public">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgsearch-public"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch-public</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/tgsearch-public</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgsearch"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/tgsearch</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="authz">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/authz"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">authz</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/WebAuthN/WebAuthN2.php?authZinstance=textgrid-ws3.sub.uni-goettingen.de</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="userdata">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/userdata"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">userdata</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/WebAuthN/TextGrid-WebAuth.php?authZinstance=textgrid-ws3.sub.uni-goettingen.de</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="pwchange">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/pwchange"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">pwchange</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/PWchange/index.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="workflow">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/workflow"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">workflow</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/workflow/GWESproxy.wsdl</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgauth">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgauth"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgauth</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/tgauth/tgextra.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="PasswordReset">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/PasswordReset"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">PasswordReset</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/pwReset.pl</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgcrud">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgcrud"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgcrud</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/tgcrud/TGCrudService</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgpublish">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgpublish"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgpublish</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/1.0/tgpublish</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="pwchange">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/pwchange"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">pwchange</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/PWchange/index.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="pwchange">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/pwchange"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">pwchange</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/PWchange/index.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="webpublish">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/webpublish"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">webpublish</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws2.gwdg.de/teiPublisher/1/publish</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="last-api-change">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/last-api-change"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">last-api-change</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">2009-01-21</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="rdf-repository">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/rdf-repository"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">rdf-repository</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8082/openrdf-sesame/repositories/textgrid</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+  
+  <t:topic id="exist">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/exist"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">exist</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8082/exist/services/Query</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="logservice">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/logservice"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">logservice</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8082/axis2/services/textlog</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgcrud">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/tgcrud"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgcrud</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8082/axis2/services/TGCrudService</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/tgsearch"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8082/axis2/services/Metadata</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgauth">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/tgauth"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgauth</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de/rbac-8082/tgextra.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="authz">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/authz"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">authz</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/WebAuthN/WebAuthN.php?authZinstance=ingrid-8082</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="workflow">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/workflow"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">workflow</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8083/gwes/services/GWES</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="ns">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/ns"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ns</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid.info/namespaces/metadata/core/2008-07-24</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="schema">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/schema"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">schema</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">www.textgrid.info/schemas/textgrid-metadata_2008-07-24.xsd</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="webpublish">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/webpublish"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">webpublish</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws2.gwdg.de/teiPublisher/0/publish</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="last-api-change">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/last-api-change"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">last-api-change</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">2009-01-21</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="rdf-repository">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/rdf-repository"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">rdf-repository</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8081/openrdf-sesame/repositories/textgrid</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="exist">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/exist"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">exist</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8081/exist/services/Query</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="logservice">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/logservice"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">logservice</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8081/logservice/textlog</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgcrud">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/tgcrud"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgcrud</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8081/axis2/services/TGCrudService</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/tgsearch"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8081/tgsearch/meta/</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgauth">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/tgauth"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgauth</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de/rbac-8081/tgextra.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+
+  <t:topic id="authz">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/authz"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">authz</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/WebAuthN/WebAuthN.php?authZinstance=ingrid-8081</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="workflow">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/workflow"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">workflow</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de:8083/gwes/services/GWES</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="ns">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/ns"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ns</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid.info/namespaces/metadata/core/2008-07-24</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="schema">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/schema"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">schema</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">www.textgrid.info/schemas/textgrid-metadata_2008-07-24.xsd</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="webpublish">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/webpublish"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">webpublish</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws2.gwdg.de/teiPublisher/2/publish</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="last-api-change">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/last-api-change"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">last-api-change</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">2009-01-21</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="rdf-repository">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/rdf-repository"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">rdf-repository</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/openrdf-sesame/repositories/textgrid</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="exist">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/exist"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">exist</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/exist/services/Query</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="logservice">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/logservice"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">logservice</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/tglog/service</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgcrud">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/tgcrud"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgcrud</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/axis2/services/TGCrudService</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/tgsearch"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/tgsearch/meta/</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgauth">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/tgauth"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgauth</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/tgauth/rbacSoap/tgextra.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="authz">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/authz"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">authz</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/WebAuthN/WebAuthN.php?authZinstance=textgridlab.org</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="workflow">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/workflow"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">workflow</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://ingrid.sub.uni-goettingen.de/gwes/services/GWES</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="ns">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/ns"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ns</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid.info/namespaces/metadata/core/2008-07-24</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="schema">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/schema"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">schema</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">www.textgrid.info/schemas/textgrid-metadata_2008-07-24.xsd</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="exist">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/exist"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">exist</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/exist/services/Query</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgcrud">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgcrud"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgcrud</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/tgcrud/TGCrudService</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="authz">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/authz"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">authz</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/WebAuthN/WebAuthN2.php?authZinstance=textgrid-ws3.sub.uni-goettingen.de</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="logservice">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/logservice"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">logservice</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/tglog/service</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="last-api-change">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/last-api-change"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">last-api-change</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">2011-02-15</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgsearch">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgsearch"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgsearch</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/tgsearch</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="userdata">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/userdata"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">userdata</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/WebAuthN/TextGrid-WebAuth.php?authZinstance=textgrid-ws3.sub.uni-goettingen.de</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="pwchange">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/pwchange"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">pwchange</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgridlab.org/PWchange/index.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="schema">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/schema"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">schema</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.textgrid.de/schemas/textgrid-metadata_2010.xsd</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="workflow">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/workflow"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">workflow</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/workflow/GWESproxy.wsdl</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="tgauth">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgauth"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">tgauth</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">https://textgrid-ws3.sub.uni-goettingen.de/tgauth/tgextra.php</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="webpublish">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/webpublish"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">webpublish</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws2.gwdg.de/teiPublisher/3/publish</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="ns">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/ns"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">ns</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid.info/namespaces/metadata/core/2010</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="rdf-repository">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/rdf-repository"/>
+    <t:instanceOf>
+      <t:topicRef href="#Hash-Object"/>
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#hash-type"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">confserver</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#key"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">rdf-repository</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#value"/>
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://textgrid-ws3.sub.uni-goettingen.de/openrdf-sesame/repositories/textgrid</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+  
+  <!-- the actual data (Environment) -->
+  <t:topic id="newmeta">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/environment/newmeta"/>
+    <t:instanceOf>
+      <t:topicRef href="#Environment"/>
+    </t:instanceOf>
+    <t:name>
+      <t:value>newmeta</t:value>
+      <t:type>
+        <t:topicRef href="#environment-name"/>
+      </t:type>
+    </t:name>
+  </t:topic>
+
+  <t:topic id="1.0">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/environment/1.0"/>
+    <t:instanceOf>
+      <t:topicRef href="#Environment"/>
+    </t:instanceOf>
+    <t:name>
+      <t:value>1.0</t:value>
+      <t:type>
+        <t:topicRef href="#environment-name"/>
+      </t:type>
+    </t:name>
+  </t:topic>
+
+  <t:topic id="production">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/environment/production"/>
+    <t:instanceOf>
+      <t:topicRef href="#Environment"/>
+    </t:instanceOf>
+    <t:name>
+      <t:value>production</t:value>
+      <t:type>
+        <t:topicRef href="#environment-name"/>
+      </t:type>
+    </t:name>
+  </t:topic>
+
+  <t:topic id="testing">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/environment/testing"/>
+    <t:instanceOf>
+      <t:topicRef href="#Environment"/>
+    </t:instanceOf>
+    <t:name>
+      <t:value>testing</t:value>
+      <t:type>
+        <t:topicRef href="#environment-name"/>
+      </t:type>
+    </t:name>
+  </t:topic>
+
+  <t:topic id="development">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/environment/development"/>
+    <t:instanceOf>
+      <t:topicRef href="#Environment"/>
+    </t:instanceOf>
+    <t:name>
+      <t:value>development</t:value>
+      <t:type>
+        <t:topicRef href="#environment-name"/>
+      </t:type>
+    </t:name>
+  </t:topic>
+
+  <!-- the actual data (has-environment associations) -->
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#DefaultMetadataTransformStylesheetTextGridURI"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch-public"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#StreamingEditor"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#last-api-change"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#CopyWorkflowTextGridURI"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#CopyWorkflowTextGridURI"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#PasswordReset"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgpublish"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#ApprovedServicesTextGridURI"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#logservice"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#StreamingEditor"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch-public"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#authz"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#userdata"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#pwchange"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#workflow"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgauth"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#PasswordReset"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgcrud"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#1.0"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgpublish"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#pwchange"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#pwchange"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#webpublish"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#last-api-change"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#rdf-repository"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#exist"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#logservice"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgcrud"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgauth"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#authz"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#workflow"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#ns"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#development"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#schema"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#webpublish"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#last-api-change"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#rdf-repository"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#exist"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#logservice"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgcrud"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgauth"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#authz"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#workflow"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#ns"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#testing"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#schema"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#webpublish"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#last-api-change"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#rdf-repository"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#exist"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#logservice"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgcrud"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgauth"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#authz"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#workflow"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#ns"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#production"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#schema"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#exist"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgcrud"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#authz"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#logservice"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#last-api-change"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgsearch"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#userdata"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#pwchange"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#schema"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#workflow"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#tgauth"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#webpublish"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#ns"/>
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#has-environment"/>
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#environment-role-type"/>
+      </t:type>
+      <t:topicRef href="#newmeta"/>
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#hash-role-type"/>
+      </t:type>
+      <t:topicRef href="#rdf-repository"/>
+    </t:role>
+  </t:association>
+</t:topicMap>

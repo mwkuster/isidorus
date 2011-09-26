@@ -113,6 +113,9 @@
 					    :depends-on ("rest-interface"))
 				     (:file "admin-interface"
 					    :depends-on ("rest-interface"))
+				     (:file "set-up-gdl-interface"
+					    :depends-on ("rest-interface"
+							 "set-up-json-interface"))
                                      (:file "read" 
                                             :depends-on ("rest-interface")))
 		       	:depends-on ("model" "atom" "xml" "TM-SPARQL"
@@ -210,6 +213,8 @@
 								  :depends-on ("jtm_tools"))
 							   (:file "jtm_exporter"
 								  :depends-on ("jtm_tools"))
+							   (:file "jtm_delete_interface"
+								  :depends-on ("jtm_tools" "jtm_importer"))
 							   (:file "jtm_aliases"
 								  :depends-on ("jtm_tools" "jtm_importer" "jtm_exporter")))))
 			:depends-on ("base-tools" "model" "xml" "TM-SPARQL"))

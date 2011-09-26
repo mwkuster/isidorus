@@ -29,7 +29,8 @@
 
 (defun import-construct-from-jtm-string (jtm-string &key
 					 (revision *TM-REVISION*)
-					 (jtm-format :1.1) tm-id)
+					 (jtm-format :1.1) tm-id
+					 (create-fragments nil))
   "Imports the passed jtm-string.
    Note tm-id needs not to be declared, but if the imported construct
    is a topicmap and it has no item-identifiers defined, a JTM-error
@@ -37,32 +38,52 @@
   (declare (String jtm-string)
 	   (type (or Null String) tm-id)
 	   (Integer revision)
-	   (Keyword jtm-format))
-  (let* ((jtm-list (json:decode-json-from-string jtm-string))
-	 (version (get-item :VERSION jtm-list))
+	   (Keyword jtm-format)
+	   (Boolean create-fragments))
+  (let* ((jtm-list (json:decode-json-from-string jtm-string)))
+    (import-construct-from-jtm-decoded-list
+     jtm-list :revision revision :jtm-format jtm-format
+     :tm-id tm-id :create-fragments create-fragments)))
+
+
+(defun import-construct-from-jtm-decoded-list (jtm-list &key
+					       (revision *TM-REVISION*)
+					       (jtm-format :1.1) tm-id
+					       (create-fragments nil))
+  "Imports the passed jtm-decoded-list.
+   Note tm-id needs not to be declared, but if the imported construct
+   is a topicmap and it has no item-identifiers defined, a JTM-error
+   is thrown."
+  (declare (List jtm-list)
+	   (Integer revision)
+	   (Keyword jtm-format)
+	   (type (or Null String) tm-id)
+	   (Boolean create-fragments))
+  (let* ((version (get-item :VERSION jtm-list))
 	 (item_type (get-item :ITEM--TYPE jtm-list))
 	 (prefixes (make-prefix-list-from-jtm-list (get-item :PREFIXES jtm-list)))
 	 (format-1.1-p (eql jtm-format :1.1)))
     (cond ((eql jtm-format :1.0)
 	   (unless (string= version "1.0")
-	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member version must be set to \"1.0\" in JTM version 1.0, but is ~a" version))))
+	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-decoded-list(): the member version must be set to \"1.0\" in JTM version 1.0, but is ~a" version))))
 	   (when prefixes
-	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member prefixes must not be set when using JTM version 1.0, but found: ~a" prefixes)))))
+	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-decoded-list(): the member prefixes must not be set when using JTM version 1.0, but found: ~a" prefixes)))))
 	  ((eql jtm-format :1.1)
 	   (unless (string= version "1.1")
-	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member version must be set to \"1.1\" in JTM version 1.1, but is ~a" version)))))
+	     (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-decoded-list(): the member version must be set to \"1.1\" in JTM version 1.1, but is ~a" version)))))
 	  (t
-	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): only JTM format \"1.0\" and \"1.1\" is supported, but found: \"~a\"" jtm-format)))))
+	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-decoded-list(): only JTM format \"1.0\" and \"1.1\" is supported, but found: \"~a\"" jtm-format)))))
     (cond ((or (not item_type)
 	       (string= item_type item_type-topicmap))
 	   (import-topic-map-from-jtm-list
 	    jtm-list tm-id :revision revision :prefixes prefixes
-	    :instance-of-p format-1.1-p))					   
+	    :instance-of-p format-1.1-p :create-fragments create-fragments))
 	  ((string= item_type item_type-topic)
 	   (import-topic-stub-from-jtm-list jtm-list nil :revision revision
 					    :prefixes prefixes)
-	   (merge-topic-from-jtm-list jtm-list nil :instance-of-p format-1.1-p
-				      :revision revision :prefixes prefixes))
+	   (merge-topic-from-jtm-list jtm-list :instance-of-p format-1.1-p
+				      :revision revision :prefixes prefixes
+				      :create-fragment create-fragments))
 	  ((string= item_type item_type-name)
 	   (import-name-from-jtm-list jtm-list nil :revision revision
 				      :prefixes prefixes))
@@ -79,7 +100,7 @@
 	  (import-association-from-jtm-list jtm-list nil :revision revision
 					    :prefixes prefixes))
 	  (t
-	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-string(): the member \"item_type\" must be set to one of ~a or nil, but found \"~a\". If \"item_type\" is not specified or nil the JTM-data is treated as a topicmap." item_type (list item_type-topicmap item_type-topic item_type-name item_type-variant item_type-occurrence item_type-role item_type-association))))))))
+	   (error (make-condition 'exceptions:JTM-error :message (format nil "From import-construct-from-jtm-decoded-list(): the member \"item_type\" must be set to one of ~a or nil, but found \"~a\". If \"item_type\" is not specified or nil the JTM-data is treated as a topicmap." item_type (list item_type-topicmap item_type-topic item_type-name item_type-variant item_type-occurrence item_type-role item_type-association))))))))
 
 
 (defun import-from-jtm (jtm-path repository-path &key (tm-id (error "you must provide a stable identifier (PSI-style) for this TM")) (revision *TM-REVISION*) (jtm-format :1.1))
@@ -96,13 +117,14 @@
 
 
 (defun import-topic-map-from-jtm-list (jtm-list tm-id &key (revision *TM-REVISION*)
-				       prefixes (instance-of-p t))
+				       prefixes (instance-of-p t)
+				       (create-fragments nil))
   "Creates and returns a topic map corresponding to the tm-id or a given
    item-identifier in the jtm-list and returns the tm construct after all
    topics and associations contained in the jtm-list has been created."
   (declare (List jtm-list prefixes)
 	   (Integer revision)
-	   (Boolean instance-of-p))
+	   (Boolean instance-of-p create-fragments))
   (let* ((iis (let ((value (append (import-identifiers-from-jtm-strings
 				    (get-item :ITEM--IDENTIFIERS jtm-list)
 				    :prefixes prefixes)
@@ -119,8 +141,9 @@
 			     :item-identifiers iis)))
     (import-topic-stubs-from-jtm-lists j-tops (list tm) :revision revision
 				       :prefixes prefixes)
-    (merge-topics-from-jtm-lists j-tops (list tm) :instance-of-p instance-of-p
-				 :revision revision :prefixes prefixes)
+    (merge-topics-from-jtm-lists j-tops :instance-of-p instance-of-p
+				 :revision revision :prefixes prefixes
+				 :create-fragments create-fragments)
     (import-associations-from-jtm-lists j-assocs (list tm) :revision revision
 					:prefixes prefixes)
     tm))
@@ -324,30 +347,34 @@
       assoc)))
 
 
-(defun merge-topics-from-jtm-lists (jtm-lists parents &key (instance-of-p t)
-				    (revision *TM-REVISION*) prefixes)
+(defun merge-topics-from-jtm-lists (jtm-lists &key (instance-of-p t)
+				    (revision *TM-REVISION*) prefixes
+				    (create-fragments nil))
   "Creates and returns a list of topics."
-  (declare (List jtm-lists parents prefixes)
-	   (Boolean instance-of-p)
+  (declare (List jtm-lists prefixes)
+	   (Boolean instance-of-p create-fragments)
 	   (Integer revision))
   (map 'list #'(lambda(jtm-list)
 		 (merge-topic-from-jtm-list
-		  jtm-list parents :revision revision :prefixes prefixes
-		  :instance-of-p instance-of-p))
+		  jtm-list :revision revision :prefixes prefixes
+		  :instance-of-p instance-of-p
+		  :create-fragment create-fragments))
        jtm-lists))
 
 
-(defun merge-topic-from-jtm-list(jtm-list parents &key (instance-of-p t)
-				  (revision *TM-REVISION*) prefixes)
+(defun merge-topic-from-jtm-list(jtm-list &key (instance-of-p t)
+				  (revision *TM-REVISION*) prefixes
+				 (create-fragment nil))
   "Creates and returns a topic object from the passed jtm
    list generated by json:decode-json-from-string.
    Note that the merged topics are not added explicitly to the parent
    topic maps, it is only needed for the instance-of-associations -
    topics are added in the function import-topic-stubs-from-jtm-lists
    to their topic map elements."
-  (declare (List jtm-list prefixes parents)
+  (declare (List jtm-list prefixes)
 	   (Boolean instance-of-p)
-	   (Integer revision))
+	   (Integer revision)
+	   (Boolean create-fragment))
   (let* ((ids (append (get-item :ITEM--IDENTIFIERS jtm-list)
 		      (get-item :SUBJECT--IDENTIFIERS jtm-list)
 		      (get-item :SUBJECT--LOCATORS jtm-list)))
@@ -373,11 +400,29 @@
     (when (and (not instance-of-p) instanceof)
       (error (make-condition 'JTM-error :message (format nil "From merge-topic-from-jtm-list(): the JTM-topic has an instance_of member set, but JTM version 1.0 does not allow an intance_of member within a topic object: ~a" jtm-list))))
     (dolist (type-top instanceof)
-      (make-instance-of-association top type-top parents :revision revision))
+      (make-instance-of-association
+       top type-top (in-topicmaps top :revision revision)
+       :revision revision))
     (dolist (name top-names)
       (add-name top name :revision revision))
     (dolist (occ top-occs)
       (add-occurrence top occ :revision revision))
+    (when create-fragment
+      (let ((all-assocs
+	     (remove-null (map 'list (lambda(role)
+				       (parent role :revision revision))
+			       (player-in-roles top :revision revision)))))
+	(let ((all-tops
+	       (remove-null
+		(loop for assoc in all-assocs
+		   append (map 'list (lambda(role)
+				       (d:player role :revision revision))
+			       (roles assoc :revision revision))))))
+	  (map nil (lambda(top)
+		     (map nil #'elephant:drop-instance
+			  (elephant:get-instances-by-value 'FragmentC 'topic top))
+		     (create-latest-fragment-of-topic top))
+	       (append all-tops (list top))))))
     (format t "t")
     top))
 
@@ -438,7 +483,15 @@
   (let* ((iis (import-identifiers-from-jtm-strings
 	       (get-item :ITEM--IDENTIFIERS jtm-list)
 	       :prefixes prefixes))
-	 (datatype (get-item :DATATYPE jtm-list))
+	 (datatype
+	  (let ((curie (jtm::get-item :DATATYPE jtm-list)))
+	    (cond ((null curie)
+		   constants:*xml-string*)
+		  ((and (tools:string-starts-with curie "[")
+			(tools:string-ends-with curie "]"))
+		   (jtm::compute-uri-from-jtm-identifier curie prefixes))
+		  (t
+		   curie))))
 	 (scope (get-item :SCOPE jtm-list))
 	 (type (get-item :TYPE jtm-list))
 	 (value (get-item :VALUE jtm-list))
@@ -456,7 +509,7 @@
       (error (make-condition 'JTM-error :message (format nil "From import-occurrence-from-jtm-list(): the JTM occurrence ~a must have a type set in its members." jtm-list))))
     (make-construct 'OccurrenceC :start-revision revision
 		    :item-identifiers iis
-		    :datatype (if datatype datatype *xml-string*)
+		    :datatype datatype
 		    :charvalue value
 		    :themes (get-items-from-jtm-references
 			     scope :revision revision :prefixes prefixes)
@@ -491,7 +544,15 @@
   (let* ((iis (import-identifiers-from-jtm-strings
 	       (get-item :ITEM--IDENTIFIERS jtm-list)
 	       :prefixes prefixes))
-	 (datatype (get-item :DATATYPE jtm-list))
+	 (datatype 
+	  (let ((curie (jtm::get-item :DATATYPE jtm-list)))
+	    (cond ((null curie)
+		   constants:*xml-string*)
+		  ((and (tools:string-starts-with curie "[")
+			(tools:string-ends-with curie "]"))
+		   (jtm::compute-uri-from-jtm-identifier curie prefixes))
+		  (t
+		   curie))))
 	 (value (get-item :VALUE jtm-list))
 	 (reifier (get-item :REIFIER jtm-list))
 	 (parent-references (get-item :PARENT jtm-list))

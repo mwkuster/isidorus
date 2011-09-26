@@ -1,0 +1,1441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This topic map fragment describes the required TMCL (2010-05-03)       -->
+<!-- definition for the TextGrid ServiceRegistry of 2011-09-23.             -->
+<!-- I.e. the constraints defined in this fragment refer to                 -->
+<!-- http://textgrid.serviceregistry/model/types/Environment and            -->
+<!-- http://textgrid.serviceregistry/model/types/Hash-Object.               -->
+<!-- The file TextGrid_ServiceRegistry_required_schema.xtm contains the     -->
+<!-- required TMCL and GDL schema.                                          -->
+<!-- The file TextGrid_ServiceRegistry_data.xtm conains the raw data        -->
+<!-- without any schema.                                                    -->
+
+<t:topicMap xmlns:t="http://www.topicmaps.org/xtm/" version="2.0">
+  <t:topic id="t236">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t241">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/name-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t246">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t251">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/role-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t256">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t261">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/card-min" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t266">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/card-max" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t271">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/regexp" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t276">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/datatype" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t281">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t286">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/subject-identifier-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t291">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-name-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t296">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-occurrence-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t301">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/regular-expression-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t306">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/occurrence-datatype-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t311">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/topic-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t316">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/association-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t321">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constrained" />
+    <t:instanceOf>
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t326">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constrained-statement" />
+    <t:instanceOf>
+      <t:topicRef href="#t256" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t331">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constrained-topic-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t256" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t336">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/tmcl/constrained-role" />
+    <t:instanceOf>
+      <t:topicRef href="#t256" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t341">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype" />
+    <t:instanceOf>
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t346">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/subtype" />
+    <t:instanceOf>
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t351">
+    <t:subjectIdentifier href="http://psi.topicmaps.org/iso13250/model/supertype-subtype" />
+    <t:instanceOf>
+      <t:topicRef href="#t256" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t356">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/types/Service" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t361">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/types/Hash-Object" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t366">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/types/Environment" />
+    <t:instanceOf>
+      <t:topicRef href="#t236" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t371">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-type" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t376">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/key" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t381">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/value" />
+    <t:instanceOf>
+      <t:topicRef href="#t246" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t386">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment-name" />
+    <t:instanceOf>
+      <t:topicRef href="#t241" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t391">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-hash" />
+    <t:instanceOf>
+      <t:topicRef href="#t256" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t396">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-environment" />
+    <t:instanceOf>
+      <t:topicRef href="#t256" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t401">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/service" />
+    <t:instanceOf>
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t406">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash" />
+    <t:instanceOf>
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t411">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment" />
+    <t:instanceOf>
+      <t:topicRef href="#t251" />
+    </t:instanceOf>
+  </t:topic>
+
+  <t:topic id="t416">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment-psi-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t286" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/serviceregistry/environment/.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t421">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment-name-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t291" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t426">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/environment-name-regular-expression-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t301" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t431">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-psi-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t286" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^http://textgrid.org/serviceregistry/hashobject/.+/.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t436">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-hash-type-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t296" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t441">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-hash-type-regular-expression-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t301" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t446">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-hash-type-datatype-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t306" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t276" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#string</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t451">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-key-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t296" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t456">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-key-regular-expression-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t301" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t461">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-key-datatype-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t306" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t276" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#string</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t466">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-value-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t296" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t471">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-value-regular-expression-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t301" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t476">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-value-datatype-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t306" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t276" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">http://www.w3.org/2001/XMLSchema#string</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t481">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-type-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t296" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t486">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/hash-type-regular-expression-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t301" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t271" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">^.+$</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t491">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-environment-environment-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t311" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t496">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-environment-environment-association-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t316" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t501">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-environment-hash-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t311" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t506">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-environment-hash-association-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t316" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t511">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-hash-hash-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t311" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t516">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-hash-hash-association-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t316" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t521">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-hash-service-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t311" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:topic id="t526">
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/model/has-hash-service-association-role-constraint" />
+    <t:instanceOf>
+      <t:topicRef href="#t316" />
+    </t:instanceOf>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t261" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+    <t:occurrence>
+      <t:type>
+        <t:topicRef href="#t266" />
+      </t:type>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">1</t:resourceData>
+    </t:occurrence>
+  </t:topic>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t351" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t341" />
+      </t:type>
+      <t:topicRef href="#t281" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t346" />
+      </t:type>
+      <t:topicRef href="#t291" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t351" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t341" />
+      </t:type>
+      <t:topicRef href="#t281" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t346" />
+      </t:type>
+      <t:topicRef href="#t286" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t351" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t341" />
+      </t:type>
+      <t:topicRef href="#t281" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t346" />
+      </t:type>
+      <t:topicRef href="#t296" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t351" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t341" />
+      </t:type>
+      <t:topicRef href="#t281" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t346" />
+      </t:type>
+      <t:topicRef href="#t301" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t351" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t341" />
+      </t:type>
+      <t:topicRef href="#t281" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t346" />
+      </t:type>
+      <t:topicRef href="#t311" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t351" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t341" />
+      </t:type>
+      <t:topicRef href="#t281" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t346" />
+      </t:type>
+      <t:topicRef href="#t316" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t361" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t431" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t366" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t416" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t366" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t421" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t386" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t421" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t386" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t426" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t361" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t436" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t371" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t436" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t371" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t441" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t371" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t446" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t361" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t451" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t376" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t451" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t376" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t456" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t376" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t461" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t361" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t466" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t381" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t466" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t381" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t471" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t381" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t476" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t366" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t491" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t396" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t491" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t411" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t491" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t396" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t496" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t411" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t496" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t361" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t501" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t396" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t501" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t406" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t501" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t396" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t506" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t406" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t506" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t361" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t511" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t391" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t511" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t406" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t511" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t391" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t516" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t406" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t516" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t331" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t356" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t521" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t391" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t521" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t401" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t521" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t326" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t391" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t526" />
+    </t:role>
+  </t:association>
+
+  <t:association>
+    <t:type>
+      <t:topicRef href="#t336" />
+    </t:type>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t321" />
+      </t:type>
+      <t:topicRef href="#t401" />
+    </t:role>
+    <t:role>
+      <t:type>
+        <t:topicRef href="#t281" />
+      </t:type>
+      <t:topicRef href="#t526" />
+    </t:role>
+  </t:association>
+
+</t:topicMap>

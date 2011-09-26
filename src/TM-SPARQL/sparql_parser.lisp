@@ -427,7 +427,7 @@
 	      (progn (add-variable construct "*")
 		     (parse-variables construct (string-after trimmed-str "*")))
 	      (let ((result (parse-variable-name construct trimmed-str)))
-		(add-variable construct (getf result :value))
+		(add-variable construct (trim-whitespace-right (getf result :value)))
 		(parse-variables construct (getf result :next-query))))))))
 
 

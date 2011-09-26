@@ -422,7 +422,7 @@ list of FragmentC objects"
 
 (defun create-latest-fragment-of-topic (topic-or-psi)
   "Returns the latest fragment of the passed topic-psi"
-  (declare (type (or TopicC String) topic-or-psi))
+  (declare (type (or String TopicC) topic-or-psi))
   (let ((topic (if (stringp topic-or-psi)
 		   (get-latest-topic-by-psi topic-or-psi)
 		   topic-or-psi)))

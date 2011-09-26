@@ -1,0 +1,2 @@
+# Module gwt_app_using_mymodule
+# RPC service class, partial path of RPC policy file

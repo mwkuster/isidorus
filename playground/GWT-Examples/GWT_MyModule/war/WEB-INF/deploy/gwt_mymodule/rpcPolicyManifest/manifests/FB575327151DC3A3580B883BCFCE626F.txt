@@ -1,0 +1,2 @@
+serviceClass: us.isidor.gdl.mymodule.client.GreetingService
+path: 9AB3F3F4AFDEC31F802A69BC50F583D7.gwt.rpc
