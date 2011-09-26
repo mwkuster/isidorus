@@ -4460,7 +4460,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">362px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">592px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -4524,7 +4524,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
   </t:topic>
 
@@ -4676,7 +4676,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">232px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">462px</t:resourceData>
     </t:occurrence>
   </t:topic>
 
@@ -4828,7 +4828,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -4991,7 +4991,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -5217,7 +5217,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">362px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">592px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -5349,7 +5349,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
   </t:topic>
 
@@ -5399,7 +5399,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -5568,7 +5568,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -5737,7 +5737,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">230px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">460px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -5924,7 +5924,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">322px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">552px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -6056,7 +6056,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">240px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">470px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -6181,7 +6181,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">322px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">552px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
@@ -6313,7 +6313,7 @@
       <t:type>
         <t:topicRef href="#t2716" />
       </t:type>
-      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">240px</t:resourceData>
+      <t:resourceData datatype="http://www.w3.org/2001/XMLSchema#string">470px</t:resourceData>
     </t:occurrence>
     <t:occurrence>
       <t:type>
