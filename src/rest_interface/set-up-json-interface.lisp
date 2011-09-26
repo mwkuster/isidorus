@@ -850,27 +850,20 @@
 
 (defun init-cache(force-init)
   "Initializes the type and instance cache-tables with all valid types/instances"
-  (with-writer-lock
-    (setf *type-table* nil)
-    (setf *instance-table* nil)
-    (setf *overview-table* nil)
-    (let ((topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*
-				      :revision 0))
-	  (topictype-constraint (json-tmcl::is-type-constrained :revision 0)))
-      (format t "~%initializing cache: ")
-      (map 'list #'(lambda(top)
-		     (format t ".")
-		     (push-to-cache top topictype topictype-constraint))
-	   (elephant:get-instances-by-class 'TopicC)))
-    (when *use-overview-cache*
-      (setf *overview-table*
-	    (remove-null
-	     (map 'list (lambda(top)
-			  (when (find-item-by-revision top 0)
-			    (list :topic (elephant::oid top)
-				  :psis (map 'list #'elephant::oid
-					     (psis top :revision 0)))))
-		  (elephant:get-instances-by-class 'TopicC)))))))
+  (declare (Boolean force-init))
+  (when (or force-init (not *cache-initialised*))
+    (with-writer-lock
+      (setf *type-table* nil)
+      (setf *instance-table* nil)
+      (let ((topictype (get-item-by-psi json-tmcl-constants::*topictype-psi*
+					:revision 0))
+	    (topictype-constraint (json-tmcl::is-type-constrained :revision 0)))
+	(format t "~%initializing cache: ")
+	(map 'list #'(lambda(top)
+		       (format t ".")
+		       (push-to-cache top topictype topictype-constraint))
+	     (elephant:get-instances-by-class 'TopicC))))
+    (setf *cache-initialised* t)))
 
 
 (defun push-to-cache (topic-instance &optional
@@ -894,19 +887,16 @@
 
 (defun init-fragments (force-init)
   "Creates fragments of all topics that have a PSI."
-  (format t "creating fragments: ")
-  (map
-   nil
-   (lambda(top)
-     (let ((psis-of-top (psis top)))
-       (when psis-of-top
-	 (format t ".")
-	 (let ((fragment
-		(create-latest-fragment-of-topic
-		 (uri (first psis-of-top)))))
-	   (d:serialize-fragment fragment (fragment-serializer))
-	   fragment))))
-	 (elephant:get-instances-by-class 'd:TopicC)))
+  (declare (Boolean force-init))
+  (when (or force-init (not *fragments-initialised*))
+    (format t "creating fragments: ")
+    (map 'list #'(lambda(top)
+		   (let ((psis-of-top (psis top)))
+		     (when psis-of-top
+                       (format t ".")
+                       (create-latest-fragment-of-topic (uri (first psis-of-top))))))
+	 (elephant:get-instances-by-class 'd:TopicC))
+    (setf *fragments-initialised* t)))
 
 
 (defun fragment-serializer ()
