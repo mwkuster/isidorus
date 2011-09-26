@@ -242,6 +242,46 @@
 					      :components ((:static-file "home.css")
 							   (:static-file "navi.css")
 							   (:static-file "main.css")))))
+	       (:module "anaToMia"
+			:components ((:static-file "TextGrid_ServiceRegistry_data.xtm")
+				     (:static-file "TextGrid_ServiceRegistry_required_schema.xtm")
+				     (:static-file "TextGrid_ServiceRegistry_required_TMCL.xtm")
+				     (:module "hosted_files"
+					      :components ((:static-file "GDL_Widgets.css")
+							   (:static-file "GDL_Widgets.html")
+							   (:module "gdl_widgets"
+								    :components ((:static-file "0A9476898799A150D840F0B1C3672921.cache.png")
+										 (:static-file "14CD8B5AEEBA08A9924DB4F2D259444E.cache.html")
+										 (:static-file "1FBCFA2B16E083419DC22ADFC6EE3C47.cache.html")
+										 (:static-file "396F806CD63ABD414BFBB9D57429F05B.cache.png")
+										 (:static-file "3BFF09C076E218EF68C7F6FF75CC5B8A.cache.html")
+										 (:static-file "467C3B49DDE1EC44F81C93AA87425C1C.cache.html")
+										 (:static-file "49CB40FF34B545B611623F33CE0C73BB.cache.html")
+										 (:static-file "clear.cache.gif")
+										 (:static-file "D67155A4B4320649EC6CC5E58057DE2F.cache.html")
+										 (:static-file "DF7764EEC1903CD03C9545B354D8D8E4.cache.png")
+										 (:static-file "E44767377485D18D6B6864F65BA8EF73.cache.png")
+										 (:static-file "EDC7827FEEA59EE44AD790B1C6430C45.cache.png")
+										 (:static-file "gdl_widgets.nocache.js")
+										 (:static-file "hosted.html")
+										 (:static-file "textgrid_small.png")
+										 (:module "lib"
+											  :components ((:static-file "tm.min.js")))
+										 (:module "gwt"
+											  :components ((:module "clean"
+														:components ((:static-file "clean.css")
+															     (:static-file "clean_rtl.css")
+															     (:module "images"
+																      :components ((:static-file "circles_ie6.png")
+																		   (:static-file "circles.png")
+																		   (:static-file "corner_ie6.png")
+																		   (:static-file "corner.png")
+																		   (:static-file "hborder_ie6.png")
+																		   (:static-file "hborder.png")
+																		   (:static-file "thumb_horz.png")
+																		   (:static-file "thumb_vertical.png")
+																		   (:static-file "vborder_ie6.png")
+																		   (:static-file "vborder.png")))))))))))))
 	       (:module "threading"
 			:components ((:file "reader-writer"))))
   :depends-on (:cxml
