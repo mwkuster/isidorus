@@ -103,13 +103,13 @@
            {"subject_identifiers":["[gdlt:Commit-Button]"]},
            
            {"subject_identifiers":["[tgg:textgrid-ui-schema]"], "instance_of":["si:[gdlt:Schema]"], "names":[{"type":"si:[gdl:schema-name]", "value":"GDL Schema for the TextGrid-ServiceRegistry-UI"}]},
-           {"subject_identifiers":["[tgg:hash-object-default-creator-topic-view]"], "instance_of":["si:[gdlt:Default-Creator-Topic-View]"], "names":[{"type":"si:[gdl:view-name]", "value":"GDL Default Creator Topic View for instances of http://textgrid.org/serviceregistry/model/Hash-Object"}], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_default_creator_topic_view_id"}, {"type":"si:[gdl:width]", "value":"362px"}, {"type":"si:[gdl:height]", "value":"160px"},{"type":"si:[gdl:background-color]", "value":"#023467"}]},
+           {"subject_identifiers":["[tgg:hash-object-default-creator-topic-view]"], "instance_of":["si:[gdlt:Default-Creator-Topic-View]"], "names":[{"type":"si:[gdl:view-name]", "value":"GDL Default Creator Topic View for instances of http://textgrid.org/serviceregistry/model/Hash-Object"}], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_default_creator_topic_view_id"}, {"type":"si:[gdl:width]", "value":"592px"}, {"type":"si:[gdl:height]", "value":"160px"},{"type":"si:[gdl:background-color]", "value":"#023467"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-view-binding]"], "instance_of":["si:[gdlt:TM-Single-Type-Value]"]},
            
            {"subject_identifiers":["[tgg:hash-hash-type-hidden-value]"], "instance_of":["si:[gdlt:Hidden-Value]"]},
            {"subject_identifiers":["[tgg:hash-hash-type-default-value]"], "instance_of":["si:[gdlt:Default-Literal-Value]"], "occurrences":[{"type":"si:[gdl:literal-value]", "value":"confserver"}]},
            
-           {"subject_identifiers":["[tgg:has-environment-creator-association-view]"], "instance_of":["si:[gdlt:Creator-Association-View]"], "names":[{"type":"si:[gdl:view-name]", "value":"A Creator View for associations of the type http://textgrid.org/serviceregistry/model/has-environment"}], "occurrences":[{"type":"si:[gdl:id]", "value":"has_environment_createor_association_view_id"}, {"type":"si:[gdl:width]", "value":"230px"}]},
+           {"subject_identifiers":["[tgg:has-environment-creator-association-view]"], "instance_of":["si:[gdlt:Creator-Association-View]"], "names":[{"type":"si:[gdl:view-name]", "value":"A Creator View for associations of the type http://textgrid.org/serviceregistry/model/has-environment"}], "occurrences":[{"type":"si:[gdl:id]", "value":"has_environment_createor_association_view_id"}, {"type":"si:[gdl:width]", "value":"460px"}]},
            {"subject_identifiers":["[tgg:hash-object-has-environement-creator-association-view-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"10px"}, {"type":"si:[gdl:left]", "value":"120px"}]},
            
            {"subject_identifiers":["[tgg:has-environment-hash-role-hidden-value]"], "instance_of":["si:[gdlt:Hidden-Value]"]},
@@ -120,7 +120,7 @@
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-env-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]}, 
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-env-value]"], "instance_of":["si:[gdlt:Default-Literal-Value]"], "occurrences":[{"type":"si:[gdl:literal-value]", "value":"environment:"}]}, 
 
-           {"subject_identifiers":["[tgg:hash-object-creator-text-list-box-env]"], "instance_of":["si:[gdlt:List-Box]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_list_box_env_id"}, {"type":"si:[gdl:readonly]", "value":"true"}, {"type":"si:[gdl:width]", "value":"232px"}]},
+           {"subject_identifiers":["[tgg:hash-object-creator-text-list-box-env]"], "instance_of":["si:[gdlt:List-Box]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_list_box_env_id"}, {"type":"si:[gdl:readonly]", "value":"true"}, {"type":"si:[gdl:width]", "value":"462px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-list-box-env-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"0px"}, {"type":"si:[gdl:left]", "value":"0px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-list-box-env-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            {"subject_identifiers":["[tgg:hash-object-has-environment-environment-role-player]"], "instance_of":["si:[gdlt:Role-Player]"]},
@@ -130,7 +130,7 @@
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-key-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-key-value]"], "instance_of":["si:[gdlt:Default-Literal-Value]"], "occurrences":[{"type":"si:[gdl:literal-value]", "value":"key:"}]},
            
-           {"subject_identifiers":["[tgg:hash-object-creator-text-key]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_key_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"230px"},{"type":"si:[gdl:pointer]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
+           {"subject_identifiers":["[tgg:hash-object-creator-text-key]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_key_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"460px"},{"type":"si:[gdl:pointer]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-key-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"40px"}, {"type":"si:[gdl:left]", "value":"120px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-key-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            
@@ -139,7 +139,7 @@
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-value-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-value-value]"], "instance_of":["si:[gdlt:Default-Literal-Value]"], "occurrences":[{"type":"si:[gdl:literal-value]", "value":"value:"}]},
            
-           {"subject_identifiers":["[tgg:hash-object-creator-text-value]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_value_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"230px"},{"type":"si:[gdl:pointer]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
+           {"subject_identifiers":["[tgg:hash-object-creator-text-value]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_value_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"460px"},{"type":"si:[gdl:pointer]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-value-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"70px"}, {"type":"si:[gdl:left]", "value":"120px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-value-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            

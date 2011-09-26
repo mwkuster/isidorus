@@ -68,7 +68,7 @@ public class GdlWebPage {
 		RootPanel.get("GWT_Content").add(this.mainPanel);
 		this.mainPanel.add(this.navigationPanel);
 		this.mainPanel.add(this.contentPanel);
-		this.mainPanel.setPixelSize(1024, 700);
+		this.mainPanel.setPixelSize(1254, 700);
 		this.navigationPanel.add(this.createNewButton);
 		try{
 			this.requestPsis();
@@ -165,7 +165,7 @@ public class GdlWebPage {
 			try{
 				ArrayList<Pair<String, TopicIdentifierTypes>> topicsToCreate = new ArrayList<Pair<String, TopicIdentifierTypes>>();
 				topicsToCreate.add(new Pair<String, TopicIdentifierTypes>(GdlWebPage.this.topicTypePsi, TopicIdentifierTypes.SubjectIdentifier));
-				GdlPanel gdlPanel = new GdlPanel(null, topicsToCreate, 362, 160);
+				GdlPanel gdlPanel = new GdlPanel(null, topicsToCreate, 592, 160);
 				gdlPanel.setTmEngine(new JtmsTmEngine());
 				gdlPanel.setLoadSchemaCallback(new LoadSchemaCallback(GdlWebPage.this));
 				gdlPanel.setCommitCallback(new CommitCallback(GdlWebPage.this));
@@ -189,7 +189,7 @@ public class GdlWebPage {
 			if(obj instanceof Label){
 				Label source = (Label)obj;				
 				try{
-					GdlPanel gdlPanel = new GdlPanel(new Pair<String, TopicIdentifierTypes>(source.getText(), TopicIdentifierTypes.SubjectIdentifier), null, 362, 160);
+					GdlPanel gdlPanel = new GdlPanel(new Pair<String, TopicIdentifierTypes>(source.getText(), TopicIdentifierTypes.SubjectIdentifier), null, 592, 160);
 					gdlPanel.setTmEngine(new JtmsTmEngine());
 					gdlPanel.setLoadSchemaCallback(new LoadSchemaCallback(GdlWebPage.this));
 					gdlPanel.setCommitCallback(new CommitCallback(GdlWebPage.this));
