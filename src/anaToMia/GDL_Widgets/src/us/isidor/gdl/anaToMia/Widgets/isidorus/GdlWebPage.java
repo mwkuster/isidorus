@@ -133,16 +133,18 @@ public class GdlWebPage {
 		String postData = null;
 		if(IsidorusConstants.HASH_OBJECT_PSI.equals(GdlWebPage.this.topicTypePsi)){
 			url = URL.encode(IsidorusConstants.GET_HASH_OBJECT_PSIS_URL);
-			postData = "PREFIX pref:<http://textgrid.org/serviceregistry/model/types>\n" +
+			postData = "PREFIX types:<http://textgrid.org/serviceregistry/model/types/>\n" +
+				 	   "PREFIX model:<http://textgrid.org/serviceregistry/model/>\n" +
 					   "SELECT ?topics WHERE {\n" +
-					   "?topics a pref:Hash-Object.\n" +
+					   "?topics a types:Hash-Object.\n" +
+					   "?topics model:hash-type \"confserver\".\n" + 
 					   "}";
 		}
 		else if(IsidorusConstants.ENVIRONMENT_PSI.equals(GdlWebPage.this.topicTypePsi)){
 			url = URL.encode(IsidorusConstants.GET_ENVIRONMENT_PSIS_URL);
-			postData = "PREFIX pref:<http://textgrid.org/serviceregistry/model/types>\n" +
+			postData = "PREFIX types:<http://textgrid.org/serviceregistry/model/types/>\n" +
 			   "SELECT ?topics WHERE {\n" +
-			   "?topics a pref:Environment.\n" +
+			   "?topics a types:Environment.\n" +
 			   "}";
 		}
 		else{
