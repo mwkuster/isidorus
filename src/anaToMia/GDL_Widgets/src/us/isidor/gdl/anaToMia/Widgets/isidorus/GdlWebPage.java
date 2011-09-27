@@ -121,8 +121,8 @@ public class GdlWebPage {
 	
 	
 	public void createLoadScreenPanel(String title, String message){
-		Window.enableScrolling(false);
 		this.removeLoadScreenPanel();
+		Window.enableScrolling(false);
 		this.loadScreenPanel = new LoadScreenPanel(title, message);
 		RootPanel.get().add(this.loadScreenPanel);
 	}
