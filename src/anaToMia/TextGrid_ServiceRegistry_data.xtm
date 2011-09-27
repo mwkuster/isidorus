@@ -135,7 +135,7 @@
   
   <!-- the actual data (Hash-Object) -->
   <t:topic id="newmeta-DefaultMetadataTransformStylesheetTextGridURI">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/DefaultMetadataTransformStylesheetTextGridURI"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/DefaultMetadataTransformStylesheetTextGridURI"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -159,7 +159,7 @@
   </t:topic>
 
   <t:topic id="newmeta-tgsearch-public">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/tgsearch-public"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgsearch-public"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -183,7 +183,7 @@
   </t:topic>
 
   <t:topic id="newmeta-StreamingEditor">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/StreamingEditor"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/StreamingEditor"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -207,7 +207,7 @@
   </t:topic>
 
   <t:topic id="1.0-last-api-change">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/last-api-change"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/last-api-change"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -231,7 +231,7 @@
   </t:topic>
 
   <t:topic id="1.0-CopyWorkflowTextGridURI">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/CopyWorkflowTextGridURI"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/CopyWorkflowTextGridURI"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -255,7 +255,7 @@
   </t:topic>
 
   <t:topic id="newmeta-CopyWorkflowTextGridURI">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/CopyWorkflowTextGridURI"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/CopyWorkflowTextGridURI"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -279,7 +279,7 @@
   </t:topic>
 
   <t:topic id="newmeta-PasswordReset">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/PasswordReset"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/PasswordReset"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -303,7 +303,7 @@
   </t:topic>
 
   <t:topic id="newmeta-tgpublish">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/tgpublish"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgpublish"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -327,7 +327,7 @@
   </t:topic>
 
   <t:topic id="newmeta-ApprovedServicesTextGridURI">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/ApprovedServicesTextGridURI"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/ApprovedServicesTextGridURI"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -351,7 +351,7 @@
   </t:topic>
 
   <t:topic id="1.0-logservice">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/logservice"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/logservice"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -375,7 +375,7 @@
   </t:topic>
 
   <t:topic id="1.0-StreamingEditor">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/StreamingEditor"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/StreamingEditor"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -399,7 +399,7 @@
   </t:topic>
 
   <t:topic id="1.0-tgsearch-public">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/tgsearch-public"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgsearch-public"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -423,7 +423,7 @@
   </t:topic>
 
   <t:topic id="1.0-tgsearch">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/tgsearch"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgsearch"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -447,7 +447,7 @@
   </t:topic>
 
   <t:topic id="1.0-authz">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/authz"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/authz"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
 
@@ -472,7 +472,7 @@
   </t:topic>
 
   <t:topic id="1.0-userdata">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/userdata"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/userdata"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -496,7 +496,7 @@
   </t:topic>
 
   <t:topic id="1.0-pwchange">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/pwchange"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/pwchange"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -520,7 +520,7 @@
   </t:topic>
 
   <t:topic id="1.0-workflow">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/workflow"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/workflow"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -544,7 +544,7 @@
   </t:topic>
 
   <t:topic id="1.0-tgauth">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/tgauth"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgauth"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -568,7 +568,7 @@
   </t:topic>
 
   <t:topic id="1.0-PasswordReset">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/PasswordReset"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/PasswordReset"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -592,7 +592,7 @@
   </t:topic>
 
   <t:topic id="1.0-tgcrud">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/tgcrud"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgcrud"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -616,7 +616,7 @@
   </t:topic>
 
   <t:topic id="1.0-tgpublish">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/1.0/tgpublish"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/1.0/tgpublish"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -640,7 +640,7 @@
   </t:topic>
 
   <t:topic id="production-pwchange">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/pwchange"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/pwchange"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -664,7 +664,7 @@
   </t:topic>
 
   <t:topic id="testing-pwchange">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/pwchange"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/pwchange"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -688,7 +688,7 @@
   </t:topic>
 
   <t:topic id="development-webpublish">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/webpublish"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/webpublish"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -712,7 +712,7 @@
   </t:topic>
 
   <t:topic id="development-last-api-change">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/last-api-change"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/last-api-change"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -736,7 +736,7 @@
   </t:topic>
 
   <t:topic id="development-rdf-repository">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/rdf-repository"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/rdf-repository"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -760,7 +760,7 @@
   </t:topic>
 
   <t:topic id="development-exist">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/exist"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/exist"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -784,7 +784,7 @@
   </t:topic>
 
   <t:topic id="development-logservice">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/logservice"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/logservice"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -808,7 +808,7 @@
   </t:topic>
 
   <t:topic id="development-tgcrud">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/tgcrud"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/tgcrud"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -832,7 +832,7 @@
   </t:topic>
 
   <t:topic id="development-tgsearch">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/tgsearch"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/tgsearch"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -856,7 +856,7 @@
   </t:topic>
 
   <t:topic id="development-tgauth">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/tgauth"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/tgauth"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -880,7 +880,7 @@
   </t:topic>
 
   <t:topic id="development-authz">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/authz"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/authz"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -904,7 +904,7 @@
   </t:topic>
 
   <t:topic id="development-workflow">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/workflow"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/workflow"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -928,7 +928,7 @@
   </t:topic>
 
   <t:topic id="development-ns">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/ns"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/ns"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -952,7 +952,7 @@
   </t:topic>
 
   <t:topic id="development-schema">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/development/schema"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/development/schema"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -976,7 +976,7 @@
   </t:topic>
 
   <t:topic id="testing-webpublish">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/webpublish"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/webpublish"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1000,7 +1000,7 @@
   </t:topic>
 
   <t:topic id="testing-last-api-change">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/last-api-change"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/last-api-change"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1024,7 +1024,7 @@
   </t:topic>
 
   <t:topic id="testing-rdf-repository">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/rdf-repository"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/rdf-repository"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1048,7 +1048,7 @@
   </t:topic>
 
   <t:topic id="testing-exist">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/exist"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/exist"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1072,7 +1072,7 @@
   </t:topic>
 
   <t:topic id="testing-logservice">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/logservice"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/logservice"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1096,7 +1096,7 @@
   </t:topic>
 
   <t:topic id="testing-tgcrud">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/tgcrud"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/tgcrud"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1121,7 +1121,7 @@
   </t:topic>
 
   <t:topic id="testing-tgsearch">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/tgsearch"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/tgsearch"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1145,7 +1145,7 @@
   </t:topic>
 
   <t:topic id="testing-tgauth">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/tgauth"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/tgauth"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1169,7 +1169,7 @@
   </t:topic>
 
   <t:topic id="testing-authz">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/authz"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/authz"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1193,7 +1193,7 @@
   </t:topic>
 
   <t:topic id="testing-workflow">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/workflow"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/workflow"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1217,7 +1217,7 @@
   </t:topic>
 
   <t:topic id="testing-ns">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/ns"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/ns"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1241,7 +1241,7 @@
   </t:topic>
 
   <t:topic id="testing-schema">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/testing/schema"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/testing/schema"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1265,7 +1265,7 @@
   </t:topic>
 
   <t:topic id="production-webpublish">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/webpublish"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/webpublish"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1289,7 +1289,7 @@
   </t:topic>
 
   <t:topic id="production-last-api-change">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/last-api-change"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/last-api-change"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1313,7 +1313,7 @@
   </t:topic>
 
   <t:topic id="production-rdf-repository">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/rdf-repository"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/rdf-repository"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1337,7 +1337,7 @@
   </t:topic>
 
   <t:topic id="production-exist">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/exist"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/exist"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1361,7 +1361,7 @@
   </t:topic>
 
   <t:topic id="production-logservice">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/logservice"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/logservice"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1385,7 +1385,7 @@
   </t:topic>
 
   <t:topic id="production-tgcrud">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/tgcrud"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/tgcrud"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1409,7 +1409,7 @@
   </t:topic>
 
   <t:topic id="production-tgsearch">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/tgsearch"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/tgsearch"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1433,7 +1433,7 @@
   </t:topic>
 
   <t:topic id="production-tgauth">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/tgauth"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/tgauth"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1457,7 +1457,7 @@
   </t:topic>
 
   <t:topic id="production-authz">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/authz"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/authz"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1481,7 +1481,7 @@
   </t:topic>
 
   <t:topic id="production-workflow">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/workflow"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/workflow"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1505,7 +1505,7 @@
   </t:topic>
 
   <t:topic id="production-ns">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/ns"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/ns"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1529,7 +1529,7 @@
   </t:topic>
 
   <t:topic id="production-schema">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/production/schema"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/production/schema"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1553,7 +1553,7 @@
   </t:topic>
 
   <t:topic id="newmeta-exist">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/exist"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/exist"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1577,7 +1577,7 @@
   </t:topic>
 
   <t:topic id="newmeta-tgcrud">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/tgcrud"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgcrud"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1601,7 +1601,7 @@
   </t:topic>
 
   <t:topic id="newmeta-authz">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/authz"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/authz"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1625,7 +1625,7 @@
   </t:topic>
 
   <t:topic id="newmeta-logservice">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/logservice"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/logservice"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1649,7 +1649,7 @@
   </t:topic>
 
   <t:topic id="newmeta-last-api-change">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/last-api-change"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/last-api-change"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1673,7 +1673,7 @@
   </t:topic>
 
   <t:topic id="newmeta-tgsearch">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/tgsearch"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgsearch"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1697,7 +1697,7 @@
   </t:topic>
 
   <t:topic id="newmeta-userdata">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/userdata"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/userdata"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1721,7 +1721,7 @@
   </t:topic>
 
   <t:topic id="newmeta-pwchange">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/pwchange"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/pwchange"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1745,7 +1745,7 @@
   </t:topic>
 
   <t:topic id="newmeta-schema">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/schema"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/schema"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1769,7 +1769,7 @@
   </t:topic>
 
   <t:topic id="newmeta-workflow">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/workflow"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/workflow"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1793,7 +1793,7 @@
   </t:topic>
 
   <t:topic id="newmeta-tgauth">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/tgauth"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/tgauth"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1817,7 +1817,7 @@
   </t:topic>
 
   <t:topic id="newmeta-webpublish">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/webpublish"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/webpublish"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1841,7 +1841,7 @@
   </t:topic>
 
   <t:topic id="newmeta-ns">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/ns"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/ns"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
@@ -1865,7 +1865,7 @@
   </t:topic>
 
   <t:topic id="newmeta-rdf-repository">
-    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/newmeta/rdf-repository"/>
+    <t:subjectIdentifier href="http://textgrid.org/serviceregistry/hash-object/newmeta/rdf-repository"/>
     <t:instanceOf>
       <t:topicRef href="#Hash-Object"/>
     </t:instanceOf>
