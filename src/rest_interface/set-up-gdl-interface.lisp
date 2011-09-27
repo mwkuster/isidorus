@@ -49,23 +49,48 @@
 		     :host-file host-file :base-path base-path)
   
   (push
-   (create-regex-dispatcher get-fragment #'return-json-fragment-handler)
+   (create-regex-dispatcher get-fragment
+			    (if (> *use-http-authentication* 2)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (return-json-fragment-handler param)))
+				#'return-json-fragment-handler))
    hunchentoot:*dispatch-table*)
 
   (push
-   (create-regex-dispatcher get-schema #'return-gdl-schema-handler)
+   (create-regex-dispatcher get-schema
+			    (if (> *use-http-authentication* 2)
+				(lambda()
+				  (with-http-authentication
+				      (return-gdl-schema-handler)))
+				#'return-gdl-schema-handler))
    hunchentoot:*dispatch-table*)
 
   (push
-   (create-regex-dispatcher commit-fragment #'commit-fragment-handler)
+   (create-regex-dispatcher commit-fragment
+			    (if (> *use-http-authentication* 1)
+				(lambda()
+				  (with-http-authentication
+				      (commit-fragment-handler)))
+				#'commit-fragment-handler))
    hunchentoot:*dispatch-table*)
 
   (push
-   (create-regex-dispatcher delete-fragment #'delete-handler)
+   (create-regex-dispatcher delete-fragment
+			    (if (> *use-http-authentication* 1)
+				(lambda()
+				  (with-http-authentication
+				      (delete-handler)))
+				#'delete-handler))
    hunchentoot:*dispatch-table*)
 
   (push
-   (create-regex-dispatcher gdl-sparql #'gdl-sparql-handler)
+   (create-regex-dispatcher gdl-sparql
+			    (if (> *use-http-authentication* 2)
+				(lambda(&optional param)
+				  (with-http-authentication
+				      (gdl-sparql-handler param)))
+				#'gdl-sparql-handler))
    hunchentoot:*dispatch-table*))
 
 
@@ -86,14 +111,27 @@
 	  (namestring
 	   (asdf:component-pathname constants:*isidorus-system*))
 	  base-path)))
-    (push
-     (create-static-file-dispatcher-and-handler
-      host-address-hash-object full-host-path "text/html")
-     hunchentoot:*dispatch-table*)
-    (push
-     (create-static-file-dispatcher-and-handler
-      host-address-environment full-host-path "text/html")
-     hunchentoot:*dispatch-table*)
+    (if (> *use-http-authentication* 0)
+	(progn
+	  (define-easy-handler (isidorus-ui :uri host-address-hash-object
+					    :default-request-type :get)
+	      ()
+	    (with-http-authentication
+		(serve-file full-host-path "text/html")))
+	  (define-easy-handler (isidorus-ui :uri host-address-environment
+					    :default-request-type :get)
+	      ()
+	    (with-http-authentication
+		(serve-file full-host-path "text/html"))))
+	(progn
+	  (push
+	   (create-static-file-dispatcher-and-handler
+	    host-address-hash-object full-host-path "text/html")
+	   hunchentoot:*dispatch-table*)
+	  (push
+	   (create-static-file-dispatcher-and-handler
+	    host-address-environment full-host-path "text/html")
+	   hunchentoot:*dispatch-table*)))
     ; add all additional files
     (let ((absolute-base-path-len (length absolute-base-path)))
       (com.gigamonkeys.pathnames:walk-directory
