@@ -66,7 +66,7 @@
            {"subject_identifiers":["[gdl:width]"], "instance_of":["si:[tmcl:occurrence-type]"]},
            {"subject_identifiers":["[gdl:padding-left]"], "instance_of":["si:[tmcl:occurrence-type]"]},
            {"subject_identifiers":["[gdl:height]"], "instance_of":["si:[tmcl:occurrence-type]"]},
-           {"subject_identifiers":["[gdl:pointer]"], "instance_of":["si:[tmcl:occurrence-type]"]},
+           {"subject_identifiers":["[gdl:cursor]"], "instance_of":["si:[tmcl:occurrence-type]"]},
            {"subject_identifiers":["[gdl:border-style]"], "instance_of":["si:[tmcl:occurrence-type]"]},
            {"subject_identifiers":["[gdl:background-color]"], "instance_of":["si:[tmcl:occurrence-type]"]},
            {"subject_identifiers":["[gdl:color]"], "instance_of":["si:[tmcl:occurrence-type]"]},
@@ -130,7 +130,7 @@
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-key-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-key-value]"], "instance_of":["si:[gdlt:Default-Literal-Value]"], "occurrences":[{"type":"si:[gdl:literal-value]", "value":"key:"}]},
            
-           {"subject_identifiers":["[tgg:hash-object-creator-text-key]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_key_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"460px"},{"type":"si:[gdl:pointer]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
+           {"subject_identifiers":["[tgg:hash-object-creator-text-key]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_key_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"460px"},{"type":"si:[gdl:cursor]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-key-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"40px"}, {"type":"si:[gdl:left]", "value":"120px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-key-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            
@@ -139,7 +139,7 @@
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-value-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-label-value-value]"], "instance_of":["si:[gdlt:Default-Literal-Value]"], "occurrences":[{"type":"si:[gdl:literal-value]", "value":"value:"}]},
            
-           {"subject_identifiers":["[tgg:hash-object-creator-text-value]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_value_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"460px"},{"type":"si:[gdl:pointer]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
+           {"subject_identifiers":["[tgg:hash-object-creator-text-value]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"hash_object_text_value_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"460px"},{"type":"si:[gdl:cursor]", "value":"text"}, {"type":"si:[gdl:border-style]", "value":"none"}, {"type":"si:[gdl:padding-left]", "value":"2px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-value-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"70px"}, {"type":"si:[gdl:left]", "value":"120px"}]},
            {"subject_identifiers":["[tgg:hash-object-creator-text-value-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
            
