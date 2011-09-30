@@ -121,10 +121,8 @@
 		       	:depends-on ("model" "atom" "xml" "TM-SPARQL"
 				     "json" "threading" "base-tools"))
 	       (:module "unit_tests"
-			:components ((:static-file "textgrid.xtm")
-				     (:static-file "jtm_1.0_test.jtm")
+			:components ((:static-file "jtm_1.0_test.jtm")
 				     (:static-file "jtm_1.1_test.jtm")
-				     (:static-file "textgrid_old.xtm")
 				     (:static-file "dangling_topicref.xtm")
 				     (:static-file "inconsistent.xtm")               
 				     (:static-file "notificationbase.xtm")           
@@ -243,10 +241,7 @@
 							   (:static-file "navi.css")
 							   (:static-file "main.css")))))
 	       (:module "anaToMia"
-			:components ((:static-file "TextGrid_ServiceRegistry_data.xtm")
-				     (:static-file "TextGrid_ServiceRegistry_required_schema.xtm")
-				     (:static-file "TextGrid_ServiceRegistry_required_TMCL.xtm")
-				     (:module "hosted_files"
+			:components ((:module "hosted_files"
 					      :components ((:static-file "GDL_Widgets.css")
 							   (:static-file "GDL_Widgets.html")
 							   (:module "gdl_widgets"
