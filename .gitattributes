@@ -343,6 +343,7 @@ src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/GdlVisibleObjec
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/IGdlContainer.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/PSIs.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/TestClass.java -text
+src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/TestLoadSchemaCallback.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/TmHelper.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/Utils.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/button/GdlActionButton.java -text

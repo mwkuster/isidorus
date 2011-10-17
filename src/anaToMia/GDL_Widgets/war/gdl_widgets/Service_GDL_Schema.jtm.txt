@@ -1,5 +1,5 @@
-==> Service                              *
-  ==> subject-identifier-constraint      *
+==> Service                              **
+  ==> subject-identifier-constraint      **
   ==> subject-locator-constraint		 *
   ==> item-identifier-constraint         *
   ==> topic-name-constraint              *
@@ -36,7 +36,7 @@
   ==> scope-constraint                   *
   ==> scope-required-constraint          *
   ==> Roles
-    ==> item-identifier-constraint
-    ==> reifier-constraint
+    ==> item-identifier-constraint       *
+    ==> reifier-constraint               *
     ==> Type
     ==> Role-Player
