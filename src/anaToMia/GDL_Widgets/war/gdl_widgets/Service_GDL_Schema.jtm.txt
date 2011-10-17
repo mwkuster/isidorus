@@ -1,0 +1,42 @@
+==> Service                              *
+  ==> subject-identifier-constraint      *
+  ==> subject-locator-constraint		 *
+  ==> item-identifier-constraint         *
+  ==> topic-name-constraint              *
+    ==> regular-expression-constraint    *
+    ==> Type
+    ==> scope-constraint                 *
+    ==> reifier-constraint               *
+    ==> item-identifier-constraint       *
+    ==> variant-name-constraint          *
+      ==> Datatype
+      ==> Variant-Name-Scope
+      ==> Variant-Name-Identifiers
+      ==> Variant-Name-Reifier
+  
+  
+==> Endpoint                             *
+  ==> subject-identifier-constraint      *
+  ==> item-identifier-constraint         *
+  ==> topic-occurrence-constraint        *
+    ==> regular-expression-constraint    *
+    ==> occurrence-datatype-constraint   *
+    ==> Datatype
+    ==> Type
+    ==> reifier-constraint               *
+    ==> item-identifier-constraint       *
+    
+    
+==> has-endpoint                         *
+  ==> association-role-constraint        *
+  ==> topic-role-constraint              *
+  ==> item-identifier-constraint         *
+  ==> Type
+  ==> reifier-constraint                 *
+  ==> scope-constraint                   *
+  ==> scope-required-constraint          *
+  ==> Roles
+    ==> item-identifier-constraint
+    ==> reifier-constraint
+    ==> Type
+    ==> Role-Player

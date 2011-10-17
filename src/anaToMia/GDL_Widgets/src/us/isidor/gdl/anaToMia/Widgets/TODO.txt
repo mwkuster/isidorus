@@ -1,9 +1,8 @@
 * implement export of Fragments, e.g. exportJTM11Fragment(ArrayList<Topic> topics, ArrayList<Association> associaitions),
      e.i. the passed topics and associations must be exported with all characteristics and associations,
      and all referenced topics must be exported as stubs
-* implement validation
-* implement the handling of default-values
-* Implement TopicMaps data consumption
-* Implement TopicMaps data generation
-* Implement HiddenValue
+* implement all constraints 
+   * TM-generation
+   * TM-consumption
+   * TM-validation
 * Fix css-pseudo-class-handlers

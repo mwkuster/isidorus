@@ -1893,7 +1893,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	// sets the fields for the received data
 	protected void setReceivedData() throws InvalidGdlSchemaException, ExecutionException {
-		if(receivedData == null) return;
+if(receivedData == null) return;
 		
 		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
 			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
@@ -1937,6 +1937,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			Topic occurrenceType = TmHelper.getConstrainedStatement(this.getConstraint());
 			for(int i = 0; i != ((Topic)this.receivedData).getOccurrences(occurrenceType).length(); ++i)
 				this.addSubItem(((Topic)this.receivedData).getOccurrences(occurrenceType).get(i).getValue());
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
+			// TODO: implement: reifier-constraint
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
+			// TODO: implement: variant-name-constraint
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
+			// TODO: implement: scope-constraint
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
 			if(!(receivedData instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + receivedData.getClass());
 			if(this.getRootConstraint() == null || !TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but ist bound to the root topic: " + (this.getRootConstraint() == null ? "null" : TmHelper.getAnyIdOfTopic(this.getRootConstraint())));
@@ -1948,8 +1954,19 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 					this.addSubItem(this.getTopicRepresentation(assocRoles.get(i).getPlayer(), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
 				}
 			}
+		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlType)){
+			// TODO: implement: Type
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlDatatype)){
+			// TODO: implement: Datatype
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
+			// TODO: implement: Variant-Name-Identifiers
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
+			// TODO: implement: Variant-Name-Reifier
+		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
+			// TODO: implement: Variant-Name-Scope
+		} else {
+			throw new InvalidGdlSchemaException("The constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not suported to be bound to the value group instance " + TmHelper.getAnyIdOfTopic(this.getValueGroup()));
 		}
-		// TODO: implement type, variant, datatype, associations, roles, ... constraints
 	}
 	
 	

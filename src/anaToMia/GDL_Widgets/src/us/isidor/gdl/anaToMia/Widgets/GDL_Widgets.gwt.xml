@@ -18,10 +18,10 @@
   <inherits name="com.google.gwt.http.HTTP" />
   
   <!-- Specify the app entry point class.                         -->
-  <!-- <entry-point class='us.isidor.gdl.anaToMia.Widgets.base.TestClass'/> -->
+  <entry-point class='us.isidor.gdl.anaToMia.Widgets.base.TestClass'/>
   <!-- <entry-point class="us.isidor.gdl.anaToMia.Widgets.isidorus.HashObjectUi"/> -->
   <!-- <ntry-point class="us.isidor.gdl.anaToMia.Widgets.isidorus.EnvironmentUi"/> -->
-  <entry-point class='us.isidor.gdl.anaToMia.Widgets.isidorus.IsidorusEntryPoint'/>
+  <!-- <entry-point class='us.isidor.gdl.anaToMia.Widgets.isidorus.IsidorusEntryPoint'/> -->
   
 
   <!-- Specify the paths for translatable code                    -->
