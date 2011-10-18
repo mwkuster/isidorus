@@ -2,9 +2,6 @@ package us.isidor.gdl.anaToMia.Widgets.base;
 
 
 import java.util.ArrayList;
-
-import org.apache.commons.codec.language.RefinedSoundex;
-
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Association;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Name;
@@ -1979,7 +1976,27 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				}
 			}
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlType)){
-			// TODO: implement: Type
+			Topic type = null;
+			if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
+				if(!(this.receivedData instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
+				type = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
+				if(!(this.receivedData instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
+				type = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)){
+				if(!(this.receivedData instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
+				type = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclAssociationRoleConstraint)){
+				if(!(this.receivedData instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
+				type = TmHelper.getConstraintRoleOfConstraint(this.getRootConstraint());
+			} else {
+				String constraints = PSIs.TMCL.tmclTopicNameConstraint + ", " + PSIs.TMCL.tmclTopicOccurrenceConstraint + ", " + PSIs.TMCL.tmclTopicRoleConstraint + ", " + PSIs.TMCL.tmclAssociationRoleConstraint;
+				throw new ExecutionException("The topic " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to the following root constraints: " + constraints);
+			}
+	
+			String str = this.getTopicRepresentation(type, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
+			if(str == null) str = "";
+			this.addSubItem(str);
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlDatatype)){
 			// TODO: implement: Datatype
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
