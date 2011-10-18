@@ -1936,6 +1936,9 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(constrainedTopicType);
 					if(occs.length() != 0) ref = occs.get(0);
 				}
+			} else if(this.receivedData instanceof Association){
+				JsArray<Role> roles = ((Association)this.receivedData).getRoles(constrainedTopicType);
+				if(roles.length() != 0) ref = roles.get(0);
 			}
 			
 			// search for item-identifiers of the found topic type or characteristics
