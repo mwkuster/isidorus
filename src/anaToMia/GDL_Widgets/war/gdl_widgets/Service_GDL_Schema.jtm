@@ -7,9 +7,14 @@
              "gdlt":"http://psi.isidor.us/gdl/types/",
              "gdlsrv":"http://service.org/serviceregistry/gdl/",
              "types":"http://services.org/serviceregistry/model/types/",
-             "srv":"http://service.org/serviceregistry/"},
+             "srv":"http://service.org/serviceregistry/",
+             "iipref":"http://service.org/serviceregistry/iis/",
+             "slpref":"http://service.org/serviceregistry/sls/",
+             "srvpref":"http://service.org/serviceregistry/psis/service/"},
+
 
  "item_type":"topicmap",
+
 
  "topics": [{"subject_identifiers":["[tmcl:topic-type]"], "instance_of":["si:[tmcl:topic-type]"]},
  		    {"subject_identifiers":["[tmcl:name-type]"], "instance_of":["si:[tmcl:topic-type]"]},
@@ -170,22 +175,41 @@
             {"subject_identifiers":["[gdlsrv:service-psis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             
             {"subject_identifiers":["[gdlsrv:service-sls-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_sls_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
-            {"subject_identifiers":["[gdlsrv:service-sls-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"30px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-sls-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"40px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-sls-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             
             {"subject_identifiers":["[gdlsrv:service-iis-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_iis_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
-            {"subject_identifiers":["[gdlsrv:service-iis-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"50px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-iis-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"70px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-iis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             
             {"subject_identifiers":["[gdlsrv:service-name-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_name_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
-            {"subject_identifiers":["[gdlsrv:service-name-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"70px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"110px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-name-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             
             {"subject_identifiers":["[gdlsrv:service-name-type-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_name_type_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
-            {"subject_identifiers":["[gdlsrv:service-name-type-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"90px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-type-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"150px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-name-type-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
-            {"subject_identifiers":["[model:service-name-type-constraint]"], "instance_of":["si:[gdlt:Type]"]}
+            {"subject_identifiers":["[model:service-name-type-constraint]"], "instance_of":["si:[gdlt:Type]"]},
+            
+            {"subject_identifiers":["[gdlsrv:service-name-scope-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_name_scope_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-scope-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"190px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-scope-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
+            
+            {"subject_identifiers":["[gdlsrv:service-name-reifier-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_name_reifier_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-reifier-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"230px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-reifier-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
+            
+            {"subject_identifiers":["[gdlsrv:service-name-iis-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_name_iis_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-iis-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"270px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-name-iis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
+            
+            
+            
+            {"subject_identifiers":["[model:sort-service-name-reifier]"], "instance_of":["si:[types:Reifier-Type]"]},
+            {"subject_identifiers":["[model:sort-service-variant-name-reifier]"], "instance_of":["si:[types:Reifier-Type]"]},
+            {"subject_identifiers":["[srvpref:sort-service]"], "subject_locators":["[slpref:sort-service]"], "item_identifiers":["[iipref:sort-service]"], "instance_of":["si:[types:Service]"], "names":[{"type":"si:[model:service-name]", "scope":["si:[model:english]"], "reifier":"si:[model:sort-service-name-reifier]",  "item_identifiers":["[iipref:service-name-ii]"], "value":"Sort-Service", "variants":[{"datatype":"http://www.w3.org/2001/XMLSchema#string", "scope":["si:[model:symbolic-name]"], "reifier":"si:[model:sort-service-variant-name-reifier]", "item_identifiers":["[iipref:sort-service-variant-name-ii]"], "value":"symbolic name of sort-service"}]}]}
            ],
+
 
  "associations": [{"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:topic-name-constraint]"}]},
  				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:subject-identifier-constraint]"}]},
@@ -292,12 +316,12 @@
  				  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-sls-text]"}]},
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-sls-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-psis-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-sls-text]"}]},
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-sls-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-sls-text]"}]},
- 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-sls-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-sls-constraint]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-sls-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-sl-constraint]"}]},
  				  
  				  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-iis-text]"}]},
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-iis-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-sls-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-iis-text]"}]},
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-iis-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-iis-text]"}]},
- 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-iis-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-iis-constraint]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-iis-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-ii-constraint]"}]},
  				  
  				  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-name-text]"}]},
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-iis-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-text]"}]},
@@ -308,7 +332,23 @@
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-type-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-name-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-type-text]"}]},
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-type-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-type-text]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-type-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-type-constraint]"}]},
- 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-name-type-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-constraint]"}]}
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-name-type-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-constraint]"}]},
                 
+                  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-name-scope-text]"}]},
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-scope-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-name-type-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-scope-text]"}]},
+ 				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-scope-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-scope-text]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-scope-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-scope-constraint]"}]},
+ 				  
+ 				  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-name-reifier-text]"}]},
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-reifier-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-name-scope-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-reifier-text]"}]},
+ 				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-reifier-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-reifier-text]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-reifier-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-reifier-constraint]"}]},
+                 
+                  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-reifier-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-name-reifier-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
+ 				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-iis-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-iis-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-ii-constraint]"}]}
+                 
+                 
                  ]
 }

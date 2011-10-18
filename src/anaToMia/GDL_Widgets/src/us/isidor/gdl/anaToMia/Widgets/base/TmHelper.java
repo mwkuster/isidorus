@@ -857,6 +857,24 @@ public class TmHelper {
 	}
 	
 	
+	// returns the topic that plays the role of tmcl:constrained in an association
+	// of the type tmcl:constrained-topic-type that is bound to the passed topic
+	// constraint-Topic that plays the role of tmcl:constraint
+	public static Topic getConstrainedTopicType(Topic constraintTopic) throws InvalidGdlSchemaException{
+		if(constraintTopic == null) return null;
+
+		TopicMap tm = constraintTopic.getTopicMap();
+		Topic constraintRoleType = getTopicByPsi(PSIs.TMCL.tmclConstraint, tm);
+		Topic constrainedTopicTypeAssocType = getTopicByPsi(PSIs.TMCL.tmclConstrainedTopicType, tm);
+		Topic constrainedRoleType = getTopicByPsi(PSIs.TMCL.tmclConstrained, tm);
+		
+		ArrayList<Topic> constrainedTopicTypes = getOtherPlayerOfBinaryAssociation(constraintTopic, constraintRoleType, constrainedTopicTypeAssocType, null, constrainedRoleType);
+		
+		if(constrainedTopicTypes.size() != 1) throw new InvalidGdlSchemaException("the topic " + getAnyIdOfTopic(constraintTopic) + " must be bound exactly once to a statement topic via a " + PSIs.TMCL.tmclConstrainedTopicType + " association, but is: " + constrainedTopicTypes.size());
+		else return constrainedTopicTypes.get(0);
+	}
+	
+	
 	// Returns the role-combination-constraints for the passed association-type
 	public static ArrayList<Topic> getRoleCombinationConstraints(Topic associationType){
 		if(associationType == null) return new ArrayList<Topic>();

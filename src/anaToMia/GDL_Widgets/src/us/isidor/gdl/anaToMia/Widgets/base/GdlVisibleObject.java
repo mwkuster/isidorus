@@ -2,6 +2,9 @@ package us.isidor.gdl.anaToMia.Widgets.base;
 
 
 import java.util.ArrayList;
+
+import org.apache.commons.codec.language.RefinedSoundex;
+
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Association;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Name;
@@ -111,21 +114,21 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	protected boolean cardMaxSet = false;
 	protected ArrayList<Topic> rawTmValues = new ArrayList<Topic>();
 	protected boolean rawTmValuesSet = false;
-	
+
 
 	// some constructors
 	protected GdlVisibleObject() {
 		initWidget(this.mainPanel);
 		DOM.setStyleAttribute(this.mainPanel.getElement(), "overflow", "visible");
 	}
-	
+
 
 	public GdlVisibleObject(Topic tmRepresentative, Construct receivedData, GdlVisibleObject gdlParent) throws InvalidGdlSchemaException, ExecutionException{
 		this();
 		this.tmRepresentative = tmRepresentative;
 		this.tm = this.tmRepresentative.getTopicMap();
 		this.gdlParent = gdlParent;
-		
+
 		if(!(receivedData instanceof Topic) && !(receivedData instanceof Association) && !(receivedData instanceof Name) && !(receivedData instanceof Variant) && !(receivedData instanceof Occurrence) && !(receivedData instanceof Role) && receivedData != null) throw new ExecutionException("receivedData must be either a Topic, Association, Topic-Name, Name-Variant, Topic-Occurrence or Association-Role, but is: " + receivedData.getClass());
 		this.receivedData = receivedData;
 
@@ -133,46 +136,46 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		this.setGdlStyle();
 	}
 
-	
+
 	public GdlVisibleObject getGdlParent(){
 		return this.gdlParent;
 	}
-	
-	
+
+
 	public int getSubElementsCount(){
 		if(this.subElements == null) return 0;
 		return this.subElements.size();
 	}
-	
-	
+
+
 	public GdlPanel getRoot(){
 		return this.getGdlParent().getRoot();
 	}
-	
-	
+
+
 	// this method takes a string and creates a new sub-element within
 	// an instance of GdlVisibleObject with the passed string value
 	public abstract void addSubItem(String value) throws InvalidGdlSchemaException, ExecutionException;
-	
+
 
 	// returns the topic that represents this element
 	public Topic getTmRepresentative(){
 		return this.tmRepresentative;
 	}
-	
-	
+
+
 	// sets all info elements as defined in the GDL
 	public void setInfoElements() throws InvalidGdlSchemaException, ExecutionException{
 		ArrayList<Topic> infos = TmHelper.topicContainsInfo(this.tmRepresentative);
-		
+
 		for (Topic info : infos){
 			GdlInfo elem = (GdlInfo)GdlInstantiator.instantiate(info, this.receivedData, this);
 			this.infoElements.add(elem);
 			elem.setPosition(this);			
 		}
 	}
-	
-		
+
+
 	// this method should be invoked if a new sub-element is added to this instance
 	protected ButtonableObject addToContainerPanel(Widget widget) throws ExecutionException, InvalidGdlSchemaException{
 		this.setContentOrientation(this.getContentOrientation());		
@@ -182,8 +185,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		this.setNthButtons();
 		return btn;
 	}
-	
-	
+
+
 	// removes the passed widget, it's parent, and returns the parent
 	protected ButtonableObject removeFromContainer(Widget widget) throws InvalidGdlSchemaException, ExecutionException {
 		for (Widget elem : this.subElements) {
@@ -194,31 +197,31 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			}
 		}
 		this.setNthButtons();
-		
+
 		return null;
 	}
-	
-	
+
+
 	// sets all buttons in the sub-elements that are specified by a
 	// gdl:button-position association
 	protected void setNthButtons() throws InvalidGdlSchemaException, ExecutionException {
 		if(this.actionButtonsAndPositions == null) this.actionButtonsAndPositions = TmHelper.topicContainsNthButtons(this.tmRepresentative);
-		
+
 		for(int i = 0; i != this.subElements.size(); ++i){
 			// search all buttons for the current sub element
 			ArrayList<Topic> currentButtons = new ArrayList<Topic>();
 			for (Pair<Topic, Integer> pair : this.actionButtonsAndPositions)
 				if(pair.getSecond() == i || (i == this.subElements.size() -1 && pair.getSecond() == -1)) currentButtons.add(pair.getFirst());
-			
+
 			// remove buttons that do not belong to the current sub element anymore
 			((ButtonableObject)this.subElements.get(i)).removeObsoleteButtons(currentButtons);
-			
+
 			// add buttons that are not bound to the current sub element, but belong to it
 			for (Topic currentButton : currentButtons)
 				if(!((ButtonableObject)this.subElements.get(i)).containsButton(currentButton)) ((ButtonableObject)this.subElements.get(i)).addButton((GdlActionButton)GdlInstantiator.instantiate(currentButton, null, this));
 		}
 	}
-	
+
 
 	// a helper method that returns all occurrences of the type bound to the passed PSI
 	@SuppressWarnings("unchecked")
@@ -293,7 +296,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If no gdl:display occurrence is set, the default value is returned
 	public Display getDisplay() throws InvalidGdlSchemaException {
 		Occurrence displayOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlDisplay);
-		
+
 		if(displayOcc != null){
 			String value = displayOcc.getValue().toLowerCase();
 			if(value.equals("none")){
@@ -329,7 +332,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// this property if no gdl:float occurrence is available
 	public Float getFloat() throws InvalidGdlSchemaException {
 		Occurrence floatOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlFloat);
-		
+
 		if(floatOcc != null){
 			String value = floatOcc.getValue().toLowerCase();
 			if(value.equals("none")){
@@ -345,8 +348,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			return Float.NONE;
 		}
 	}
-	
-	
+
+
 	// returns a ClearValue instance of a gdl:clear occurrence or the default value for
 	// this property if no gdl:clear occurrence is available
 	public ClearValue getClear() throws InvalidGdlSchemaException {
@@ -362,8 +365,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			return ClearValue.NONE;
 		}
 	}
-	
-	
+
+
 	// returns a ContentOrientationValue instance of a gdl:content-orientation occurrence or the default value for
 	// this property if no gdl:content-orientation occurrence is available
 	public ContentOrientationValue getContentOrientation() throws InvalidGdlSchemaException {
@@ -379,8 +382,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			return ContentOrientationValue.VERTICAL;
 		}
 	}
-	
-	
+
+
 	// returns a VerticalAlign instance of a gdl:vertical-align occurrence
 	// or the default value for this property if no gdl:vertical-align occurrence
 	// is available. The styleClass attribute is used as scope for expressing
@@ -1225,7 +1228,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}	
 	}
 
-	
+
 	// sets the id property of this element by using the GWT DOM class
 	public void setId(String id){
 		if(id != null){
@@ -1258,16 +1261,16 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			DOM.setStyleAttribute(this.mainPanel.getElement(), "styleFloat", value.getCssName());
 		}
 	}
-	
-	
+
+
 	// sets the float style property of all sub elements by using the GWT DOM class
 	public void setContentOrientation(ContentOrientationValue value) throws InvalidGdlSchemaException, ExecutionException {
 		if(value == ContentOrientationValue.HORIZONTAL && this.containerPanel == null) this.containerPanel = new HorizontalPanel();
 		else if(this.containerPanel == null) this.containerPanel = new VerticalPanel();
-		
+
 		this.mainPanel.add(this.containerPanel);
 	}
-	
+
 
 	// sets the clear style property of this element by using the GWT DOM class
 	public void setClear(ClearValue value){
@@ -1275,7 +1278,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			DOM.setStyleAttribute(this.mainPanel.getElement(), "clear", value.getCssValue());
 		}
 	}
-	
+
 
 	// sets the vertical-align style property of this element and all it's sub-elements by using the GWT DOM class
 	public void setVerticalAlign(Widget widget, VerticalAlign value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
@@ -1284,7 +1287,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 	}
 
-	
+
 	// sets the margin style property of this element by using the GWT DOM class
 	public void setMargin(Widget widget, NumUnitValue value, String styleClass)	throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "margin", value.getCssValue());
@@ -1313,8 +1316,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setMarginLeft(Widget widget, NumUnitValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "marginLeft", value.getCssValue());
 	}
-	
-	
+
+
 	// sets the border-color style property of this element by using the GWT DOM class
 	public void setBorderColor(Widget widget, ColorValue value,	String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderColor", value.getCssValue());
@@ -1343,8 +1346,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setBorderLeftColor(Widget widget, ColorValue value,	String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderLeftColor", value.getCssValue());
 	}
-	
-	
+
+
 	// sets the border-style style property of this element by using the GWT DOM class
 	public void setBorderStyle(Widget widget, BorderStyleValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderStyle", value.getCssValue());
@@ -1374,7 +1377,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		if(value != null) this.setCssProperty(widget, styleClass, "borderLeftStyle", value.getCssValue());
 	}
 
-	
+
 	// sets the border-width style property of this element by using the GWT DOM class
 	public void setBorderWidth(Widget widget, AbsoluteNumValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderWidth", value.getCssValue());
@@ -1402,8 +1405,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setBorderLeftWidth(Widget widget, AbsoluteNumValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderLeftWidth", value.getCssValue());
 	}	
-	
-	
+
+
 	// sets the border-radius style property of this element by using the GWT DOM class
 	public void setBorderRadius(Widget widget, NumUnitValue value, String styleClass) throws InvalidGdlSchemaException,	ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderRadius", value.getCssValue());
@@ -1432,8 +1435,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setBorderTopLeftRadius(Widget widget, NumUnitValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderTopLeftRadius", value.getCssValue());
 	}
-	
-		
+
+
 	// sets the padding style property of this element by using the GWT DOM class
 	public void setPadding(Widget widget, NumUnitValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "padding", value.getCssValue());
@@ -1462,8 +1465,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setPaddingLeft(Widget widget, NumUnitValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "paddingLeft", value.getCssValue());
 	}
-	
-	
+
+
 	// sets the width style property of this element by using the GWT DOM class
 	public void setWidth(Widget widget, AutoNumUnitValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "width", value.getCssValue());
@@ -1498,8 +1501,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setMaxHeight(Widget widget, AutoNumUnitValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "maxHeight", value.getCssValue());
 	}
-	
-	
+
+
 	// sets the cursor style property of this element by using the GWT DOM class
 	public void setCursor(Widget widget, CursorValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "cursor", value.getCssValue());
@@ -1510,8 +1513,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public void setBackgroundColor(Widget widget, ColorValue value, String styleClass) throws InvalidGdlSchemaException, ExecutionException {		
 		if(value != null) this.setCssProperty(widget, styleClass, "backgroundColor", value.getCssValue());
 	}
-	
-	
+
+
 	// sets the passed css style porperty to the passed css value.
 	// If a styleClass is given, the style is applied to either active, hover or focus
 	protected void setCssProperty(String styleClass, String cssProperty, String cssValue)throws InvalidGdlSchemaException, ExecutionException{
@@ -1530,12 +1533,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			throw new InvalidGdlSchemaException("GDL defines only the style classes " + values + ", but found " + styleClass);
 		}
 	}
-		
-	
+
+
 	// sets a given css property and css value of this element's sub element
 	protected void setCssProperty(Widget elem, String styleClass, String cssProperty, String cssValue)throws InvalidGdlSchemaException, ExecutionException{
 		if(cssValue == null || cssProperty == null) return;
-		
+
 		if(styleClass == null){
 			DOM.setStyleAttribute(elem.getElement(), cssProperty, cssValue);
 		} else if(styleClass.equals(PSIs.GDL.Scope.gdlActive)){
@@ -1549,12 +1552,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			throw new InvalidGdlSchemaException("GDL defines only the style classes " + values + ", but found " + styleClass);
 		}
 	}
-	
-	
+
+
 	// sets a given css property and css value of this element's sub element
 	protected void setCssProperty(Element elem, String styleClass, String cssProperty, String cssValue)throws InvalidGdlSchemaException, ExecutionException{
 		if(cssValue == null || cssProperty == null) return;
-		
+
 		if(styleClass == null){
 			DOM.setStyleAttribute(elem, cssProperty, cssValue);
 		} else if(styleClass.equals(PSIs.GDL.Scope.gdlActive)){
@@ -1568,64 +1571,64 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			throw new InvalidGdlSchemaException("GDL defines only the style classes " + values + ", but found " + styleClass);
 		}
 	}
-	
-	
+
+
 	// sets all GDL styles that are defined by the topic map representative to tha passed widget
 	public void setGdlStyle(Widget widget) throws InvalidGdlSchemaException, ExecutionException {
 		String[] styleClasses = new String[]{null, PSIs.GDL.Scope.gdlActive, PSIs.GDL.Scope.gdlFocus, PSIs.GDL.Scope.gdlHover};
 		for (String styleClass : styleClasses) {
 			this.setVerticalAlign(widget, this.getVerticalAlign(styleClass), styleClass);
-			
+
 			this.setMargin(widget, this.getMargin(styleClass), styleClass);
 			this.setMarginTop(widget, this.getMarginTop(styleClass), styleClass);
 			this.setMarginRight(widget, this.getMarginRight(styleClass), styleClass);
 			this.setMarginBottom(widget, this.getMarginBottom(styleClass), styleClass);
 			this.setMarginLeft(widget, this.getMarginLeft(styleClass), styleClass);
-			
+
 			this.setPadding(widget, this.getPadding(styleClass), styleClass);
 			this.setPaddingTop(widget, this.getPaddingTop(styleClass), styleClass);
 			this.setPaddingRight(widget, this.getPaddingRight(styleClass), styleClass);
 			this.setPaddingBottom(widget, this.getPaddingBottom(styleClass), styleClass);
 			this.setPaddingLeft(widget, this.getPaddingLeft(styleClass), styleClass);
-			
+
 			this.setBorderColor(widget, this.getBorderColor(styleClass), styleClass);
 			this.setBorderTopColor(widget, this.getBorderTopColor(styleClass), styleClass);
 			this.setBorderRightColor(widget, this.getBorderRightColor(styleClass), styleClass);
 			this.setBorderBottomColor(widget, this.getBorderBottomColor(styleClass), styleClass);
 			this.setBorderLeftColor(widget, this.getBorderLeftColor(styleClass), styleClass);
-			
+
 			this.setBorderStyle(widget, this.getBorderStyle(styleClass), styleClass);
 			this.setBorderTopStyle(widget, this.getBorderTopStyle(styleClass), styleClass);
 			this.setBorderRightStyle(widget, this.getBorderRightStyle(styleClass), styleClass);
 			this.setBorderBottomStyle(widget, this.getBorderBottomStyle(styleClass), styleClass);
 			this.setBorderLeftStyle(widget, this.getBorderLeftStyle(styleClass), styleClass);
-			
+
 			this.setBorderWidth(widget, this.getBorderWidth(styleClass), styleClass);
 			this.setBorderTopWidth(widget, this.getBorderTopWidth(styleClass), styleClass);
 			this.setBorderRightWidth(widget, this.getBorderRightWidth(styleClass), styleClass);
 			this.setBorderBottomWidth(widget, this.getBorderBottomWidth(styleClass), styleClass);
 			this.setBorderLeftWidth(widget, this.getBorderLeftWidth(styleClass), styleClass);
-			
+
 			this.setBorderRadius(widget, this.getBorderRadius(styleClass), styleClass);
 			this.setBorderTopRightRadius(widget, this.getBorderTopRightRadius(styleClass), styleClass);
 			this.setBorderBottomRightRadius(widget, this.getBorderBottomRightRadius(styleClass), styleClass);
 			this.setBorderBottomLeftRadius(widget, this.getBorderBottomLeftRadius(styleClass), styleClass);
 			this.setBorderTopLeftRadius(widget, this.getBorderTopLeftRadius(styleClass), styleClass);
-			
+
 			this.setCursor(widget, this.getCursor(styleClass), styleClass);
-			
+
 			this.setWidth(widget, this.getWidth(styleClass), styleClass);
 			this.setMaxWidth(widget, this.getMaxWidth(styleClass), styleClass);
 			this.setMinWidth(widget, this.getMinWidth(styleClass), styleClass);
-			
+
 			this.setHeight(widget, this.getHeight(styleClass), styleClass);
 			this.setMaxHeight(widget, this.getMaxHeight(styleClass), styleClass);
 			this.setMinHeight(widget, this.getMinHeight(styleClass), styleClass);
-			
+
 			this.setBackgroundColor(widget, this.getBackgroundColor(styleClass), styleClass);
 		}
 	}
-	
+
 
 	// sets all GDL styles that are defined by the topic map representative
 	protected void setGdlStyle() throws InvalidGdlSchemaException, ExecutionException {
@@ -1679,8 +1682,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 		return regs;
 	}
-	
-	
+
+
 	// registers a mouse-down handler to all sub-elements of this element
 	@Override
 	public MultipleHandlerRegistration addMouseDownHandler(MouseDownHandler handler){
@@ -1690,8 +1693,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 		return regs;
 	}
-	
-	
+
+
 	// registers a mouse-up handler to all sub-elements of this element
 	@Override
 	public MultipleHandlerRegistration addMouseUpHandler(MouseUpHandler handler){
@@ -1701,9 +1704,9 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 		return regs;
 	}
-	
-	
-	
+
+
+
 	// registers a blur handler to all sub-elements of this element
 	@Override
 	public MultipleHandlerRegistration addBlurHandler(BlurHandler handler){
@@ -1713,12 +1716,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 		return regs;
 	}
-	
-	
+
+
 	// adds the passed handler to the list eventHandlers
 	protected void addEventHandler(Widget elem, EventHandler handler){
 		if(handler == null || elem == null) return;
-		
+
 		for (Pair<Widget, ArrayList<EventHandler>> item : this.eventHandlers) {
 			if(item.getFirst().equals(elem)){
 				if(!item.getSecond().contains(handler)){
@@ -1731,8 +1734,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		newHandlerList.add(handler);
 		this.eventHandlers.add(new Pair<Widget, ArrayList<EventHandler>>(elem, newHandlerList));
 	}
-	
-	
+
+
 	// remove the passed handler of the list eventHandlers
 	protected void removeEventHandler(Widget elem, EventHandler handler){
 		for (Pair<Widget, ArrayList<EventHandler>> item : this.eventHandlers) {
@@ -1741,8 +1744,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			}
 		}
 	}
-	
-	
+
+
 	// returns the last handler bound to the passed element.
 	protected EventHandler getLastHandler(Widget elem){
 		for (Pair<Widget, ArrayList<EventHandler>> item : this.eventHandlers) {
@@ -1753,35 +1756,35 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
-	
+
+
 	// applies the styles bound to hover and the passed element
 	protected void onHoverStart(Widget widget){
 		for (Pair<String, String> elem : this.hoverCssNamesAndStyles) {
 			DOM.setStyleAttribute(widget.getElement(), elem.getFirst(), elem.getSecond());
 		}
 	}
-	
-	
+
+
 	// applies the styles bound to acitve and the passed element
 	protected void onActiveStart(Widget widget){
 		for (Pair<String, String> elem : this.activeCssNamesAndStyles) {
 			DOM.setStyleAttribute(widget.getElement(), elem.getFirst(), elem.getSecond());
 		}
 	}
-	
-	
+
+
 	// applies the styles bound to focus and the passed element
 	protected void onFocusStart(Widget widget){
 		for (Pair<String, String> elem : this.focusCssNamesAndStyles) {
 			DOM.setStyleAttribute(widget.getElement(), elem.getFirst(), elem.getSecond());
 		}
 	}
-	
-	
+
+
 	// some handler for applying the css style bound to the pseudo classes hover, active and focus 
 	public void onHoverStart(MouseOverEvent event, HoverStyleHandler handler) {
 		Widget source = (Widget)event.getSource();
@@ -1791,7 +1794,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 	}
 
-	
+
 	// shall be called when the focus event was fired 
 	public void onHoverEnd(MouseOutEvent event, HoverStyleHandler handler) {
 		try{
@@ -1809,7 +1812,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			e.printStackTrace();
 		}
 	}
-	
+
 
 	// shall be called to apply the styles of the focus class
 	public void onFocusStart(FocusEvent event, FocusStyleHandler handler) {
@@ -1838,7 +1841,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 	}
 
-	
+
 	// shall be called to apply the styles of the active class
 	public void onActiveStart(MouseDownEvent event, ActiveStyleHandler handler) {
 		Widget source = (Widget)event.getSource();
@@ -1865,16 +1868,16 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			Window.alert("could not apply the default CSS style >> " + e.getClass() + " >> " + e.getMessage());
 		}
 	}
-	
-	
+
+
 	// removes all GdlInfo elements. They must be remove explicitly, since they are
 	// bound to the root panel/body
 	public void clear(){
 		for (GdlInfo elem : this.infoElements)
 			elem.removeFromParent();
 	}
-	
-	
+
+
 	@Override
 	public void onAttach(){
 		super.onAttach();
@@ -1884,20 +1887,20 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	// if this method is called the user cannot change the represented value
 	// of this control
 	public abstract void fixValue();
-	
-	
+
+
 	// sets the fields for the received data
 	protected void setReceivedData() throws InvalidGdlSchemaException, ExecutionException {
-if(receivedData == null) return;
-		
+		if(receivedData == null) return;
+
 		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
 			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			
+
 			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
 			for(int i = 0; i != ((Topic)receivedData).getSubjectIdentifiers().length(); ++i){
 				String psi = ((Topic)receivedData).getSubjectIdentifiers().get(i).getReference();
@@ -1907,7 +1910,7 @@ if(receivedData == null) return;
 			}
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
 			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			
+
 			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
 			for(int i = 0; i != ((Topic)receivedData).getSubjectLocators().length(); ++i){
 				String sl = ((Topic)receivedData).getSubjectLocators().get(i).getReference();
@@ -1917,23 +1920,41 @@ if(receivedData == null) return;
 			}
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
 			if(!(this.receivedData instanceof Reifiable)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Reifiable, but is: " + receivedData.getClass());
+
+			// get type
+			Topic constrainedTopicType = TmHelper.getConstrainedTopicType(this.getConstraint());
 			
+			// search for the topic type
+			Reifiable ref = (Reifiable)this.receivedData;
+			
+			// search for the characteristics type
+			if(this.receivedData instanceof Topic){
+				JsArray<Name> names = ((Topic)this.receivedData).getNames(constrainedTopicType);
+				if(names.length() != 0){
+					ref = names.get(0);
+				} else {
+					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(constrainedTopicType);
+					if(occs.length() != 0) ref = occs.get(0);
+				}
+			}
+			
+			// search for item-identifiers of the found topic type or characteristics
 			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
-			for(int i = 0; i != ((ReifiableStub)receivedData).getItemIdentifiers().length(); ++i){
-				String ii = ((Topic)receivedData).getItemIdentifiers().get(i).getReference();
+			for(int i = 0; i != ((ReifiableStub)ref).getItemIdentifiers().length(); ++i){
+				String ii = ((ReifiableStub)ref).getItemIdentifiers().get(i).getReference();
 				if(rex.matches(ii)){
 					this.addSubItem(ii);
 				}
 			}
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
 			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			
+
 			Topic nameType = TmHelper.getConstrainedStatement(this.getConstraint());
 			for(int i = 0; i != ((Topic)this.receivedData).getNames(nameType).length(); ++i)
 				this.addSubItem(((Topic)this.receivedData).getNames(nameType).get(i).getValue());
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
 			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			
+
 			Topic occurrenceType = TmHelper.getConstrainedStatement(this.getConstraint());
 			for(int i = 0; i != ((Topic)this.receivedData).getOccurrences(occurrenceType).length(); ++i)
 				this.addSubItem(((Topic)this.receivedData).getOccurrences(occurrenceType).get(i).getValue());
@@ -1946,7 +1967,7 @@ if(receivedData == null) return;
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
 			if(!(receivedData instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + receivedData.getClass());
 			if(this.getRootConstraint() == null || !TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but ist bound to the root topic: " + (this.getRootConstraint() == null ? "null" : TmHelper.getAnyIdOfTopic(this.getRootConstraint())));
-			
+
 			Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());	
 			JsArray<Role> assocRoles = ((Association)this.receivedData).getRoles(roleAndPlayerType.getFirst());
 			for(int i = 0; i != assocRoles.length(); ++i){
@@ -1968,26 +1989,26 @@ if(receivedData == null) return;
 			throw new InvalidGdlSchemaException("The constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not suported to be bound to the value group instance " + TmHelper.getAnyIdOfTopic(this.getValueGroup()));
 		}
 	}
-	
-	
+
+
 	// sets the field for the set default value or sets at least one empty field (card-min)
 	protected void setDefaultValue() throws InvalidGdlSchemaException, ExecutionException {
 		if(this.getDefaultLiteralValue() != null && this.getDefaultTmValue() != null) throw new InvalidGdlSchemaException("the topic " + TmHelper.getAnyIdOfTopic(this.getValueGroup()) + " must be bound to maximal one " + PSIs.GDL.TopicType.gdlDefaultValue + ", but is: 2");
-		
+
 		if(this.getDefaultLiteralValue() != null){
 			TopicMap tm = this.getDefaultLiteralValue().getTopicMap();
 			Topic occType = TmHelper.getTopicByPsi(PSIs.GDL.OccurrenceType.gdlLiteralValue, tm);
 			JsArray<Occurrence> vals = this.getDefaultLiteralValue().getOccurrences(occType);
-			
+
 			if(vals.length() != 1) throw new InvalidGdlSchemaException("the topic " + TmHelper.getAnyIdOfTopic(this.getDefaultLiteralValue()) + " must be bound exactly once to a " + PSIs.GDL.OccurrenceType.gdlLiteralValue + " occurrence, but is: " + vals.length());
-			
+
 			int minValues = this.getCardMin() == 0 ? 1 : this.getCardMin();
 			for(int i = 0; i < minValues; ++i)
 				this.addSubItem(vals.get(0).getValue());
 			if(this.fixedDefaultValue()) this.fixValue();
 		} else if(this.getDefaultTmValue() != null){
 			ArrayList<Topic> values = TmHelper.getValuesForTmValue(this.getDefaultTmValue());
-			
+
 			if(values.size() != 1) throw new InvalidGdlSchemaException("the default value " + TmHelper.getAnyIdOfTopic(this.getDefaultValue()) + " represetns more than one value");
 
 			int minValues = this.getCardMin() == 0 ? 1 : this.getCardMin();
@@ -1998,8 +2019,8 @@ if(receivedData == null) return;
 			this.addSubItem("");
 		}
 	}
-	
-	
+
+
 	public int getCardMin() throws InvalidGdlSchemaException {
 		if(this.cardMinSet){
 			return this.cardMin;
@@ -2008,8 +2029,8 @@ if(receivedData == null) return;
 			return TmHelper.getCardMin(this.getRootConstraint());
 		}
 	}
-	
-	
+
+
 	public int getCardMax() throws InvalidGdlSchemaException {
 		if(this.cardMaxSet){
 			return this.cardMax;
@@ -2018,8 +2039,8 @@ if(receivedData == null) return;
 			return TmHelper.getCardMax(this.getRootConstraint());
 		}
 	}
-	
-	
+
+
 	// returns the topic instance of gdlt:Value-Group that is bound to this
 	// visible element, or null if it is unbound
 	public Topic getValueGroup() throws InvalidGdlSchemaException {
@@ -2044,8 +2065,8 @@ if(receivedData == null) return;
 			return this.constraintTopic;
 		}
 	}
-	
-	
+
+
 	// returns the root (last) constraint that is bound to the value-group
 	// of this element - or null if it is unbound
 	public Topic getRootConstraint() throws InvalidGdlSchemaException {
@@ -2083,8 +2104,8 @@ if(receivedData == null) return;
 			return this.defaultLiteralValueTopic;
 		}
 	}
-	
-	
+
+
 	// returns the topic that represents the default value of
 	// the value-group that is bound to this element - null if it is unbound
 	public Topic getDefaultValue() throws InvalidGdlSchemaException {
@@ -2093,17 +2114,17 @@ if(receivedData == null) return;
 		else return this.getDefaultTmValue();
 	}
 
-	
+
 	// returns true if the default value is fixed
 	// otherwise the return value is false
 	public boolean fixedDefaultValue() throws InvalidGdlSchemaException{
 		Topic defVal = this.getDefaultValue();
-		
+
 		if(defVal == null) return false;
-		
+
 		TopicMap tm = defVal.getTopicMap();
 		Occurrence fixedOcc = TmHelper.getSingleOccurrence(defVal, TmHelper.getTopicByPsi(PSIs.GDL.OccurrenceType.gdlFixed, tm));
-		
+
 		if(fixedOcc != null){
 			try{
 				return Boolean.valueOf(fixedOcc.getValue().toLowerCase());
@@ -2114,7 +2135,7 @@ if(receivedData == null) return;
 			return false;
 		}
 	}
-	
+
 
 	// returns all topic maps values represented by topics of the type gdlt:Tm-Value
 	// that are valid and declared for the value-group of this element - or
@@ -2142,7 +2163,7 @@ if(receivedData == null) return;
 		}
 	}
 
-	
+
 	// returns an ArrayList of strings that are set to a value group as literal values
 	public ArrayList<String> getLiterals() throws InvalidGdlSchemaException {
 		if(this.literalsSet){
@@ -2153,7 +2174,7 @@ if(receivedData == null) return;
 			return this.literals;
 		}
 	}
-	
+
 
 	// returns the set literal value or null
 	public String getSetLiteralValue() throws InvalidGdlSchemaException {
@@ -2195,14 +2216,14 @@ if(receivedData == null) return;
 		}
 	}
 
-	
+
 	// returns the display-by schema that is defined for the passed
 	// TM-Value that is bound to this element
 	public Topic getDisplayByOfTmValue(Topic tmValue) throws InvalidGdlSchemaException{
 		return TmHelper.getDisplayByTopicOf(tmValue);
 	}
-	
-	
+
+
 	// returns the preferred scope that is bound to the value-group of
 	// this element - or an empty ArrayList
 	public ArrayList<Topic> getPreferredScopeOfValueGroup() throws InvalidGdlSchemaException {
@@ -2215,26 +2236,26 @@ if(receivedData == null) return;
 		}
 	}
 
-	
+
 	// returns the preferred scope that is bound to the passed TM-Value topic
 	// this element - or an empty ArrayList
 	public ArrayList<Topic> getPreferredScopeOfTmValue(Topic tmValue) throws InvalidGdlSchemaException{
 		return TmHelper.getPrefferedScopesForTopicOf(tmValue);
 	}
-	
+
 
 	// returns the string that represents the topic topicToRepresent corresponding
 	// to the passed displayBy and prefferedScopes arguments
 	public String getTopicRepresentation(Topic topicToRepresent, Topic displayBy, ArrayList<Topic> preferredScopes) throws InvalidGdlSchemaException {
 		return TmHelper.getTopicRepresentation(topicToRepresent, displayBy, preferredScopes);
 	}
-	
-	
+
+
 	// returns the strings of the control that are entered/selected 
 	// returns the strings of the control that are entered/selected 
 	public abstract ArrayList<String> getSelectedValues();
-	
-	
+
+
 	// validates names, occurrences and identifiers for tha passed value
 	private void validateLiteralValue(String selectedValue) throws InvalidContentException, InvalidGdlSchemaException{
 		ArrayList<Pattern> validLiteralValues = new ArrayList<Pattern>();
@@ -2242,21 +2263,21 @@ if(receivedData == null) return;
 		if(validLiteralValues.size() == 0) validLiteralValues.add(new Pattern(this.getLiteralValueForConstraint()));	
 		int i = 0;
 		for( ; i != validLiteralValues.size(); ++i) if(validLiteralValues.get(i).matches(selectedValue)) break;
-		
+
 		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
 			if(i == validLiteralValues.size()) throw new InvalidContentException("the user data " + selectedValue + " for the topic-name " + TmHelper.getAnyIdOfTopic(TmHelper.getConstrainedStatement(this.getConstraint())) + " does not satisfy any of the constraints: " + Utils.arrayToString(validLiteralValues));
 		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
 			if(i == validLiteralValues.size()) throw new InvalidContentException("the user data " + selectedValue + " for the topic-occurrence " + TmHelper.getAnyIdOfTopic(TmHelper.getConstrainedStatement(this.getConstraint())) + " does not satisfy any of the constraints: " + Utils.arrayToString(validLiteralValues));
 		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-			
+
 		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-			
+
 		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
-			
+
 		}
 	}
-	
-	
+
+
 	// validates the the tm values of a constraint
 	private void validateTmValue(Topic selectedPlayer) throws InvalidContentException, InvalidGdlSchemaException, ExecutionException {
 		if(this.getRawTmValues().size() != 0 && !this.getRawTmValues().contains(selectedPlayer)){
@@ -2267,9 +2288,9 @@ if(receivedData == null) return;
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	// returns the actual topics that are set as possible tm-values
 	private ArrayList<Topic> getRawTmValues() throws InvalidGdlSchemaException{
 		if(this.rawTmValuesSet){
@@ -2281,32 +2302,32 @@ if(receivedData == null) return;
 			return this.rawTmValues;
 		}
 	}
-	
-	
+
+
 	// returns the actual data that is hold by this instance
 	public ArrayList<Pair<Construct, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
 		ArrayList<Pair<Construct, TopicMapsTypes>> result = new ArrayList<Pair<Construct,TopicMapsTypes>>();
 		if(this.getRootConstraint() == null) return result;
 		Construct localCarrier = carrier;
 		if(carrier == null) localCarrier = TmHelper.getNearestTopicOrAssociation(this);
-		
+
 		//TODO: finalise
 		for (int idx = 0; idx != this.getSelectedValues().size(); ++idx){
 			if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
-				
+
 			} else if (TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-				
+
 			} else if (TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-				
+
 			} else if (TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){				
 				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				Topic nameType = TmHelper.getConstrainedStatement(this.getConstraint());
 				JsArray<Name> names = ((Topic)localCarrier).getNames(nameType);				
-				
+
 				Name changedName = null;
 				if(this.getRootConstraint().equals(this.getConstraint())){
 					if(validate) this.validateLiteralValue(this.getSelectedValues().get(idx)); 
-					
+
 					if(names.length() > idx){
 						changedName = names.get(idx);
 						changedName.setValue(this.getSelectedValues().get(idx));
@@ -2314,19 +2335,19 @@ if(receivedData == null) return;
 						changedName = ((Topic)localCarrier).createName(this.getSelectedValues().get(idx), nameType, null);
 					}
 				} // TODO: item-identifier, reifier, variant, ...
-				
+
 				result.add(new Pair<Construct, TopicMapsTypes>(changedName, TopicMapsTypes.Name));
 			} else if (TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-				
+
 			} else if (TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
 				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				Topic occurrenceType = TmHelper.getConstrainedStatement(this.getConstraint());
 				JsArray<Occurrence> occurrences = ((Topic)localCarrier).getOccurrences(occurrenceType);
-				
+
 				Occurrence changedOccurrence = null;
 				if(this.getRootConstraint().equals(this.getConstraint())){
 					if(validate) this.validateLiteralValue(this.getSelectedValues().get(idx)); 
-					
+
 					if(occurrences.length() > idx){
 						changedOccurrence = occurrences.get(idx);
 						changedOccurrence.setValue(this.getSelectedValues().get(idx));
@@ -2334,19 +2355,19 @@ if(receivedData == null) return;
 						changedOccurrence = ((Topic)localCarrier).createOccurrence(occurrenceType, this.getSelectedValues().get(idx), null, null);
 					}
 				} // TODO: item-identifier, reifier, ...
-				
+
 				result.add(new Pair<Construct, TopicMapsTypes>(changedOccurrence, TopicMapsTypes.Occurrence));
 			} else if (TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)){
 				if(!(localCarrier instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " must be bound to an Association, but is: " + localCarrier.getClass());
 				Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());
 				Topic roleType = roleAndPlayerType.getFirst();
 				Topic playerType = roleAndPlayerType.getSecond();
-				
+
 				JsArray<Role> typedRoles = ((Association)localCarrier).getRoles(roleType);
 				ArrayList<Role> roles = new ArrayList<Role>();
 				for(int i = 0; i != typedRoles.length(); ++i)
 					if(TmHelper.isInstanceOf(typedRoles.get(i).getPlayer(), playerType)) roles.add(typedRoles.get(i));
-				
+
 				Role changedRole = null;
 				if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
 					// TODO: implement
@@ -2371,7 +2392,7 @@ if(receivedData == null) return;
 				throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " is not supported");
 			}
 		}
-		
+
 		return result;
 	}
 }
