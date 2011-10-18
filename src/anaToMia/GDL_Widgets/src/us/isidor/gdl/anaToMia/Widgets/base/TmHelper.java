@@ -20,9 +20,7 @@ import us.isidor.gdl.anaToMia.Widgets.environment.TopicIdentifierTypes;
 import us.isidor.gdl.anaToMia.Widgets.view.GdlTopicView;
 import us.isidor.gdl.anaToMia.Widgets.view.GdlAssociationView.AssociationItem;
 import us.isidor.gdl.anaToMia.Widgets.view.GdlView;
-
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.user.client.Window;
 
 
 public class TmHelper {	
@@ -181,7 +179,6 @@ public class TmHelper {
 		JsArray<Role> validRoles = top.getRolesPlayed(subtype, supertypeSubtype);
 		for(int i = 0; i != validRoles.length(); ++i){
 			Association parent = validRoles.get(i).getParent();
-			Window.alert(">> " + parent.getRoles().length() + " >> " + parent.getRoles(supertype).length());
 			if(parent.getRoles().length() == 2 && parent.getRoles(supertype).length() == 1)result.add(parent.getRoles(supertype).get(0).getPlayer());
 		}
 		return result;

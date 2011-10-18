@@ -1963,7 +1963,26 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
 			// TODO: implement: variant-name-constraint
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
-			// TODO: implement: scope-constraint
+			// TODO: implement
+			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
+			
+			JsArray<Topic> scope = null;
+			if(this.receivedData instanceof Topic){
+				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
+				if(names.length() != 0) scope = names.get(0).getScope();
+				if(scope != null){
+					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
+					if(occs.length() != 0) scope = occs.get(0).getScope();
+				}
+			} else if(this.receivedData instanceof Association){
+				if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
+			} else {
+				throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
+			}
+			
+			if(scope != null){
+				for(int i = 0; i != scope.length(); ++i) this.addSubItem(this.getTopicRepresentation(scope.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+			}
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
 			if(!(receivedData instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + receivedData.getClass());
 			if(this.getRootConstraint() == null || !TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but ist bound to the root topic: " + (this.getRootConstraint() == null ? "null" : TmHelper.getAnyIdOfTopic(this.getRootConstraint())));
