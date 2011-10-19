@@ -373,7 +373,7 @@
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-reifier-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-reifier-constraint]"}]},
                  
                   {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
- 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-reifier-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-name-reifier-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-iis-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-name-reifier-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-iis-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-name-iis-text]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-name-iis-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-name-ii-constraint]"}]}
                  

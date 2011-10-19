@@ -1959,18 +1959,35 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			for(int i = 0; i != ((Topic)this.receivedData).getOccurrences(occurrenceType).length(); ++i)
 				this.addSubItem(((Topic)this.receivedData).getOccurrences(occurrenceType).get(i).getValue());
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
-			// TODO: implement: reifier-constraint
+			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
+			
+			Topic reifier = null;
+			if(this.receivedData instanceof Topic){
+				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
+				if(names.length() != 0) reifier = names.get(0).getReifier();
+				if(reifier == null){
+					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
+					if(occs.length() != 0) reifier = occs.get(0).getReifier();
+				}
+			} else if(this.receivedData instanceof Association){
+				if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
+			} else {
+				throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
+			}
+			
+			String str = this.getTopicRepresentation(reifier, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
+			if(str == null) str = "";
+			this.addSubItem(str);
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
 			// TODO: implement: variant-name-constraint
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
-			// TODO: implement
 			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
 			
 			JsArray<Topic> scope = null;
 			if(this.receivedData instanceof Topic){
 				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
 				if(names.length() != 0) scope = names.get(0).getScope();
-				if(scope != null){
+				if(scope == null){
 					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
 					if(occs.length() != 0) scope = occs.get(0).getScope();
 				}
