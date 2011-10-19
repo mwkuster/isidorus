@@ -856,6 +856,21 @@ public class TmHelper {
 	}
 	
 	
+	// returns a topic  that can e used as scope topic
+	public static Topic getConstrainedScopeTopic(Topic constraintTopic) throws InvalidGdlSchemaException{
+		if(constraintTopic == null) return null;
+
+		TopicMap tm = constraintTopic.getTopicMap();
+		Topic constraintRoleType = getTopicByPsi(PSIs.TMCL.tmclConstraint, tm);
+		Topic constrainedScopeTopicAssocType = getTopicByPsi(PSIs.TMCL.tmclConstrainedScopeTopic, tm);
+		Topic constrainedRoleType = getTopicByPsi(PSIs.TMCL.tmclConstrained, tm);
+		ArrayList<Topic> constrainedScopeTopics = getOtherPlayerOfBinaryAssociation(constraintTopic, constraintRoleType, constrainedScopeTopicAssocType, null, constrainedRoleType);
+		
+		if(constrainedScopeTopics.size() != 1) throw new InvalidGdlSchemaException("the topic " + getAnyIdOfTopic(constraintTopic) + " must be bound exactly once to a statement topic via a " + PSIs.TMCL.tmclConstrainedScopeTopic + " association, but is: " + constrainedScopeTopics.size());
+		else return constrainedScopeTopics.get(0);
+	}
+	
+	
 	// returns the topic that plays the role of tmcl:constrained in an association
 	// of the type tmcl:constrained-topic-type that is bound to the passed topic
 	// constraint-Topic that plays the role of tmcl:constraint

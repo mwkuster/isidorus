@@ -38,6 +38,7 @@ public class PSIs {
 		public final static String tmclAllowed = tmcl + "allowed";
 		public final static String tmclAllowedReifier = tmcl + "allowed-reifier";
 		public final static String tmclConstrainedScope = tmcl + "constrained-scope";
+		public final static String tmclConstrainedScopeTopic = tmcl + "constrained-scope-topic";
 		public final static String tmclSubjectIdentifierConstraint = tmcl + "subject-identifier-constraint";
 		public final static String tmclSubjectLocatorConstraint = tmcl + "subject-locator-constraint";
 		public final static String tmclItemIdentifierConstraint = tmcl + "item-identifier-constraint";

@@ -1979,7 +1979,22 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			if(str == null) str = "";
 			this.addSubItem(str);
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-			// TODO: implement: variant-name-constraint
+			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+			
+			Topic nameType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Name> names = ((Topic)this.receivedData).getNames(nameType);
+			Topic scope = TmHelper.getConstrainedScopeTopic(this.getRootConstraint()); 
+			JsArray<Variant> variants = names.get(0).getVariants();
+			
+			if(variants.get(0).getScope().length() != 0){
+				JsArray<Topic> scopes = variants.get(0).getScope();
+				int i = 0;
+				for( ; i != scopes.length(); ++i) if(scopes.get(i).equals(scope)) break;
+				
+				if(i != scopes.length()){
+					for(i = 0; i != scopes.length(); ++i) this.addSubItem(this.getTopicRepresentation(scopes.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+				}
+			}
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
 			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
 			

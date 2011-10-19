@@ -225,7 +225,12 @@
             {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"430px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-ii-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Identifiers]"]},
-            
+
+			{"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_reifier_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
+            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"470px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
+            {"subject_identifiers":["[model:service-variant-name-reifier-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Reifier]"]},
+                        
             
             
             
@@ -418,7 +423,13 @@
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-iis-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-scope-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-variant-name-iis-text]"}]},
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-iis-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-iis-text]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-iis-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-ii-constraint]"}]},
- 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-ii-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]}
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-ii-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]},
+                  
+                  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-iis-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
+ 				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-reifier-constraint]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-reifier-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]}
                   
                   
                   

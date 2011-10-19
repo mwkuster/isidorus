@@ -4,15 +4,15 @@
   ==> item-identifier-constraint         ***
   ==> topic-name-constraint              ***
     ==> regular-expression-constraint    ***
-    ==> Type                              **
+    ==> Type                             ***
     ==> scope-constraint                 ***
     ==> reifier-constraint               ***
     ==> item-identifier-constraint       ***
     ==> variant-name-constraint          ***
-      ==> Datatype                        **
-      ==> Variant-Name-Scope              **
-      ==> Variant-Name-Identifiers        **
-      ==> Variant-Name-Reifier             *
+      ==> Datatype                       ***
+      ==> Variant-Name-Scope             ***
+      ==> Variant-Name-Identifiers       ***
+      ==> Variant-Name-Reifier           ***
   
   
 ==> Endpoint                             *
