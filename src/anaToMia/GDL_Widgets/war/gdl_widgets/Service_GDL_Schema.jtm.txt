@@ -8,10 +8,10 @@
     ==> scope-constraint                 ***
     ==> reifier-constraint               ***
     ==> item-identifier-constraint       ***
-    ==> variant-name-constraint          * *
-      ==> Datatype                         *
-      ==> Variant-Name-Scope               *
-      ==> Variant-Name-Identifiers         *
+    ==> variant-name-constraint          ***
+      ==> Datatype                        **
+      ==> Variant-Name-Scope              **
+      ==> Variant-Name-Identifiers        **
       ==> Variant-Name-Reifier             *
   
   
