@@ -2064,7 +2064,10 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
 			if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
 			
-			// TODO: implement: Variant-Name-Reifier
+			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
+			if(variants.size() != 0 && variants.get(0).getReifier() != null){
+				this.addSubItem(this.getTopicRepresentation(variants.get(0).getReifier(), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));	
+			}
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
 			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
 			if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
