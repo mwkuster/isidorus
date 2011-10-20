@@ -1920,10 +1920,10 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 
 			// get type
 			Topic constrainedTopicType = TmHelper.getConstrainedTopicType(this.getConstraint());
-			
+
 			// search for the topic type
 			Reifiable ref = (Reifiable)this.receivedData;
-			
+
 			// search for the characteristics type
 			if(this.receivedData instanceof Topic){
 				JsArray<Name> names = ((Topic)this.receivedData).getNames(constrainedTopicType);
@@ -1937,7 +1937,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				JsArray<Role> roles = ((Association)this.receivedData).getRoles(constrainedTopicType);
 				if(roles.length() != 0) ref = roles.get(0);
 			}
-			
+
 			// search for item-identifiers of the found topic type or characteristics
 			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
 			for(int i = 0; i != ((ReifiableStub)ref).getItemIdentifiers().length(); ++i){
@@ -1960,7 +1960,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				this.addSubItem(((Topic)this.receivedData).getOccurrences(occurrenceType).get(i).getValue());
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
 			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
-			
+
 			Topic reifier = null;
 			if(this.receivedData instanceof Topic){
 				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
@@ -1974,30 +1974,33 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			} else {
 				throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
 			}
-			
+
 			String str = this.getTopicRepresentation(reifier, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
 			if(str == null) str = "";
 			this.addSubItem(str);
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
 			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			
+
 			Topic nameType = TmHelper.getConstrainedStatement(this.getRootConstraint());
 			JsArray<Name> names = ((Topic)this.receivedData).getNames(nameType);
 			Topic scope = TmHelper.getConstrainedScopeTopic(this.getRootConstraint()); 
 			JsArray<Variant> variants = names.get(0).getVariants();
-			
-			if(variants.get(0).getScope().length() != 0){
-				JsArray<Topic> scopes = variants.get(0).getScope();
-				int i = 0;
-				for( ; i != scopes.length(); ++i) if(scopes.get(i).equals(scope)) break;
-				
-				if(i != scopes.length()){
-					for(i = 0; i != scopes.length(); ++i) this.addSubItem(this.getTopicRepresentation(scopes.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+
+			for(int varIdx = 0; varIdx != variants.length(); ++varIdx){
+				if(variants.get(varIdx).getScope().length() != 0){
+					JsArray<Topic> scopes = variants.get(varIdx).getScope();
+					int scopeIdx = 0;
+					for( ; scopeIdx != scopes.length(); ++scopeIdx) if(scopes.get(scopeIdx).equals(scope)) break;
+
+					if(scopeIdx != scopes.length()){
+						this.addSubItem(variants.get(varIdx).getValue());
+						break;
+					}
 				}
 			}
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
 			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
-			
+
 			JsArray<Topic> scope = null;
 			if(this.receivedData instanceof Topic){
 				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
@@ -2011,7 +2014,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			} else {
 				throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
 			}
-			
+
 			if(scope != null){
 				for(int i = 0; i != scope.length(); ++i) this.addSubItem(this.getTopicRepresentation(scope.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
 			}
@@ -2044,7 +2047,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				String constraints = PSIs.TMCL.tmclTopicNameConstraint + ", " + PSIs.TMCL.tmclTopicOccurrenceConstraint + ", " + PSIs.TMCL.tmclTopicRoleConstraint + ", " + PSIs.TMCL.tmclAssociationRoleConstraint;
 				throw new ExecutionException("The topic " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to the following root constraints: " + constraints);
 			}
-	
+
 			String str = this.getTopicRepresentation(type, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
 			if(str == null) str = "";
 			this.addSubItem(str);
@@ -2055,7 +2058,24 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
 			// TODO: implement: Variant-Name-Reifier
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
-			// TODO: implement: Variant-Name-Scope
+			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+			Topic nameType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Name> names = ((Topic)this.receivedData).getNames(nameType);
+			Topic scope = TmHelper.getConstrainedScopeTopic(this.getRootConstraint()); 
+			JsArray<Variant> variants = names.get(0).getVariants();
+
+			for(int varIdx = 0; varIdx != variants.length(); ++varIdx){
+				if(variants.get(varIdx).getScope().length() != 0){
+					JsArray<Topic> scopes = variants.get(varIdx).getScope();
+					int scopeIdx = 0;
+					for( ; scopeIdx != scopes.length(); ++scopeIdx) if(scopes.get(scopeIdx).equals(scope)) break;
+
+					if(scopeIdx != scopes.length()){
+						for(int i = 0; i != scopes.length(); ++i) this.addSubItem(this.getTopicRepresentation(scopes.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+					}
+				}
+			}
 		} else {
 			throw new InvalidGdlSchemaException("The constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not suported to be bound to the value group instance " + TmHelper.getAnyIdOfTopic(this.getValueGroup()));
 		}
