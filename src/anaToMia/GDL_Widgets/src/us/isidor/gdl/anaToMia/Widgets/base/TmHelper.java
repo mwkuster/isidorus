@@ -12,6 +12,7 @@ import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Scoped;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.ScopedStub;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Topic;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMap;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Variant;
 import us.isidor.gdl.anaToMia.Widgets.environment.ExecutionException;
 import us.isidor.gdl.anaToMia.Widgets.environment.InvalidGdlSchemaException;
 import us.isidor.gdl.anaToMia.Widgets.environment.Pair;
@@ -1498,4 +1499,31 @@ public class TmHelper {
 		else if(result.size() == 1) return result.get(0);
 		else return null;
 	}
+
+	
+	// Returns all variants of a topic that satisfies the passed constraint.
+	public static ArrayList<Variant> getVariantsForConstraint(Topic owner, Topic constraint) throws InvalidGdlSchemaException {
+		ArrayList<Variant> result = new ArrayList<Variant>();
+		if(owner == null || constraint == null) return result;
+		
+		Topic nameType = TmHelper.getConstrainedStatement(constraint);
+		JsArray<Name> names = owner.getNames(nameType);
+		Topic scope = TmHelper.getConstrainedScopeTopic(constraint); 
+
+		for(int nameIdx = 0; nameIdx != names.length(); ++nameIdx){
+			JsArray<Variant> variants = names.get(nameIdx).getVariants();
+			for(int varIdx = 0; varIdx != variants.length(); ++varIdx){
+				if(variants.get(varIdx).getScope().length() != 0){
+					JsArray<Topic> scopes = variants.get(varIdx).getScope();
+					int scopeIdx = 0;
+					for( ; scopeIdx != scopes.length(); ++scopeIdx) if(scopes.get(scopeIdx).equals(scope)) break;
+
+					if(scopeIdx != scopes.length()) result.add(variants.get(varIdx));
+				}
+			}
+		}
+		
+		return result;
+	}
+
 }

@@ -21,6 +21,7 @@ public class PSIs {
 		public final static String tmclAssociationType = tmcl + "association-type";
 		public final static String tmclRoleType = tmcl + "role-type";
 		public final static String tmclConstraint = tmcl + "constraint";
+		public final static String tmclOccurrenceConstraint = tmcl + "occurrence-constraint";
 		public final static String tmclConstrained = tmcl + "constrained";
 		public final static String tmclConstrainedStatement = tmcl + "constrained-statement";
 		public final static String tmclRegularExpressionConstraint = tmcl + "regular-expression-constraint";

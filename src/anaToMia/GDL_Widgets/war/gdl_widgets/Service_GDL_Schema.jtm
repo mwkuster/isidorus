@@ -222,12 +222,12 @@
             {"subject_identifiers":["[model:service-variant-name-scope-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Scope]"]},
             
             {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_ii_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
-            {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"430px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"450px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-ii-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Identifiers]"]},
 
 			{"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_reifier_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
-            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"470px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"490px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-reifier-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Reifier]"]},
                         
