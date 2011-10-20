@@ -30,6 +30,7 @@ public class TmHelper {
 		if(subjectIdentifier == null || tm == null) return null;
 		
 		Locator loc = tm.createLocator(subjectIdentifier);
+		
 		return tm.getTopicBySubjectIdentifier(loc);
 	}
 	
