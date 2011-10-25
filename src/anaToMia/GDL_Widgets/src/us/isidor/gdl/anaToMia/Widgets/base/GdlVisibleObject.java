@@ -2520,6 +2520,33 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	}
 	
 
+	// handles the getContent call for item identifiers of varian-names
+	private void getVariantIdentifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		ArrayList<Variant> possibleVariants = TmHelper.getVariantsForConstraint(carier, this.getRootConstraint());		
+		if(possibleVariants.size() != 0){
+			Variant variant = possibleVariants.get(0);
+			JsArray<Locator> identifiers = null;
+
+			ArrayList<Locator> filteredIdentifiers = null;
+
+			identifiers = variant.getItemIdentifiers();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+
+			Locator changedIdentifier = null;
+			if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
+
+			if(filteredIdentifiers.size() > selectedValueIndex){
+				changedIdentifier = filteredIdentifiers.get(selectedValueIndex);
+				variant.removeItemIdentifier(changedIdentifier);
+			}
+
+			changedIdentifier = variant.getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex));
+			variant.addItemIdentifier(changedIdentifier);
+			contents.add(new Pair<Object, TopicMapsTypes>(changedIdentifier, TopicMapsTypes.Locator));
+		}
+	}
+		
+		
 	// returns the actual data that is hold by this instance
 	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
 		ArrayList<Pair<Object, TopicMapsTypes>> result = new ArrayList<Pair<Object,TopicMapsTypes>>();
@@ -2553,21 +2580,22 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				}
 				result.add(new Pair<Object, TopicMapsTypes>(changedName, TopicMapsTypes.Name));
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlDatatype)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlType)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
-				// TODO: implement			
+				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
-				// TODO: implement			
+				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
+				this.getVariantIdentifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
 				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				Topic occurrenceType = TmHelper.getConstrainedStatement(this.getConstraint());
