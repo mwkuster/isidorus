@@ -88,14 +88,14 @@ public abstract class GdlTopicView extends GdlView {
 	
 	// returns true if the construct that is contained in the first member of pair
 	// is also indirectly contained in the container
-	private boolean indirectlyContained(Pair<Construct, TopicMapsTypes> pair, ArrayList<Pair<Construct, TopicMapsTypes>> container){
+	private boolean indirectlyContained(Pair<Object, TopicMapsTypes> pair, ArrayList<Pair<Object, TopicMapsTypes>> container){
 		if(pair == null) return true;
 		if(container == null) return false;
 		
 		TopicMapsTypes newType = pair.getSecond();
 		if(newType.equals(TopicMapsTypes.Name)){
 			Name name = (Name)pair.getFirst();
-			for (Pair<Construct, TopicMapsTypes> item : container) {
+			for (Pair<Object, TopicMapsTypes> item : container) {
 				if(item.getSecond().equals(TopicMapsTypes.Topic)){
 					JsArray<Name> names = ((Topic)item.getFirst()).getNames();
 					if(Utils.contains(names, name)) return true;
@@ -103,14 +103,14 @@ public abstract class GdlTopicView extends GdlView {
 			}
 		} else if (newType.equals(TopicMapsTypes.Variant)){
 			Variant variant = (Variant)pair.getFirst();
-			for (Pair<Construct, TopicMapsTypes> item : container) {
+			for (Pair<Object, TopicMapsTypes> item : container) {
 				if(item.getSecond().equals(TopicMapsTypes.Name)){
 					JsArray<Variant> variants = ((Name)item.getFirst()).getVariants();
 					if(Utils.contains(variants, variant)) return true;
 				}
 			}
 			
-			for (Pair<Construct, TopicMapsTypes> item : container) {
+			for (Pair<Object, TopicMapsTypes> item : container) {
 				if(item.getSecond().equals(TopicMapsTypes.Topic)){
 					JsArray<Name> names = ((Topic)item.getFirst()).getNames();
 					for(int i = 0; i != names.length(); ++i){
@@ -121,7 +121,7 @@ public abstract class GdlTopicView extends GdlView {
 			}
 		} else if (newType.equals(TopicMapsTypes.Occurrence)){
 			Occurrence occurrence = (Occurrence)pair.getFirst();
-			for (Pair<Construct, TopicMapsTypes> item : container) {
+			for (Pair<Object, TopicMapsTypes> item : container) {
 				if(item.getSecond().equals(TopicMapsTypes.Topic)){
 					JsArray<Occurrence> occurrences = ((Topic)item.getFirst()).getOccurrences();
 					if(Utils.contains(occurrences, occurrence)) return true;
@@ -129,7 +129,7 @@ public abstract class GdlTopicView extends GdlView {
 			}
 		} else if (newType.equals(TopicMapsTypes.Role)){
 			Role role = (Role)pair.getFirst();
-			for (Pair<Construct, TopicMapsTypes> item : container) {
+			for (Pair<Object, TopicMapsTypes> item : container) {
 				if(item.getSecond().equals(TopicMapsTypes.Association)){
 					JsArray<Role> roles = ((Association)item.getFirst()).getRoles();
 					if(Utils.contains(roles, role)) return true;
@@ -143,18 +143,18 @@ public abstract class GdlTopicView extends GdlView {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public ArrayList<Pair<Construct, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
-		ArrayList<Pair<Construct, TopicMapsTypes>> result = new ArrayList<Pair<Construct,TopicMapsTypes>>();
+	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
+		ArrayList<Pair<Object, TopicMapsTypes>> result = new ArrayList<Pair<Object,TopicMapsTypes>>();
 		
 		Topic localCarrier = this.getRepresentedTopic();
 				
 		for (Widget ctrl : this.subElements) {
 			int i = 0;
 			for( ; i != result.size(); ++i) if(result.get(i).getFirst().equals(localCarrier)) break;
-			if(i == result.size()) result.add(new Pair<Construct, TopicMapsTypes>(localCarrier, TopicMapsTypes.Topic));
+			if(i == result.size()) result.add(new Pair<Object, TopicMapsTypes>(localCarrier, TopicMapsTypes.Topic));
 			
 			if(ctrl instanceof GdlVisibleObject){
-				for (Pair<Construct, TopicMapsTypes> pair : ((GdlVisibleObject)ctrl).getContent(localCarrier, validate)) {
+				for (Pair<Object, TopicMapsTypes> pair : ((GdlVisibleObject)ctrl).getContent(localCarrier, validate)) {
 					if((this.receivedData != null || (ctrl instanceof GdlView)) && !this.indirectlyContained(pair, result))result.add(pair);
 				}
 			}
@@ -177,7 +177,7 @@ public abstract class GdlTopicView extends GdlView {
 				
 				if(i == occurrences.length()){
 					Occurrence occ = top.createOccurrence(occurrenceType, value, (JsArray<Topic>)JsArray.createArray());
-					Pair<Construct, TopicMapsTypes> newItem = new Pair<Construct, TopicMapsTypes>(occ, TopicMapsTypes.Occurrence);
+					Pair<Object, TopicMapsTypes> newItem = new Pair<Object, TopicMapsTypes>(occ, TopicMapsTypes.Occurrence);
 					if(!this.indirectlyContained(newItem, result)) result.add(newItem);
 				}
 			}

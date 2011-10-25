@@ -18,7 +18,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.ExporterException;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
-import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Topic;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
 import us.isidor.gdl.anaToMia.Widgets.base.TmHelper;
@@ -52,7 +51,7 @@ public class DeleteCallback implements IDeleteCallback {
 	
 
 	@Override
-	public void deleteTmConstruct(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, TmEngine tmEngine, String buttonId) {
+	public void deleteTmConstruct(ArrayList<Pair<Object, TopicMapsTypes>> constructs, TmEngine tmEngine, String buttonId) {
 		if(buttonId != null){
 			Element elem = DOM.getElementById(buttonId);
 			ButtonElement btnElem = (ButtonElement)elem;
@@ -62,8 +61,8 @@ public class DeleteCallback implements IDeleteCallback {
 	}
 
 	
-	private void deleteTopic(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, TmEngine tmEngine){
-		for (Pair<Construct, TopicMapsTypes> pair : constructs) {
+	private void deleteTopic(ArrayList<Pair<Object, TopicMapsTypes>> constructs, TmEngine tmEngine){
+		for (Pair<Object, TopicMapsTypes> pair : constructs) {
 			if(pair.getSecond().equals(TopicMapsTypes.Topic)){
 				Topic top = (Topic)pair.getFirst();
 				

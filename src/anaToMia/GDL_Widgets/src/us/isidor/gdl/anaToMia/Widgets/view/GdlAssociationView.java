@@ -185,13 +185,13 @@ public abstract class GdlAssociationView extends GdlView {
 
 	
 	@Override
-	public ArrayList<Pair<Construct, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException{
-		ArrayList<Pair<Construct, TopicMapsTypes>> result = new ArrayList<Pair<Construct,TopicMapsTypes>>();
+	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException{
+		ArrayList<Pair<Object, TopicMapsTypes>> result = new ArrayList<Pair<Object,TopicMapsTypes>>();
 		
 		for (Widget ctrl : this.subElements) {
 			if(ctrl instanceof ButtonableObject){
 				if(((ButtonableObject)ctrl).getMainObject() instanceof AssociationItem){
-					for (Pair<Construct, TopicMapsTypes> pair : ((AssociationItem)((ButtonableObject)ctrl).getMainObject()).getContent(null, validate)) {
+					for (Pair<Object, TopicMapsTypes> pair : ((AssociationItem)((ButtonableObject)ctrl).getMainObject()).getContent(null, validate)) {
 						result.add(pair);
 					}
 				}
@@ -207,7 +207,7 @@ public abstract class GdlAssociationView extends GdlView {
 			
 			if(TmHelper.isInstanceOf(hdv.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
 				if(!TmHelper.isInstanceOf(hdv.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(hdv.getConstraint()) + " must be bound to an instance of " + PSIs.TMCL.tmclTopicRoleConstraint + ", but is: " + TmHelper.getAnyIdOfTopic(hdv.getRootConstraint()));
-				for (Pair<Construct, TopicMapsTypes> pair : result) {
+				for (Pair<Object, TopicMapsTypes> pair : result) {
 					if(pair.getSecond().equals(TopicMapsTypes.Association)){
 						Association assoc = (Association)pair.getFirst();
 						JsArray<Role> roles = assoc.getRoles(roleType);
@@ -276,8 +276,8 @@ public abstract class GdlAssociationView extends GdlView {
 		
 		
 		@Override
-		public ArrayList<Pair<Construct, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
-			ArrayList<Pair<Construct, TopicMapsTypes>> result = new ArrayList<Pair<Construct,TopicMapsTypes>>();
+		public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
+			ArrayList<Pair<Object, TopicMapsTypes>> result = new ArrayList<Pair<Object,TopicMapsTypes>>();
 			
 			Association localCarrier = this.getRepresentedAssociation();
 			
@@ -286,7 +286,7 @@ public abstract class GdlAssociationView extends GdlView {
 					((GdlVisibleObject)ctrl).getContent(localCarrier, validate);
 				}
 			}
-			result.add(new Pair<Construct, TopicMapsTypes>(localCarrier, TopicMapsTypes.Association));
+			result.add(new Pair<Object, TopicMapsTypes>(localCarrier, TopicMapsTypes.Association));
 			return result;
 		}
 		

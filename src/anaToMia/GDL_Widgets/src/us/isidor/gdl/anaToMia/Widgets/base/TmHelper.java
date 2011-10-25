@@ -1210,7 +1210,7 @@ public class TmHelper {
 		ArrayList<Topic> occurrenceTypes = getOtherPlayerOfBinaryAssociation(constraint, constraintRoleType, constrainedStatementAssocType, null, occurrenceType, constrainedRoleType);
 		ArrayList<Topic> nameOrOccurrenceTypes = Utils.union(nameTypes, occurrenceTypes);
 		
-		if(nameOrOccurrenceTypes.size() == 0){
+		 if(nameOrOccurrenceTypes.size() == 0){
 			return result;
 		} else if(nameOrOccurrenceTypes.size() > 1){
 			throw new InvalidGdlSchemaException("the topic " + getAnyIdOfTopic(constraint) + " must be bound maximum once to a topic via a " + PSIs.TMCL.tmclConstrainedStatement + ", but is: " + nameOrOccurrenceTypes.size());
@@ -1368,7 +1368,7 @@ public class TmHelper {
 	}
 
 	
-	// returns an integer representing the tmcl:card-min value
+	// returns an integer representing the tmcl:card-min value of the passed constraint
 	public static int getCardMin(Topic constraint) throws InvalidGdlSchemaException {
 		if(constraint == null) return 0;
 		Occurrence occ = getSingleOccurrence(constraint, getTopicByPsi(PSIs.TMCL.tmclCardMin, constraint.getTopicMap()));
@@ -1384,8 +1384,20 @@ public class TmHelper {
 	}
 	
 	
-	// returns an integer representing the tmcl:card-max value or -1
-	// if infinite
+	// returns a string representing the tmcl:regexp value of the passed constraint
+	public static String getRegExp(Topic constraint) throws InvalidGdlSchemaException {
+		if(constraint == null) return ".*";
+		Occurrence occ = getSingleOccurrence(constraint, getTopicByPsi(PSIs.TMCL.tmclRegexp, constraint.getTopicMap()));
+		if(occ == null){
+			return ".*";
+		} else {
+			return occ.getValue();
+		}
+	}
+	
+	
+	// returns an integer representing the tmcl:card-max value of the
+	// passed constraint or -1 if infinite
 	public static int getCardMax(Topic constraint) throws InvalidGdlSchemaException {
 		if(constraint == null) return 0;
 		Occurrence occ = getSingleOccurrence(constraint, getTopicByPsi(PSIs.TMCL.tmclCardMax, constraint.getTopicMap()));

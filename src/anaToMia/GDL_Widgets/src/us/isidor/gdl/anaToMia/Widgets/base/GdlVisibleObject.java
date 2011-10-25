@@ -4,6 +4,7 @@ package us.isidor.gdl.anaToMia.Widgets.base;
 import java.util.ArrayList;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Association;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Locator;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Name;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Occurrence;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Reifiable;
@@ -2333,24 +2334,23 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	public abstract ArrayList<String> getSelectedValues();
 
 
-	// validates names, occurrences and identifiers for tha passed value
+	// validates names, occurrences and identifiers for the passed value
 	private void validateLiteralValue(String selectedValue) throws InvalidContentException, InvalidGdlSchemaException{
-		ArrayList<Pattern> validLiteralValues = new ArrayList<Pattern>();
-		for (String literal : this.getLiterals()) validLiteralValues.add(new Pattern(literal));
-		if(validLiteralValues.size() == 0) validLiteralValues.add(new Pattern(this.getLiteralValueForConstraint()));	
-		int i = 0;
-		for( ; i != validLiteralValues.size(); ++i) if(validLiteralValues.get(i).matches(selectedValue)) break;
+		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint) || TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint) || TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
+			Pattern pattern = new Pattern(TmHelper.getRegExp(this.getConstraint()));
+			if(!pattern.matches(selectedValue)) throw new InvalidContentException("The value \"" + selectedValue + "\" does not satisfy the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " with the regular expression: " + TmHelper.getRegExp(this.getConstraint()));
+		} else {
+			ArrayList<Pattern> validLiteralValues = new ArrayList<Pattern>();
+			for (String literal : this.getLiterals()) validLiteralValues.add(new Pattern(literal));
+			if(validLiteralValues.size() == 0) validLiteralValues.add(new Pattern(this.getLiteralValueForConstraint()));	
+			int i = 0;
+			for( ; i != validLiteralValues.size(); ++i) if(validLiteralValues.get(i).matches(selectedValue)) break;
 
-		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
-			if(i == validLiteralValues.size()) throw new InvalidContentException("the user data " + selectedValue + " for the topic-name " + TmHelper.getAnyIdOfTopic(TmHelper.getConstrainedStatement(this.getConstraint())) + " does not satisfy any of the constraints: " + Utils.arrayToString(validLiteralValues));
-		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
-			if(i == validLiteralValues.size()) throw new InvalidContentException("the user data " + selectedValue + " for the topic-occurrence " + TmHelper.getAnyIdOfTopic(TmHelper.getConstrainedStatement(this.getConstraint())) + " does not satisfy any of the constraints: " + Utils.arrayToString(validLiteralValues));
-		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-
-		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-
-		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
-
+			if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
+				if(i == validLiteralValues.size()) throw new InvalidContentException("the user data " + selectedValue + " for the topic-name " + TmHelper.getAnyIdOfTopic(TmHelper.getConstrainedStatement(this.getConstraint())) + " does not satisfy any of the constraints: " + Utils.arrayToString(validLiteralValues));
+			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
+				if(i == validLiteralValues.size()) throw new InvalidContentException("the user data " + selectedValue + " for the topic-occurrence " + TmHelper.getAnyIdOfTopic(TmHelper.getConstrainedStatement(this.getConstraint())) + " does not satisfy any of the constraints: " + Utils.arrayToString(validLiteralValues));
+			}
 		}
 	}
 
@@ -2380,10 +2380,58 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		}
 	}
 
+	
+	// returns all locators contained in the passed locators array, which match the
+	// passed regular expression value
+	private ArrayList<Locator> filterLocators(String pattern, JsArray<Locator> locators){
+		ArrayList<Locator> result = new ArrayList<Locator>();
+		if(locators == null || locators.length() == 0) return result;
+		Pattern patternObject = new Pattern(pattern == null ? ".*" : pattern);
+		
+		for(int i = 0; i != locators.length(); ++i){
+			if(patternObject.matches(locators.get(i).getReference())) result.add(locators.get(i));
+		}
+		
+		return result;
+	}
+	
+	
+	// handles the getContetn call for subject identifiers and subject locators
+	private void getTopicIdentifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		JsArray<Locator> identifiers = null;
+			
+		ArrayList<Locator> filteredIdentifiers = null;
+		boolean isPsiConstraint = false;
+		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
+			isPsiConstraint = true;
+			identifiers = carier.getSubjectIdentifiers();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
+			identifiers = carier.getSubjectLocators();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+		} else {
+			throw new ExecutionException("Only the constraints " + PSIs.TMCL.tmclSubjectIdentifierConstraint + " and " + PSIs.TMCL.tmclSubjectLocatorConstraint + " are supported by the function getTopicIdentifierContent");
+		}
+		
+		Locator changedIdentifier = null;
+		if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
+		
+		if(filteredIdentifiers.size() > selectedValueIndex){
+			changedIdentifier = filteredIdentifiers.get(selectedValueIndex);
+			if(isPsiConstraint) carier.removeSubjectIdentifier(changedIdentifier);
+			else carier.removeSubjectLocator(changedIdentifier);
+		}
+		
+		changedIdentifier = carier.getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex));
+		if(isPsiConstraint) carier.addSubjectIdentifier(changedIdentifier);
+		else carier.addSubjectLocator(changedIdentifier);
+		contents.add(new Pair<Object, TopicMapsTypes>(changedIdentifier, TopicMapsTypes.Locator));
+	}
+	
 
 	// returns the actual data that is hold by this instance
-	public ArrayList<Pair<Construct, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
-		ArrayList<Pair<Construct, TopicMapsTypes>> result = new ArrayList<Pair<Construct,TopicMapsTypes>>();
+	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
+		ArrayList<Pair<Object, TopicMapsTypes>> result = new ArrayList<Pair<Object,TopicMapsTypes>>();
 		if(this.getRootConstraint() == null) return result;
 		Construct localCarrier = carrier;
 		if(carrier == null) localCarrier = TmHelper.getNearestTopicOrAssociation(this);
@@ -2392,10 +2440,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
 				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-				// TODO: implement
+				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
+				this.getTopicIdentifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-				// TODO: implement
-			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){				
+				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
+				this.getTopicIdentifierContent(result, validate, (Topic)localCarrier, idx);
+			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
 				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				Topic nameType = TmHelper.getConstrainedStatement(this.getConstraint());
 				JsArray<Name> names = ((Topic)localCarrier).getNames(nameType);				
@@ -2409,8 +2459,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				}else {
 					changedName = ((Topic)localCarrier).createName(this.getSelectedValues().get(idx), nameType, null);
 				}
-
-				result.add(new Pair<Construct, TopicMapsTypes>(changedName, TopicMapsTypes.Name));
+				result.add(new Pair<Object, TopicMapsTypes>(changedName, TopicMapsTypes.Name));
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
 				// TODO: implement			
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
@@ -2442,7 +2491,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 					changedOccurrence = ((Topic)localCarrier).createOccurrence(occurrenceType, this.getSelectedValues().get(idx), null, null);
 				}
 
-				result.add(new Pair<Construct, TopicMapsTypes>(changedOccurrence, TopicMapsTypes.Occurrence));
+				result.add(new Pair<Object, TopicMapsTypes>(changedOccurrence, TopicMapsTypes.Occurrence));
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
 				if(!(localCarrier instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + localCarrier.getClass());
 				if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint))throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but is: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
@@ -2465,7 +2514,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				} else {
 					changedRole = ((Association)localCarrier).createRole(roleType, player);
 				}
-				result.add(new Pair<Construct, TopicMapsTypes>(changedRole, TopicMapsTypes.Role));
+				result.add(new Pair<Object, TopicMapsTypes>(changedRole, TopicMapsTypes.Role));
 			} else {
 				throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not supported");
 			}

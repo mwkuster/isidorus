@@ -2,8 +2,8 @@ package us.isidor.gdl.anaToMia.Widgets.base;
 
 import us.isidor.gdl.anaToMia.TmEngine.jtmsBasedEngine.JtmsTmEngine;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
-import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Locator;
 import us.isidor.gdl.anaToMia.Widgets.environment.ICommitCallback;
 import us.isidor.gdl.anaToMia.Widgets.environment.IDeleteCallback;
 import us.isidor.gdl.anaToMia.Widgets.environment.Pair;
@@ -56,13 +56,21 @@ public class TestClass implements EntryPoint{
 			gdlPanel.setLoadSchemaCallback(new TestLoadSchemaCallback());
 			gdlPanel.setCommitCallback(new ICommitCallback() {
 				@Override
-				public void commitTmConstruct(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, String buttonId, TmEngine tmEngine) {
-					Window.alert("not implemented yet :-(");
+				public void commitTmConstruct(ArrayList<Pair<Object, TopicMapsTypes>> constructs, String buttonId, TmEngine tmEngine) {
+					for (Pair<Object, TopicMapsTypes> construct : constructs) {
+						if(construct.getSecond().equals(TopicMapsTypes.Topic)){
+							Window.alert("Topic!!!");
+						} else if(construct.getSecond().equals(TopicMapsTypes.Locator)){
+							Window.alert(((Locator)construct.getFirst()).getReference() + " >> " + construct.getSecond());
+						} else {
+							Window.alert(construct.getFirst() + " >> " + construct.getSecond());
+						}
+					}
 				}
 			});
 			gdlPanel.setDeleteCallback(new IDeleteCallback() {
 				@Override
-				public void deleteTmConstruct(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, TmEngine tmEngine, String buttonId) {
+				public void deleteTmConstruct(ArrayList<Pair<Object, TopicMapsTypes>> constructs, TmEngine tmEngine, String buttonId) {
 					Window.alert("not implemented yet :-(");
 				}
 			});

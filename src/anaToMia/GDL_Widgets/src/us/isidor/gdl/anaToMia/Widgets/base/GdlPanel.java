@@ -2,7 +2,6 @@ package us.isidor.gdl.anaToMia.Widgets.base;
 
 import java.util.ArrayList;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
-import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMap;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
 import us.isidor.gdl.anaToMia.Widgets.environment.ExecutionException;
@@ -210,8 +209,8 @@ public class GdlPanel extends Composite{
 			if(this.commitCallback == null){
 				throw new ExecutionException("No CommitCallback was set yet");
 			}
-			ArrayList<Pair<Construct, TopicMapsTypes>> data = new ArrayList<Pair<Construct,TopicMapsTypes>>();
-			data.add(new Pair<Construct, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
+			ArrayList<Pair<Object, TopicMapsTypes>> data = new ArrayList<Pair<Object,TopicMapsTypes>>();
+			data.add(new Pair<Object, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
 			this.commitCallback.commitTmConstruct(data, null, this.tmEngine);
 		}catch(Exception e){
 			for (IOnErrorCallback handler : localOnErrorContainer) {
@@ -253,8 +252,8 @@ public class GdlPanel extends Composite{
 			if(this.deleteCallback == null)
 				throw new ExecutionException("No DeleteCallback was set yet");
 	
-			ArrayList<Pair<Construct, TopicMapsTypes>> data = new ArrayList<Pair<Construct,TopicMapsTypes>>();
-			data.add(new Pair<Construct, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
+			ArrayList<Pair<Object, TopicMapsTypes>> data = new ArrayList<Pair<Object,TopicMapsTypes>>();
+			data.add(new Pair<Object, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
 			this.deleteCallback.deleteTmConstruct(data, this.getTmEngine(), null);
 		}catch(Exception e){
 			for (IOnErrorCallback handler : localOnErrorContainer)
@@ -265,7 +264,7 @@ public class GdlPanel extends Composite{
 	
 	// this method is responsible for generating a Topic Map fo the user's
 	// data by using the view's getContent method.
-	public ArrayList<Pair<Construct, TopicMapsTypes>> getContent(boolean validate) throws Exception {
+	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(boolean validate) throws Exception {
 		try{
 			return this.view.getContent(null, validate);
 		}catch(Exception e){

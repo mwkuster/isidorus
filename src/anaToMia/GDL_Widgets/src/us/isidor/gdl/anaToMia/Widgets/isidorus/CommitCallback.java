@@ -22,7 +22,6 @@ import com.google.gwt.user.client.Window;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.ExporterException;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Association;
-import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Locator;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Name;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Occurrence;
@@ -49,7 +48,7 @@ public class CommitCallback implements ICommitCallback{
 	
 	
 	@Override
-	public void commitTmConstruct(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, String buttonId, TmEngine tmEngine) {
+	public void commitTmConstruct(ArrayList<Pair<Object, TopicMapsTypes>> constructs, String buttonId, TmEngine tmEngine) {
 		try{
 			if("creator_hash_object_commit_button_id".equals(buttonId)){
 				if(this.gdlWebPage != null) this.gdlWebPage.createLoadScreenPanel("Committing Data", "committing the currently created Hash-Object topic to " + this.COMMIT_REQUEST_URL);
@@ -78,12 +77,12 @@ public class CommitCallback implements ICommitCallback{
 	}
 	
 	
-	private void commitCreatedEnvironment(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, TmEngine tmEngine) throws ExporterException {
+	private void commitCreatedEnvironment(ArrayList<Pair<Object, TopicMapsTypes>> constructs, TmEngine tmEngine) throws ExporterException {
 		final String carrierPsi = PSIs.GDL.gdl + "environment_default_creator_topic_view_id";
 		ArrayList<Topic> topics = new ArrayList<Topic>();
 		ArrayList<TopicMap> topicMaps = new ArrayList<TopicMap>();
 		
-		for (Pair<Construct, TopicMapsTypes> construct : constructs) {
+		for (Pair<Object, TopicMapsTypes> construct : constructs) {
 			if(construct.getSecond().equals(TopicMapsTypes.Topic)) topics.add((Topic)construct.getFirst());
 			else if(construct.getSecond().equals(TopicMapsTypes.TopicMap)) topicMaps.add((TopicMap)construct.getFirst());
 			else throw new ExporterException("unexpected construct types: " + construct.getSecond()+ ", only Topic and Association are allowed");
@@ -134,13 +133,13 @@ public class CommitCallback implements ICommitCallback{
 	}
 	
 	
-	private void commitCreatedHashObject(ArrayList<Pair<Construct, TopicMapsTypes>> constructs, TmEngine tmEngine, boolean edited) throws ExporterException{
+	private void commitCreatedHashObject(ArrayList<Pair<Object, TopicMapsTypes>> constructs, TmEngine tmEngine, boolean edited) throws ExporterException{
 		final String carrierPsi = PSIs.GDL.gdl + "hash_object_default_creator_topic_view_id";
 		ArrayList<Topic> topics = new ArrayList<Topic>();
 		ArrayList<Association> associations = new ArrayList<Association>();
 		ArrayList<TopicMap> topicMaps = new ArrayList<TopicMap>();
 		
-		for (Pair<Construct, TopicMapsTypes> construct : constructs) {
+		for (Pair<Object, TopicMapsTypes> construct : constructs) {
 			if(construct.getSecond().equals(TopicMapsTypes.Association)) associations.add((Association)construct.getFirst());
 			else if(construct.getSecond().equals(TopicMapsTypes.Topic)) topics.add((Topic)construct.getFirst());
 			else if(construct.getSecond().equals(TopicMapsTypes.TopicMap)) topicMaps.add((TopicMap)construct.getFirst());
