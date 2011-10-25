@@ -1181,16 +1181,54 @@ public class TmHelper {
 	
 	
 	// returns the topic that can be used to satisfy the passed variant-name-reifier-constraint.
-	public static ArrayList<Topic> getTmValuesForVariantNameReifierConstraint(Topic variantNameReifierConstraint) throws ExecutionException {
-		// TODO: implement
-		throw new ExecutionException("this mehtod is currently not implemented");
+	public static ArrayList<Topic> getTmValuesForVariantNameReifierConstraint(Topic variantNameReifierConstraint) throws ExecutionException, InvalidGdlSchemaException {
+		ArrayList<Topic> result = new ArrayList<Topic>();
+		if(variantNameReifierConstraint == null) return result;
+		
+		TopicMap tm = variantNameReifierConstraint.getTopicMap();
+		Topic allowedRoleType = getTopicByPsi(PSIs.TMCL.tmclAllowed, tm);
+		Topic allowsRoleType = getTopicByPsi(PSIs.TMCL.tmclAllows, tm);
+		Topic allowedReifierAssocType = getTopicByPsi(PSIs.TMCL.tmclAllowedReifier, tm);
+		ArrayList<Topic> reifierTypeTopics = getOtherPlayerOfBinaryAssociation(variantNameReifierConstraint, allowsRoleType, allowedReifierAssocType, null, allowedRoleType);
+		
+		if(reifierTypeTopics.size() != 1){
+			throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(variantNameReifierConstraint) + " must be bound extactly once to a topic type, but is: " + reifierTypeTopics.size());
+		} else {
+			// add the direct specified type
+			result.add(reifierTypeTopics.get(0));
+
+			// get subtypes of typeTopic
+			JsArray<Topic> allTopics = tm.getTopics();
+			for(int i = 0; i != allTopics.length(); ++i) if(isSupertypeOf(allTopics.get(i), reifierTypeTopics.get(0))) result.add(allTopics.get(i));
+		}
+		
+		return result;
 	}
 	
 	
 	// returns the topic that can be used to satisfy the passed variant-name-scope-constraint.
-	public static ArrayList<Topic> getTmValuesForVariantNameScopeConstraint(Topic variantNameScopeConstraint) throws ExecutionException{
-		// TODO: implement
-		throw new ExecutionException("this method is currently not implemented");
+	public static ArrayList<Topic> getTmValuesForVariantNameScopeConstraint(Topic variantNameScopeConstraint) throws ExecutionException, InvalidGdlSchemaException{
+		ArrayList<Topic> result = new ArrayList<Topic>();
+		if(variantNameScopeConstraint == null) return result;
+		
+		TopicMap tm = variantNameScopeConstraint.getTopicMap();
+		Topic constraintRoleType = getTopicByPsi(PSIs.TMCL.tmclConstraint, tm);
+		Topic constrainedRoleType = getTopicByPsi(PSIs.TMCL.tmclConstrained, tm);
+		Topic constrainedScopeAssocType = getTopicByPsi(PSIs.TMCL.tmclConstrainedScope, tm);
+		ArrayList<Topic> scopeTypeTopics = getOtherPlayerOfBinaryAssociation(variantNameScopeConstraint, constraintRoleType, constrainedScopeAssocType, null, constrainedRoleType);
+		
+		if(scopeTypeTopics.size() != 1){
+			throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(variantNameScopeConstraint) + " must be bound extactly once to a topic type, but is: " + scopeTypeTopics.size());
+		} else {
+			// add the direct specified type
+			result.add(scopeTypeTopics.get(0));
+
+			// get subtypes of typeTopic
+			JsArray<Topic> allTopics = tm.getTopics();
+			for(int i = 0; i != allTopics.length(); ++i) if(isSupertypeOf(allTopics.get(i), scopeTypeTopics.get(0))) result.add(allTopics.get(i));
+		}
+		
+		return result;
 	}
 	
 	

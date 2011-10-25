@@ -2003,8 +2003,14 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
 
 			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getConstraint());
-			if(variants.size() != 0) this.addSubItem(variants.get(0).getValue());
-			else this.addSubItem("");
+			if(variants.size() != 0){
+				for (Variant variant : variants) {
+					 this.addSubItem(variant.getValue());
+				}
+			}
+			else{
+				this.addSubItem("");
+			}
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
 			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
 
@@ -2547,6 +2553,19 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	}
 	
 	
+	// handles the getContent call for item identifiers of variant-names
+	private void getVariantReifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		ArrayList<Variant> possibleVariants = TmHelper.getVariantsForConstraint(carrier, this.getRootConstraint());		
+		if(possibleVariants.size() != 0){
+			Variant variant = possibleVariants.get(0);
+			Topic reifier = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
+			
+			if(reifier != null) variant.setReifier(reifier);
+			contents.add(new Pair<Object, TopicMapsTypes>(variant, TopicMapsTypes.Variant));
+		}
+	}
+	
+	
 	// handles the getContent call for occurrence and name values
 	private void getTopicCharacteristicContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
 		Topic characteristicType = TmHelper.getConstrainedStatement(this.getConstraint());
@@ -2621,7 +2640,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
 				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
-				// TODO: implement
+				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
+				this.getVariantReifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
 				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getVariantIdentifierContent(result, validate, (Topic)localCarrier, idx);

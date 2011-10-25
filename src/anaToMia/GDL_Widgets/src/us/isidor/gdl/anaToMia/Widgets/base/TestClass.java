@@ -4,6 +4,7 @@ import us.isidor.gdl.anaToMia.TmEngine.jtmsBasedEngine.JtmsTmEngine;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Occurrence;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Name;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Variant;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Locator;
 import us.isidor.gdl.anaToMia.Widgets.environment.ICommitCallback;
@@ -68,6 +69,8 @@ public class TestClass implements EntryPoint{
 							Window.alert(((Occurrence)construct.getFirst()).getValue() + " >> " + construct.getSecond());
 						} else if(construct.getSecond().equals(TopicMapsTypes.Name)){
 							Window.alert(((Name)construct.getFirst()).getValue() + " >> " + construct.getSecond());
+						} else if(construct.getSecond().equals(TopicMapsTypes.Variant)){
+							Window.alert(TmHelper.getAnyIdOfTopic(((Variant)construct.getFirst()).getReifier()) + " >> " + construct.getSecond());
 						} else {
 							Window.alert(construct.getFirst() + " >> " + construct.getSecond());
 						}
