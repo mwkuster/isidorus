@@ -2450,11 +2450,73 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	
 	// handles the getContent call for item identifiers
-	private void getItemIdentifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+	private void getItemIdentifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Construct carier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(this.receivedData instanceof Reifiable) || !(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Reifiable, but is: " + receivedData.getClass());
+
+		// get type
+		Topic constrainedTopicType = TmHelper.getConstrainedTopicType(this.getConstraint());
+
+		int typeIdx = -1;
+		JsArray<Topic> types = null;
+		if((carier instanceof Topic)){
+			types = ((Topic)carier).getTypes();
+			if(types.length() != 0){
+				for(typeIdx = 0; typeIdx != types.length(); ++typeIdx) if(types.get(typeIdx).equals(constrainedTopicType)) break;
+			}
+		}
+
 		JsArray<Locator> identifiers = null;
-		
-		
-		
+		ArrayList<Locator> filteredIdentifiers = null;
+		if((carier instanceof Topic) && types != null && typeIdx != types.length()){
+			identifiers = ((Topic)carier).getItemIdentifiers();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+			
+			Locator changedIdentifier = null;
+			if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
+			
+			if(filteredIdentifiers.size() > selectedValueIndex){
+				changedIdentifier = filteredIdentifiers.get(selectedValueIndex);
+				((Topic)carier).removeItemIdentifier(changedIdentifier);
+			}
+			
+			changedIdentifier = ((Topic)carier).getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex));
+			((Topic)carier).addItemIdentifier(changedIdentifier);
+			contents.add(new Pair<Object, TopicMapsTypes>(changedIdentifier, TopicMapsTypes.Locator));
+		} else {			
+			// search for the topic type
+			Reifiable ref = null;
+
+			// search for the characteristics type
+			if(carier instanceof Topic){
+				JsArray<Name> names = ((Topic)carier).getNames(constrainedTopicType);
+				if(names.length() != 0){
+					ref = names.get(0);
+				} else {
+					JsArray<Occurrence> occs = ((Topic)carier).getOccurrences(constrainedTopicType);
+					if(occs.length() != 0) ref = occs.get(0);
+				}
+			} else if(carier instanceof Association){
+				JsArray<Role> roles = ((Association)carier).getRoles(constrainedTopicType);
+				if(roles.length() != 0) ref = roles.get(0);
+			}
+			if(ref == null) return;
+			
+			// search for item-identifiers of the found topic type or characteristics
+			identifiers = ((ReifiableStub)ref).getItemIdentifiers();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+			
+			Locator changedIdentifier = null;
+			if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
+			
+			if(filteredIdentifiers.size() > selectedValueIndex){
+				changedIdentifier = filteredIdentifiers.get(selectedValueIndex);
+				((ReifiableStub)carier).removeItemIdentifier(changedIdentifier);
+			}
+			
+			changedIdentifier = ((ReifiableStub)carier).getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex));
+			((ReifiableStub)carier).addItemIdentifier(changedIdentifier);
+			contents.add(new Pair<Object, TopicMapsTypes>(changedIdentifier, TopicMapsTypes.Locator));
+		}
 	}
 	
 
