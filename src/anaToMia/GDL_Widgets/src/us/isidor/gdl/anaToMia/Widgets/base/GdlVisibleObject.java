@@ -14,6 +14,7 @@ import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.ScopedStub;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Topic;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMap;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TypedStub;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Variant;
 import us.isidor.gdl.anaToMia.Widgets.button.GdlActionButton;
 import us.isidor.gdl.anaToMia.Widgets.environment.ActiveStyleHandler;
@@ -2854,15 +2855,53 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	}
 	
 	
+	// handles the getContent call for a Datatye value
 	// handles the getContent call for scope topics
-	private void getDatatypeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+	private void getDatatypeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Construct carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
 		// TODO: implement
 	}
 	
 	
+	// handles the getContent call for a type topic
 	// handles the getContent call for scope topics
-	private void getTypeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
-		// TODO: implement
+	private void getTypeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Construct carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		Topic oldType = null;
+		Construct owner = null;
+		TopicMapsTypes ownerType = null;
+		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
+			if(!(carrier instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
+			oldType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Name> names = ((Topic)carrier).getNames(oldType);
+			if(names.length() != 0) owner = names.get(0);
+			ownerType = TopicMapsTypes.Name;
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
+			if(!(carrier instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
+			oldType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Occurrence> occs = ((Topic)carrier).getOccurrences(oldType);
+			if(occs.length() != 0) owner = occs.get(0);
+			ownerType = TopicMapsTypes.Occurrence;
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)){
+			if(!(carrier instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
+			oldType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint()).getFirst();
+			Topic assocType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Role> roles = ((Topic)carrier).getRolesPlayed(oldType, assocType);
+			if(roles.length() != 0) owner = roles.get(0).getParent();
+			ownerType = TopicMapsTypes.Association;
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclAssociationRoleConstraint)){
+			if(!(carrier instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
+			oldType = TmHelper.getConstraintRoleOfConstraint(this.getRootConstraint());
+			Topic assocType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Role> roles = ((Topic)carrier).getRolesPlayed(oldType, assocType);
+			if(roles.length() != 0) owner = roles.get(0);
+			ownerType = TopicMapsTypes.Role;
+		} else {
+			String constraints = PSIs.TMCL.tmclTopicNameConstraint + ", " + PSIs.TMCL.tmclTopicOccurrenceConstraint + ", " + PSIs.TMCL.tmclTopicRoleConstraint + ", " + PSIs.TMCL.tmclAssociationRoleConstraint;
+			throw new ExecutionException("The topic " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to the following root constraints: " + constraints);
+		}
+
+		Topic newType = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
+		if(!newType.equals(oldType))((TypedStub) owner).setType(newType);
+		contents.add(new Pair<Object, TopicMapsTypes>(owner, ownerType));
 	}
 	
 		
