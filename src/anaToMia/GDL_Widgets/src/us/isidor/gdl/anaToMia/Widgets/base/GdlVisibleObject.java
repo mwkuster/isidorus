@@ -10,6 +10,7 @@ import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Occurrence;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Reifiable;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.ReifiableStub;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Role;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.ScopedStub;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Topic;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMap;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
@@ -1960,7 +1961,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				if(occs.length() != 0) reifier = occs.get(0).getReifier();
 			}
 		} else if(this.receivedData instanceof Association){
-			if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
+			if(((Association)this.receivedData).getType().equals(type)){
+				reifier = ((Association)this.receivedData).getReifier();
+			} else {
+				JsArray<Role> roles = ((Association)this.receivedData).getRoles(type);
+				if(roles.length() != 0) reifier = roles.get(0).getReifier();
+			}
 		} else {
 			throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
 		}
@@ -1984,7 +1990,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				if(occs.length() != 0) scope = occs.get(0).getScope();
 			}
 		} else if(this.receivedData instanceof Association){
-			if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
+			if(((Association)this.receivedData).getType().equals(type)) scope = ((Association)this.receivedData).getScope();
 		} else {
 			throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
 		}
@@ -2757,21 +2763,94 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 					variant.addTheme(newScope);
 				}
 			}
-
 			contents.add(new Pair<Object, TopicMapsTypes>(variant, TopicMapsTypes.Variant));
 		}
 	}
 	
 	
 	// handles the getContent call for scope topics
-	private void getScopeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
-		// TODO: implement
+	private void getScopeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Construct carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
+
+		JsArray<Topic> scopes = null;
+		Construct owner = null;
+		TopicMapsTypes ownerType = null;
+		if(carrier instanceof Topic){
+			JsArray<Name> names = ((Topic)carrier).getNames(type);
+			if(names.length() != 0){
+				scopes = names.get(0).getScope();
+				owner = names.get(0);
+				ownerType = TopicMapsTypes.Name;
+			}
+			if(scopes == null){
+				JsArray<Occurrence> occs = ((Topic)carrier).getOccurrences(type);
+				if(occs.length() != 0){
+					scopes = occs.get(0).getScope();
+					owner = occs.get(0);
+					ownerType = TopicMapsTypes.Occurrence;
+				}
+			}
+		} else if(carrier instanceof Association){
+			if(((Association)carrier).getType().equals(type)){
+				scopes = ((Association)carrier).getScope();
+				owner = carrier;
+				ownerType = TopicMapsTypes.Association;
+			}
+		} else {
+			throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + carrier.getClass());
+		}
+		
+		Topic newScope = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
+		Topic oldScope = null;
+		if(scopes.length() > selectedValueIndex){
+			oldScope = scopes.get(selectedValueIndex);
+			if(!newScope.equals(oldScope)){
+				((ScopedStub)owner).removeTheme(oldScope);
+				((ScopedStub)owner).addTheme(newScope);
+			}
+		} else {
+			((ScopedStub)owner).addTheme(newScope);
+		}
+		contents.add(new Pair<Object, TopicMapsTypes>(owner, ownerType));
 	}
 	
 	
-	// handles the getContent call for scope topics
-	private void getReifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
-		// TODO: implement
+	// handles the getContent call for a reifier topic
+	private void getReifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Construct carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
+
+		Construct owner = null;
+		TopicMapsTypes ownerType = null;
+		if(carrier instanceof Topic){
+			JsArray<Name> names = ((Topic)carrier).getNames(type);
+			if(names.length() != 0){
+				owner = names.get(0);
+				ownerType = TopicMapsTypes.Name;
+			} else {
+				JsArray<Occurrence> occs = ((Topic)carrier).getOccurrences(type);
+				if(occs.length() != 0){
+					owner = occs.get(0);
+					ownerType = TopicMapsTypes.Occurrence;
+				}
+			}
+		} else if(carrier instanceof Association){
+			if(((Association)carrier).getType().equals(type)){
+				owner = carrier;
+				ownerType = TopicMapsTypes.Association;
+			} else {
+				JsArray<Role> roles = ((Association)carrier).getRoles(type);
+				if(roles.length() != 0){
+					owner = roles.get(0);
+					ownerType = TopicMapsTypes.Role;
+				}
+			}
+		} else {
+			throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + carrier.getClass());
+		}
+		
+		Topic newReifier = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
+		if(!newReifier.equals(((ReifiableStub)owner).getReifier())) ((ReifiableStub)owner).setReifier(newReifier);
+		contents.add(new Pair<Object, TopicMapsTypes>(owner, ownerType));
 	}
 	
 	
