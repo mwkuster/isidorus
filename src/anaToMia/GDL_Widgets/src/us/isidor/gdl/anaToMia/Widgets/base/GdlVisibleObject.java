@@ -1891,218 +1891,292 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// of this control
 	public abstract void fixValue();
 
+	
+	// sets the item-identifier-fields for the received data
+	private void setReceivedItemIdentifiers() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(this.receivedData instanceof Reifiable) || !(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Reifiable, but is: " + receivedData.getClass());
+		
+		// get type
+		Topic constrainedTopicType = TmHelper.getConstrainedTopicType(this.getConstraint());
 
+		int typeIdx = -1;
+		JsArray<Topic> types = null;
+		if((this.receivedData instanceof Topic)){
+			types = ((Topic)this.receivedData).getTypes();
+			if(types.length() != 0){
+				for(typeIdx = 0; typeIdx != types.length(); ++typeIdx) if(types.get(typeIdx).equals(constrainedTopicType)) break;
+			}
+		}
+
+		if((this.receivedData instanceof Topic) && types != null && typeIdx != types.length()){
+			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
+			Topic top = (Topic)this.receivedData;
+			for(int i = 0; i != top.getItemIdentifiers().length(); ++i){
+				String ii = top.getItemIdentifiers().get(i).getReference();
+				if(rex.matches(ii)){
+					this.addSubItem(ii);
+				}
+			}
+		} else {			
+			// search for the topic type
+			Reifiable ref = null;
+
+			// search for the characteristics type
+			if(this.receivedData instanceof Topic){
+				JsArray<Name> names = ((Topic)this.receivedData).getNames(constrainedTopicType);
+				if(names.length() != 0){
+					ref = names.get(0);
+				} else {
+					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(constrainedTopicType);
+					if(occs.length() != 0) ref = occs.get(0);
+				}
+			} else if(this.receivedData instanceof Association){
+				JsArray<Role> roles = ((Association)this.receivedData).getRoles(constrainedTopicType);
+				if(roles.length() != 0) ref = roles.get(0);
+			}
+
+			// search for item-identifiers of the found topic type or characteristics
+			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
+			for(int i = 0; i != ((ReifiableStub)ref).getItemIdentifiers().length(); ++i){
+				String ii = ((ReifiableStub)ref).getItemIdentifiers().get(i).getReference();
+				if(rex.matches(ii)){
+					this.addSubItem(ii);
+				}
+			}
+		}
+	}
+	
+	
+	// sets the reifier-fields for the received data
+	private void setReceivedReifier() throws InvalidGdlSchemaException, ExecutionException {
+		Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
+
+		Topic reifier = null;
+		if(this.receivedData instanceof Topic){
+			JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
+			if(names.length() != 0) reifier = names.get(0).getReifier();
+			if(reifier == null){
+				JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
+				if(occs.length() != 0) reifier = occs.get(0).getReifier();
+			}
+		} else if(this.receivedData instanceof Association){
+			if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
+		} else {
+			throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
+		}
+
+		String str = this.getTopicRepresentation(reifier, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
+		if(str == null) str = "";
+		this.addSubItem(str);
+	}
+	
+
+	// sets the scope-fields for the received data
+	private void setReceivedScope() throws InvalidGdlSchemaException, ExecutionException {
+		Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
+
+		JsArray<Topic> scope = null;
+		if(this.receivedData instanceof Topic){
+			JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
+			if(names.length() != 0) scope = names.get(0).getScope();
+			if(scope == null){
+				JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
+				if(occs.length() != 0) scope = occs.get(0).getScope();
+			}
+		} else if(this.receivedData instanceof Association){
+			if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
+		} else {
+			throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
+		}
+
+		if(scope != null){
+			for(int i = 0; i != scope.length(); ++i) this.addSubItem(this.getTopicRepresentation(scope.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+		}
+	}
+	
+	
+	// sets the type-fields for the received data
+	private void setReceivedType() throws InvalidGdlSchemaException, ExecutionException {
+		Topic type = null;
+		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
+			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
+			type = TmHelper.getConstrainedStatement(this.getRootConstraint());
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
+			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
+			type = TmHelper.getConstrainedStatement(this.getRootConstraint());
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)){
+			if(!(this.receivedData instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
+			type = TmHelper.getConstrainedStatement(this.getRootConstraint());
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclAssociationRoleConstraint)){
+			if(!(this.receivedData instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
+			type = TmHelper.getConstraintRoleOfConstraint(this.getRootConstraint());
+		} else {
+			String constraints = PSIs.TMCL.tmclTopicNameConstraint + ", " + PSIs.TMCL.tmclTopicOccurrenceConstraint + ", " + PSIs.TMCL.tmclTopicRoleConstraint + ", " + PSIs.TMCL.tmclAssociationRoleConstraint;
+			throw new ExecutionException("The topic " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to the following root constraints: " + constraints);
+		}
+
+		String str = this.getTopicRepresentation(type, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
+		if(str == null) str = "";
+		this.addSubItem(str);
+	}
+	
+	
+	// sets the variant-name-scope-fields for the received data
+	private void setReceivedVariantNameScope() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+		if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
+		
+		ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
+		if(variants.size() != 0){
+			for(int i = 0; i != variants.get(0).getScope().length(); ++i) this.addSubItem(this.getTopicRepresentation(variants.get(0).getScope().get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+		}
+	}
+	
+	
+	// sets the variant-name-reifier-fields for the received data
+	private void setReceivedVariantNameReifier() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+		if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
+		
+		ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
+		if(variants.size() != 0 && variants.get(0).getReifier() != null){
+			this.addSubItem(this.getTopicRepresentation(variants.get(0).getReifier(), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));	
+		}
+	}
+	
+	
+	// sets the subject-identifier and subjetc-locator-fields for the received data
+	private void setReceivedTopicIdentifiers() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+		Pattern rex = new Pattern(this.getLiteralValueForConstraint());
+		
+		JsArray<Locator> identifiers = null;
+		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
+			identifiers = ((Topic)receivedData).getSubjectIdentifiers();
+		}else {
+			identifiers = ((Topic)receivedData).getSubjectLocators();
+		}
+		
+		for(int i = 0; i != identifiers.length(); ++i){
+			String id = identifiers.get(i).getReference();
+			if(rex.matches(id)){
+				this.addSubItem(id);
+			}
+		}
+	}
+	
+	
+	// sets the variant-name-fields for the received data
+	private void setReceivedVariantName() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+		ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getConstraint());
+		if(variants.size() != 0){
+			for (Variant variant : variants) {
+				 this.addSubItem(variant.getValue());
+			}
+		}
+		else{
+			this.addSubItem("");
+		}	
+	}
+	
+	
+	// sets the role-player-fields for the received data
+	private void setReceivedRolePlayer() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(receivedData instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + receivedData.getClass());
+		if(this.getRootConstraint() == null || !TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but ist bound to the root topic: " + (this.getRootConstraint() == null ? "null" : TmHelper.getAnyIdOfTopic(this.getRootConstraint())));
+
+		Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());	
+		JsArray<Role> assocRoles = ((Association)this.receivedData).getRoles(roleAndPlayerType.getFirst());
+		for(int i = 0; i != assocRoles.length(); ++i){
+			if(TmHelper.isInstanceOf(assocRoles.get(i).getPlayer(), roleAndPlayerType.getSecond())){
+				this.addSubItem(this.getTopicRepresentation(assocRoles.get(i).getPlayer(), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+			}
+		}
+	}
+	
+	
+	// sets the variant-name-identifiers-fields for the received data
+	private void setReceivedVariantNameIdentifiers() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+		if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
+		
+		ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
+		if(variants.size() != 0){
+			for(int i = 0; i != variants.get(0).getItemIdentifiers().length(); ++i) this.addSubItem(variants.get(0).getItemIdentifiers().get(i).getReference());
+		}
+	}
+	
+	
+	// sets the datatype-fields for the received data
+	private void setReceivedDatatype() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
+			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
+			if(variants.size() != 0){
+				this.addSubItem(variants.get(0).getDatatype().getReference());
+			}
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclOccurrenceConstraint)){
+			Topic occType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(occType);
+			if(occs.length() != 0) this.addSubItem(occs.get(0).getDatatype().getReference());
+		} else {
+			throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + " or " + PSIs.TMCL.tmclOccurrenceConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
+		}
+	}
+	
+	
+	// sets the name- and occurrence-fields for the received data
+	private void setReceivedTopicCharacteristics() throws InvalidGdlSchemaException, ExecutionException {
+		if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+		Topic characteristicType = TmHelper.getConstrainedStatement(this.getConstraint());
+		
+		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
+			for(int i = 0; i != ((Topic)this.receivedData).getNames(characteristicType).length(); ++i)
+				this.addSubItem(((Topic)this.receivedData).getNames(characteristicType).get(i).getValue());
+		} else {
+			for(int i = 0; i != ((Topic)this.receivedData).getOccurrences(characteristicType).length(); ++i)
+				this.addSubItem(((Topic)this.receivedData).getOccurrences(characteristicType).get(i).getValue());
+		}
+	}
+	
+	
 	// sets the fields for the received data
 	protected void setReceivedData() throws InvalidGdlSchemaException, ExecutionException {
 		if(receivedData == null) return;
 
 		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-
-			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
-			for(int i = 0; i != ((Topic)receivedData).getSubjectIdentifiers().length(); ++i){
-				String psi = ((Topic)receivedData).getSubjectIdentifiers().get(i).getReference();
-				if(rex.matches(psi)){
-					this.addSubItem(psi);
-				}
-			}
+			this.setReceivedTopicIdentifiers();
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-
-			Pattern rex = new Pattern(this.getLiteralValueForConstraint());
-			for(int i = 0; i != ((Topic)receivedData).getSubjectLocators().length(); ++i){
-				String sl = ((Topic)receivedData).getSubjectLocators().get(i).getReference();
-				if(rex.matches(sl)){
-					this.addSubItem(sl);
-				}
-			}
+			this.setReceivedTopicIdentifiers();
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
-			if(!(this.receivedData instanceof Reifiable) || !(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Reifiable, but is: " + receivedData.getClass());
-
-			// get type
-			Topic constrainedTopicType = TmHelper.getConstrainedTopicType(this.getConstraint());
-
-			int typeIdx = -1;
-			JsArray<Topic> types = null;
-			if((this.receivedData instanceof Topic)){
-				types = ((Topic)this.receivedData).getTypes();
-				if(types.length() != 0){
-					for(typeIdx = 0; typeIdx != types.length(); ++typeIdx) if(types.get(typeIdx).equals(constrainedTopicType)) break;
-				}
-			}
-
-			if((this.receivedData instanceof Topic) && types != null && typeIdx != types.length()){
-				Pattern rex = new Pattern(this.getLiteralValueForConstraint());
-				Topic top = (Topic)this.receivedData;
-				for(int i = 0; i != top.getItemIdentifiers().length(); ++i){
-					String ii = top.getItemIdentifiers().get(i).getReference();
-					if(rex.matches(ii)){
-						this.addSubItem(ii);
-					}
-				}
-			} else {			
-				// search for the topic type
-				Reifiable ref = null;
-	
-				// search for the characteristics type
-				if(this.receivedData instanceof Topic){
-					JsArray<Name> names = ((Topic)this.receivedData).getNames(constrainedTopicType);
-					if(names.length() != 0){
-						ref = names.get(0);
-					} else {
-						JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(constrainedTopicType);
-						if(occs.length() != 0) ref = occs.get(0);
-					}
-				} else if(this.receivedData instanceof Association){
-					JsArray<Role> roles = ((Association)this.receivedData).getRoles(constrainedTopicType);
-					if(roles.length() != 0) ref = roles.get(0);
-				}
-	
-				// search for item-identifiers of the found topic type or characteristics
-				Pattern rex = new Pattern(this.getLiteralValueForConstraint());
-				for(int i = 0; i != ((ReifiableStub)ref).getItemIdentifiers().length(); ++i){
-					String ii = ((ReifiableStub)ref).getItemIdentifiers().get(i).getReference();
-					if(rex.matches(ii)){
-						this.addSubItem(ii);
-					}
-				}
-			}
+			this.setReceivedItemIdentifiers();
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
-			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-
-			Topic nameType = TmHelper.getConstrainedStatement(this.getConstraint());
-			for(int i = 0; i != ((Topic)this.receivedData).getNames(nameType).length(); ++i)
-				this.addSubItem(((Topic)this.receivedData).getNames(nameType).get(i).getValue());
+			this.setReceivedTopicCharacteristics();
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
-			if(!(receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-
-			Topic occurrenceType = TmHelper.getConstrainedStatement(this.getConstraint());
-			for(int i = 0; i != ((Topic)this.receivedData).getOccurrences(occurrenceType).length(); ++i)
-				this.addSubItem(((Topic)this.receivedData).getOccurrences(occurrenceType).get(i).getValue());
+			this.setReceivedTopicCharacteristics();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
-			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
-
-			Topic reifier = null;
-			if(this.receivedData instanceof Topic){
-				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
-				if(names.length() != 0) reifier = names.get(0).getReifier();
-				if(reifier == null){
-					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
-					if(occs.length() != 0) reifier = occs.get(0).getReifier();
-				}
-			} else if(this.receivedData instanceof Association){
-				if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
-			} else {
-				throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
-			}
-
-			String str = this.getTopicRepresentation(reifier, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
-			if(str == null) str = "";
-			this.addSubItem(str);
+			this.setReceivedReifier();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-
-			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getConstraint());
-			if(variants.size() != 0){
-				for (Variant variant : variants) {
-					 this.addSubItem(variant.getValue());
-				}
-			}
-			else{
-				this.addSubItem("");
-			}
+			this.setReceivedVariantName();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
-			Topic type = TmHelper.getConstrainedStatement(this.getConstraint());
-
-			JsArray<Topic> scope = null;
-			if(this.receivedData instanceof Topic){
-				JsArray<Name> names = ((Topic)this.receivedData).getNames(type);
-				if(names.length() != 0) scope = names.get(0).getScope();
-				if(scope == null){
-					JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(type);
-					if(occs.length() != 0) scope = occs.get(0).getScope();
-				}
-			} else if(this.receivedData instanceof Association){
-				if(((Association)this.receivedData).getType().equals(type)) type = ((Association)this.receivedData).getType();
-			} else {
-				throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a topic or association, but is: " + this.receivedData.getClass());
-			}
-
-			if(scope != null){
-				for(int i = 0; i != scope.length(); ++i) this.addSubItem(this.getTopicRepresentation(scope.get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
-			}
+			this.setReceivedScope();
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
-			if(!(receivedData instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + receivedData.getClass());
-			if(this.getRootConstraint() == null || !TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but ist bound to the root topic: " + (this.getRootConstraint() == null ? "null" : TmHelper.getAnyIdOfTopic(this.getRootConstraint())));
-
-			Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());	
-			JsArray<Role> assocRoles = ((Association)this.receivedData).getRoles(roleAndPlayerType.getFirst());
-			for(int i = 0; i != assocRoles.length(); ++i){
-				if(TmHelper.isInstanceOf(assocRoles.get(i).getPlayer(), roleAndPlayerType.getSecond())){
-					this.addSubItem(this.getTopicRepresentation(assocRoles.get(i).getPlayer(), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
-				}
-			}
+			this.setReceivedRolePlayer();
 		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlType)){
-			Topic type = null;
-			if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
-				if(!(this.receivedData instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
-				type = TmHelper.getConstrainedStatement(this.getRootConstraint());
-			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
-				if(!(this.receivedData instanceof Topic)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when a topic is processed, but is: " + this.receivedData.getClass());
-				type = TmHelper.getConstrainedStatement(this.getRootConstraint());
-			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint)){
-				if(!(this.receivedData instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
-				type = TmHelper.getConstrainedStatement(this.getRootConstraint());
-			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclAssociationRoleConstraint)){
-				if(!(this.receivedData instanceof Association)) throw new ExecutionException("The constraints " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " and " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()) + " are only valid when an association is processed, but is: " + this.receivedData.getClass());
-				type = TmHelper.getConstraintRoleOfConstraint(this.getRootConstraint());
-			} else {
-				String constraints = PSIs.TMCL.tmclTopicNameConstraint + ", " + PSIs.TMCL.tmclTopicOccurrenceConstraint + ", " + PSIs.TMCL.tmclTopicRoleConstraint + ", " + PSIs.TMCL.tmclAssociationRoleConstraint;
-				throw new ExecutionException("The topic " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to the following root constraints: " + constraints);
-			}
-
-			String str = this.getTopicRepresentation(type, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup());
-			if(str == null) str = "";
-			this.addSubItem(str);
+			this.setReceivedType();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlDatatype)){
-			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-
-			if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-				ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
-				if(variants.size() != 0){
-					this.addSubItem(variants.get(0).getDatatype().getReference());
-				}
-			} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclOccurrenceConstraint)){
-				Topic occType = TmHelper.getConstrainedStatement(this.getRootConstraint());
-				JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(occType);
-				if(occs.length() != 0) this.addSubItem(occs.get(0).getDatatype().getReference());
-			} else {
-				throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + " or " + PSIs.TMCL.tmclOccurrenceConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
-			}
+			this.setReceivedDatatype();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
-			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
-			
-			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
-			if(variants.size() != 0){
-				for(int i = 0; i != variants.get(0).getItemIdentifiers().length(); ++i) this.addSubItem(variants.get(0).getItemIdentifiers().get(i).getReference());
-			}
+			this.setReceivedVariantNameIdentifiers();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
-			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
-			
-			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
-			if(variants.size() != 0 && variants.get(0).getReifier() != null){
-				this.addSubItem(this.getTopicRepresentation(variants.get(0).getReifier(), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));	
-			}
+			this.setReceivedVariantNameReifier();
 		} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
-			if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
-			if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)) throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
-			
-			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
-			if(variants.size() != 0){
-				for(int i = 0; i != variants.get(0).getScope().length(); ++i) this.addSubItem(this.getTopicRepresentation(variants.get(0).getScope().get(i), this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
-			}
+			this.setReceivedVariantNameScope();
 		} else {
 			throw new InvalidGdlSchemaException("The constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not suported to be bound to the value group instance " + TmHelper.getAnyIdOfTopic(this.getValueGroup()));
 		}
@@ -2393,7 +2467,6 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	}
 
 
-
 	// returns the actual topics that are set as possible tm-values
 	private ArrayList<Topic> getRawTmValues() throws InvalidGdlSchemaException{
 		if(this.rawTmValuesSet){
@@ -2606,6 +2679,68 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		contents.add(new Pair<Object, TopicMapsTypes>(changedConstruct, isOccConstraint ? TopicMapsTypes.Occurrence : TopicMapsTypes.Name));
 	}
 	
+	
+	// handles the getContent call for subject identifiers and subject locators
+	private void getVariantNameContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		// TODO: implement
+		
+		/*JsArray<Locator> identifiers = null;
+			
+		ArrayList<Locator> filteredIdentifiers = null;
+		boolean isPsiConstraint = false;
+		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
+			isPsiConstraint = true;
+			identifiers = carrier.getSubjectIdentifiers();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
+			identifiers = carrier.getSubjectLocators();
+			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
+		} else {
+			throw new ExecutionException("Only the constraints " + PSIs.TMCL.tmclSubjectIdentifierConstraint + " and " + PSIs.TMCL.tmclSubjectLocatorConstraint + " are supported by the function getTopicIdentifierContent");
+		}
+		
+		Locator changedIdentifier = null;
+		if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
+		
+		if(filteredIdentifiers.size() > selectedValueIndex){
+			changedIdentifier = filteredIdentifiers.get(selectedValueIndex);
+			if(isPsiConstraint) carrier.removeSubjectIdentifier(changedIdentifier);
+			else carrier.removeSubjectLocator(changedIdentifier);
+		}
+		
+		changedIdentifier = carrier.getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex));
+		if(isPsiConstraint) carrier.addSubjectIdentifier(changedIdentifier);
+		else carrier.addSubjectLocator(changedIdentifier);
+		contents.add(new Pair<Object, TopicMapsTypes>(changedIdentifier, TopicMapsTypes.Locator));
+		*/
+	}
+	
+	
+	// handles the getContent call for role players
+	private void getRolePlayerContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Association carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint))throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but is: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
+		Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());
+		Topic roleType = roleAndPlayerType.getFirst();
+		Topic playerType = roleAndPlayerType.getSecond();
+
+		JsArray<Role> typedRoles = carrier.getRoles(roleType);
+		ArrayList<Role> roles = new ArrayList<Role>();
+		for(int i = 0; i != typedRoles.length(); ++i)
+			if(TmHelper.isInstanceOf(typedRoles.get(i).getPlayer(), playerType)) roles.add(typedRoles.get(i));
+
+		Role changedRole = null;
+
+		Topic player = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
+		if(validate) this.validateTmValue(player);
+		if(roles.size() > selectedValueIndex){
+			changedRole = roles.get(selectedValueIndex);
+			changedRole.setPlayer(player);
+		} else {
+			changedRole = carrier.createRole(roleType, player);
+		}
+		contents.add(new Pair<Object, TopicMapsTypes>(changedRole, TopicMapsTypes.Role));
+	}
+	
 		
 	// returns the actual data that is hold by this instance
 	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
@@ -2628,7 +2763,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getTopicCharacteristicContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-				// TODO: implement
+				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
+				this.getVariantNameContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
 				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclReifierConstraint)){
@@ -2650,27 +2786,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 				this.getTopicCharacteristicContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
 				if(!(localCarrier instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + localCarrier.getClass());
-				if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint))throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but is: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
-				Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());
-				Topic roleType = roleAndPlayerType.getFirst();
-				Topic playerType = roleAndPlayerType.getSecond();
-
-				JsArray<Role> typedRoles = ((Association)localCarrier).getRoles(roleType);
-				ArrayList<Role> roles = new ArrayList<Role>();
-				for(int i = 0; i != typedRoles.length(); ++i)
-					if(TmHelper.isInstanceOf(typedRoles.get(i).getPlayer(), playerType)) roles.add(typedRoles.get(i));
-
-				Role changedRole = null;
-
-				Topic player = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(idx), this.getValueGroup());
-				if(validate) this.validateTmValue(player);
-				if(roles.size() > idx){
-					changedRole = roles.get(idx);
-					changedRole.setPlayer(player);
-				} else {
-					changedRole = ((Association)localCarrier).createRole(roleType, player);
-				}
-				result.add(new Pair<Object, TopicMapsTypes>(changedRole, TopicMapsTypes.Role));
+				this.getRolePlayerContent(result, validate, (Association)localCarrier, idx);
 			} else {
 				throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not supported");
 			}
