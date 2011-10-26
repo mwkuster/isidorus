@@ -1139,7 +1139,7 @@ public class TmHelper {
 	}
 	
 	
-	// returns the topic that can be used to satisfy the passed type-constraint.
+	// returns the topics that can be used to satisfy the passed type-constraint.
 	public static ArrayList<Topic> getTmValuesForTypeConstraint(Topic typeConstraint, Topic valueGroup) throws InvalidGdlSchemaException, ExecutionException {
 		ArrayList<Topic> result = new ArrayList<Topic>();
 		if(typeConstraint == null || valueGroup == null) return result;
@@ -1180,7 +1180,7 @@ public class TmHelper {
 	}
 	
 	
-	// returns the topic that can be used to satisfy the passed variant-name-reifier-constraint.
+	// returns the topics that can be used to satisfy the passed variant-name-reifier-constraint.
 	public static ArrayList<Topic> getTmValuesForVariantNameReifierConstraint(Topic variantNameReifierConstraint) throws ExecutionException, InvalidGdlSchemaException {
 		ArrayList<Topic> result = new ArrayList<Topic>();
 		if(variantNameReifierConstraint == null) return result;
@@ -1199,9 +1199,8 @@ public class TmHelper {
 
 			// get subtypes of typeTopic
 			JsArray<Topic> allTopics = tm.getTopics();
-			for(int i = 0; i != allTopics.length(); ++i) if(isSupertypeOf(allTopics.get(i), reifierTypeTopics.get(0))) result.add(allTopics.get(i));
+			for(int i = 0; i != allTopics.length(); ++i) if(isInstanceOf(allTopics.get(i), reifierTypeTopics.get(0))) result.add(allTopics.get(i));
 		}
-		
 		return result;
 	}
 	
@@ -1225,7 +1224,7 @@ public class TmHelper {
 
 			// get subtypes of typeTopic
 			JsArray<Topic> allTopics = tm.getTopics();
-			for(int i = 0; i != allTopics.length(); ++i) if(isSupertypeOf(allTopics.get(i), scopeTypeTopics.get(0))) result.add(allTopics.get(i));
+			for(int i = 0; i != allTopics.length(); ++i) if(isInstanceOf(allTopics.get(i), scopeTypeTopics.get(0))) result.add(allTopics.get(i));
 		}
 		
 		return result;

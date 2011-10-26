@@ -419,7 +419,8 @@
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-scope-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-scope-text]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-scope-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-scope-constraint]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-scope-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]},
-                                               
+				  {"type":"si:[tmcl:constrained-scope]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[model:service-variant-name-scope-constraint]"},{"type":"si:[tmcl:constrained]", "player":"si:[types:Scope-Type]"}]},
+                                                                 
                   {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-variant-name-iis-text]"}]},
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-iis-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-scope-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-variant-name-iis-text]"}]},
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-iis-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-iis-text]"}]},
@@ -431,6 +432,8 @@
  				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-reifier-constraint]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-reifier-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]},
+ 				  {"type":"si:[tmcl:allowed-reifier]", "roles":[{"type":"si:[tmcl:allows]", "player":"si:[model:service-variant-name-reifier-constraint]"},{"type":"si:[tmcl:allowed]", "player":"si:[types:Reifier-Type]"}]},
+ 				  
                   
                   {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-editor-commit-button]"}]},
  				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-editor-commit-button-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-editor-commit-button]"}]}

@@ -2560,7 +2560,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			Variant variant = possibleVariants.get(0);
 			Topic reifier = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
 			
-			if(reifier != null) variant.setReifier(reifier);
+			if(reifier != null && !variant.getReifier().equals(reifier)) variant.setReifier(reifier);
 			contents.add(new Pair<Object, TopicMapsTypes>(variant, TopicMapsTypes.Variant));
 		}
 	}
