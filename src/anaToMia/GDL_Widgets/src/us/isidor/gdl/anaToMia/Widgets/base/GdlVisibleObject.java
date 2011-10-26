@@ -2497,6 +2497,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	// handles the getContent call for subject identifiers and subject locators
 	private void getTopicIdentifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(carrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + carrier.getClass());
 		JsArray<Locator> identifiers = null;
 			
 		ArrayList<Locator> filteredIdentifiers = null;
@@ -2601,6 +2602,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 
 	// handles the getContent call for item identifiers of variant-names
 	private void getVariantIdentifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(carrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + carrier.getClass());
 		ArrayList<Variant> possibleVariants = TmHelper.getVariantsForConstraint(carrier, this.getRootConstraint());		
 		if(possibleVariants.size() != 0){
 			Variant variant = possibleVariants.get(0);
@@ -2628,6 +2630,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	// handles the getContent call for item identifiers of variant-names
 	private void getVariantReifierContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(carrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + carrier.getClass());
 		ArrayList<Variant> possibleVariants = TmHelper.getVariantsForConstraint(carrier, this.getRootConstraint());		
 		if(possibleVariants.size() != 0){
 			Variant variant = possibleVariants.get(0);
@@ -2641,6 +2644,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	// handles the getContent call for occurrence and name values
 	private void getTopicCharacteristicContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(carrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + carrier.getClass());
 		Topic characteristicType = TmHelper.getConstrainedStatement(this.getConstraint());
 		
 		boolean isOccConstraint = true;
@@ -2708,6 +2712,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	// handles the getContent call for role players
 	private void getRolePlayerContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Association carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(carrier instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + carrier.getClass());
+		
 		if(!TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclTopicRoleConstraint))throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a root constraint of the type " + PSIs.TMCL.tmclTopicRoleConstraint + ", but is: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
 		Pair<Topic, Topic> roleAndPlayerType = TmHelper.getConstrainedRoleAndPlayerTypeOfConstraint(this.getRootConstraint());
 		Topic roleType = roleAndPlayerType.getFirst();
@@ -2741,19 +2747,14 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 
 		for (int idx = 0; idx != this.getSelectedValues().size(); ++idx){
 			if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclItemIdentifierConstraint)){
-				if(!(localCarrier instanceof Topic) || !(localCarrier instanceof Reifiable)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic or a Reifiable, but is: " + localCarrier.getClass());
 				this.getItemIdentifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getTopicIdentifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getTopicIdentifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicNameConstraint)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getTopicCharacteristicContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getVariantNameContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclScopeConstraint)){
 				// TODO: implement
@@ -2766,16 +2767,12 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
 				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getVariantReifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getVariantIdentifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclTopicOccurrenceConstraint)){
-				if(!(localCarrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + localCarrier.getClass());
 				this.getTopicCharacteristicContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlRolePlayer)){
-				if(!(localCarrier instanceof Association)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to an Association, but is: " + localCarrier.getClass());
 				this.getRolePlayerContent(result, validate, (Association)localCarrier, idx);
 			} else {
 				throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " is not supported");
