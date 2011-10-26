@@ -2858,7 +2858,29 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// handles the getContent call for a Datatye value
 	// handles the getContent call for scope topics
 	private void getDatatypeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Construct carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
-		// TODO: implement
+		if(!(carrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+		Construct owner = null;
+		TopicMapsTypes ownerType = null;
+		if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclVariantNameConstraint)){
+			ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getRootConstraint());
+			if(variants.size() != 0){
+				owner = variants.get(0);
+				variants.get(0).setValue(variants.get(0).getValue(), variants.get(0).getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex)));
+				ownerType = TopicMapsTypes.Variant;
+			}
+		} else if(TmHelper.isInstanceOf(this.getRootConstraint(), PSIs.TMCL.tmclOccurrenceConstraint)){
+			Topic occType = TmHelper.getConstrainedStatement(this.getRootConstraint());
+			JsArray<Occurrence> occs = ((Topic)this.receivedData).getOccurrences(occType);
+			if(occs.length() != 0){
+				owner = occs.get(0);
+				occs.get(0).setValue(occs.get(0).getValue(), occs.get(0).getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex)));
+				ownerType = TopicMapsTypes.Occurrence;
+			}
+		} else {
+			throw new InvalidGdlSchemaException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a constraint of the type " + PSIs.TMCL.tmclVariantNameConstraint + " or " + PSIs.TMCL.tmclOccurrenceConstraint + ",  but is bound to: " + TmHelper.getAnyIdOfTopic(this.getRootConstraint()));
+		}		
+		contents.add(new Pair<Object, TopicMapsTypes>(owner, ownerType));
 	}
 	
 	
