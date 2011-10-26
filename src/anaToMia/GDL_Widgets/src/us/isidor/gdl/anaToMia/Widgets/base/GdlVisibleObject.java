@@ -2682,37 +2682,27 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	
 	// handles the getContent call for subject identifiers and subject locators
 	private void getVariantNameContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
-		// TODO: implement
-		
-		/*JsArray<Locator> identifiers = null;
-			
-		ArrayList<Locator> filteredIdentifiers = null;
-		boolean isPsiConstraint = false;
-		if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectIdentifierConstraint)){
-			isPsiConstraint = true;
-			identifiers = carrier.getSubjectIdentifiers();
-			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
-		} else if(TmHelper.isInstanceOf(this.getConstraint(), PSIs.TMCL.tmclSubjectLocatorConstraint)){
-			identifiers = carrier.getSubjectLocators();
-			filteredIdentifiers = this.filterLocators(TmHelper.getRegExp(this.getConstraint()), identifiers);
-		} else {
-			throw new ExecutionException("Only the constraints " + PSIs.TMCL.tmclSubjectIdentifierConstraint + " and " + PSIs.TMCL.tmclSubjectLocatorConstraint + " are supported by the function getTopicIdentifierContent");
+		if(!(this.receivedData instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + receivedData.getClass());
+
+		ArrayList<Variant> variants = TmHelper.getVariantsForConstraint((Topic)this.receivedData, this.getConstraint());
+
+		Variant changedVariant = null;
+		if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex)); 
+
+		if(variants.size() > selectedValueIndex){
+			changedVariant = variants.get(selectedValueIndex);
+			changedVariant.setValue(this.getSelectedValues().get(selectedValueIndex));
+		}else {
+			Topic nameType = TmHelper.getConstrainedStatement(this.getConstraint());
+			JsArray<Name> names = carrier.getNames(nameType);
+			Name owner = names.get(0);
+			Topic scope = TmHelper.getConstrainedScopeTopic(this.getConstraint());
+			@SuppressWarnings("unchecked")
+			JsArray<Topic> scopes = (JsArray<Topic>) JsArray.createArray();
+			scopes.push(scope);
+			changedVariant = owner.createVariant(this.getSelectedValues().get(selectedValueIndex), scopes);
 		}
-		
-		Locator changedIdentifier = null;
-		if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
-		
-		if(filteredIdentifiers.size() > selectedValueIndex){
-			changedIdentifier = filteredIdentifiers.get(selectedValueIndex);
-			if(isPsiConstraint) carrier.removeSubjectIdentifier(changedIdentifier);
-			else carrier.removeSubjectLocator(changedIdentifier);
-		}
-		
-		changedIdentifier = carrier.getTopicMap().createLocator(this.getSelectedValues().get(selectedValueIndex));
-		if(isPsiConstraint) carrier.addSubjectIdentifier(changedIdentifier);
-		else carrier.addSubjectLocator(changedIdentifier);
-		contents.add(new Pair<Object, TopicMapsTypes>(changedIdentifier, TopicMapsTypes.Locator));
-		*/
+		contents.add(new Pair<Object, TopicMapsTypes>(changedVariant, TopicMapsTypes.Variant));
 	}
 	
 	
