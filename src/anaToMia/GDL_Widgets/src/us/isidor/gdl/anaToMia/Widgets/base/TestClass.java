@@ -2,8 +2,10 @@ package us.isidor.gdl.anaToMia.Widgets.base;
 
 import us.isidor.gdl.anaToMia.TmEngine.jtmsBasedEngine.JtmsTmEngine;
 import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Association;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Occurrence;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Name;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Role;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Variant;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Locator;
@@ -71,6 +73,10 @@ public class TestClass implements EntryPoint{
 							Window.alert(((Name)construct.getFirst()).getValue() + " >> " + construct.getSecond());
 						} else if(construct.getSecond().equals(TopicMapsTypes.Variant)){
 							Window.alert(TmHelper.getAnyIdOfTopic(((Variant)construct.getFirst()).getReifier()) + " >> " + construct.getSecond());
+						} else if(construct.getSecond().equals(TopicMapsTypes.Association)){
+							Window.alert((Association)construct.getFirst() + " >> " + construct.getSecond());
+						} else if(construct.getSecond().equals(TopicMapsTypes.Role)){
+							Window.alert((Role)construct.getFirst() + " >> " + construct.getSecond());
 						} else {
 							Window.alert(construct.getFirst() + " >> " + construct.getSecond());
 						}
