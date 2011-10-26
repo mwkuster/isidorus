@@ -2737,6 +2737,31 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		contents.add(new Pair<Object, TopicMapsTypes>(changedRole, TopicMapsTypes.Role));
 	}
 	
+	
+	// handles the getContent call for scope topics of variant-names
+	private void getVariantNameScopeContent(ArrayList<Pair<Object, TopicMapsTypes>> contents, boolean validate, Topic carrier, int selectedValueIndex) throws InvalidGdlSchemaException, InvalidContentException, ExecutionException{
+		if(!(carrier instanceof Topic)) throw new ExecutionException("the constraint " + TmHelper.getAnyIdOfTopic(this.getConstraint()) + " must be bound to a Topic, but is: " + carrier.getClass());
+		ArrayList<Variant> possibleVariants = TmHelper.getVariantsForConstraint(carrier, this.getRootConstraint());		
+		if(possibleVariants.size() != 0){
+			Variant variant = possibleVariants.get(0);
+			JsArray<Topic> scopes = variant.getScope();
+			
+			if(validate) this.validateLiteralValue(this.getSelectedValues().get(selectedValueIndex));
+
+			if(scopes.length() > selectedValueIndex){
+				Topic oldScope = scopes.get(selectedValueIndex);
+				Topic newScope = TmHelper.getTopicFromStringRepresentation(this.getSelectedValues().get(selectedValueIndex), this.getValueGroup());
+				
+				if(!oldScope.equals(newScope)){
+					variant.removeTheme(oldScope);
+					variant.addTheme(newScope);
+				}
+			}
+
+			contents.add(new Pair<Object, TopicMapsTypes>(variant, TopicMapsTypes.Variant));
+		}
+	}
+	
 		
 	// returns the actual data that is hold by this instance
 	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(Construct carrier, boolean validate) throws InvalidGdlSchemaException, ExecutionException, InvalidContentException {
@@ -2765,7 +2790,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlType)){
 				// TODO: implement
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameScope)){
-				// TODO: implement
+				this.getVariantNameScopeContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameReifier)){
 				this.getVariantReifierContent(result, validate, (Topic)localCarrier, idx);
 			} else if (TmHelper.isInstanceOf(this.getConstraint(), PSIs.GDL.TopicType.gdlVariantNameIdentifiers)){
