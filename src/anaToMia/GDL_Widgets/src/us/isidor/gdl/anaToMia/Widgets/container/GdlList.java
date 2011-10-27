@@ -280,7 +280,6 @@ public class GdlList extends GdlVisibleObject implements IGdlContainer {
 
 	@Override
 	public GdlVisibleObject append(Topic ancestor, Topic current) throws InvalidGdlSchemaException, ExecutionException {
-		// TODO Auto-generated method stub
 		if(this.subElements.size() == 0) return null;
 		if(this.storedItems == null) this.storedItems = this.containsItems();
 		

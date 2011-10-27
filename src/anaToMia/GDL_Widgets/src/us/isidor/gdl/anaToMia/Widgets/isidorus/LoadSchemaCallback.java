@@ -70,7 +70,7 @@ public class LoadSchemaCallback implements ILoadSchemaCallback{
 				}catch(ExecutionException e){
 					Window.alert("Execution Error: " + e.getMessage());
 				}catch(Exception e){
-					Window.alert("panel: " + panel + ", tm: " + panel.getSchemaTm() + "\ncaught error: " + e.getLocalizedMessage()); // TODO: implement smarter error handling
+					Window.alert("panel: " + panel + ", tm: " + panel.getSchemaTm() + "\ncaught error: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				}
 			} else {

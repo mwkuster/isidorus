@@ -12,8 +12,6 @@ import us.isidor.gdl.anaToMia.Widgets.environment.IDeleteCallback;
 import us.isidor.gdl.anaToMia.Widgets.environment.InvalidGdlSchemaException;
 
 public class GdlDeleteButton extends GdlActionButton {
-	// TODO: implement
-	
 	protected GdlDeleteButton(){
 		super();
 	}

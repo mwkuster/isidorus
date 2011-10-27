@@ -1,8 +1,27 @@
 * implement export of Fragments, e.g. exportJTM11Fragment(ArrayList<Topic> topics, ArrayList<Association> associaitions),
      e.i. the passed topics and associations must be exported with all characteristics and associations,
      and all referenced topics must be exported as stubs
-* implement all constraints 
-   * TM-generation
-   * TM-consumption
-   * TM-validation
+* finalise GdltopicView.getContent()
+* finalise TmHelper.getTmValuesForTypeConstraint()
+* finalise GdlPanel.doValidate()
+* finalise GdlCheckBox
+* finalise GdlCommitButton
+* finalise GdlCreateButton
+* finalise GdlRadioButton
+* finalise GdlUnit
+* finalise GdlTitle.setWidth()
+* finalise GdlTitle.getSelectedValues()
+* finalise GdlInfo.GdlInfo()
+* finalise GdlReference.GdlReference()
+* finalise GdlReference.addSubItem()
+* finalise GdlReference.ReferenceClickHandler.onClick()
+* finalise GdlTopicView.getContent()
+* finalise GdlSpecialTopicView
+* finalise GdlSpecialEditorTopicView
+* finalise GdlSpecialCreatorTopicView
+* finalise GdlEditorAssociationView
+* finalise GdlDefaultTopicView
+* finalise GdlDefaultCreatorTopicView
+* finalise GdlDefaultEditorTopicView
+* finalise GdlAssociationView.getContent()
 * Fix css-pseudo-class-handlers

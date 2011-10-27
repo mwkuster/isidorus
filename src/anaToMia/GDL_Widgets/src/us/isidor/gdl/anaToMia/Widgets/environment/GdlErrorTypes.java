@@ -8,5 +8,4 @@ public enum GdlErrorTypes {
 	TopicMapsGenerationError,
 	ViewCreationError,
 	ExecutionError
-	// TODO: ...
 }

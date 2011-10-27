@@ -8,7 +8,6 @@ import us.isidor.gdl.anaToMia.Widgets.environment.InvalidGdlSchemaException;
 import com.google.gwt.user.client.ui.Button;
 
 public class GdlCreateButton extends GdlActionButton {
-	// TOOD: is this class really necessary or is GdlCommitButton sufficient???
 	// TODO: implement
 	
 	protected GdlCreateButton(){
