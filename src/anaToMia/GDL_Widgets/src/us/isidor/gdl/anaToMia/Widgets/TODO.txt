@@ -2,7 +2,6 @@
      e.i. the passed topics and associations must be exported with all characteristics and associations,
      and all referenced topics must be exported as stubs
 * finalise GdltopicView.getContent()
-* finalise TmHelper.getTmValuesForTypeConstraint()
 * finalise GdlPanel.doValidate()
 * finalise GdlCheckBox
 * finalise GdlCommitButton

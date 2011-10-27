@@ -1147,33 +1147,35 @@ public class TmHelper {
 		Topic rootConstraint = getRootConstraintOfValueGroup(valueGroup, typeConstraint);
 		if(rootConstraint == null) return result;
 				
+		TopicMap tm = rootConstraint.getTopicMap();
+		Topic constraintRoleType = getTopicByPsi(PSIs.TMCL.tmclConstraint, tm);
+		Topic constrainedRoleType = getTopicByPsi(PSIs.TMCL.tmclConstrained, tm);
+		Topic constrainedStatementAssocType = getTopicByPsi(PSIs.TMCL.tmclConstrainedStatement, tm);
+		ArrayList<Topic> typeTopics = new ArrayList<Topic>();
 		if(isInstanceOf(rootConstraint, PSIs.TMCL.tmclTopicNameConstraint) || isInstanceOf(rootConstraint, PSIs.TMCL.tmclTopicOccurrenceConstraint)){
-			TopicMap tm = rootConstraint.getTopicMap();
-			Topic constraintRoleType = getTopicByPsi(PSIs.TMCL.tmclConstraint, tm);
-			Topic constrainedRoleType = getTopicByPsi(PSIs.TMCL.tmclConstrained, tm);
 			Topic nameType = getTopicByPsi(PSIs.TMCL.tmclNameType, tm);
 			Topic occurrenceType = getTopicByPsi(PSIs.TMCL.tmclOccurrenceType, tm);
-			Topic constrainedStatementAssocType = getTopicByPsi(PSIs.TMCL.tmclConstrainedStatement, tm);
 			ArrayList<Topic> nameTypeTopics = getOtherPlayerOfBinaryAssociation(rootConstraint, constraintRoleType, constrainedStatementAssocType, null, nameType, constrainedRoleType);
 			ArrayList<Topic> occurrenceTypeTopics = getOtherPlayerOfBinaryAssociation(rootConstraint, constraintRoleType, constrainedStatementAssocType, null, occurrenceType, constrainedRoleType);
-			ArrayList<Topic> typeTopics = Utils.union(nameTypeTopics, occurrenceTypeTopics);
-						
-			if(typeTopics.size() != 1){
-				throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(rootConstraint) + " must be bound extactly once to an occurrence or name type, but is: " + typeTopics.size());
-			} else {
-				// add the direct specified type
-				result.add(typeTopics.get(0));
-				
-				// get subtypes of typeTopic
-				JsArray<Topic> allTopics = tm.getTopics();
-				for(int i = 0; i != allTopics.length(); ++i) if(isSupertypeOf(allTopics.get(i), typeTopics.get(0))) result.add(allTopics.get(i));
-			}
+			typeTopics = Utils.union(nameTypeTopics, occurrenceTypeTopics);
 		} else if(isInstanceOf(rootConstraint, PSIs.TMCL.tmclAssociationRoleConstraint)){
-			// TODO: implement
-			throw new ExecutionException(PSIs.TMCL.tmclAssociationRoleConstraint + " is not implemented yet");
+			Topic constrainedRoleAssocType = getTopicByPsi(PSIs.TMCL.tmclConstrainedRole, tm);
+			Topic roleType = getTopicByPsi(PSIs.TMCL.tmclRoleType, tm);
+			typeTopics = getOtherPlayerOfBinaryAssociation(rootConstraint, constraintRoleType, constrainedRoleAssocType, null, roleType, constrainedRoleType);
 		} else if(isInstanceOf(rootConstraint, PSIs.TMCL.tmclTopicRoleConstraint)){
-			// TODO: implement
-			throw new ExecutionException(PSIs.TMCL.tmclTopicRoleConstraint + " is not implemented yet");
+			Topic associationType = getTopicByPsi(PSIs.TMCL.tmclAssociationType, tm);
+			typeTopics = getOtherPlayerOfBinaryAssociation(rootConstraint, constraintRoleType, constrainedStatementAssocType, null, associationType, constrainedRoleType);
+		}
+		
+		if(typeTopics.size() != 1){
+			throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(rootConstraint) + " must be bound extactly once to an occurrence or name type, but is: " + typeTopics.size());
+		} else {
+			// add the direct specified type
+			result.add(typeTopics.get(0));
+			
+			// get subtypes of typeTopic
+			JsArray<Topic> allTopics = tm.getTopics();
+			for(int i = 0; i != allTopics.length(); ++i) if(isSupertypeOf(allTopics.get(i), typeTopics.get(0))) result.add(allTopics.get(i));
 		}
 		
 		return result;
