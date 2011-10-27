@@ -93,7 +93,10 @@ public abstract class GdlTopicView extends GdlView {
 		if(container == null) return false;
 		
 		TopicMapsTypes newType = pair.getSecond();
-		if(newType.equals(TopicMapsTypes.Name)){
+		if(newType.equals(TopicMapsTypes.Locator)){
+			// remove all locators
+			return true;
+		} else if(newType.equals(TopicMapsTypes.Name)){
 			Name name = (Name)pair.getFirst();
 			for (Pair<Object, TopicMapsTypes> item : container) {
 				if(item.getSecond().equals(TopicMapsTypes.Topic)){
@@ -187,14 +190,22 @@ public abstract class GdlTopicView extends GdlView {
 			// subject-identifier
 			// subject-locator
 			// item-identifier
+			// reifier => name
+			// reifier => occurrence
+			// reifier => association
+			// reifier => role
 			// topic-name
 			// variant-name
 			// *topic-occurrence
 			// type => topic-name
 			// type => topic-occurrence
-			// datatype => topic-occurrence
+			// datatype => topic-occurrence + variant-name
 			// scope => topic-name
 			// scope => topic-occurrence
+			// scope => association
+			// variant-name-reifier
+			// variant-name-identifiers
+			// variant-name-scope
 		}
 		
 		return result;
