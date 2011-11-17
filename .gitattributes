@@ -439,6 +439,7 @@ src/anaToMia/GDL_Widgets/war/WEB-INF/deploy/gdl_widgets/rpcPolicyManifest/manife
 src/anaToMia/GDL_Widgets/war/WEB-INF/lib/gwt-servlet.jar -text
 src/anaToMia/GDL_Widgets/war/WEB-INF/web.xml -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/EnvironmentPsis.json -text
+src/anaToMia/GDL_Widgets/war/gdl_widgets/GDL_Ontology.tmcl.ctm -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/HashObjectPsis.json -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/IsidorusBasic.jmx -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/Service_GDL_Schema.jtm -text

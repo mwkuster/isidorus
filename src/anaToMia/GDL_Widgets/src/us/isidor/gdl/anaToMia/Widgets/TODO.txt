@@ -23,4 +23,5 @@
 * finalise GdlDefaultCreatorTopicView
 * finalise GdlDefaultEditorTopicView
 * finalise GdlAssociationView.getContent()
+* inmplement GdlPanel.OnErrorHandler
 * Fix css-pseudo-class-handlers

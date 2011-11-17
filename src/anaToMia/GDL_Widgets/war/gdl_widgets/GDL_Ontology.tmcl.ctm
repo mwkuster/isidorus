@@ -1,0 +1,606 @@
+%include  http://www.isotopicmaps.org/tmcl/templates.ctm
+%prefix  tmcl  http://psi.topicmaps.org/tmcl/
+%prefix  gdl  http://isidor.us/gdl/
+%prefix  gdlt  http://isidor.us/gdl/types/
+
+
+# Association types
+contains  gdl:contains  isa  tmcl:association-type;
+	has-role(containee, 1, 1);
+	has-role(container, 1, 1);
+	has-role(nth-element, 0, 1).
+
+position  gdl:position  isa  tmcl:association-type;
+	has-role(descriptor, 1, 1);
+	has-role(ancestor, 1, 1);
+	has-role(descendant, 1, 1).
+
+button-position  gdl:button-position  isa  tmcl:association-type;
+	has-role(action-button, 1, 1);
+	has-role(nth-element, 1, 1);
+	role-combination(nth-element, Nth-Element, action-button, Action-Button).
+
+view-binding  gdl:view-binding  isa  tmcl:association-type;
+	has-role(descriptor, 1, 1);
+	has-role(value-group, 1, 1);
+	role-combination(value-group, Value-Group, descriptor, Text);
+	role-combination(value-group, Value-Group, descriptor, List-Box);
+	role-combination(value-group, Value-Group, descriptor, Complex-Data);
+	role-combination(value-group, Value-Group, descriptor, Input-Button).
+	role-combination(value-group, Value-Group, descriptor, Action-Button);
+	role-combination(value-group, Value-Group, descriptor, Reference);
+	role-combination(value-group, Value-Group, descriptor, Title);
+	role-combination(value-group, Value-Group, descriptor, Info).
+
+tm-binding  gdl:tm-binding  isa  tmcl:association-type;
+	has-role(descriptor, 1, 1);
+	has-role(tm-construct, 0, 1);
+	has-role(hidden-value, 0, 1);
+	role-combination(tm-construct, tmcl:topic-name-constraint, descriptor, Unit);
+	role-combination(tm-construct, tmcl:variant-name-constraint, descriptor, Unit);
+	role-combination(tm-construct, tmcl:topic-occurrence-constraint, descriptor, Unit);
+	role-combination(tm-construct, tmcl:topic-type, descriptor, TM-Value);
+	role-combination(value-group, Value-Group, tm-construct, Datatype);
+	role-combination(value-group, Value-Group, tm-construct, Type);
+	role-combination(value-group, Value-Group, tm-construct, Variant-Name-Scope);
+	role-combination(value-group, Value-Group, tm-construct, Variant-Name-Reifier);
+	role-combination(value-group, Value-Group, tm-construct, Variant-Name-Identifiers);
+	role-combination(value-group, Value-Group, tm-construct, Role-Player);
+	role-combination(hidden-value, Hidden-Value, tm-construct, Datatype);
+	role-combination(hidden-value, Hidden-Value, tm-construct, Type);
+	role-combination(hidden-value, Hidden-Value, tm-construct, Variant-Name-Scope);
+	role-combination(hidden-value, Hidden-Value, tm-construct, Variant-Name-Reifier);
+	role-combination(hidden-value, Hidden-Value, tm-construct, Variant-Name-Identifiers);
+	role-combination(hidden-value, Hidden-Value, tm-construct, Role-Player)
+	role-combination(descriptor, Role-Player, tm-construct, tmcl:item-identifier-constraint);
+	role-combination(descriptor, Role-Player, tm-construct, tmcl:reifier-constraint);
+	role-combination(descriptor, Role-Player, tm-construct, tmcl:topic-role-constraint);
+	role-combination(descriptor, Variant-Name-Identifiers, tm-construct, tmcl:variant-name-constraint);
+	role-combination(descriptor, Datatype, tm-construct, tmcl:topic-occurrence-constraint);
+	role-combination(descriptor, Datatype, tm-construct, tmcl:variant-name-constraint);
+	role-combination(descriptor, Type, tm-construct, tmcl:topic-name-constraint);
+	role-combination(descriptor, Type, tm-construct, tmcl:association-role-constraint);
+	role-combination(descriptor, Type, tm-construct, tmcl:topic-role-constraint);
+	role-combination(descriptor, Type, tm-construct, tmcl:topic-occurrence-constraint);
+	role-combination(descriptor, Variant-Name-Scope, tm-construct, tmcl:variant-name-constraint);
+	role-combination(descriptor, Variant-Name-Reifier, tm-construct, tmcl:variant-name-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:subject-identifier-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:subject-locator-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:item-identifier-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:topic-name-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:reifier-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:variant-name-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:topic-occurrence-constraint);
+	role-combination(value-group, Value-Group, tm-construct, tmcl:scope-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:subject-identifier-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:subject-locator-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:item-identifier-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:topic-name-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:reifier-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:variant-name-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:topic-occurrence-constraint);
+	role-combination(hidden-value, Value-Group, tm-construct, tmcl:scope-constraint).
+
+topic-view-binding  gdl:topic-view-binding  isa  tmcl:association-type;
+	has-role(descriptor, 1, 1);
+	has-role(tm-value, 1, 1);
+	role-combination(tm-value, TM-Value, descriptor, Topic-View).
+
+
+display-by  gdl:display-by  isa  tmcl:association-type;
+	has-role(descriptor, 1, 1);
+	has-role(tm-construct, 1, 1);
+	role-combination(descriptor, TM-Value, tm-construct, tmcl:topic-name-constraint);
+	role-combination(descriptor, TM-Value, tm-construct, tmcl:item-identifier-constraint);
+	role-combination(descriptor, TM-Value, tm-construct, tmcl:subject-locator-constraint);
+	role-combination(descriptor, TM-Value, tm-construct, tmcl:subject-identifier-constraint);
+	role-combination(descriptor, Value-Group, tm-construct, tmcl:topic-name-constraint);
+	role-combination(descriptor, Value-Group, tm-construct, tmcl:item-identifier-constraint);
+	role-combination(descriptor, Value-Group, tm-construct, tmcl:subject-locator-constraint);
+	role-combination(descriptor, Value-Group, tm-construct, tmcl:subject-identifier-constraint).
+
+
+association-view-binding  gdl:association-view-binding  isa  tmcl:association-type;
+	has-role(descriptor, 1, 1);
+	has-role(tm-construct, 1, 1);
+	role-combination(descriptor, Association-View, tm-construct, tmcl:topic-role-constraint);
+	role-combination(descriptor, Association-View, tm-construct, tmcl:association-role-constraint).
+
+preferred-scope  gdl:preferred-scope  isa  tmcl:association-type;
+	has-role(tm-construct, 1, 1);
+	has-role(descriptor, 1, 1);
+	role-combination(tm-construct, tmcl:topic-type, descriptor, Value-Group);
+	role-combination(tm-construct, tmcl:topic-type, descriptor, TM-Value).
+
+value-binding  gdl:value-binding  isa  tmcl:association-type;
+	has-role(hidden-value, 1, 1);
+	has-role(value, 1, 1);
+	role-combination(value, Default-Value, hidden-value, Hidden-Value);
+	role-combination(value, Value, value-group, Value-Group).
+
+
+# Role types
+container  gdl:container  isa  tmcl:role-type.
+containee  gdl:containee  isa  tmcl:role-type.
+descriptor  gdl:descriptor  isa  tmcl:role-type.
+ancestor  gdl:ancestor  isa  tmcl:role-type.
+descendant  gdl:descendant  isa  tmcl:role-type.
+button-position  gdl:action-button  isa  tmcl:role-type.
+nth-element  gdl:nth-element  isa  tmcl:role-type.
+value-group  gdl:value-group  isa  tmcl:role-type.
+tm-construct  gdl:tm-construct  isa  tmcl:role-type.
+tm-value  gdl:tm-value  isa  tmcl:role-type.
+
+
+# The schema itself
+schema-name gdl:schema-name isa tmcl:name-type.
+
+Schema  gdlt:Schema  isa  tmcl:topic-type;
+	has-name(schema-name, 1, 1);
+	plays-role(container, contains, 0, *).
+
+
+# The abstract base topic type of all GDL topics
+Descriptor  gdlt:Descriptor isa tmcl:topic-type;
+	is-abstract().
+
+
+# The abstract base topic type of all visible elements modeled by GDL topics
+display  gdl:display  isa  tmcl:occurrence-type.
+id  gdl:id  isa  tmcl:occurrence-type.
+margin  gdl:margin  isa  tmcl:occurrence-type.
+margin-left  gdl:margin-left  isa  tmcl:occurrence-type.
+margin-top  gdl:margin-top  isa  tmcl:occurrence-type.
+margin-right  gdl:margin-right  isa  tmcl:occurrence-type.
+margin-bottom  gdl:margin-bottom  isa  tmcl:occurrence-type.
+border-color  gdl:border-color  isa  tmcl:occurrence-type.
+border-left-color  gdl:border-left-color  isa  tmcl:occurrence-type.
+border-top-color  gdl:border-top-color  isa  tmcl:occurrence-type.
+border-right-color  gdl:border-right-color  isa  tmcl:occurrence-type.
+border-bottom-color  gdl:border-bottom-color  isa  tmcl:occurrence-type.
+border-style  gdl:border-style  isa  tmcl:occurrence-type.
+border-left-style  gdl:border-left-style  isa  tmcl:occurrence-type.
+border-top-style  gdl:border-top-style  isa  tmcl:occurrence-type.
+border-right-style  gdl:border-right-style  isa  tmcl:occurrence-type.
+border-bottom-style  gdl:border-bottom-style  isa  tmcl:occurrence-type.
+border-width  gdl:border-width  isa  tmcl:occurrence-type.
+border-left-width  gdl:border-left-width  isa  tmcl:occurrence-type.
+border-top-width  gdl:border-top-width  isa  tmcl:occurrence-type.
+border-right-width  gdl:border-right-width  isa  tmcl:occurrence-type.
+border-bottom-width  gdl:border-bottom-width  isa  tmcl:occurrence-type.
+border-radius  gdl:border-radius  isa  tmcl:occurrence-type.
+border-bottom-left-radius  gdl:border-bottom-left-radius  isa  tmcl:occurrence-type.
+border-top-left-radius  gdl:border-top-left-radius  isa  tmcl:occurrence-type.
+border-top-right-radius  gdl:border-top-right-radius  isa  tmcl:occurrence-type.
+border-bottom-right-radius  gdl:border-bottom-right-radius  isa  tmcl:occurrence-type.
+padding  gdl:padding  isa  tmcl:occurrence-type.
+padding-left  gdl:padding-left  isa  tmcl:occurrence-type.
+padding-top  gdl:padding-top  isa  tmcl:occurrence-type.
+padding-right  gdl:padding-right  isa  tmcl:occurrence-type.
+padding-bottom  gdl:padding-bottom  isa  tmcl:occurrence-type.
+cursor  gdl:cursor  isa  tmcl:occurrence-type.
+z-index  gdl:z-index  isa  tmcl:occurrence-type.
+width  gdl:width  isa  tmcl:occurrence-type.
+min-width  gdl:min-width  isa  tmcl:occurrence-type.
+max-width  gdl:max-width  isa  tmcl:occurrence-type.
+height  gdl:height  isa  tmcl:occurrence-type.
+min-height  gdl:min-height  isa  tmcl:occurrence-type.
+max-height  gdl:max-height  isa  tmcl:occurrence-type.
+float  gdl:float  isa  tmcl:occurrence-type.
+clear  gdl:clear  isa  tmcl:occurrence-type.
+content-orientation  gdl:content-orientation  isa  tmcl:occurrence-type.
+background-color  gdl:background-color  isa  tmcl:occurrence-type.
+vertical-align  gdl:vertical-align  isa  tmcl:occurrence-type.
+
+VisibleObject  gdlt:VisibleObject  ako  Descriptor;
+	isa  tmcl:topic-type;
+	is-abstract();
+	has-occurrence(id, 1, 1);
+	has-occurrence(display, 0, 1);
+	has-occurrence(margin, 0, 1);
+	has-occurrence(margin-left, 0, 1);
+	has-occurrence(margin-top, 0, 1);
+	has-occurrence(margin-right, 0, 1);
+	has-occurrence(margin-bottom, 0, 1);
+	has-occurrence(border-color, 0, 1);
+	has-occurrence(border-left-color, 0, 1);
+	has-occurrence(border-top-color, 0, 1);
+	has-occurrence(border-right-color, 0, 1);
+	has-occurrence(border-bottom-color, 0, 1);
+	has-occurrence(border-style, 0, 1);
+	has-occurrence(border-left-style, 0, 1);
+	has-occurrence(border-top-style, 0, 1);
+	has-occurrence(border-right-style, 0, 1);
+	has-occurrence(border-bottom-style, 0, 1);
+	has-occurrence(border-width, 0, 1);
+	has-occurrence(border-left-width, 0, 1);
+	has-occurrence(border-top-width, 0, 1);
+	has-occurrence(border-right-width, 0, 1);
+	has-occurrence(border-bottom-width, 0, 1);
+	has-occurrence(border-radius, 0, 1);
+	has-occurrence(border-bottom-left-radius, 0, 1);
+	has-occurrence(border-top-left-radius, 0, 1);
+	has-occurrence(border-top-right-radius, 0, 1);
+	has-occurrence(border-bottom-right-radius, 0, 1);
+	has-occurrence(padding, 0, 1);
+	has-occurrence(padding-left, 0, 1);
+	has-occurrence(padding-top, 0, 1);
+	has-occurrence(padding-right, 0, 1);
+	has-occurrence(padding-bottom, 0, 1);
+	has-occurrence(cursor, 0, 1);
+	has-occurrence(z-index, 0, 1);
+	has-occurrence(width, 0, 1);
+	has-occurrence(min-width, 0, 1);
+	has-occurrence(max-width, 0, 1);
+	has-occurrence(height, 0, 1);
+	has-occurrence(min-height, 0, 1);
+	has-occurrence(max-height, 0, 1);
+	has-occurrence(float, 0, 1);
+	has-occurrence(clear, 0, 1);
+	has-occurrence(content-orientation, 0, 1);
+	has-occurrence(background-color, 0, 1);
+	has-occurrence(vertical-align, 0, 1);
+	plays-role(containee, contains, 1, *);
+	plays-role(descendant, position, 0, 1);
+	plays-role(ancestor, position, 0, 1);
+	plays-role(container, contains, 0, *).
+
+
+# The abstract base topic type of all textual elements modeled by GDL topics
+direction  gdl::direction  isa  tmcl:occurrence-type.
+text-align  gdl:text-align  isa  tmcl:occurrence-type.
+line-height  gdl:line-height  isa  tmcl:occurrence-type.
+text-decoration  gdl:text-decoration  isa  tmcl:occurrence-type.
+color  gdl:color  isa  tmcl:occurrence-type.
+font-family  gdl:font-family  isa  tmcl:occurrence-type.
+font-style  gdl:font-style  isa  tmcl:occurrence-type.
+font-size  gdl:font-size  isa  tmcl:occurrence-type.
+font-weight  gdl:font-weight  isa  tmcl:occurrence-type.
+letter-spacing  gdl:letter-spacing  isa  tmcl:occurrence-type.
+word-spacing  gdl:word-spacing  isa  tmcl:occurrence-type.
+
+TextObject  gdlt:TextObject  ako  VisibleObject;
+	isa  tmcl:topic-type;
+	is-abstract();
+	has-occurrence(direction, 0, 1);
+	has-occurrence(text-align, 0, 1);
+	has-occurrence(line-height, 0, 1);
+	has-occurrence(text-decoration, 0, 1);
+	has-occurrence(color, 0, 1);
+	has-occurrence(font-family, 0, 1);
+	has-occurrence(font-style, 0, 1);
+	has-occurrence(font-size, 0, 1);
+	has-occurrence(font-weight, 0, 1);
+	has-occurrence(letter-spacing, 0, 1);
+	has-occurrence(word-spacing, 0, 1).
+
+
+# The entire complex-data concept
+Complex-Data  gdlt:Complex-Data  ako  VisibleObject;
+	isa  tmcl:topic-type;
+	is-abstract();
+	plays-role(descriptor, view-binding, 1, 1).
+
+Image  gdlt:Image  ako Complex-Data;
+	isa  tmcl:topic-type.
+
+Video  gdl:Video ako Complex-Data;
+	isa  tmcl:topic-type.
+
+Audio  gdlt:Audio  ako Complex-Data;
+	isa  tmcl:topic-type.
+
+Time-Picker  gdlt:Time-Picker  ako Complex-Data;
+	isa  tmcl:topic-type.
+
+Date-Picker  gdlt:Date-Picker  ako Complex-Data;
+	isa  tmcl:topic-type.
+
+Date-Time-Picker  gdlt:Date-Time-Picker  ako Complex-Data;
+	isa  tmcl:topic-type.
+
+
+# The abstract base topic type of all buttons modeled by GDL topics
+Button  gdlt:Button  ako  TextObject;
+	isa  tmcl:topic-type;
+	is-abstract().
+
+
+# The input-button concept
+Input-Button  gdlt:Input-Button  ako  Button;
+	isa  tmcl:topic-type;
+	is-abstract();
+	plays-role(descriptor, view-binding, 1, 1).
+
+Radio-Button  gdlt:Radio-Button  ako  Input-Button;
+	isa  tmcl:topic-type.
+
+Check-Box  gdlt:Check-Box  ako  Input-Button;
+	isa  tmcl:topic-type.
+
+
+# The entire action-button concept
+Action-Button  gdlt:Action-Button  ako  Button;
+	isa  tmcl:topic-type;
+	plays-role(action-button, button-position, 0, 1);
+	plays-role(containee, contains, 0, 1);
+	plays-role(descriptor, view-binding, 0, 1).
+
+Validate-Button  gdlt:Validate-Button  ako  Action-Button;
+	isa  tmcl:topic-type.
+
+Commit-Button  gdlt:Commit-Button  ako  Action-Button;
+	isa  tmcl:topic-type.
+
+Delete-Button  gdlt:Delete-Button  ako  Action-Button;
+	isa  tmcl:topic-type.
+
+
+# The entire schema concept
+view-name gdl:view-name isa tmcl:name-type.
+
+View  gdlt:View  ako Visible-Object;
+	isa  tmcl:topic-type;
+	is-abstract();
+	has-name(view-name, 1, 1);
+	plays-role(containee, contains, 1, 1);
+	plays-role(container, contains, 0, *).
+
+Topic-View  gdlt:Topic-View  ako  View;
+	isa  tmcl:topic-type;
+	is-abstract();
+	plays-role(descriptor, topic-view-binding, 1, 1).
+
+Default-Topic-View  gdlt:Default-Topic-View  ako Topic-View;
+	isa  tmcl:topic-type;
+	is-abstract().
+
+Default-Creator-Topic-View  gdlt:Default-Creator-Topic-View  ako  Default-Topic-View;
+	isa  tmcl:topic-type.
+
+Default-Editor-Topic-View  gdlt::Default-Editor-Topic-View  ako  Default-Topic-View;
+	isa  tmcl:topic-type.
+
+Special-Topic-View  gdlt:Special-Topic-View  ako  Topic-View;
+	isa  tmcl:topic-type;
+	is-abstract().
+
+Special-Creator-Topic-View  gdlt:Special-Creator-Topic-View  ako  Special-Topic-View;
+	isa  tmcl:topic-type.
+
+Special-Editor-Topic-View  gdlt:Special-Editor-Topic-View  ako  Special-Editor-Topic-View;
+	isa  tmcl:topic-type;
+
+Association-View  gdlt:Association-View  ako View;
+	isa  tmcl:topic-type;
+	is-abstract();
+	plays-role(descriptor, association-view-binding, 2, 2).
+
+Creator-Association-view  gdlt:Creator-Association-View  ako  Association-View;
+	isa  tmcl:topic-type.
+
+Editor-Association-view  gdlt:Editor-Association-View  ako  Association-View;
+	isa  tmcl:topic-type;
+
+# The entire value concept
+Value  gdlt:Value  ako  Descriptor;
+	isa  tmcl:topic-type;
+	is-abstract();
+	plays-role(value, value-binding, 0, 1).
+
+fixed  gdl:fixed  isa  tmcl:occurrence-type.
+
+Default-Value  gdlt:Default-Value  ako  Value;
+	isa  tmcl:topic-type;
+	is-abstract();
+	has-occurrence(fixed, 0, 1);
+	plays-role(value, value-binding, 0, 1).
+
+literal-value  gdl:literal-value isa  tmcl:occurrence-type.
+
+Literal-Value  gdlt:Literal-Value  ako  Value;
+	isa  tmcl:topic-type;
+	has-occurrence(literal-value, 1, 1).
+
+Default-Literal-Value  gdlt:Default-Literal-Value  ako  Default-Value;
+	ako  Literal-Value;
+	isa  tmcl:topic-type.
+
+TM-Value  gdlt:TM-Value  ako  Value;
+	isa  tmcl:topic-type;
+	is-abstract();
+	plays-role(tm-value, topic-view-binding, 0, *);
+	plays-role(descriptor, display-by, 0, 1);
+	plays-role(descriptor, tm-binding, 1, 1);
+	plays-role(descriptor, preferred-scope, 0, 1).
+
+TM-Type-Value  gdlt:TM-Type-Value  ako TM-Value;
+	isa  tmcl:topic-type.
+
+TM-Single-Type-Value  gdlt:Single-Type-Value  ako TM-Value;
+	isa  tmcl:topic-type.
+
+TM-Multiple-Type-Value  gdlt::TM-Multiple-Type-Value  ako TM-Value;
+	isa  tmcl:topic-type.
+
+TM-Instance-Value  gdlt:TM-Instance-Value  ako TM-Value;
+	isa  tmcl:topic-type.
+
+Default-TM-Value  gdlt:Default-TM-Value  ako  Default-Value;
+	ako  TM-Value;
+	isa tmcl:topic-type;
+	is-abstract().
+
+Default-TM-Value-Type  gdlt:Default-TM-Value-Type  ako  Default-Value;
+	isa  tmcl:topic-type.
+
+Default-TM-Single-Type-Value  gdlt:Default-TM-Single-Type-Value  ako  Default-Value;
+	isa  tmcl:topic-type.
+
+Default-TM-Multiple-Type-Value  gdlt:Default-TM-Multiple-Type-Value  ako  Default-Value;
+	isa  tmcl:topic-type.
+
+Default-TM-Instance-Value  gdlt:Default-TM-Instance-Value  ako  Default-Value;
+	isa  tmcl:topic-type.
+
+Value-Group  gdlt:Value-Group  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(value-group, view-binding, 1, 1);
+	plays-role(descriptor, preferred-scope, 0, 1);
+	plays-role(value-group, value-binding, 0, *);
+	plays-role(value-group, tm-binding, 0, 1);
+	plays-role(descriptor, display-by, 0, 1).
+
+Hidden-Value  gdlt:Hidden-Value  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(containee, contains, 1, 1);
+	plays-role(hidden-value, value-binding, 1, 1);
+	plays-role(hidden-value, tm-binding, 1, 1).
+
+
+# Additional “constraint-like” topics defined by the GDL
+Datatype  gdlt:Datatype  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(tm-construct, tm-binding, 1, 1);
+	plays-role(descriptor, tm-binding, 0, 1).
+
+Type  gdlt:Type  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(tm-construct, tm-binding, 1, 1);
+	plays-role(descriptor, tm-binding, 0, 1).
+
+Variant-Name-Scope  gdlt:Variant-Name-Scope  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(tm-construct, tm-binding, 1, 1);
+	plays-role(descriptor, tm-binding, 1, 1).
+
+Variant-Name-Reifier  gdlt:Variant-Name-Reifier  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(tm-construct, tm-binding, 1, 1);
+	plays-role(descriptor, tm-binding, 1, 1).
+
+Variant-Name-Identifiers  gdlt:Variant-Name-Identifiers  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(tm-construct, tm-binding, 1, 1);
+	plays-role(descriptor, tm-binding, 1, 1).
+
+Role-Player  gdlt:Role-Player  ako  Descriptor;
+	isa  tmcl:topic-type;
+	plays-role(tm-construct, tm-binding, 1, 1);
+	plays-role(descriptor, tm-binding, 1, 2).
+
+
+# The style-class concept along with the defined style-classes
+Style-Class gdlt:Style-Class isa tmcl:topic-type.
+
+hover  isa  gdlt:Style-Class.
+
+focus  isa  gdlt:Style-Class.
+
+active  isa  gdlt:Style-Class.
+
+
+# The positioning and referencing (nth-element) concept
+position-style  gdl:position-style  isa  tmcl:occurrence-type.
+top  gdl:top  isa  tmcl:occurrence-type.
+right  gdl:right  isa  tmcl:occurrence-type.
+bottom  gdl:bottom  isa  tmcl:occurrence-type.
+left  gdl:left isa  tmcl:occurrence-type.
+
+Position  gdlt:Position  isa  tmcl:topic-type;
+	isa  tmcl:topic-type;
+	has-occurrence(position-style, 0, 1);
+	has-occurrence(top, 0, 1);
+	has-occurrence(right, 0, 1);
+	has-occurrence(bottom, 0, 1);
+	has-occurrence(left, 0, 1);
+	plays-role(descriptor, position, 1, 1).
+
+nth-value  gdl:nth-value  isa  tmcl:occurrence-type.
+
+Nth-Element  gdlt:Nth-Element  isa  Descriptor;
+	isa  tmcl:topic-type;
+	has-occurrence(nth-value, 1, 1);
+	plays-role(nth-element, contains, 1, 1);
+	plays-role(nth-element, button-position, 1, 1).
+
+
+# All topics that are not abstract and are direct sub-classes of Visible-Object
+Space  gdlt:Space  ako  Visible-Object;
+	isa  tmcl:topic-type.
+
+ordered  gdl:ordered  isa  tmcl:occurrence-type.
+style-type  gdl::style-type  isa  tmcl:occurrence-type.
+list-style-position  gdl:list-style-position  isa  tmcl:occurrence-type.
+
+List  gdlt:List  ako  Visible-Object;
+	isa  tmcl:topic-type;
+	has-occurrence(ordered, 0, 1);
+	has-occurrence(style-type, 0, 1);
+	has-occurrence(list-style-position, 0, 1);
+	plays-role(container, contains, 0, *).
+
+
+# All topics that are not abstract and are direct sub-classes of Text-Object
+multiple  gdl:multiple  isa  tmcl:occurrence-type.
+Size  gdl:size  isa  tmcl:occurrence-type.
+
+List-Box  gdlt:List-Box  ako  Text-Object;
+	isa  tmcl:topic-type;
+	has-occurrence(multiple, 0, 1);
+	has-occurrence(size, 0, 1);
+	plays-role(descriptor, view-binding, 1, 1).
+
+unit-name  gdl:unit-name  isa  tmcl:occurrence-type.
+
+Unit  gdlt:Unit  ako  Text-Object;
+	isa  tmcl:topic-type;
+	has-occurrence(unit-name, 0, 1);
+	plays-role(container, contains, 0, *);
+	plays-role(descriptor, tm-binding, 0, 1).
+
+Text  gdlt:Text  ako  Text-Object;
+	isa  tmcl:topic-type;
+	has-occurrence(text-type, 0, 1);
+	has-occurrence(readonly, 0, 1);
+	has-occurrence(rows, 0, 1);
+	has-occurrence(cols, 0, 1);
+	has-occurrence(resize, 0, 1);
+	plays-role(descriptor, view-binding, 1, 1).
+
+Info  gdlt:Info  ako  Text-Object;
+	isa  tmcl:topic-type;
+	plays-role(descriptor, view-binding, 1, 1);
+	plays-role(containee, constains, 1, 1).
+
+Reference  gdlt:Reference  ako  Text-Object;
+	isa  tmcl:topic-type;
+	plays-role(descriptor, view-binding, 1, 1).
+
+title-order  gdl:title-order  isa  tmcl:occurrence-type.
+
+Title  gdlt:Title  ako  Text-Object;
+	isa  tmcl:topic-type;
+	has-occurrence(title-order, 0, 1) ;
+	plays-role(descriptor, view-binding, 1, 1).
+
+
+# All extensions for the TMCL constraints that enable the adoption to the GDL
+tmcl:topic-name-constraint plays-role(tm-construct, tm-binding, 0, *);
+	plays-role(tm-construct, display-by, 0, 1).
+tmcl:variant-name-constraint plays-role(tm-construct, tm-binding, 0, *);
+	plays-role(tm-construct, tm-binding, 0, *).
+tmcl:topic-occurrence-constraint plays-role(tm-construct, tm-binding, 0, *).
+tmcl:topic-role-constraint  plays-role(tm-construct, association-view-binding, 0, *);
+	plays-role(tm-construct, tm-binding, 0, *).
+tmcl:association-role-constraint  plays-role(tm-construct, association-view-binding, 0, *);
+	plays-role(tm-construct, tm-binding, 0, *).
+tmcl:topic-type  plays-role(tm-construct, tm-binding, 0, *);
+	plays-role(tm-construct, preferred-scope, 0, *).
+tmcl:subject-idenitifier-constraint  plays-role(tm-construct, display-by, 0, 1);
+	plays-role(tm-construct, tm-binding, 0, *).
+tmcl:subject-locator-constraint plays-role(tm-construct, display-by, 0, 1);
+	plays-role(tm-construct, tm-binding, 0, *).
+tmcl:item-idenitifier-constraint plays-role(tm-construct, display-by, 0, 1);
+	plays-role(tm-construct, tm-binding, 0, *).
+tmcl:reifier-constraint plays-role(tm-construct, tm-binding, 0, *).
