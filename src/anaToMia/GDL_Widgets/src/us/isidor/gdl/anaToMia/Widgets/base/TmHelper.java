@@ -35,6 +35,67 @@ public class TmHelper {
 	}
 	
 	
+	// a helper method that returns one occurrence of the type bound to the passed PSI and scoped
+	// by the theme bound to the passed PSI. If no such occurrence exist, the default value is null
+	public static Occurrence getNoneOrOneScopedOccurrence(Topic owner, String occurrenceType, String theme) throws InvalidGdlSchemaException{
+		if(owner == null || occurrenceType == null) return null;
+		
+		TopicMap tm = owner.getTopicMap();
+		
+		Topic themeTopic = tm.getTopicBySubjectIdentifier(tm.createLocator(theme));
+		Topic occType = tm.getTopicBySubjectIdentifier(tm.createLocator(occurrenceType));
+		if(themeTopic == null || occType == null){
+			return null;
+		} else {
+			JsArray<Occurrence> occurrences = owner.getOccurrences(occType);
+			ArrayList<Occurrence> matchedOccurrences = new ArrayList<Occurrence>();
+			for(int i = 0; i != occurrences.length(); ++i){
+				for(int j = 0; j != occurrences.get(i).getScope().length(); ++j){
+					if(occurrences.get(i).getScope().get(j).equals(themeTopic)){
+						matchedOccurrences.add(occurrences.get(i));
+						break;
+					}
+				}
+			}
+
+			if(matchedOccurrences.size() > 1){
+				throw new InvalidGdlSchemaException("The topic " + TmHelper.getAnyIdOfTopic(owner) + "must be bound to none or one occurrence of the type " + occurrenceType + " and the scope " + theme + " but is bound " + matchedOccurrences.size() + " times to it");
+			} else if(matchedOccurrences.size() == 1){
+				return matchedOccurrences.get(0);
+			} else {
+				return null;
+			}
+		}
+	}
+	
+	
+	// a helper method that returns one occurrence of the type bound to the passed PSI.
+	// If more than one occurrence is available an InvalidGdlSchemaException is thrown.
+	// If nor occurrence is available the return value is null
+	public static Occurrence getNoneOrOneUnscopedOccurrence(Topic owner, String occurrenceType) throws InvalidGdlSchemaException{
+		if(owner == null || occurrenceType == null) return null;
+		
+		TopicMap tm = owner.getTopicMap();
+		
+		Topic occType = tm.getTopicBySubjectIdentifier(tm.createLocator(occurrenceType));
+		if(occType == null) return null;
+		
+		JsArray<Occurrence> occs = owner.getOccurrences(occType);
+		ArrayList<Occurrence> unscopedOccs = new ArrayList<Occurrence>();
+		for(int i = 0; i != occs.length(); ++i){
+			if(occs.get(i).getScope().length() == 0) unscopedOccs.add(occs.get(i));
+		}
+
+		if(unscopedOccs.size() > 1){
+			throw new InvalidGdlSchemaException("The topic " + TmHelper.getAnyIdOfTopic(owner) + " must be bound to none or one unscoped occurrence of the type " + occurrenceType + ", but is bound " + unscopedOccs.size() + " times to it");
+		} else if(unscopedOccs.size() == 1){
+			return unscopedOccs.get(0);
+		} else {
+			return null;
+		}
+	}
+	
+	
 	// a helper that returns the topic bound to the identifier via a subject locator
 	public static Topic getTopicBySl(String subjectLocator, TopicMap tm){
 		if(subjectLocator == null || tm == null) return null;

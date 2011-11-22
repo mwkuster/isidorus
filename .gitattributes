@@ -340,6 +340,7 @@ src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/GdlPanel.java -
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/GdlPosition.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/GdlSpace.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/GdlVisibleObject.java -text
+src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/GdlVisibleObjectCssService.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/IGdlContainer.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/PSIs.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/base/TestClass.java -text

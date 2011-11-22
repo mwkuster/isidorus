@@ -10,6 +10,7 @@ import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Occurrence;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Role;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Topic;
+import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMap;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
 import us.isidor.gdl.anaToMia.Widgets.base.ButtonableObject;
 import us.isidor.gdl.anaToMia.Widgets.base.GdlHiddenValue;
@@ -304,12 +305,7 @@ public abstract class GdlAssociationView extends GdlView {
 		
 		// returns the string value of a gdl:id occurrence
 		public String getId() throws InvalidGdlSchemaException {
-			JsArray<Occurrence> idOccs = getOccurrences(PSIs.GDL.OccurrenceType.gdlId);
-			if(idOccs.length() != 1){
-				throw new InvalidGdlSchemaException("The topic " + TmHelper.getAnyIdOfTopic(this.tmRepresentative) + " must be bound to exactly one occurrence of the type " + PSIs.GDL.OccurrenceType.gdlId + ", but is bound " + idOccs.length() + " times to it");
-			} else {
-				return idOccs.get(0).getValue() + "__GDL_" + this.indexInParent;
-			}
+			return super.getId() + "__GDL_" + this.indexInParent;
 		}
 		
 		

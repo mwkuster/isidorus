@@ -80,6 +80,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	protected Panel containerPanel = null;
 	protected Topic tmRepresentative = null;
 	protected TopicMap tm = null;
+	protected GdlVisibleObjectCssService cssService = null;
 	protected ArrayList<Pair<String, String>> activeCssNamesAndStyles = new ArrayList<Pair<String,String>>();
 	protected ArrayList<Pair<String, String>> focusCssNamesAndStyles = new ArrayList<Pair<String,String>>();
 	protected ArrayList<Pair<String, String>> hoverCssNamesAndStyles = new ArrayList<Pair<String,String>>();
@@ -132,6 +133,8 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		if(!(receivedData instanceof Topic) && !(receivedData instanceof Association) && !(receivedData instanceof Name) && !(receivedData instanceof Variant) && !(receivedData instanceof Occurrence) && !(receivedData instanceof Role) && receivedData != null) throw new ExecutionException("receivedData must be either a Topic, Association, Topic-Name, Name-Variant, Topic-Occurrence or Association-Role, but is: " + receivedData.getClass());
 		this.receivedData = receivedData;
 
+		this.cssService = new GdlVisibleObjectCssService(this);
+		
 		this.setId(this.getId());
 		this.setGdlStyle();
 	}
@@ -223,67 +226,27 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	}
 
 
-	// a helper method that returns all occurrences of the type bound to the passed PSI
-	@SuppressWarnings("unchecked")
-	protected JsArray<Occurrence> getOccurrences(String occurrenceType){
-		Topic occType = tm.getTopicBySubjectIdentifier(tm.createLocator(occurrenceType));
-		if(occType == null) return (JsArray<Occurrence>)JsArray.createArray();
-		else return tmRepresentative.getOccurrences(occType);
-	}
-
 
 	// a helper method that returns one occurrence of the type bound to the passed PSI.
 	// If more than one occurrence is available an InvalidGdlSchemaException is thrown.
 	// If nor occurrence is available the return value is null
 	protected Occurrence getNoneOrOneUnscopedOccurrence(String occurrenceType) throws InvalidGdlSchemaException{
-		JsArray<Occurrence> occs = getOccurrences(occurrenceType);
-		ArrayList<Occurrence> unscopedOccs = new ArrayList<Occurrence>();
-		for(int i = 0; i != occs.length(); ++i){
-			if(occs.get(i).getScope().length() == 0) unscopedOccs.add(occs.get(i));
-		}
-
-		if(unscopedOccs.size() > 1){
-			throw new InvalidGdlSchemaException("The topic " + TmHelper.getAnyIdOfTopic(this.tmRepresentative) + " must be bound to none or one unscoped occurrence of the type " + occurrenceType + ", but is bound " + unscopedOccs.size() + " times to it");
-		} else if(unscopedOccs.size() == 1){
-			return unscopedOccs.get(0);
-		} else {
-			return null;
-		}
+		return TmHelper.getNoneOrOneUnscopedOccurrence(this.tmRepresentative, occurrenceType);
 	}
 
 
 	// a helper method that returns one occurrence of the type bound to the passed PSI and scoped
 	// by the theme bound to the passed PSI. If no such occurrence exist, the default value is null
 	protected Occurrence getNoneOrOneScopedOccurrence(String occurrenceType, String theme) throws InvalidGdlSchemaException{
-		Topic themeTopic = tm.getTopicBySubjectIdentifier(tm.createLocator(theme));
-		if(themeTopic == null){
-			return null;
-		} else {
-			JsArray<Occurrence> occurrences = getOccurrences(occurrenceType);
-			ArrayList<Occurrence> matchedOccurrences = new ArrayList<Occurrence>();
-			for(int i = 0; i != occurrences.length(); ++i){
-				for(int j = 0; j != occurrences.get(i).getScope().length(); ++j){
-					if(occurrences.get(i).getScope().get(j).equals(themeTopic)){
-						matchedOccurrences.add(occurrences.get(i));
-						break;
-					}
-				}
-			}
-
-			if(matchedOccurrences.size() > 1){
-				throw new InvalidGdlSchemaException("The topic " + TmHelper.getAnyIdOfTopic(this.tmRepresentative) + "must be bound to none or one occurrence of the type " + occurrenceType + " and the scope " + theme + " but is bound " + matchedOccurrences.size() + " times to it");
-			} else if(matchedOccurrences.size() == 1){
-				return matchedOccurrences.get(0);
-			} else {
-				return null;
-			}
-		}
+		return TmHelper.getNoneOrOneScopedOccurrence(this.tmRepresentative, occurrenceType, theme);
 	}
 
 
 	// returns the string value of a gdl:id occurrence
 	public String getId() throws InvalidGdlSchemaException {
-		JsArray<Occurrence> idOccs = getOccurrences(PSIs.GDL.OccurrenceType.gdlId);
+		TopicMap tm = this.tmRepresentative.getTopicMap();
+		Topic idOccType = TmHelper.getTopicByPsi(PSIs.GDL.OccurrenceType.gdlId, tm);
+		JsArray<Occurrence> idOccs = this.tmRepresentative.getOccurrences(idOccType);
 		if(idOccs.length() != 1){
 			throw new InvalidGdlSchemaException("The topic " + TmHelper.getAnyIdOfTopic(this.tmRepresentative) + " must be bound to exactly one occurrence of the type " + PSIs.GDL.OccurrenceType.gdlId + ", but is bound " + idOccs.length() + " times to it");
 		} else {
@@ -295,92 +258,35 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// returns a Display instance of a gdl:display occurrence.
 	// If no gdl:display occurrence is set, the default value is returned
 	public Display getDisplay() throws InvalidGdlSchemaException {
-		Occurrence displayOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlDisplay);
-
-		if(displayOcc != null){
-			String value = displayOcc.getValue().toLowerCase();
-			if(value.equals("none")){
-				return Display.NONE;
-			} else if (value.equals("inline")){
-				return Display.INLINE;
-			} else if (value.equals("inline-block")){
-				return Display.INLINE_BLOCK;
-			} else if(value.equals("block")){
-				return Display.BLOCK;
-			} else {
-				throw new InvalidGdlSchemaException("The occurrence " + PSIs.GDL.OccurrenceType.gdlDisplay + " must be set to one of \"none\", \"inline\", \"inline-block\" or \"block\", but is \"" + displayOcc.getValue() + "\"");
-			}
-		} else {
-			return Display.INLINE_BLOCK;
-		}
+		return this.cssService.getDisplay();
 	}
 
 
 	// returns an AutoNumValue instance of a gdl:z-index occurrence.
 	// If no gdl:z-index occurrence is set, the default value is returned
 	public AutoNumValue getZindex() throws InvalidGdlSchemaException {
-		Occurrence zOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlZindex);
-		if(zOcc != null){
-			return new AutoNumValue(zOcc.getValue());
-		} else {
-			return new AutoNumValue();
-		}
+		return this.cssService.getZindex();
 	}
 
 
 	// returns a Float instance of a gdl:float occurrence or the default value for
 	// this property if no gdl:float occurrence is available
 	public Float getFloat() throws InvalidGdlSchemaException {
-		Occurrence floatOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlFloat);
-
-		if(floatOcc != null){
-			String value = floatOcc.getValue().toLowerCase();
-			if(value.equals("none")){
-				return Float.NONE;
-			} else if (value.equals("left")){
-				return Float.LEFT;
-			} else if (value.equals("right")){
-				return Float.RIGHT;
-			} else {
-				throw new InvalidGdlSchemaException("The occurrence " + PSIs.GDL.OccurrenceType.gdlFloat + " must be set to one of \"none\", \"left\" or \"right\", but is \"" + floatOcc.getValue() + "\"");
-			}
-		} else {
-			return Float.NONE;
-		}
+		return this.cssService.getFloat();
 	}
 
 
 	// returns a ClearValue instance of a gdl:clear occurrence or the default value for
 	// this property if no gdl:clear occurrence is available
 	public ClearValue getClear() throws InvalidGdlSchemaException {
-		Occurrence clearOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlClear);
-
-		if(clearOcc != null){
-			try{
-				return ClearValue.valueOf(clearOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				throw new InvalidGdlSchemaException("The occurrence " + PSIs.GDL.OccurrenceType.gdlClear + " must be set to one of \"none\", \"left\", \"right\" or \"both\", but is \"" + clearOcc.getValue() + "\"");
-			}
-		} else {
-			return ClearValue.NONE;
-		}
+		return this.cssService.getClear();
 	}
 
 
 	// returns a ContentOrientationValue instance of a gdl:content-orientation occurrence or the default value for
 	// this property if no gdl:content-orientation occurrence is available
 	public ContentOrientationValue getContentOrientation() throws InvalidGdlSchemaException {
-		Occurrence orientationOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlContentOrientation);
-
-		if(orientationOcc != null){
-			try{
-				return ContentOrientationValue.valueOf(orientationOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				throw new InvalidGdlSchemaException("The occurrence " + PSIs.GDL.OccurrenceType.gdlContentOrientation + " must be set to one of \"horizontal\" or \"vertical\", but is \"" + orientationOcc.getValue() + "\"");
-			}
-		} else {
-			return ContentOrientationValue.VERTICAL;
-		}
+		return this.cssService.getContentOrientation();
 	}
 
 
@@ -389,39 +295,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// is available. The styleClass attribute is used as scope for expressing
 	// a css pseudo-class, if styleClass is null the occurrence must be unscoped
 	public VerticalAlign getVerticalAlign(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence vaOcc = null;
-		if(styleClass != null){
-			vaOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlVerticalAlign, styleClass);
-		} else {
-			vaOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlVerticalAlign);
-		}
-
-		if(vaOcc == null && styleClass != null){
-			return null;
-		} else if(vaOcc == null) {
-			return VerticalAlign.BASELINE;
-		}else {
-			String value = vaOcc.getValue().toLowerCase();
-			if(value.equals("baseline")){
-				return VerticalAlign.BASELINE;
-			} else if(value.equals("sub")){
-				return VerticalAlign.SUB;
-			} else if(value.equals("super")) {
-				return VerticalAlign.SUPER;
-			} else if(value.equals("top")) {
-				return VerticalAlign.TOP;
-			}else if(value.equals("text-top")) {
-				return VerticalAlign.TEXT_TOP;
-			}else if(value.equals("middle")) {
-				return VerticalAlign.MIDDLE;
-			}else if(value.equals("bottom")) {
-				return VerticalAlign.BOTTOM;
-			}else if(value.equals("text-bottom")) {
-				return VerticalAlign.TEXT_BOTTOM;
-			} else {
-				throw new InvalidGdlSchemaException("The occurrence " + PSIs.GDL.OccurrenceType.gdlVerticalAlign + " must be set to one of \"baseline\", \"sub\", \"super\", \"top\", \"text-top\", \"middle\", \"bottom\" or \"text-bottom\", but is \"" + vaOcc.getValue() + "\"");
-			}
-		}
+		return this.cssService.getVerticalAlign(styleClass);
 	}
 
 
@@ -430,20 +304,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// or null. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public NumUnitValue getMargin(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence marginOcc = null;
-		if(styleClass != null){
-			marginOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMargin, styleClass);
-		} else {
-			marginOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMargin);
-		}
-
-		if(marginOcc == null && styleClass != null){
-			return null;
-		} else if(marginOcc == null) {
-			return new NumUnitValue();
-		} else {
-			return new NumUnitValue(marginOcc.getValue());
-		}
+		return this.cssService.getMargin(styleClass);
 	}
 
 
@@ -451,18 +312,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// or null.
 	public NumUnitValue getMarginTop(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence marginOcc = null;
-		if(styleClass != null){
-			marginOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginTop, styleClass);
-		} else {
-			marginOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginTop);
-		}
-
-		if(marginOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(marginOcc.getValue());
-		}
+		return this.cssService.getMarginTop(styleClass);
 	}
 
 
@@ -470,18 +320,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// or null.
 	public NumUnitValue getMarginRight(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence marginOcc = null;
-		if(styleClass != null){
-			marginOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginRight, styleClass);
-		} else {
-			marginOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginRight);
-		}
-
-		if(marginOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(marginOcc.getValue());
-		}
+		return this.cssService.getMarginRight(styleClass);
 	}
 
 
@@ -489,18 +328,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// or null.
 	public NumUnitValue getMarginBottom(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence marginOcc = null;
-		if(styleClass != null){
-			marginOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginBottom, styleClass);
-		} else {
-			marginOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginBottom);
-		}
-
-		if(marginOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(marginOcc.getValue());
-		}
+		return this.cssService.getMarginBottom(styleClass);
 	}
 
 
@@ -508,18 +336,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// or null.
 	public NumUnitValue getMarginLeft(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence marginOcc = null;
-		if(styleClass != null){
-			marginOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginLeft, styleClass);
-		} else {
-			marginOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMarginLeft);
-		}
-
-		if(marginOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(marginOcc.getValue());
-		}
+		return this.cssService.getMarginLeft(styleClass);
 	}
 
 
@@ -528,20 +345,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public ColorValue getBorderColor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence colorOcc = null;
-		if(styleClass != null){
-			colorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderColor, styleClass);
-		} else {
-			colorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderColor);
-		}
-
-		if(colorOcc == null && styleClass != null){
-			return null;
-		} else if(colorOcc == null) {
-			return new ColorValue();
-		} else {
-			return new ColorValue(colorOcc.getValue());
-		}
+		return this.cssService.getBorderColor(styleClass);
 	}
 
 
@@ -549,18 +353,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public ColorValue getBorderTopColor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence colorOcc = null;
-		if(styleClass != null){
-			colorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopColor, styleClass);
-		} else {
-			colorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopColor);
-		}
-
-		if(colorOcc == null ){
-			return null;
-		} else {
-			return new ColorValue(colorOcc.getValue());
-		}
+		return this.cssService.getBorderTopColor(styleClass);
 	}
 
 
@@ -568,18 +361,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public ColorValue getBorderRightColor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence colorOcc = null;
-		if(styleClass != null){
-			colorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRightColor, styleClass);
-		} else {
-			colorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRightColor);
-		}
-
-		if(colorOcc == null ){
-			return null;
-		} else {
-			return new ColorValue(colorOcc.getValue());
-		}
+		return this.cssService.getBorderRightColor(styleClass);
 	}
 
 
@@ -587,18 +369,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public ColorValue getBorderBottomColor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence colorOcc = null;
-		if(styleClass != null){
-			colorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomColor, styleClass);
-		} else {
-			colorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomColor);
-		}
-
-		if(colorOcc == null ){
-			return null;
-		} else {
-			return new ColorValue(colorOcc.getValue());
-		}
+		return this.cssService.getBorderBottomColor(styleClass);
 	}
 
 
@@ -606,18 +377,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public ColorValue getBorderLeftColor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence colorOcc = null;
-		if(styleClass != null){
-			colorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderLeftColor, styleClass);
-		} else {
-			colorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderLeftColor);
-		}
-
-		if(colorOcc == null ){
-			return null;
-		} else {
-			return new ColorValue(colorOcc.getValue());
-		}
+		return this.cssService.getBorderLeftColor(styleClass);
 	}
 
 
@@ -626,25 +386,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public BorderStyleValue getBorderStyle(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence styleOcc = null;
-		if(styleClass != null){
-			styleOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderStyle, styleClass);
-		} else {
-			styleOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderStyle);
-		}
-
-		if(styleOcc == null && styleClass != null){
-			return null;
-		} else if(styleOcc == null) {
-			return BorderStyleValue.NONE;
-		} else {
-			try{
-				return BorderStyleValue.valueOf(styleOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				String values = "none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset";
-				throw new InvalidGdlSchemaException("border-style must be set to one of " + values + ", but is " + styleOcc.getValue());
-			}
-		}
+		return this.cssService.getBorderStyle(styleClass);
 	}
 
 
@@ -652,23 +394,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public BorderStyleValue getBorderTopStyle(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence styleOcc = null;
-		if(styleClass != null){
-			styleOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopStyle, styleClass);
-		} else {
-			styleOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopStyle);
-		}
-
-		if(styleOcc == null){
-			return null;
-		} else {
-			try{
-				return BorderStyleValue.valueOf(styleOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				String values = "none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset";
-				throw new InvalidGdlSchemaException("border-top-style must be set to one of " + values + ", but is " + styleOcc.getValue());
-			}
-		}
+		return this.cssService.getBorderTopStyle(styleClass);
 	}
 
 
@@ -676,23 +402,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public BorderStyleValue getBorderRightStyle(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence styleOcc = null;
-		if(styleClass != null){
-			styleOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRightStyle, styleClass);
-		} else {
-			styleOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRightStyle);
-		}
-
-		if(styleOcc == null){
-			return null;
-		} else {
-			try{
-				return BorderStyleValue.valueOf(styleOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				String values = "none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset";
-				throw new InvalidGdlSchemaException("border-right-style must be set to one of " + values + ", but is " + styleOcc.getValue());
-			}
-		}
+		return this.cssService.getBorderRightStyle(styleClass);
 	}
 
 
@@ -700,23 +410,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public BorderStyleValue getBorderBottomStyle(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence styleOcc = null;
-		if(styleClass != null){
-			styleOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomStyle, styleClass);
-		} else {
-			styleOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomStyle);
-		}
-
-		if(styleOcc == null){
-			return null;
-		} else {
-			try{
-				return BorderStyleValue.valueOf(styleOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				String values = "none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset";
-				throw new InvalidGdlSchemaException("border-bottom-style must be set to one of " + values + ", but is " + styleOcc.getValue());
-			}
-		}
+		return this.cssService.getBorderBottomStyle(styleClass);
 	}
 
 
@@ -724,23 +418,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public BorderStyleValue getBorderLeftStyle(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence styleOcc = null;
-		if(styleClass != null){
-			styleOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderLeftStyle, styleClass);
-		} else {
-			styleOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderLeftStyle);
-		}
-
-		if(styleOcc == null){
-			return null;
-		} else {
-			try{
-				return BorderStyleValue.valueOf(styleOcc.getValue().toUpperCase());
-			}catch(IllegalArgumentException e){
-				String values = "none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset";
-				throw new InvalidGdlSchemaException("border-left-style must be set to one of " + values + ", but is " + styleOcc.getValue());
-			}
-		}
+		return this.cssService.getBorderLeftStyle(styleClass);
 	}
 
 
@@ -749,20 +427,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AbsoluteNumValue getBorderWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderWidth);
-		}
-
-		if(widthOcc == null && styleClass != null){
-			return null;
-		} else if(widthOcc == null) {
-			return new AbsoluteNumValue();
-		} else {
-			return new AbsoluteNumValue(widthOcc.getValue());
-		}
+		return this.cssService.getBorderWidth(styleClass);
 	}
 
 
@@ -770,18 +435,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public AbsoluteNumValue getBorderTopWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopWidth);
-		}
-
-		if(widthOcc == null){
-			return null;
-		} else {
-			return new AbsoluteNumValue(widthOcc.getValue());
-		}
+		return this.cssService.getBorderTopWidth(styleClass);
 	}
 
 
@@ -789,18 +443,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public AbsoluteNumValue getBorderRightWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRightWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRightWidth);
-		}
-
-		if(widthOcc == null){
-			return null;
-		} else {
-			return new AbsoluteNumValue(widthOcc.getValue());
-		}
+		return this.cssService.getBorderRightWidth(styleClass);
 	}
 
 
@@ -808,18 +451,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public AbsoluteNumValue getBorderBottomWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomWidth);
-		}
-
-		if(widthOcc == null){
-			return null;
-		} else {
-			return new AbsoluteNumValue(widthOcc.getValue());
-		}
+		return this.cssService.getBorderBottomWidth(styleClass);
 	}
 
 
@@ -827,18 +459,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public AbsoluteNumValue getBorderLeftWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderLeftWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderLeftWidth);
-		}
-
-		if(widthOcc == null){
-			return null;
-		} else {
-			return new AbsoluteNumValue(widthOcc.getValue());
-		}
+		return this.cssService.getBorderLeftWidth(styleClass);
 	}
 
 
@@ -847,20 +468,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public NumUnitValue getBorderRadius(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence radiusOcc = null;
-		if(styleClass != null){
-			radiusOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRadius, styleClass);
-		} else {
-			radiusOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderRadius);
-		}
-
-		if(radiusOcc == null && styleClass != null){
-			return null;
-		} else if(radiusOcc == null) {
-			return new NumUnitValue();
-		} else {
-			return new NumUnitValue(radiusOcc.getValue());
-		}
+		return this.cssService.getBorderRadius(styleClass);
 	}
 
 
@@ -868,20 +476,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getBorderTopLeftRadius(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence radiusOcc = null;
-		if(styleClass != null){
-			radiusOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopLeftRadius, styleClass);
-		} else {
-			radiusOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopLeftRadius);
-		}
-
-		if(radiusOcc == null && styleClass != null){
-			return null;
-		} else if(radiusOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(radiusOcc.getValue());
-		}
+		return this.cssService.getBorderTopLeftRadius(styleClass);
 	}
 
 
@@ -889,20 +484,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getBorderTopRightRadius(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence radiusOcc = null;
-		if(styleClass != null){
-			radiusOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopRightRadius, styleClass);
-		} else {
-			radiusOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderTopRightRadius);
-		}
-
-		if(radiusOcc == null && styleClass != null){
-			return null;
-		} else if(radiusOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(radiusOcc.getValue());
-		}
+		return this.cssService.getBorderTopRightRadius(styleClass);
 	}
 
 
@@ -910,20 +492,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getBorderBottomLeftRadius(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence radiusOcc = null;
-		if(styleClass != null){
-			radiusOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomLeftRadius, styleClass);
-		} else {
-			radiusOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomLeftRadius);
-		}
-
-		if(radiusOcc == null && styleClass != null){
-			return null;
-		} else if(radiusOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(radiusOcc.getValue());
-		}
+		return this.cssService.getBorderBottomLeftRadius(styleClass);
 	}
 
 
@@ -931,20 +500,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getBorderBottomRightRadius(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence radiusOcc = null;
-		if(styleClass != null){
-			radiusOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomRightRadius, styleClass);
-		} else {
-			radiusOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBorderBottomRightRadius);
-		}
-
-		if(radiusOcc == null && styleClass != null){
-			return null;
-		} else if(radiusOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(radiusOcc.getValue());
-		}
+		return this.cssService.getBorderBottomRightRadius(styleClass);
 	}
 
 
@@ -953,20 +509,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public NumUnitValue getPadding(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence paddingOcc = null;
-		if(styleClass != null){
-			paddingOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlPadding, styleClass);
-		} else {
-			paddingOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlPadding);
-		}
-
-		if(paddingOcc == null && styleClass != null){
-			return null;
-		} else if(paddingOcc == null) {
-			return new NumUnitValue();
-		} else {
-			return new NumUnitValue(paddingOcc.getValue());
-		}		
+		return this.cssService.getPadding(styleClass);
 	}
 
 
@@ -974,18 +517,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getPaddingTop(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence paddingOcc = null;
-		if(styleClass != null){
-			paddingOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingTop, styleClass);
-		} else {
-			paddingOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingTop);
-		}
-
-		if(paddingOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(paddingOcc.getValue());
-		}		
+		return this.cssService.getPaddingTop(styleClass);
 	}
 
 
@@ -993,18 +525,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getPaddingRight(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence paddingOcc = null;
-		if(styleClass != null){
-			paddingOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingRight, styleClass);
-		} else {
-			paddingOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingRight);
-		}
-
-		if(paddingOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(paddingOcc.getValue());
-		}		
+		return this.cssService.getPaddingRight(styleClass);
 	}
 
 
@@ -1012,18 +533,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getPaddingBottom(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence paddingOcc = null;
-		if(styleClass != null){
-			paddingOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingBottom, styleClass);
-		} else {
-			paddingOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingBottom);
-		}
-
-		if(paddingOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(paddingOcc.getValue());
-		}
+		return this.cssService.getPaddingBottom(styleClass);
 	}
 
 
@@ -1031,18 +541,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// If a styleClass is set, only the corresponding value of the scoped occurrence is returned
 	// null, null otherwise.
 	public NumUnitValue getPaddingLeft(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence paddingOcc = null;
-		if(styleClass != null){
-			paddingOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingLeft, styleClass);
-		} else {
-			paddingOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlPaddingLeft);
-		}
-
-		if(paddingOcc == null){
-			return null;
-		} else {
-			return new NumUnitValue(paddingOcc.getValue());
-		}		
+		return this.cssService.getPaddingLeft(styleClass);
 	}
 
 
@@ -1051,20 +550,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AutoNumUnitValue getWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlWidth);
-		}
-
-		if(widthOcc == null && styleClass != null){
-			return null;
-		} else if(widthOcc == null) {
-			return new AutoNumUnitValue();
-		} else {
-			return new AutoNumUnitValue(widthOcc.getValue());
-		}		
+		return this.cssService.getWidth(styleClass);
 	}
 
 
@@ -1073,20 +559,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AutoNumUnitValue getMinWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMinWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMinWidth);
-		}
-
-		if(widthOcc == null && styleClass != null){
-			return null;
-		} else if(widthOcc == null) {
-			return new AutoNumUnitValue();
-		} else {
-			return new AutoNumUnitValue(widthOcc.getValue());
-		}		
+		return this.cssService.getMinWidth(styleClass);
 	}
 
 
@@ -1095,20 +568,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AutoNumUnitValue getMaxWidth(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence widthOcc = null;
-		if(styleClass != null){
-			widthOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMaxWidth, styleClass);
-		} else {
-			widthOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMaxWidth);
-		}
-
-		if(widthOcc == null && styleClass != null){
-			return null;
-		} else if(widthOcc == null) {
-			return new AutoNumUnitValue();
-		} else {
-			return new AutoNumUnitValue(widthOcc.getValue());
-		}		
+		return this.cssService.getMaxWidth(styleClass);
 	}
 
 
@@ -1117,20 +577,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AutoNumUnitValue getHeight(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence heightOcc = null;
-		if(styleClass != null){
-			heightOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlHeight, styleClass);
-		} else {
-			heightOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlHeight);
-		}
-
-		if(heightOcc == null && styleClass != null){
-			return null;
-		} else if(heightOcc == null) {
-			return new AutoNumUnitValue();
-		} else {
-			return new AutoNumUnitValue(heightOcc.getValue());
-		}		
+		return this.cssService.getHeight(styleClass);
 	}
 
 
@@ -1139,20 +586,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AutoNumUnitValue getMinHeight(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence heightOcc = null;
-		if(styleClass != null){
-			heightOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMinHeight, styleClass);
-		} else {
-			heightOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMinHeight);
-		}
-
-		if(heightOcc == null && styleClass != null){
-			return null;
-		} else if(heightOcc == null) {
-			return new AutoNumUnitValue();
-		} else {
-			return new AutoNumUnitValue(heightOcc.getValue());
-		}		
+		return this.cssService.getMinHeight(styleClass);
 	}
 
 
@@ -1161,20 +595,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public AutoNumUnitValue getMaxHeight(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence heightOcc = null;
-		if(styleClass != null){
-			heightOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlMaxHeight, styleClass);
-		} else {
-			heightOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlMaxHeight);
-		}
-
-		if(heightOcc == null && styleClass != null){
-			return null;
-		} else if(heightOcc == null) {
-			return new AutoNumUnitValue();
-		} else {
-			return new AutoNumUnitValue(heightOcc.getValue());
-		}		
+		return this.cssService.getMaxHeight(styleClass);
 	}
 
 
@@ -1183,27 +604,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public CursorValue getCursor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence cursorOcc = null;
-		if(styleClass != null){
-			cursorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlCursor, styleClass);
-		} else {
-			cursorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlCursor);
-		}
-
-		if(cursorOcc == null && styleClass != null){
-			return null;
-		} else if(cursorOcc == null) {
-			return CursorValue.AUTO;
-		} else {
-			try{
-				return CursorValue.valueOf(cursorOcc.getValue().toUpperCase().replace("-", "_"));
-			}catch(IllegalArgumentException e){
-				String values = "auto, default, crosshair, pointer, move, n-resize, ne-resize," +
-				"nw-resize, e-resize, se-resize, s-resize, sw-resize, w-resize," +
-				"text, wait, help, or progress";
-				throw new InvalidGdlSchemaException("cursor must be set to one of " + values + ", but is " + cursorOcc.getValue());
-			}
-		}	
+		return this.cssService.getCursor(styleClass);
 	}
 
 
@@ -1212,20 +613,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 	// null, null otherwise. If the styleClass is null and no occurrence was found, the default value for this
 	// property is returned.
 	public ColorValue getBackgroundColor(String styleClass) throws InvalidGdlSchemaException {
-		Occurrence colorOcc = null;
-		if(styleClass != null){
-			colorOcc = getNoneOrOneScopedOccurrence(PSIs.GDL.OccurrenceType.gdlBackgroundColor, styleClass);
-		} else {
-			colorOcc = getNoneOrOneUnscopedOccurrence(PSIs.GDL.OccurrenceType.gdlBackgroundColor);
-		}
-
-		if(colorOcc == null && styleClass != null){
-			return null;
-		} else if(colorOcc == null) {
-			return new ColorValue("#ffffff");
-		} else {
-			return new ColorValue(colorOcc.getValue());
-		}	
+		return this.cssService.getBackgroundColor(styleClass);
 	}
 
 
@@ -1389,6 +777,7 @@ public abstract class GdlVisibleObject extends Composite implements GdlDescripto
 		if(value != null) this.setCssProperty(widget, styleClass, "borderTopWidth", value.getCssValue());
 	}
 
+	
 	// sets the border-width style property of this element by using the GWT DOM class@Override
 	public void setBorderRightWidth(Widget widget, AbsoluteNumValue value, String styleClass) throws InvalidGdlSchemaException,	ExecutionException {
 		if(value != null) this.setCssProperty(widget, styleClass, "borderRightWidth", value.getCssValue());
