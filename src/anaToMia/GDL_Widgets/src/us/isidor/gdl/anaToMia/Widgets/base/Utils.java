@@ -124,6 +124,15 @@ public class Utils {
 	}
 	
 	
+	public static <T extends JavaScriptObject> ArrayList<T> jsArrayToArrayList(JsArray<T> input){
+		ArrayList<T> result = new ArrayList<T>();
+		
+		if(input != null) for(int i = 0; i != input.length(); ++i) result.add(input.get(i));
+		
+		return result;
+	}
+	
+	
 	// returns a list that contains a union of both lists
 	public static <T> ArrayList<T> intersection(ArrayList<T> fst, ArrayList<T> snd){
 		ArrayList<T> result = new ArrayList<T>();
