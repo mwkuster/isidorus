@@ -5,7 +5,6 @@ import us.isidor.gdl.anaToMia.TopicMaps.TmEngineModel.TmEngine;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMap;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.TopicMapsTypes;
 import us.isidor.gdl.anaToMia.Widgets.environment.ExecutionException;
-import us.isidor.gdl.anaToMia.Widgets.environment.GdlErrorTypes;
 import us.isidor.gdl.anaToMia.Widgets.environment.GdlInstantiator;
 import us.isidor.gdl.anaToMia.Widgets.environment.ICommitCallback;
 import us.isidor.gdl.anaToMia.Widgets.environment.IDeleteCallback;
@@ -192,7 +191,7 @@ public class GdlPanel extends Composite{
 			this.loadSchemaCallback.loadSchema(this, this.requestedTopicToEdit, this.requestedTopicsToCreate);
 		}catch(Exception e){
 			for (IOnErrorCallback handler : localOnErrorContainer) {
-				handler.onError(GdlErrorTypes.LoadError, e);
+				handler.onError(e);
 			}
 		}
 	}
@@ -201,78 +200,51 @@ public class GdlPanel extends Composite{
 	// this method is responsible for committing the Topic Map by using the
 	// commitCallback. After a successfully commit operation the 
 	// onCommitHandlers are executed
-	public void doCommit(){
-		try{
-			if(tmEngine == null || requestedSchemaTm == null){
-				throw new ExecutionException("No Topic Maps engine was set yet");
-			}
-			if(this.commitCallback == null){
-				throw new ExecutionException("No CommitCallback was set yet");
-			}
-			ArrayList<Pair<Object, TopicMapsTypes>> data = new ArrayList<Pair<Object,TopicMapsTypes>>();
-			data.add(new Pair<Object, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
-			this.commitCallback.commitTmConstruct(data, null, this.tmEngine);
-		}catch(Exception e){
-			for (IOnErrorCallback handler : localOnErrorContainer) {
-				handler.onError(GdlErrorTypes.CommitError, e);
-			}
+	public void doCommit() throws ExecutionException{
+		if(tmEngine == null || requestedSchemaTm == null){
+			throw new ExecutionException("No Topic Maps engine was set yet");
 		}
+		if(this.commitCallback == null){
+			throw new ExecutionException("No CommitCallback was set yet");
+		}
+		ArrayList<Pair<Object, TopicMapsTypes>> data = new ArrayList<Pair<Object,TopicMapsTypes>>();
+		data.add(new Pair<Object, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
+		this.commitCallback.commitTmConstruct(data, null, this.tmEngine);
 	}
 	
 	
 	// this method is responsible for validating the Topic Map by calling the
 	// view's validate method. After a successfully validate operation the 
 	// onValidateHandlers are executed
-	public void doValidate() {
-		try{
-			if(tmEngine == null || requestedSchemaTm == null)
-				throw new ExecutionException("No Topic Maps engine was set yet");
+	public void doValidate() throws ExecutionException {
+		if(tmEngine == null || requestedSchemaTm == null)
+			throw new ExecutionException("No Topic Maps engine was set yet");
 			
 			// TODO: validate
 			//	throw new InvalidContentException("The topic map content is not valid:\n" + tmEngine.exportTm(view.getContent()));
-
-		//}catch(InvalidContentException e){
-		//	for (IOnErrorCallback handler : localOnErrorContainer)
-		//		handler.onError(GdlErrorTypes.ValidateError, e);
-		} catch(Exception e){
-			for (IOnErrorCallback handler : localOnErrorContainer)
-				handler.onError(GdlErrorTypes.ExecutionError, e);
-		}
 	}
 	
 	
 	// this method is responsible for deleting the Topic Map by using the
 	// deleteCallback. After a successfully delete operation the 
 	// onDeleteHandlers are executed and the panel's content is removed
-	public void doDelete() {
-		try{
-			if(tmEngine == null || requestedSchemaTm == null)
-				throw new ExecutionException("No Topic Maps engine was set yet");
+	public void doDelete() throws ExecutionException {
+		if(tmEngine == null || requestedSchemaTm == null)
+			throw new ExecutionException("No Topic Maps engine was set yet");
 
-			if(this.deleteCallback == null)
-				throw new ExecutionException("No DeleteCallback was set yet");
-	
-			ArrayList<Pair<Object, TopicMapsTypes>> data = new ArrayList<Pair<Object,TopicMapsTypes>>();
-			data.add(new Pair<Object, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
-			this.deleteCallback.deleteTmConstruct(data, this.getTmEngine(), null);
-		}catch(Exception e){
-			for (IOnErrorCallback handler : localOnErrorContainer)
-				handler.onError(GdlErrorTypes.DeleteError, e);
-		}
+		if(this.deleteCallback == null)
+			throw new ExecutionException("No DeleteCallback was set yet");
+
+		ArrayList<Pair<Object, TopicMapsTypes>> data = new ArrayList<Pair<Object,TopicMapsTypes>>();
+		data.add(new Pair<Object, TopicMapsTypes>(this.requestedSchemaTm, TopicMapsTypes.TopicMap));
+		this.deleteCallback.deleteTmConstruct(data, this.getTmEngine(), null);
 	}
-	
+
 	
 	// this method is responsible for generating a Topic Map fo the user's
 	// data by using the view's getContent method.
 	public ArrayList<Pair<Object, TopicMapsTypes>> getContent(boolean validate) throws Exception {
-		try{
-			return this.view.getContent(null, validate);
-		}catch(Exception e){
-			for (IOnErrorCallback handler : localOnErrorContainer) {
-				handler.onError(GdlErrorTypes.TopicMapsGenerationError, e);
-			}
-			throw e;
-		}
+		return this.view.getContent(null, validate);
 	}
 
 	
@@ -288,7 +260,7 @@ public class GdlPanel extends Composite{
 			Window.alert("could not create a view (" + e.getClass() + "): " + e.getMessage());
 			e.printStackTrace();
 			for (IOnErrorCallback handler : localOnErrorContainer) {
-				handler.onError(GdlErrorTypes.ViewCreationError, e);
+				handler.onError(e);
 			}
 		}
 	}

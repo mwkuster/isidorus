@@ -369,7 +369,6 @@ src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/container/GdlUnit.ja
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/ActiveStyleHandler.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/ExecutionException.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/FocusStyleHandler.java -text
-src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/GdlErrorTypes.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/GdlInstantiator.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/HoverStyleHandler.java -text
 src/anaToMia/GDL_Widgets/src/us/isidor/gdl/anaToMia/Widgets/environment/ICommitCallback.java -text
