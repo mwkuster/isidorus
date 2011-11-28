@@ -49,15 +49,6 @@ public class GdlRadioButton extends GdlInputButton {
 	
 	
 	@Override
-	protected void setReceivedData() throws InvalidGdlSchemaException, ExecutionException {
-		super.setReceivedData();
-		ArrayList<String> options = this.tmService.getAllPossibleValues();
-		
-		for (String opt : options) this.addUncheckedSubItem(opt);
-	}
-	
-	
-	@Override
 	public ArrayList<String> getSelectedValues(){
 		ArrayList<String> result = new ArrayList<String>();
 		
