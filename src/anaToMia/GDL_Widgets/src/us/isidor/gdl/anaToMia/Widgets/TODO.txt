@@ -1,15 +1,10 @@
-* test GdlCechkBox
-* test GdlRadioButton
-
 * implement export of Fragments, e.g. exportJTM11Fragment(ArrayList<Topic> topics, ArrayList<Association> associations),
      e.i. the passed topics and associations must be exported with all characteristics and associations,
      and all referenced topics must be exported as stubs
 * finalise GdlTopicView.getContent()
 * finalise GdlPanel.doValidate()
-* finalise GdlCheckBox
 * finalise GdlCommitButton
 * finalise GdlCreateButton
-* finalise GdlRadioButton
 * finalise GdlUnit
 * finalise GdlTitle.setWidth()
 * finalise GdlTitle.getSelectedValues()
