@@ -231,9 +231,9 @@
             {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-ii-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Identifiers]"]},
 
-			{"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text]"], "instance_of":["si:[gdlt:Radio-Button]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_reifier_text_id"}]},
-            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"490px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
-            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
+			{"subject_identifiers":["[gdlsrv:service-variant-name-reifier-radio-button]"], "instance_of":["si:[gdlt:Radio-Button]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_reifier_text_id"}]},
+            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-radio-button-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"490px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
+            {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-radio-button-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-reifier-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Reifier]"]},
                         
             {"subject_identifiers":["[gdlsrv:service-editor-commit-button]"], "instance_of":["si:[gdlt:Commit-Button]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_creator_commit_button_id"}, {"type":"si:[gdl:height]", "value":"30px"}, {"type":"si:[gdl:width]", "value":"80px"}, {"type":"si:[gdl:font-size]", "value":"12px"}]},
@@ -433,16 +433,16 @@
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-iis-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-ii-constraint]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-ii-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]},
                   
-                  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
- 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-text-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-iis-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
- 				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-text-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"}]},
- 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-text-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-reifier-constraint]"}]},
+                  {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button]"}]},
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-iis-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button]"}]},
+ 				  {"type":"si:[gdl:view-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button-value-group]"},{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button]"}]},
+ 				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:value-group]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button-value-group]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-reifier-constraint]"}]},
  				  {"type":"si:[gdl:tm-binding]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[model:service-variant-name-reifier-constraint]"},{"type":"si:[gdl:tm-construct]", "player":"si:[model:service-variant-name-constraint]"}]},
  				  {"type":"si:[tmcl:allowed-reifier]", "roles":[{"type":"si:[tmcl:allows]", "player":"si:[model:service-variant-name-reifier-constraint]"},{"type":"si:[tmcl:allowed]", "player":"si:[types:Reifier-Type]"}]},
  				  
                   
                   {"type":"si:[gdl:contains]", "roles":[{"type":"si:[gdl:container]", "player":"si:[gdlsrv:service-default-editor-topic-view]"},{"type":"si:[gdl:containee]", "player":"si:[gdlsrv:service-editor-commit-button]"}]},
- 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-editor-commit-button-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-reifier-text]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-editor-commit-button]"}]}
+ 				  {"type":"si:[gdl:position]", "roles":[{"type":"si:[gdl:descriptor]", "player":"si:[gdlsrv:service-editor-commit-button-position]"},{"type":"si:[gdl:ancestor]", "player":"si:[gdlsrv:service-variant-name-reifier-radio-button]"},{"type":"si:[gdl:descendant]", "player":"si:[gdlsrv:service-editor-commit-button]"}]}
  				  
                                                                                        
                  

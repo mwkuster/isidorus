@@ -1,7 +1,6 @@
 package us.isidor.gdl.anaToMia.Widgets.button;
 
 import java.util.ArrayList;
-
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Widget;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
@@ -20,10 +19,10 @@ public class GdlCheckBox extends GdlInputButton {
 	
 	public GdlCheckBox(Topic tmRepresentative, Construct receivedData, GdlVisibleObject gdlParent) throws InvalidGdlSchemaException, ExecutionException{
 		super(tmRepresentative, receivedData, gdlParent);
-		// TODO: create a check box for each tm construct
-		this.createCheckBox().setText("Check Box 1");
-		this.createCheckBox().setText("Check Box 2");
-		this.createCheckBox().setText("Check Box 3");
+
+		if(receivedData != null && this.getConstraint() != null) this.setReceivedData();
+		else this.setDefaultValue();
+		
 		this.setNthButtons();
 	}
 	
@@ -40,14 +39,23 @@ public class GdlCheckBox extends GdlInputButton {
 
 	@Override
 	public void addSubItem(String value) throws InvalidGdlSchemaException, ExecutionException {
-		// TODO: implement
+		CheckBox cb = this.createCheckBox();
+		cb.setText(value);
+		cb.setValue(true);
 	}
 	
 	
 	@Override
 	public ArrayList<String> getSelectedValues(){
-		// TODO: implement
-		return new ArrayList<String>();
+		ArrayList<String> result = new ArrayList<String>();
+		
+		for (Widget elem : this.subElements) {
+			ButtonableObject bo = (ButtonableObject)elem;
+			Widget wdgt = bo.getMainObject();
+			if((wdgt instanceof CheckBox) && ((CheckBox)wdgt).getValue()) result.add(((CheckBox)wdgt).getText());
+		}
+		
+		return result;
 	}
 	
 	
