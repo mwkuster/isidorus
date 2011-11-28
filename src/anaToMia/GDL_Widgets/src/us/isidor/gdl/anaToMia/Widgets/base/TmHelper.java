@@ -1232,7 +1232,7 @@ public class TmHelper {
 			throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(rootConstraint) + " must be bound extactly once to an occurrence or name type, but is: " + typeTopics.size());
 		} else {
 			// add the direct specified type
-			result.add(typeTopics.get(0));
+			//result.add(typeTopics.get(0));
 			
 			// get subtypes of typeTopic
 			JsArray<Topic> allTopics = tm.getTopics();
@@ -1258,7 +1258,7 @@ public class TmHelper {
 			throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(variantNameReifierConstraint) + " must be bound extactly once to a topic type, but is: " + reifierTypeTopics.size());
 		} else {
 			// add the direct specified type
-			result.add(reifierTypeTopics.get(0));
+			//result.add(reifierTypeTopics.get(0));
 
 			// get subtypes of typeTopic
 			JsArray<Topic> allTopics = tm.getTopics();
@@ -1283,7 +1283,7 @@ public class TmHelper {
 			throw new InvalidGdlSchemaException("the constraint " + getAnyIdOfTopic(variantNameScopeConstraint) + " must be bound extactly once to a topic type, but is: " + scopeTypeTopics.size());
 		} else {
 			// add the direct specified type
-			result.add(scopeTypeTopics.get(0));
+			//result.add(scopeTypeTopics.get(0));
 
 			// get subtypes of typeTopic
 			JsArray<Topic> allTopics = tm.getTopics();

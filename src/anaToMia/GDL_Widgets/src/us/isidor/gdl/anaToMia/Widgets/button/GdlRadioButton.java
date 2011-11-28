@@ -2,11 +2,11 @@ package us.isidor.gdl.anaToMia.Widgets.button;
 
 
 import java.util.ArrayList;
-
 import com.google.gwt.user.client.ui.RadioButton;
-
+import com.google.gwt.user.client.ui.Widget;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Construct;
 import us.isidor.gdl.anaToMia.TopicMaps.TopicMapsModel.Topic;
+import us.isidor.gdl.anaToMia.Widgets.base.ButtonableObject;
 import us.isidor.gdl.anaToMia.Widgets.base.GdlVisibleObject;
 import us.isidor.gdl.anaToMia.Widgets.environment.ExecutionException;
 import us.isidor.gdl.anaToMia.Widgets.environment.InvalidGdlSchemaException;
@@ -20,10 +20,10 @@ public class GdlRadioButton extends GdlInputButton {
 	
 	public GdlRadioButton(Topic tmRepresentative, Construct receivedData, GdlVisibleObject gdlParent) throws InvalidGdlSchemaException, ExecutionException{
 		super(tmRepresentative, receivedData, gdlParent);
-		// TODO: create a radio button for each tm construct
-		this.createRadioButton().setText("Radio Button 1");
-		this.createRadioButton().setText("Radio Button 2");
-		this.createRadioButton().setText("Radio Button 3");
+		
+		if(receivedData != null && this.getConstraint() != null) this.setReceivedData();
+		else this.setDefaultValue();
+		
 		this.setNthButtons();
 	}
 	
@@ -38,19 +38,48 @@ public class GdlRadioButton extends GdlInputButton {
 
 	@Override
 	public void addSubItem(String value) throws InvalidGdlSchemaException, ExecutionException {
-		// TODO: implement
+		RadioButton rb = this.createRadioButton();
+		rb.setText(value);
+		rb.setValue(true);
+	}
+	
+	public void addUncheckedSubItem(String value) throws InvalidGdlSchemaException, ExecutionException {
+		this.createRadioButton().setText(value);
+	}
+	
+	
+	@Override
+	protected void setReceivedData() throws InvalidGdlSchemaException, ExecutionException {
+		super.setReceivedData();
+		ArrayList<String> options = this.tmService.getAllPossibleValues();
+		
+		for (String opt : options) this.addUncheckedSubItem(opt);
 	}
 	
 	
 	@Override
 	public ArrayList<String> getSelectedValues(){
-		// TODO: implement
-		return new ArrayList<String>();
+		ArrayList<String> result = new ArrayList<String>();
+		
+		for (Widget elem : this.subElements) {
+			ButtonableObject bo = (ButtonableObject)elem;
+			Widget wdgt = bo.getMainObject();
+			if((wdgt instanceof RadioButton) && ((RadioButton)wdgt).getValue()) result.add(((RadioButton)wdgt).getText());
+		}
+		
+		return result;
 	}
 	
 	
 	@Override
 	public void fixValue(){
-		// TODO: implement
+		for (Widget elem : this.subElements) {
+			ButtonableObject bo = (ButtonableObject)elem;
+			Widget wdgt = bo.getMainObject();
+			if(wdgt instanceof RadioButton){
+				RadioButton rb = (RadioButton)wdgt;
+				rb.setEnabled(false);
+			}
+		}
 	}
 }

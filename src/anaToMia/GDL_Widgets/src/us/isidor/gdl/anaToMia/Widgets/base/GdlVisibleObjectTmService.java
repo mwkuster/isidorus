@@ -690,4 +690,23 @@ public class GdlVisibleObjectTmService {
 		}		
 		contents.add(new Pair<Object, TopicMapsTypes>(owner, ownerType));
 	}
+	
+	
+	// returns an array list of strings that contains all possible values
+	public ArrayList<String> getAllPossibleValues() throws InvalidGdlSchemaException, ExecutionException {
+		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<Topic> tmValues = this.getRawTmValues();
+		ArrayList<String> literalValues = this.getLiterals();
+		
+		
+		if(tmValues.size() != 0 || literalValues.size() != 0){
+			for (String literal : literalValues) result.add(literal);
+			for (Topic tmValue : tmValues) result.add(TmHelper.getTopicRepresentation(tmValue, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+		} else {
+			ArrayList<Topic> tops = TmHelper.getTmValuesForConstraint(this.getConstraint(), this.getValueGroup());
+			for (Topic top : tops) result.add(TmHelper.getTopicRepresentation(top, this.getDisplayByOfValueGroup(), this.getPreferredScopeOfValueGroup()));
+		}
+		
+		return result;
+	}
 }

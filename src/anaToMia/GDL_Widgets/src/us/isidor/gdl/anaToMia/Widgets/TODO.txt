@@ -1,7 +1,7 @@
 * test GdlCechkBox
 * test GdlRadioButton
 
-* implement export of Fragments, e.g. exportJTM11Fragment(ArrayList<Topic> topics, ArrayList<Association> associaitions),
+* implement export of Fragments, e.g. exportJTM11Fragment(ArrayList<Topic> topics, ArrayList<Association> associations),
      e.i. the passed topics and associations must be exported with all characteristics and associations,
      and all referenced topics must be exported as stubs
 * finalise GdlTopicView.getContent()
@@ -26,5 +26,4 @@
 * finalise GdlDefaultCreatorTopicView
 * finalise GdlDefaultEditorTopicView
 * finalise GdlAssociationView.getContent()
-* inmplement GdlPanel.OnErrorHandler
-* Fix css-pseudo-class-handlers
+* finalise css-pseudo-class-handlers

@@ -171,6 +171,9 @@
             {"subject_identifiers":["[gdlt:Button]"]},
             {"subject_identifiers":["[gdlt:Action-Button]"]},
             {"subject_identifiers":["[gdlt:Commit-Button]"]},
+            {"subject_identifiers":["[gdlt:Input-Button]"]},
+            {"subject_identifiers":["[gdlt:Check-Box]"]},
+            {"subject_identifiers":["[gdlt:Radio-Button]"]},
             
             {"subject_identifiers":["[gdlsrv:service-schema]"], "instance_of":["si:[gdlt:Schema]"], "names":[{"type":"si:[gdl:schema-name]", "value":"GDL Schema for a Service UI"}]},
             {"subject_identifiers":["[gdlsrv:service-default-editor-topic-view]"], "instance_of":["si:[gdlt:Default-Editor-Topic-View]"], "names":[{"type":"si:[gdl:view-name]", "value":"GDL Default Editor Topic View for instances of http://services.org/serviceregistry/model/types/Service"}], "occurrences":[{"type":"si:[gdl:id]", "value":"service_default_editor_topic_view_id"}, {"type":"si:[gdl:width]", "value":"552px"}, {"type":"si:[gdl:height]", "value":"800px"},{"type":"si:[gdl:background-color]", "value":"gray"}]},
@@ -228,7 +231,7 @@
             {"subject_identifiers":["[gdlsrv:service-variant-name-iis-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-ii-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Identifiers]"]},
 
-			{"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text]"], "instance_of":["si:[gdlt:Text]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_reifier_text_id"}, {"type":"si:[gdl:readonly]", "value":"false"}, {"type":"si:[gdl:width]", "value":"470px"},{"type":"si:[gdl:cursor]", "value":"text"}]},
+			{"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text]"], "instance_of":["si:[gdlt:Radio-Button]"], "occurrences":[{"type":"si:[gdl:id]", "value":"service_variant_name_reifier_text_id"}]},
             {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-position]"], "instance_of":["si:[gdlt:Position]"], "occurrences":[{"type":"si:[gdl:position-style]", "value":"absolute"}, {"type":"si:[gdl:top]", "value":"490px"}, {"type":"si:[gdl:left]", "value":"10px"}]},
             {"subject_identifiers":["[gdlsrv:service-variant-name-reifier-text-value-group]"], "instance_of":["si:[gdlt:Value-Group]"]},
             {"subject_identifiers":["[model:service-variant-name-reifier-constraint]"], "instance_of":["si:[gdlt:Variant-Name-Reifier]"]},
@@ -300,6 +303,9 @@
  				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[gdlt:Text-Object]"},{"type":"si:[tmdm:subtype]", "player":"si:[gdlt:Button]"}]},
  				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[gdlt:Button]"},{"type":"si:[tmdm:subtype]", "player":"si:[gdlt:Action-Button]"}]},
  				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[gdlt:Action-Button]"},{"type":"si:[tmdm:subtype]", "player":"si:[gdlt:Commit-Button]"}]},
+ 				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[gdlt:Button]"},{"type":"si:[tmdm:subtype]", "player":"si:[gdlt:Input-Button]"}]},
+ 				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[gdlt:Input-Button]"},{"type":"si:[tmdm:subtype]", "player":"si:[gdlt:Radio-Button]"}]},
+ 				  {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[gdlt:Input-Button]"},{"type":"si:[tmdm:subtype]", "player":"si:[gdlt:Check-Box]"}]},
  				  
  				  
  				  {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[model:service-psi-constraint]"},{"type":"si:[tmcl:constrained]", "player":"si:[types:Service]"}]},

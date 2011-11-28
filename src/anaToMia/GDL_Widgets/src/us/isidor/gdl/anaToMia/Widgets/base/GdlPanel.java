@@ -217,8 +217,7 @@ public class GdlPanel extends Composite{
 	// view's validate method. After a successfully validate operation the 
 	// onValidateHandlers are executed
 	public void doValidate() throws ExecutionException {
-		if(tmEngine == null || requestedSchemaTm == null)
-			throw new ExecutionException("No Topic Maps engine was set yet");
+		if(tmEngine == null || requestedSchemaTm == null) throw new ExecutionException("No Topic Maps engine was set yet");
 			
 			// TODO: validate
 			//	throw new InvalidContentException("The topic map content is not valid:\n" + tmEngine.exportTm(view.getContent()));

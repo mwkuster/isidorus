@@ -75,8 +75,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public abstract class GdlVisibleObject extends Composite implements GdlDescriptor, HasClickHandlers, HasMouseOutHandlers, HasMouseOverHandlers, HasFocusHandlers, HasMouseDownHandlers, HasMouseUpHandlers, HasBlurHandlers{
 	private GdlVisibleObject gdlParent = null;
-	private GdlVisibleObjectCssService cssService = null;
-	private GdlVisibleObjectTmService tmService = null;
+	protected GdlVisibleObjectCssService cssService = null;
+	protected GdlVisibleObjectTmService tmService = null;
 	protected AbsolutePanel mainPanel = new AbsolutePanel();
 	protected Panel containerPanel = null;
 	protected Topic tmRepresentative = null;
