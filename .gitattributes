@@ -445,6 +445,7 @@ src/anaToMia/GDL_Widgets/war/gdl_widgets/HashObjectPsis.json -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/IsidorusBasic.jmx -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/Service_GDL_Schema.jtm -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/Service_GDL_Schema.jtm.txt -text
+src/anaToMia/GDL_Widgets/war/gdl_widgets/TG_Ontology.png -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/TextGrid_GDL_Create_Environment.jtm -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/TextGrid_GDL_Create_HashObject.jtm -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/TextGrid_GDL_Edit_Environment.jtm -text
