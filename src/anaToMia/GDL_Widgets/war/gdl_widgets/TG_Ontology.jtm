@@ -22,9 +22,19 @@
 	   {"subject_identifiers":["[tmcl:regexp]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 	   {"subject_identifiers":["[tmcl:datatype]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 
+	   {"subject_identifiers":["[tmcl:constrained]"], "instance_of":["si:[tmcl:role-type]"]},
+ 	   {"subject_identifiers":["[tmcl:constrained-statement]"], "instance_of":["si:[tmcl:association-type]"]},
+	   {"subject_identifiers":["[tmcl:constrained-topic-type]"], "instance_of":["si:[tmcl:association-type]"]},
+	   {"subject_identifiers":["[tmcl:constrained-role]"], "instance_of":["si:[tmcl:association-type]"]},
+	   {"subject_identifiers":["[tmcl:other-constrained-topic-type]"], "instance_of":["si:[tmcl:association-type]"]},
+	   {"subject_identifiers":["[tmcl:other-constrained-role]"], "instance_of":["si:[tmcl:association-type]"]},
 	   {"subject_identifiers":["[tmcl:constraint]"], "instance_of":["si:[tmcl:topic-type]", "si:[tmcl:role-type]"]},
 	   {"subject_identifiers":["[tmcl:subject-identifier-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
 	   {"subject_identifiers":["[tmcl:topic-name-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
+	   {"subject_identifiers":["[tmcl:topic-occurrence-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
+	   {"subject_identifiers":["[tmcl:topic-role-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
+	   {"subject_identifiers":["[tmcl:association-role-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
+	   {"subject_identifiers":["[tmcl:role-combination-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
 
 	   {"subject_identifiers":["[tgt:User]"], "instance_of":["si:[tmcl:topic-type]"]},
 	   {"subject_identifiers":["[tgt:Project]"], "instance_of":["si:[tmcl:topic-type]"]},
@@ -225,11 +235,26 @@
 	   {"subject_identifiers":["[tgm:project-has-metadata-role-constraint]"], "instance_of":["si:[tmcl:topic-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"0"}, {"type":"si:[tmcl:card-max]", "value":"*"}]},
 	   {"subject_identifiers":["[tgm:project-has-metadata-association-role-constraint]"], "instance_of":["si:[tmcl:association-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:metadata-has-metadata-role-constraint]"], "instance_of":["si:[tmcl:topic-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
-	   {"subject_identifiers":["[tgm:metadata-has-metadata-association-role-constraint]"], "instance_of":["si:[tmcl:association-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]}
+	   {"subject_identifiers":["[tgm:metadata-has-metadata-association-role-constraint]"], "instance_of":["si:[tmcl:association-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+
+	   {"subject_identifiers":["[tgm:project-object-has-metadata-role-constraint]"], "instance_of":["si:[tmcl:topic-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"0"}, {"type":"si:[tmcl:card-max]", "value":"*"}]},
+	   {"subject_identifiers":["[tgm:project-object-has-metadata-association-role-constraint]"], "instance_of":["si:[tmcl:association-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+
+	   {"subject_identifiers":["[tgm:project-has-metadata-role-combination-constraint]"], "instance_of":["si:[tmcl:role-combination-constraint]"]},
+	   {"subject_identifiers":["[tgm:project-object-has-metadata-role-combination-constraint]"], "instance_of":["si:[tmcl:role-combination-constraint]"]},
+
+	   {"subject_identifiers":["[tgm:metadata-has-property-role-constraint]"], "instance_of":["si:[tmcl:topic-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"0"}, {"type":"si:[tmcl:card-max]", "value":"*"}]},
+	   {"subject_identifiers":["[tgm:metadata-has-property-association-role-constraint]"], "instance_of":["si:[tmcl:association-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:metaproperty-has-property-role-constraint]"], "instance_of":["si:[tmcl:topic-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:metaproperty-has-property-association-role-constraint]"], "instance_of":["si:[tmcl:association-role-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]}
          ],
 
  "associations":[{"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:subject-identifier-constraint]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:topic-name-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:topic-occurrence-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:topic-role-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:association-role-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:role-combination-constraint]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:Container]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Container]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:Collection]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Container]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:Aggregation]"}]},
@@ -429,5 +454,31 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-metadata-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-metadata-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-metadata-association-role-constraint]"}]},
-		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-metadata-association-role-constraint]"}]}
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-metadata-association-role-constraint]"}]},
+
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-association-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-association-role-constraint]"}]},
+
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:other-constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:other-constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:other-constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:other-constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-has-metadata-role-combination-constraint]"}]},
+
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-property-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-property]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-property-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-property-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-property]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-property-association-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-has-property-association-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metaproperty]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metaproperty-has-property-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-property]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metaproperty-has-property-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metaproperty]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metaproperty-has-property-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-property]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metaproperty-has-property-association-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metaproperty]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metaproperty-has-property-association-role-constraint]"}]}
                 ]}
