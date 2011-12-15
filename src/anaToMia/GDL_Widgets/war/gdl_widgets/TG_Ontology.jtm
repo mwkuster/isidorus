@@ -363,9 +363,9 @@
 
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:User]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:owns-project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-role-constraint]"}]},
-		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:user]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:owns-project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-association-role-constraint]"}]},
-		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-association-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:user]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-owns-project-association-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Ownership]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:ownership-owns-project-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:owns-project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:ownership-owns-project-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:ownership]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:ownership-owns-project-role-constraint]"}]},
