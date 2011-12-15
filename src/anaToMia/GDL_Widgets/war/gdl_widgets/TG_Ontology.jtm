@@ -82,7 +82,7 @@
 	   {"subject_identifiers":["[tgm:item-order]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 
 	   {"subject_identifiers":["[tgm:object-title]"], "instance_of":["si:[tmcl:occurrence-type]"]},
-	   {"subject_identifiers":["[tgm:MIME-Type]"], "instance_of":["si:[tmcl:occurrence-type]"]},
+	   {"subject_identifiers":["[tgm:MIME-type]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 	   {"subject_identifiers":["[tgm:object-size]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 	   {"subject_identifiers":["[tgm:revision]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 	   {"subject_identifiers":["[tgm:time-of-last-change]"], "instance_of":["si:[tmcl:occurrence-type]"]},
@@ -157,7 +157,28 @@
 
 	   {"subject_identifiers":["[tgm:project-id-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:project-id-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
-	   {"subject_identifiers":["[tgm:project-id-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]}
+	   {"subject_identifiers":["[tgm:project-id-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
+
+	   {"subject_identifiers":["[tgm:object-title-constraint]"], "instance_of":["si:[tmcl:topic-name-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+ 	   {"subject_identifiers":["[tgm:object-title-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
+
+	   {"subject_identifiers":["[tgm:MIME-type-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:MIME-type-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
+	   {"subject_identifiers":["[tgm:MIME-type-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
+	   {"subject_identifiers":["[tgm:object-size-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:object-size-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#long"}]},
+	   {"subject_identifiers":["[tgm:revision-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:revision-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#integer"}]},
+	   {"subject_identifiers":["[tgm:time-of-last-change-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:time-of-last-change-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#dateTime"}]},
+	   {"subject_identifiers":["[tgm:time-created-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:time-created-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#dateTime"}]},
+	   {"subject_identifiers":["[tgm:permissions-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:permissions-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
+	   {"subject_identifiers":["[tgm:permissions-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
+	   {"subject_identifiers":["[tgm:textgrid-uri-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
+	   {"subject_identifiers":["[tgm:textgrid-uri-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
+	   {"subject_identifiers":["[tgm:textgrid-uri-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]}
          ],
 
  "associations":[{"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:subject-identifier-constraint]"}]},
@@ -246,5 +267,34 @@
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-rex-constraint]"}]},
-		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-dt-constraint]"}]}
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-dt-constraint]"}]},
+
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-title-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:object-title]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-title-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:object-title]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-title-rex-constraint]"}]},
+
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:MIME-type-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:MIME-type]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:MIME-type-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:MIME-type]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:MIME-type-rex-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:MIME-type]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:MIME-type-dt-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-size-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:object-size]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-size-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:object-size]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-size-dt-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:revision-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:revision]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:revision-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:revision]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:revision-dt-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:time-of-last-change-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:time-of-last-change]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:time-of-last-change-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:time-of-last-change]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:time-of-last-change-dt-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:time-created-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:time-created]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:time-created-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:time-created]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:time-created-dt-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:permissions-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:permissions]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:permissions-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:permissions]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:permissions-rex-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:permissions]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:permissions-dt-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:textgrid-uri-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:textgrid-uri]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:textgrid-uri-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:textgrid-uri]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:textgrid-uri-rex-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:textgrid-uri]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:textgrid-uri-dt-constraint]"}]}
                 ]}
