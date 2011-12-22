@@ -437,7 +437,6 @@ src/anaToMia/GDL_Widgets/war/WEB-INF/classes/us/isidor/gdl/anaToMia/Widgets/GDL_
 src/anaToMia/GDL_Widgets/war/WEB-INF/classes/us/isidor/gdl/anaToMia/Widgets/environment/Environment.class -text
 src/anaToMia/GDL_Widgets/war/WEB-INF/classes/us/isidor/gdl/anaToMia/Widgets/widgets/TestClass.class -text
 src/anaToMia/GDL_Widgets/war/WEB-INF/deploy/gdl_widgets/rpcPolicyManifest/manifest.txt -text
-src/anaToMia/GDL_Widgets/war/WEB-INF/lib/gwt-servlet.jar -text
 src/anaToMia/GDL_Widgets/war/WEB-INF/web.xml -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/EnvironmentPsis.json -text
 src/anaToMia/GDL_Widgets/war/gdl_widgets/GDL_Ontology.tmcl.ctm -text
