@@ -27,9 +27,9 @@ import java.util.ArrayList;
 
 
 public class TestClass implements EntryPoint{
-	public final String MODEL_PREF = "http://services.org/serviceregistry/model/types/";
-	public final String SERVICE_PSI = MODEL_PREF + "Service";
-	public final String SORT_SERVICE = "http://service.org/serviceregistry/psis/service/sort-service";
+	public final String TYPES_PREF = "http://services.org/serviceregistry/model/types/";
+	public final String PROJECT_PSI = TYPES_PREF + "Project";
+	public final String TEST_PROJECT_PSI = "http://textgrid.org/serviceregistry/project/test-project";
 	HorizontalPanel mainPanel = new HorizontalPanel();
 	GdlPanel gdlPanel = null;
 
@@ -39,11 +39,8 @@ public class TestClass implements EntryPoint{
 			RootPanel.get("GWT_Content").add(mainPanel);
 			mainPanel.setBorderWidth(1);
 			mainPanel.setPixelSize(1000, 600);
-
-			ArrayList<Pair<String, TopicIdentifierTypes>> requestedTopicsToCreate = new ArrayList<Pair<String,TopicIdentifierTypes>>();
-			requestedTopicsToCreate.add(new Pair<String, TopicIdentifierTypes>(SERVICE_PSI, TopicIdentifierTypes.SubjectIdentifier));
 			
-			Pair<String, TopicIdentifierTypes> requestedTopicToEdit = new Pair<String, TopicIdentifierTypes>(SORT_SERVICE, TopicIdentifierTypes.SubjectIdentifier);
+			Pair<String, TopicIdentifierTypes> requestedTopicToEdit = new Pair<String, TopicIdentifierTypes>(TEST_PROJECT_PSI, TopicIdentifierTypes.SubjectIdentifier);
 			gdlPanel = new GdlPanel(requestedTopicToEdit, null);
 
 			GdlPanel.addClickHandler("hash_object_reset_button_id", new ClickHandler() {

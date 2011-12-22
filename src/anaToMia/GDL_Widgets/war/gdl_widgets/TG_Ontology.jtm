@@ -35,6 +35,8 @@
 	   {"subject_identifiers":["[tmcl:topic-role-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
 	   {"subject_identifiers":["[tmcl:association-role-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
 	   {"subject_identifiers":["[tmcl:role-combination-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
+	   {"subject_identifiers":["[tmcl:regular-expression-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
+	   {"subject_identifiers":["[tmcl:occurrence-datatype-constraint]"], "instance_of":["si:[tmcl:topic-type]"]},
 
 	   {"subject_identifiers":["[tgt:User]"], "instance_of":["si:[tmcl:topic-type]"]},
 	   {"subject_identifiers":["[tgt:Project]"], "instance_of":["si:[tmcl:topic-type]"]},
@@ -77,7 +79,7 @@
 	   {"subject_identifiers":["[tgm:project-id]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 
 	   {"subject_identifiers":["[tgm:project-manager]"], "instance_of":["si:[tmcl:occurrence-type]"]},
-	   {"subject_identifiers":["[tgm:athority-to-delete]"], "instance_of":["si:[tmcl:occurrence-type]"]},
+	   {"subject_identifiers":["[tgm:authority-to-delete]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 	   {"subject_identifiers":["[tgm:editor]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 	   {"subject_identifiers":["[tgm:observer]"], "instance_of":["si:[tmcl:occurrence-type]"]},
 
@@ -164,7 +166,7 @@
 
 	   {"subject_identifiers":["[tgm:project-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/project/.+$"}]},
 	   {"subject_identifiers":["[tgm:project-name-constraint]"], "instance_of":["si:[tmcl:topic-name-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
- 	   {"subject_identifiers":["[tgm:user-given-name-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
+ 	   {"subject_identifiers":["[tgm:project-name-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 
 	   {"subject_identifiers":["[tgm:project-id-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:project-id-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
@@ -270,6 +272,9 @@
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:topic-role-constraint]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:association-role-constraint]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:role-combination-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:topic-role-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:regular-expression-constraint]"}]},
+		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tmcl:constraint]"},{"type":"si:[tmdm:subtype]", "player":"si:[tmcl:occurrence-datatype-constraint]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:Container]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Container]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:Collection]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Container]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:Aggregation]"}]},
@@ -405,7 +410,7 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-name-rex-constraint]"}]},
 
-		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:Metaproperty-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metaproperty]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metaproperty-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metaproperty]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metaproperty]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:key-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:key]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:key-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:key]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:key-rex-constraint]"}]},
@@ -515,14 +520,14 @@
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-contains-role-combination-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-contains-role-combination-constraint]"}]},
 		 {"type":"si:[tmcl:other-constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-contains-role-combination-constraint]"}]},
-		 {"type":"si:[tmcl:other-constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:pproject-contains-role-combination-constraint]"}]},
+		 {"type":"si:[tmcl:other-constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-contains-role-combination-constraint]"}]},
 
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Container]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:container-has-item-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:container-has-item-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:container]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:container-has-item-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:container-has-item-association-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:container]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:container-has-item-association-role-constraint]"}]},
-		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Congtainer-Item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-has-item-role-constraint]"}]},
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Container-Item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-has-item-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-has-item-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-role]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:container-item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-has-item-role-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:has-item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-has-item-association-role-constraint]"}]},

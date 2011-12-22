@@ -23,9 +23,9 @@ import us.isidor.gdl.anaToMia.Widgets.environment.TopicIdentifierTypes;
 // this class can be used as a callback that requests the Topic Map data
 // addressable by the URI requestUrl
 public class TestLoadSchemaCallback implements ILoadSchemaCallback{
-	private final String requestUrl = URL.encode(GWT.getModuleBaseURL() + "Service_GDL_Schema.jtm");
-	private ArrayList<Pair<String, TopicIdentifierTypes>> requestedTopicsToCreate = new ArrayList<Pair<String,TopicIdentifierTypes>>(); 
-	private Pair<String, TopicIdentifierTypes> requestedTopicToEdit = null;
+	private final String requestUrl = URL.encode(GWT.getModuleBaseURL() + "TG_Ontology.jtm");
+	private ArrayList<Pair<String, TopicIdentifierTypes>> requestedTopicsToCreate = null; 
+	private Pair<String, TopicIdentifierTypes> requestedTopicToEdit = new Pair<String, TopicIdentifierTypes>("http://test.psi", TopicIdentifierTypes.SubjectIdentifier);
 	private RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, requestUrl);
 
 
