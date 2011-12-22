@@ -316,7 +316,6 @@ src/anaToMia/GDL_TopicMaps_Model/war/WEB-INF/classes/us/isidor/gdl/anaToMia/Topi
 src/anaToMia/GDL_TopicMaps_Model/war/WEB-INF/classes/us/isidor/gdl/anaToMia/TopicMaps/TopicMapsModel/Typed.class -text
 src/anaToMia/GDL_TopicMaps_Model/war/WEB-INF/classes/us/isidor/gdl/anaToMia/TopicMaps/TopicMapsModel/Variant.class -text
 src/anaToMia/GDL_TopicMaps_Model/war/WEB-INF/deploy/gdl_topicmaps_model/rpcPolicyManifest/manifest.txt -text
-src/anaToMia/GDL_TopicMaps_Model/war/WEB-INF/lib/gwt-servlet.jar -text
 src/anaToMia/GDL_TopicMaps_Model/war/WEB-INF/web.xml -text
 src/anaToMia/GDL_TopicMaps_Model/war/gdl_topicmaps_model/clear.cache.gif -text
 src/anaToMia/GDL_TopicMaps_Model/war/gdl_topicmaps_model/gdl_topicmaps_model.nocache.js -text
