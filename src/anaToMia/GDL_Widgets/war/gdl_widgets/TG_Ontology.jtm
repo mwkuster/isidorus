@@ -162,6 +162,7 @@
 	   {"subject_identifiers":["[tgm:user-id-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 	   {"subject_identifiers":["[tgm:user-id-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
 
+	   {"subject_identifiers":["[tgm:project-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/project/.+$"}]},
 	   {"subject_identifiers":["[tgm:project-name-constraint]"], "instance_of":["si:[tmcl:topic-name-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
  	   {"subject_identifiers":["[tgm:user-given-name-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 
@@ -169,6 +170,7 @@
 	   {"subject_identifiers":["[tgm:project-id-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 	   {"subject_identifiers":["[tgm:project-id-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
 
+	   {"subject_identifiers":["[tgm:project-object-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/project-object/.+$"}]},
 	   {"subject_identifiers":["[tgm:object-title-constraint]"], "instance_of":["si:[tmcl:topic-name-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
  	   {"subject_identifiers":["[tgm:object-title-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 
@@ -190,6 +192,7 @@
 	   {"subject_identifiers":["[tgm:textgrid-uri-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 	   {"subject_identifiers":["[tgm:textgrid-uri-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
 
+	   {"subject_identifiers":["[tgm:project-ownership-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/project-ownership/.+$"}]},
 	   {"subject_identifiers":["[tgm:project-manager-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:project-manager-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#boolean"}]},
 	   {"subject_identifiers":["[tgm:authority-to-delete-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
@@ -199,9 +202,11 @@
 	   {"subject_identifiers":["[tgm:observer-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:observer-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#boolean"}]},
 
+	   {"subject_identifiers":["[tgm:metadata-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/meta-data/.+$"}]},
 	   {"subject_identifiers":["[tgm:metadata-name-constraint]"], "instance_of":["si:[tmcl:topic-name-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
  	   {"subject_identifiers":["[tgm:metadata-name-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 
+	   {"subject_identifiers":["[tgm:metaproperty-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/meta-property/.+$"}]},
 	   {"subject_identifiers":["[tgm:key-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:key-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 	   {"subject_identifiers":["[tgm:key-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
@@ -209,6 +214,7 @@
 	   {"subject_identifiers":["[tgm:value-rex-constraint]"], "instance_of":["si:[tmcl:regular-expression-constraint]"], "occurrences":[{"type":"si:[tmcl:regexp]", "value":"^.+$"}]},
 	   {"subject_identifiers":["[tgm:value-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#string"}]},
 
+	   {"subject_identifiers":["[tgm:container-item-psi-constraint]"], "instance_of":["si:[tmcl:subject-identifier-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}, {"type":"si:[tmcl:regexp]", "value":"^http://textgrid.org/serviceregistry/container-item/.+$"}]},
 	   {"subject_identifiers":["[tgm:item-order-constraint]"], "instance_of":["si:[tmcl:topic-occurrence-constraint]"], "occurrences":[{"type":"si:[tmcl:card-min]", "value":"1"}, {"type":"si:[tmcl:card-max]", "value":"1"}]},
 	   {"subject_identifiers":["[tgm:item-order-dt-constraint]"], "instance_of":["si:[tmcl:occurrence-datatype-constraint]"], "occurrences":[{"type":"si:[tmcl:datatype]", "value":"http://www.w3.org/2001/XMLSchema#integer"}]},
 
@@ -278,14 +284,13 @@
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:XML]"}]},
 		 {"type":"si:[tmdm:supertype-subtype]", "roles":[{"type":"si:[tmdm:supertype]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmdm:subtype]", "player":"si:[tgt:DTD]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:User]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:User]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-given-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:given-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-given-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:given-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-given-name-rex-constraint]"}]},
-
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:User]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-surname-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:surname]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-surname-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:surname]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-surname-rex-constraint]"}]},
-
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:User]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-fullname-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:fullname]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-fullname-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:fullname]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-fullname-rex-constraint]"}]},
@@ -341,6 +346,7 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:user-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-id-rex-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:user-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:user-id-dt-constraint]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-name-rex-constraint]"}]},
@@ -350,6 +356,7 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-rex-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-id]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-id-dt-constraint]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-object-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Object]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-title-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:object-title]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-title-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:object-title]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:object-title-rex-constraint]"}]},
@@ -379,6 +386,7 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:textgrid-uri]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:textgrid-uri-rex-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:textgrid-uri]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:textgrid-uri-dt-constraint]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-ownership-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Ownership]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Project-Ownership]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-manager-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-manager]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-manager-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:project-manager]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:project-manager-dt-constraint]"}]},
@@ -392,10 +400,12 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:observer]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:observer-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:observer]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:observer-dt-constraint]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metadata]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metadata]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-name-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:metadata-name]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:metadata-name-rex-constraint]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:Metaproperty-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metaproperty]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Metaproperty]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:key-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:key]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:key-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:key]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:key-rex-constraint]"}]},
@@ -406,6 +416,7 @@
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:value]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:value-rex-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:value]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:value-dt-constraint]"}]},
 
+		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constraint]", "player":"si:[tgm:container-item-psi-constraint]"}, {"type":"si:[tmcl:constrained]", "player":"si:[tgt:Container-Item]"}]},
 		 {"type":"si:[tmcl:constrained-topic-type]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgt:Container-Item]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-order-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:item-order]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-order-constraint]"}]},
 		 {"type":"si:[tmcl:constrained-statement]", "roles":[{"type":"si:[tmcl:constrained]", "player":"si:[tgm:item-order]"},{"type":"si:[tmcl:constraint]", "player":"si:[tgm:item-order-dt-constraint]"}]},
